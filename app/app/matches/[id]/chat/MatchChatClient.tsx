@@ -87,6 +87,7 @@ export default function MatchChatClient({
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messagesChannelRef = useRef<RealtimeChannel | null>(null);
+  const channelReadyRef = useRef(false);
 
   const readColumn =
     viewerRole === "traveler"
@@ -99,6 +100,10 @@ export default function MatchChatClient({
       lastReadByTraveler,
     });
   }, [lastReadByOwner, lastReadByTraveler]);
+
+  useEffect(() => {
+    channelReadyRef.current = channelReady;
+  }, [channelReady]);
 
   function getOtherUserLastRead() {
     return viewerRole === "owner"
@@ -120,7 +125,7 @@ export default function MatchChatClient({
 
   function sendTypingEvent() {
     const channel = messagesChannelRef.current;
-    if (!channel || !channelReady) return;
+    if (!channel || !channelReadyRef.current) return;
 
     channel.send({
       type: "broadcast",
@@ -134,7 +139,7 @@ export default function MatchChatClient({
 
   function sendReadReceipt(readAt: string) {
     const channel = messagesChannelRef.current;
-    if (!channel || !channelReady) return;
+    if (!channel || !channelReadyRef.current) return;
 
     channel.send({
       type: "broadcast",
@@ -185,6 +190,24 @@ export default function MatchChatClient({
     });
   }
 
+  async function markChatNotificationsAsRead() {
+    const now = new Date().toISOString();
+
+    const { error } = await supabase
+      .from("notifications")
+      .update({
+        is_read: true,
+        read_at: now,
+      })
+      .eq("related_match_id", matchId)
+      .eq("type", "new_message")
+      .eq("is_read", false);
+
+    if (error) {
+      console.error("Error marking chat notifications as read:", error.message);
+    }
+  }
+
   async function markAsReadNow() {
     const now = new Date().toISOString();
 
@@ -206,6 +229,7 @@ export default function MatchChatClient({
     }));
 
     sendReadReceipt(now);
+    await markChatNotificationsAsRead();
   }
 
   useEffect(() => {
@@ -305,14 +329,14 @@ export default function MatchChatClient({
 
     const handleWindowFocus = async () => {
       if (!isActive) return;
-      if (!channelReady) return;
+      if (!channelReadyRef.current) return;
 
       await markAsReadNow();
     };
 
     const handleVisibilityChange = async () => {
       if (!isActive) return;
-      if (!channelReady) return;
+      if (!channelReadyRef.current) return;
       if (document.visibilityState !== "visible") return;
 
       await markAsReadNow();
@@ -336,8 +360,11 @@ export default function MatchChatClient({
         supabase.removeChannel(messagesChannelRef.current);
         messagesChannelRef.current = null;
       }
+
+      setChannelReady(false);
+      channelReadyRef.current = false;
     };
-  }, [supabase, matchId, currentUserId, readColumn, viewerRole, channelReady]);
+  }, [supabase, matchId, currentUserId, readColumn, viewerRole]);
 
   async function handleSendMessage(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -408,7 +435,9 @@ export default function MatchChatClient({
             return (
               <div
                 key={msg.id}
-                className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+                className={`mb-3 flex ${
+                  isMine ? "justify-end" : "justify-start"
+                }`}
               >
                 <div className="max-w-[75%]">
                   <div

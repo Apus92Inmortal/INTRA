@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type NotificationItem = {
@@ -18,11 +19,15 @@ type NotificationItem = {
 
 export function NotificationsBell() {
   const supabase = useMemo(() => createClient(), []);
+  const router = useRouter();
+
   const [userId, setUserId] = useState<string | null>(null);
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   async function loadNotifications(currentUserId: string) {
     const { data, error } = await supabase
@@ -61,18 +66,61 @@ export function NotificationsBell() {
         hint: error.hint,
         code: error.code,
       });
-      return;
+      return false;
+    }
+
+    const now = new Date().toISOString();
+
+    setItems((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, is_read: true, read_at: now } : n))
+    );
+
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    return true;
+  }
+
+  async function markNotificationsForMatchAsRead(matchId: string) {
+    const idsToMark = items
+      .filter(
+        (n) =>
+          !n.is_read &&
+          n.related_match_id === matchId &&
+          n.type === "new_message"
+      )
+      .map((n) => n.id);
+
+    if (idsToMark.length === 0) {
+      return true;
+    }
+
+    const now = new Date().toISOString();
+
+    const { error } = await supabase
+      .from("notifications")
+      .update({
+        is_read: true,
+        read_at: now,
+      })
+      .in("id", idsToMark);
+
+    if (error) {
+      console.error("Error marking match notifications as read:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
+      return false;
     }
 
     setItems((prev) =>
       prev.map((n) =>
-        n.id === id
-          ? { ...n, is_read: true, read_at: new Date().toISOString() }
-          : n
+        idsToMark.includes(n.id) ? { ...n, is_read: true, read_at: now } : n
       )
     );
 
-    setUnreadCount((prev) => Math.max(0, prev - 1));
+    setUnreadCount((prev) => Math.max(0, prev - idsToMark.length));
+    return true;
   }
 
   async function markAllAsRead() {
@@ -88,15 +136,36 @@ export function NotificationsBell() {
       return;
     }
 
+    const now = new Date().toISOString();
+
     setItems((prev) =>
       prev.map((n) => ({
         ...n,
         is_read: true,
-        read_at: n.read_at ?? new Date().toISOString(),
+        read_at: n.read_at ?? now,
       }))
     );
 
     setUnreadCount(0);
+  }
+
+  async function handleNotificationClick(item: NotificationItem) {
+    if (item.related_match_id && item.type === "new_message") {
+      await markNotificationsForMatchAsRead(item.related_match_id);
+    } else if (!item.is_read) {
+      await markOneAsRead(item.id);
+    }
+
+    setOpen(false);
+
+    if (!item.related_match_id) return;
+
+    if (item.type === "new_message") {
+      router.push(`/app/matches/${item.related_match_id}/chat`);
+      return;
+    }
+
+    router.push(`/app/matches/${item.related_match_id}`);
   }
 
   useEffect(() => {
@@ -133,6 +202,14 @@ export function NotificationsBell() {
 
     init();
 
+    return () => {
+      mounted = false;
+    };
+  }, [supabase]);
+
+  useEffect(() => {
+    if (!userId) return;
+
     const channel = supabase
       .channel("notifications-realtime")
       .on(
@@ -145,7 +222,7 @@ export function NotificationsBell() {
         (payload) => {
           const newItem = payload.new as NotificationItem;
 
-          if (!userId || newItem.user_id !== userId) return;
+          if (newItem.user_id !== userId) return;
 
           setItems((prev) => [newItem, ...prev].slice(0, 20));
 
@@ -164,7 +241,7 @@ export function NotificationsBell() {
         (payload) => {
           const updated = payload.new as NotificationItem;
 
-          if (!userId || updated.user_id !== userId) return;
+          if (updated.user_id !== userId) return;
 
           setItems((prev) => {
             const exists = prev.some((n) => n.id === updated.id);
@@ -181,17 +258,33 @@ export function NotificationsBell() {
       .subscribe();
 
     return () => {
-      mounted = false;
       supabase.removeChannel(channel);
     };
   }, [supabase, userId]);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (!containerRef.current) return;
+
+      if (!containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen((v) => !v)}
         className="relative rounded-full p-2 hover:bg-slate-100"
         aria-label="Notificaciones"
+        type="button"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
@@ -208,6 +301,7 @@ export function NotificationsBell() {
             <button
               onClick={markAllAsRead}
               className="text-sm text-blue-600 hover:underline"
+              type="button"
             >
               Marcar todas como leídas
             </button>
@@ -224,16 +318,9 @@ export function NotificationsBell() {
               items.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    if (!item.is_read) {
-                      markOneAsRead(item.id);
-                    }
-
-                    if (item.related_match_id) {
-                      window.location.href = `/app/matches/${item.related_match_id}/chat`;
-                    }
-                  }}
-                  className={`w-full rounded-lg border p-3 text-left transition ${
+                  onClick={() => handleNotificationClick(item)}
+                  type="button"
+                  className={`w-full rounded-lg border p-3 text-left transition hover:bg-slate-50 ${
                     item.is_read ? "bg-white" : "bg-slate-50"
                   }`}
                 >

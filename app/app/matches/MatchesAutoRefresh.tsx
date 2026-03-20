@@ -7,11 +7,20 @@ export default function MatchesAutoRefresh() {
   const router = useRouter();
 
   useEffect(() => {
+    const handleFocus = () => {
+      router.refresh();
+    };
+
     const interval = setInterval(() => {
       router.refresh();
-    }, 3000);
+    }, 60000); // fallback cada 60s
 
-    return () => clearInterval(interval);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [router]);
 
   return null;

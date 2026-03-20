@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { AppNavbar } from "@/components/app-navbar";
 import { createClient } from "@/lib/supabase/server";
 import MatchesAutoRefresh from "./MatchesAutoRefresh";
+import MatchesRealtime from "./MatchesRealtime";
 
 function formatCurrency(value?: number | null) {
   if (!value) return "$0";
@@ -227,6 +228,7 @@ export default async function MatchesPage() {
   return (
     <>
       <AppNavbar />
+      <MatchesRealtime />
       <MatchesAutoRefresh />
 
       <main className="mx-auto max-w-5xl px-4 py-8">
