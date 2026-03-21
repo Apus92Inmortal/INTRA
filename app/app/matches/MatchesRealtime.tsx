@@ -1,18 +1,33 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function MatchesRealtime() {
+type Props = {
+  currentUserId: string;
+};
+
+export default function MatchesRealtime({ currentUserId }: Props) {
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function safeRefresh() {
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+
+    refreshTimeoutRef.current = setTimeout(() => {
+      router.refresh();
+    }, 200);
+  }
 
   useEffect(() => {
     const channel = supabase
-      .channel("matches-realtime")
+      .channel(`matches-realtime-${currentUserId}`)
 
-      // 👇 ESCUCHA MENSAJES NUEVOS
+      // 👇 SOLO MENSAJES RELEVANTES
       .on(
         "postgres_changes",
         {
@@ -20,13 +35,17 @@ export default function MatchesRealtime() {
           schema: "public",
           table: "messages",
         },
-        () => {
-          console.log("📩 Nuevo mensaje detectado");
-          router.refresh();
+        (payload) => {
+          console.log("📩 Nuevo mensaje:", payload.new);
+
+          // ⚠️ SOLO refrescar si el mensaje NO es mío
+          if (payload.new.sender_id !== currentUserId) {
+            safeRefresh();
+          }
         }
       )
 
-      // 👇 ESCUCHA CAMBIOS EN MATCHES
+      // 👇 CAMBIOS EN MATCHES (lectura, estado, etc)
       .on(
         "postgres_changes",
         {
@@ -35,17 +54,23 @@ export default function MatchesRealtime() {
           table: "matches",
         },
         () => {
-          console.log("🤝 Cambio en match detectado");
-          router.refresh();
+          console.log("🤝 Cambio en match");
+          safeRefresh();
         }
       )
 
-      .subscribe();
+      .subscribe((status) => {
+        console.log("REALTIME STATUS:", status);
+      });
 
     return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+
       supabase.removeChannel(channel);
     };
-  }, [router, supabase]);
+  }, [supabase, router, currentUserId]);
 
   return null;
 }
