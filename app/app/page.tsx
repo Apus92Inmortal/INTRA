@@ -1,74 +1,126 @@
 ﻿import { AppNavbar } from "@/components/app-navbar";
-import { createClient } from "@/lib/supabase/server"
+import WelcomeModal from "@/components/WelcomeModal";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function AppHomePage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  if (!user) return <div className="p-10">No autorizado</div>
+  if (!user) return <div className="p-10">No autorizado</div>;
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role, phone")
+    .select("full_name, role, phone, show_welcome_modal")
     .eq("id", user.id)
-    .single()
+    .single();
 
   return (
-    <main className="p-10 max-w-3xl">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Zona privada /app 🔒</h1>
-          <p className="mt-2 text-sm opacity-80">
-            Bienvenido{profile?.full_name ? `, ${profile.full_name}` : ""}.
-          </p>
-        </div>
+    <>
+      <AppNavbar />
 
-        <a className="rounded-md border px-4 py-2" href="/app/profile">
-          Mi perfil
-        </a>
-      </div>
+      <WelcomeModal
+        userId={user.id}
+        initialOpen={profile?.show_welcome_modal ?? false}
+      />
 
-      <div className="mt-8 rounded-xl border p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-          <div>
-            <b>Email:</b> {user.email}
+      <main className="min-h-screen bg-[#EEF2F7] p-6">
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* HEADER */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-[#0B2C4A]">
+                Bienvenido{profile?.full_name ? `, ${profile.full_name}` : ""}
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Gestiona tus envíos y viajes en INTRA
+              </p>
+            </div>
+
+            <a
+              className="self-start md:self-auto rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-[#0B2C4A] hover:bg-gray-200 transition"
+              href="/app/profile"
+            >
+              Mi perfil
+            </a>
           </div>
-          <div>
-            <b>Rol:</b> {profile?.role ?? "No definido"}
+
+          {/* INFO CARD */}
+          <div className="bg-white rounded-2xl shadow-sm p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <span className="text-gray-500">Email</span>
+                <p className="font-medium">{user.email}</p>
+              </div>
+
+              <div>
+                <span className="text-gray-500">Rol</span>
+                <p className="font-medium">
+                  {profile?.role ?? "No definido"}
+                </p>
+              </div>
+
+              <div>
+                <span className="text-gray-500">Teléfono</span>
+                <p className="font-medium">
+                  {profile?.phone ?? "No definido"}
+                </p>
+              </div>
+            </div>
           </div>
-          <div>
-            <b>Telefono:</b> {profile?.phone ?? "No definido"}
+
+          {/* ACCIONES PRINCIPALES */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a
+              href="/app/shipments/new"
+              className="bg-[#0B2C4A] text-white rounded-2xl p-6 hover:scale-[1.02] transition"
+            >
+              <h3 className="text-lg font-semibold">Crear envío</h3>
+              <p className="text-sm text-white/90 mt-1">
+                Publica un paquete para enviarlo con un viajero
+              </p>
+            </a>
+
+            <a
+              href="/app/trips/new"
+              className="bg-[#2ECC71] border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-[#2ECC71] transition"
+            >
+              <h3 className="text-lg font-semibold text-white">
+                Publicar viaje
+              </h3>
+              <p className="text-sm text-white/90 mt-1">
+                Ofrece espacio en tu viaje para transportar paquetes
+              </p>
+            </a>
+
+            <a
+              href="/app/market"
+              className="bg-white border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-gray-200 transition"
+            >
+              <h3 className="text-lg font-semibold text-[#0B2C4A]">
+                Explorar market
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Encuentra envíos o viajes disponibles
+              </p>
+            </a>
+
+            <a
+              href="/app/matches"
+              className="bg-white border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-gray-200 transition"
+            >
+              <h3 className="text-lg font-semibold text-[#0B2C4A]">
+                Mis matches
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Gestiona tus solicitudes y conversaciones
+              </p>
+            </a>
           </div>
         </div>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          <a
-            className="rounded-md bg-black text-white px-4 py-2"
-            href="/app/shipments/new"
-          >
-            Crear envio
-          </a>
-
-          <a className="rounded-md border px-4 py-2" href="/app/trips/new">
-            Publicar viaje
-          </a>
-
-          <a className="rounded-md border px-4 py-2" href="/app/market">
-            Ir a market
-          </a>
-
-          <a className="rounded-md border px-4 py-2" href="/app/matches">
-            Mis matches
-          </a>
-        </div>
-      </div>
-
-      <p className="mt-6 text-sm opacity-80">
-        Tip: Si acabas de registrarte, completa tu perfil y luego crea un envio o publica un viaje.
-      </p>
-    </main>
-  )
+      </main>
+    </>
+  );
 }
