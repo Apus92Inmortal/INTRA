@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import Image from "next/image"
 
 export default function RegisterPage() {
     const router = useRouter()
@@ -31,7 +32,7 @@ export default function RegisterPage() {
             return
         }
 
-        // 2) Iniciar sesión (para tener auth.uid() y pasar RLS)
+        // 2) Iniciar sesión
         const { data: signInData, error: signInError } =
             await supabase.auth.signInWithPassword({
                 email,
@@ -45,13 +46,14 @@ export default function RegisterPage() {
         }
 
         const userId = signInData.user?.id
+
         if (!userId) {
             setLoading(false)
             setMsg("❌ No pude obtener el usuario después del login.")
             return
         }
 
-        // 3) Actualizar perfil con el nombre
+        // 3) Guardar nombre en perfil
         const { error: profileError } = await supabase
             .from("profiles")
             .update({ full_name: fullName })
@@ -68,16 +70,41 @@ export default function RegisterPage() {
     }
 
     return (
-        <main className="min-h-screen flex items-center justify-center p-6">
-            <div className="w-full max-w-md rounded-xl border p-6">
-                <h1 className="text-2xl font-bold">Crear cuenta</h1>
-                <p className="mt-2 text-sm opacity-80">Regístrate para entrar a INTRA.</p>
+        <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-400 p-6">
+            <div className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
+                
+                <button
+                    type="button"
+                    onClick={() => router.push("/")}
+                    className="absolute top-5 left-5 rounded-full border border-gray-200 px-3 py-1.5 text-sm font-medium text-[#0B2C4A] hover:bg-gray-200 transition"
+                >
+                    Volver
+                </button>
+
+                <div className="flex justify-center mb-0">
+                    <Image
+                        src="/logo.png"
+                        alt="INTRA Logo"
+                        width={260}
+                        height={160}
+                    />
+                </div>
+
+                <h1 className="text-2xl font-bold text-center text-[#0B2C4A]">
+                    Crear cuenta
+                </h1>
+
+                <p className="mt-2 text-sm text-center text-gray-600">
+                    Regístrate para comenzar en INTRA
+                </p>
 
                 <form onSubmit={onSubmit} className="mt-6 space-y-4">
                     <div>
-                        <label className="text-sm">Nombre completo</label>
+                        <label className="text-sm font-medium text-[#0B2C4A]">
+                            Nombre completo
+                        </label>
                         <input
-                            className="mt-1 w-full rounded-md border px-3 py-2"
+                            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
                             required
@@ -86,9 +113,11 @@ export default function RegisterPage() {
                     </div>
 
                     <div>
-                        <label className="text-sm">Email</label>
+                        <label className="text-sm font-medium text-[#0B2C4A]">
+                            Email
+                        </label>
                         <input
-                            className="mt-1 w-full rounded-md border px-3 py-2"
+                            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -98,9 +127,11 @@ export default function RegisterPage() {
                     </div>
 
                     <div>
-                        <label className="text-sm">Contraseña</label>
+                        <label className="text-sm font-medium text-[#0B2C4A]">
+                            Contraseña
+                        </label>
                         <input
-                            className="mt-1 w-full rounded-md border px-3 py-2"
+                            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -110,19 +141,26 @@ export default function RegisterPage() {
                         />
                     </div>
 
-                    {msg && <div className="rounded-md border p-3 text-sm">{msg}</div>}
+                    {msg && (
+                        <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-600">
+                            {msg}
+                        </div>
+                    )}
 
                     <button
                         disabled={loading}
-                        className="w-full rounded-md bg-black text-white py-2 disabled:opacity-60"
+                        className="w-full rounded-xl bg-[#0B2C4A] py-2 font-semibold text-white hover:scale-105 transition disabled:opacity-60"
                         type="submit"
                     >
                         {loading ? "Creando..." : "Crear cuenta"}
                     </button>
 
-                    <p className="text-sm">
+                    <p className="text-sm text-center text-gray-600">
                         ¿Ya tienes cuenta?{" "}
-                        <a className="underline" href="/login">
+                        <a
+                            className="font-semibold text-[#0B2C4A] hover:underline"
+                            href="/login"
+                        >
                             Inicia sesión
                         </a>
                     </p>
