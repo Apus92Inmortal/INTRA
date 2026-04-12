@@ -2,17 +2,19 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 
+type CityRow = {
+  name: string;
+};
+
+type CityRelation = CityRow | CityRow[] | null;
+
 type TripRow = {
   id: string;
   departure_date: string;
   status: string;
   capacity_kg: number | null;
-  origin_city: {
-    name: string;
-  } | null;
-  destination_city: {
-    name: string;
-  } | null;
+  origin_city: CityRelation;
+  destination_city: CityRelation;
 };
 
 type ShipmentRow = {
@@ -21,12 +23,8 @@ type ShipmentRow = {
   description: string | null;
   weight_kg: number | null;
   status: string;
-  origin_city: {
-    name: string;
-  } | null;
-  destination_city: {
-    name: string;
-  } | null;
+  origin_city: CityRelation;
+  destination_city: CityRelation;
 };
 
 type CompatibleShipmentRow = {
@@ -35,12 +33,8 @@ type CompatibleShipmentRow = {
   description: string | null;
   weight_kg: number | null;
   owner_id: string;
-  origin_city: {
-    name: string;
-  } | null;
-  destination_city: {
-    name: string;
-  } | null;
+  origin_city: CityRelation;
+  destination_city: CityRelation;
 };
 
 type CompatibleTripRow = {
@@ -48,12 +42,8 @@ type CompatibleTripRow = {
   traveler_id: string;
   departure_date: string;
   capacity_kg: number | null;
-  origin_city: {
-    name: string;
-  } | null;
-  destination_city: {
-    name: string;
-  } | null;
+  origin_city: CityRelation;
+  destination_city: CityRelation;
 };
 
 function formatDate(date: string) {
@@ -62,6 +52,12 @@ function formatDate(date: string) {
     month: "short",
     day: "numeric",
   }).format(new Date(date));
+}
+
+function getCityName(city: CityRelation) {
+  if (!city) return null;
+  if (Array.isArray(city)) return city[0]?.name ?? null;
+  return city.name ?? null;
 }
 
 function SectionCard({
@@ -138,8 +134,8 @@ export default async function MarketPage() {
 
   if (userTrips.length > 0) {
     const tripRoutes = userTrips.map((trip) => ({
-      origin: trip.origin_city?.name,
-      destination: trip.destination_city?.name,
+      origin: getCityName(trip.origin_city),
+      destination: getCityName(trip.destination_city),
     }));
 
     const validTripRoutes = tripRoutes.filter(
@@ -165,8 +161,8 @@ export default async function MarketPage() {
         ((data ?? []) as CompatibleShipmentRow[]).filter((shipment) =>
           validTripRoutes.some(
             (route) =>
-              shipment.origin_city?.name === route.origin &&
-              shipment.destination_city?.name === route.destination
+              getCityName(shipment.origin_city) === route.origin &&
+              getCityName(shipment.destination_city) === route.destination
           )
         );
     }
@@ -174,8 +170,8 @@ export default async function MarketPage() {
 
   if (userShipments.length > 0) {
     const shipmentRoutes = userShipments.map((shipment) => ({
-      origin: shipment.origin_city?.name,
-      destination: shipment.destination_city?.name,
+      origin: getCityName(shipment.origin_city),
+      destination: getCityName(shipment.destination_city),
     }));
 
     const validShipmentRoutes = shipmentRoutes.filter(
@@ -200,8 +196,8 @@ export default async function MarketPage() {
         ((data ?? []) as CompatibleTripRow[]).filter((trip) =>
           validShipmentRoutes.some(
             (route) =>
-              trip.origin_city?.name === route.origin &&
-              trip.destination_city?.name === route.destination
+              getCityName(trip.origin_city) === route.origin &&
+              getCityName(trip.destination_city) === route.destination
           )
         );
     }
@@ -213,7 +209,6 @@ export default async function MarketPage() {
 
       <main className="min-h-screen bg-[#EEF2F7]">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-          {/* HEADER */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-[#0B2C4A]">Market</h1>
             <p className="mt-2 text-sm text-gray-600">
@@ -221,7 +216,6 @@ export default async function MarketPage() {
             </p>
           </div>
 
-          {/* ACTION CARDS */}
           <div className="mb-8 grid gap-4 md:grid-cols-2">
             <Link
               href="/app/shipments/new"
@@ -245,7 +239,6 @@ export default async function MarketPage() {
           </div>
 
           <div className="grid gap-6">
-            {/* MIS ENVIOS */}
             <SectionCard
               title="Mis envíos"
               subtitle="Tus publicaciones activas y su estado actual."
@@ -265,8 +258,8 @@ export default async function MarketPage() {
                             {shipment.kind || "Envío"} · {shipment.status}
                           </h3>
                           <p className="mt-1 text-sm text-gray-700">
-                            Ruta: {shipment.origin_city?.name ?? "Origen"} →{" "}
-                            {shipment.destination_city?.name ?? "Destino"}
+                            Ruta: {getCityName(shipment.origin_city) ?? "Origen"} →{" "}
+                            {getCityName(shipment.destination_city) ?? "Destino"}
                           </p>
                           {shipment.description ? (
                             <p className="mt-2 text-sm text-gray-500">
@@ -285,7 +278,6 @@ export default async function MarketPage() {
               )}
             </SectionCard>
 
-            {/* MIS VIAJES */}
             <SectionCard
               title="Mis viajes"
               subtitle="Tus trayectos publicados disponibles para transportar paquetes."
@@ -305,8 +297,8 @@ export default async function MarketPage() {
                             Viaje · {trip.status}
                           </h3>
                           <p className="mt-1 text-sm text-gray-700">
-                            Ruta: {trip.origin_city?.name ?? "Origen"} →{" "}
-                            {trip.destination_city?.name ?? "Destino"}
+                            Ruta: {getCityName(trip.origin_city) ?? "Origen"} →{" "}
+                            {getCityName(trip.destination_city) ?? "Destino"}
                           </p>
                           <p className="mt-2 text-sm text-gray-500">
                             Capacidad: {trip.capacity_kg ?? 0} kg
@@ -323,7 +315,6 @@ export default async function MarketPage() {
               )}
             </SectionCard>
 
-            {/* ENVIOS COMPATIBLES */}
             <SectionCard
               title="Envíos compatibles con mis viajes"
               subtitle="Opciones que podrían hacer match con tus rutas actuales."
@@ -343,8 +334,8 @@ export default async function MarketPage() {
                             {shipment.kind || "Envío disponible"}
                           </h3>
                           <p className="mt-1 text-sm text-gray-700">
-                            Ruta: {shipment.origin_city?.name ?? "Origen"} →{" "}
-                            {shipment.destination_city?.name ?? "Destino"}
+                            Ruta: {getCityName(shipment.origin_city) ?? "Origen"} →{" "}
+                            {getCityName(shipment.destination_city) ?? "Destino"}
                           </p>
                           {shipment.description ? (
                             <p className="mt-2 text-sm text-gray-500">
@@ -363,7 +354,6 @@ export default async function MarketPage() {
               )}
             </SectionCard>
 
-            {/* VIAJES COMPATIBLES */}
             <SectionCard
               title="Viajes compatibles con mis envíos"
               subtitle="Viajes que podrían transportar alguno de tus paquetes."
@@ -383,8 +373,8 @@ export default async function MarketPage() {
                             Viaje disponible
                           </h3>
                           <p className="mt-1 text-sm text-gray-700">
-                            Ruta: {trip.origin_city?.name ?? "Origen"} →{" "}
-                            {trip.destination_city?.name ?? "Destino"}
+                            Ruta: {getCityName(trip.origin_city) ?? "Origen"} →{" "}
+                            {getCityName(trip.destination_city) ?? "Destino"}
                           </p>
                           <p className="mt-2 text-sm text-gray-500">
                             Capacidad: {trip.capacity_kg ?? 0} kg
