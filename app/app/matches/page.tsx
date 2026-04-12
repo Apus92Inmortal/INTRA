@@ -5,29 +5,39 @@ import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
 
+type CityRow = {
+  name: string;
+};
+
+type CityRelation = CityRow | CityRow[] | null;
+
+type TripItem = {
+  id: string;
+  traveler_id: string;
+  departure_date: string;
+  capacity_kg: number | null;
+  origin_city: CityRelation;
+  destination_city: CityRelation;
+};
+
+type ShipmentItem = {
+  id: string;
+  owner_id: string;
+  kind: string | null;
+  weight_kg: number | null;
+  declared_value_cop: number | null;
+  origin_city: CityRelation;
+  destination_city: CityRelation;
+};
+
 type MatchRow = {
   id: string;
   status: string;
   created_at: string;
   last_read_by_owner: string | null;
   last_read_by_traveler: string | null;
-  trips: {
-    id: string;
-    traveler_id: string;
-    departure_date: string;
-    capacity_kg: number | null;
-    origin_city: { name: string } | null;
-    destination_city: { name: string } | null;
-  } | null;
-  shipments: {
-    id: string;
-    owner_id: string;
-    kind: string | null;
-    weight_kg: number | null;
-    declared_value_cop: number | null;
-    origin_city: { name: string } | null;
-    destination_city: { name: string } | null;
-  } | null;
+  trips: TripItem | TripItem[] | null;
+  shipments: ShipmentItem | ShipmentItem[] | null;
 };
 
 type MessageRow = {
@@ -88,7 +98,7 @@ function getStatusClasses(status: string) {
 function getStatusLabel(status: string) {
   switch (status) {
     case "accepted":
-      return 'Aceptado';
+      return "Aceptado";
     case "pending":
       return "Pendiente";
     case "rejected":
@@ -98,6 +108,24 @@ function getStatusLabel(status: string) {
     default:
       return status;
   }
+}
+
+function getCityName(city: CityRelation) {
+  if (!city) return null;
+  if (Array.isArray(city)) return city[0]?.name ?? null;
+  return city.name ?? null;
+}
+
+function normalizeTrip(trip: MatchRow["trips"]): TripItem | null {
+  if (!trip) return null;
+  return Array.isArray(trip) ? (trip[0] ?? null) : trip;
+}
+
+function normalizeShipment(
+  shipment: MatchRow["shipments"]
+): ShipmentItem | null {
+  if (!shipment) return null;
+  return Array.isArray(shipment) ? (shipment[0] ?? null) : shipment;
 }
 
 function EmptyState({ text }: { text: string }) {
@@ -163,8 +191,12 @@ export default async function MatchesPage() {
   }
 
   const allMatches = ((matchesData ?? []) as MatchRow[]).filter((match) => {
-    const travelerId = match.trips?.traveler_id;
-    const ownerId = match.shipments?.owner_id;
+    const trip = normalizeTrip(match.trips);
+    const shipment = normalizeShipment(match.shipments);
+
+    const travelerId = trip?.traveler_id;
+    const ownerId = shipment?.owner_id;
+
     return travelerId === user.id || ownerId === user.id;
   });
 
@@ -172,8 +204,12 @@ export default async function MatchesPage() {
     new Set(
       allMatches.flatMap((match) => {
         const ids: string[] = [];
-        if (match.trips?.traveler_id) ids.push(match.trips.traveler_id);
-        if (match.shipments?.owner_id) ids.push(match.shipments.owner_id);
+        const trip = normalizeTrip(match.trips);
+        const shipment = normalizeShipment(match.shipments);
+
+        if (trip?.traveler_id) ids.push(trip.traveler_id);
+        if (shipment?.owner_id) ids.push(shipment.owner_id);
+
         return ids;
       })
     )
@@ -234,8 +270,8 @@ export default async function MatchesPage() {
           ) : (
             <div className="space-y-6">
               {allMatches.map((match) => {
-                const trip = match.trips;
-                const shipment = match.shipments;
+                const trip = normalizeTrip(match.trips);
+                const shipment = normalizeShipment(match.shipments);
                 const lastMessage = messagesMap.get(match.id);
 
                 const isTraveler = trip?.traveler_id === user.id;
@@ -293,7 +329,7 @@ export default async function MatchesPage() {
 
                         <div>
                           {unread ? (
-                            <span className="rounded-full bg-red-500 px-3 py-1 text-xs font-medium text-[#000000]">
+                            <span className="rounded-full border border-red-200 bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
                               Nuevo mensaje
                             </span>
                           ) : (
@@ -315,8 +351,9 @@ export default async function MatchesPage() {
                           <div className="space-y-2 text-sm text-gray-700">
                             <p>
                               <span className="font-medium">Ruta:</span>{" "}
-                              {trip?.origin_city?.name ?? "Origen"} →{" "}
-                              {trip?.destination_city?.name ?? "Destino"}
+                              {getCityName(trip?.origin_city ?? null) ?? "Origen"} →{" "}
+                              {getCityName(trip?.destination_city ?? null) ??
+                                "Destino"}
                             </p>
                             <p>
                               <span className="font-medium">Salida:</span>{" "}
@@ -339,8 +376,11 @@ export default async function MatchesPage() {
                           <div className="space-y-2 text-sm text-gray-700">
                             <p>
                               <span className="font-medium">Ruta:</span>{" "}
-                              {shipment?.origin_city?.name ?? "Origen"} →{" "}
-                              {shipment?.destination_city?.name ?? "Destino"}
+                              {getCityName(shipment?.origin_city ?? null) ??
+                                "Origen"}{" "}
+                              →{" "}
+                              {getCityName(shipment?.destination_city ?? null) ??
+                                "Destino"}
                             </p>
                             <p>
                               <span className="font-medium">Tipo:</span>{" "}
@@ -352,7 +392,9 @@ export default async function MatchesPage() {
                             </p>
                             <p>
                               <span className="font-medium">Valor:</span>{" "}
-                              {formatCurrency(shipment?.declared_value_cop ?? 0)}
+                              {formatCurrency(
+                                shipment?.declared_value_cop ?? 0
+                              )}
                             </p>
                           </div>
                         </div>
