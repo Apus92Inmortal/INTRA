@@ -352,8 +352,7 @@ export default async function MatchesPage() {
                             <p>
                               <span className="font-medium">Ruta:</span>{" "}
                               {getCityName(trip?.origin_city ?? null) ?? "Origen"} →{" "}
-                              {getCityName(trip?.destination_city ?? null) ??
-                                "Destino"}
+                              {getCityName(trip?.destination_city ?? null) ?? "Destino"}
                             </p>
                             <p>
                               <span className="font-medium">Salida:</span>{" "}
@@ -376,11 +375,8 @@ export default async function MatchesPage() {
                           <div className="space-y-2 text-sm text-gray-700">
                             <p>
                               <span className="font-medium">Ruta:</span>{" "}
-                              {getCityName(shipment?.origin_city ?? null) ??
-                                "Origen"}{" "}
-                              →{" "}
-                              {getCityName(shipment?.destination_city ?? null) ??
-                                "Destino"}
+                              {getCityName(shipment?.origin_city ?? null) ?? "Origen"} →{" "}
+                              {getCityName(shipment?.destination_city ?? null) ?? "Destino"}
                             </p>
                             <p>
                               <span className="font-medium">Tipo:</span>{" "}
@@ -392,9 +388,7 @@ export default async function MatchesPage() {
                             </p>
                             <p>
                               <span className="font-medium">Valor:</span>{" "}
-                              {formatCurrency(
-                                shipment?.declared_value_cop ?? 0
-                              )}
+                              {formatCurrency(shipment?.declared_value_cop ?? 0)}
                             </p>
                           </div>
                         </div>
@@ -437,10 +431,9 @@ export default async function MatchesPage() {
                             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
                               <MatchActions
                                 matchId={match.id}
-                                status={match.status}
-                                ownerId={shipment?.owner_id ?? ""}
-                                travelerId={trip?.traveler_id ?? ""}
+                                matchStatus={match.status}
                                 currentUserId={user.id}
+                                shipmentOwnerId={shipment?.owner_id ?? null}
                               />
                             </div>
                           )}
