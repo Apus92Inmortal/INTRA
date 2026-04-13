@@ -2,11 +2,34 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import MatchDetailActions from "./MatchDetailActions";
-import { acceptMatchAction, cancelMatchAction } from "./actions";
+import {
+  acceptMatchAction,
+  rejectMatchAction,
+  cancelMatchAction,
+} from "./actions";
+import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
+
+function formatDate(dateString: string | null | undefined) {
+  if (!dateString) return "Sin fecha";
+  return new Intl.DateTimeFormat("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(dateString));
+}
+
+function formatCurrency(value: number | null | undefined) {
+  if (!value) return "$ 0";
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 export default async function MatchDetailPage({ params }: PageProps) {
   const { id } = await params;
@@ -55,7 +78,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
   }
 
   const trip = Array.isArray(match.trips) ? match.trips[0] : match.trips;
-  const shipment = Array.isArray(match.shipments) ? match.shipments[0] : match.shipments;
+  const shipment = Array.isArray(match.shipments)
+    ? match.shipments[0]
+    : match.shipments;
 
   const isOwner = user.id === shipment?.owner_id;
   const isTraveler = user.id === trip?.traveler_id;
@@ -68,60 +93,141 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const canOpenChat = match.status === "accepted";
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-3xl font-bold text-slate-900">Detalle del match</h1>
+    <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-4xl">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-[#0B2C4A]">
+                  Detalle del match
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm text-slate-600">
+                  Revisa la información del envío y del viaje, y administra este
+                  match desde aquí.
+                </p>
+              </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <h2 className="text-lg font-semibold text-slate-900">Envío</h2>
-            <div className="mt-3 space-y-2 text-sm text-slate-700">
-              <p><span className="font-medium">Tipo:</span> {shipment?.kind}</p>
-              <p><span className="font-medium">Descripción:</span> {shipment?.description}</p>
-              <p><span className="font-medium">Peso:</span> {shipment?.weight_kg} kg</p>
-              <p><span className="font-medium">Valor:</span> ${shipment?.declared_value_cop}</p>
+              <span
+                className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
+                  match.status === "pending"
+                    ? "bg-amber-100 text-amber-700"
+                    : match.status === "accepted"
+                    ? "bg-emerald-100 text-emerald-700"
+                    : match.status === "rejected"
+                    ? "bg-rose-100 text-rose-700"
+                    : "bg-slate-100 text-slate-700"
+                }`}
+              >
+                {getStatusLabel(match.status)}
+              </span>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <h2 className="text-lg font-semibold text-slate-900">Viaje</h2>
-            <div className="mt-3 space-y-2 text-sm text-slate-700">
-              <p><span className="font-medium">Capacidad:</span> {trip?.capacity_kg} kg</p>
-              <p><span className="font-medium">Salida:</span> {trip?.departure_date}</p>
-              <p><span className="font-medium">Estado:</span> {match.status}</p>
+          <div className="px-6 py-6 sm:px-8">
+            <div className="grid gap-5 md:grid-cols-2">
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">📦</span>
+                  <h2 className="text-lg font-semibold text-[#0B2C4A]">
+                    Envío
+                  </h2>
+                </div>
+
+                <div className="mt-4 space-y-3 text-sm text-slate-700">
+                  <p>
+                    <span className="font-medium text-slate-900">Tipo:</span>{" "}
+                    {getShipmentKindLabel(shipment?.kind)}
+                  </p>
+
+                  <p>
+                    <span className="font-medium text-slate-900">
+                      Descripción:
+                    </span>{" "}
+                    {shipment?.description?.trim() || "Sin descripción"}
+                  </p>
+
+                  <p>
+                    <span className="font-medium text-slate-900">Peso:</span>{" "}
+                    {shipment?.weight_kg ?? 0} kg
+                  </p>
+
+                  <p>
+                    <span className="font-medium text-slate-900">Valor:</span>{" "}
+                    {formatCurrency(shipment?.declared_value_cop)}
+                  </p>
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">✈️</span>
+                  <h2 className="text-lg font-semibold text-[#0B2C4A]">
+                    Viaje
+                  </h2>
+                </div>
+
+                <div className="mt-4 space-y-3 text-sm text-slate-700">
+                  <p>
+                    <span className="font-medium text-slate-900">
+                      Capacidad:
+                    </span>{" "}
+                    {trip?.capacity_kg ?? 0} kg
+                  </p>
+
+                  <p>
+                    <span className="font-medium text-slate-900">Salida:</span>{" "}
+                    {formatDate(trip?.departure_date)}
+                  </p>
+
+                  <p>
+                    <span className="font-medium text-slate-900">Estado:</span>{" "}
+                    {getStatusLabel(match.status)}
+                  </p>
+                </div>
+              </section>
+            </div>
+
+            <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <h2 className="text-lg font-semibold text-[#0B2C4A]">
+                Acciones del match
+              </h2>
+
+              <div className="mt-4">
+                <MatchDetailActions
+                  matchId={match.id}
+                  status={match.status}
+                  canAccept={canAccept}
+                  canCancel={canCancel}
+                  onAccept={acceptMatchAction}
+                  onReject={rejectMatchAction}
+                  onCancel={cancelMatchAction}
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              {canOpenChat ? (
+                <Link
+                  href={`/app/matches/${match.id}/chat`}
+                  className="inline-flex items-center rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
+                >
+                  💬 Abrir chat
+                </Link>
+              ) : (
+                <div className="rounded-2xl bg-slate-100 px-4 py-2.5 text-sm text-slate-500">
+                  El chat se activará automáticamente cuando el match sea aceptado.
+                </div>
+              )}
+
+              <Link
+                href="/app/matches"
+                className="inline-flex items-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                ← Volver a matches
+              </Link>
             </div>
           </div>
-        </div>
-
-        <MatchDetailActions
-          matchId={match.id}
-          status={match.status}
-          canAccept={canAccept}
-          canCancel={canCancel}
-          onAccept={acceptMatchAction}
-          onCancel={cancelMatchAction}
-        />
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          {canOpenChat ? (
-            <Link
-              href={`/app/matches/${match.id}/chat`}
-              className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white"
-            >
-              Abrir chat
-            </Link>
-          ) : (
-            <div className="rounded-xl bg-slate-100 px-4 py-2 text-sm text-slate-500">
-              El chat se habilita cuando el match sea aceptado
-            </div>
-          )}
-
-          <Link
-            href="/app/matches"
-            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
-          >
-            Volver a matches
-          </Link>
         </div>
       </div>
     </main>

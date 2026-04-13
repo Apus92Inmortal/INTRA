@@ -55,14 +55,14 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
     if (userError || !user) {
       setLoading(false)
-      setMsg("❌ No estas autenticado.")
+      setMsg("❌ No estás autenticado.")
       return
     }
 
     const cap = capacityKg.trim() ? Number(capacityKg) : null
     if (cap !== null && (Number.isNaN(cap) || cap <= 0)) {
       setLoading(false)
-      setMsg("❌ Capacidad invalida.")
+      setMsg("❌ Capacidad inválida.")
       return
     }
 
@@ -81,18 +81,27 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       return
     }
 
-    setMsg("✅ Viaje publicado")
+    setMsg("✅ Viaje publicado correctamente.")
     router.push("/app/market")
   }
 
   return (
-    <div className="rounded-xl border p-6">
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={onSubmit} className="space-y-6">
+      <div>
+        <h2 className="text-base font-semibold text-[#0B2C4A]">
+          Ruta del viaje
+        </h2>
+        <p className="mt-1 text-sm text-gray-500">
+          Indica desde qué ciudad sales y hacia cuál te diriges.
+        </p>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="text-sm">Origen</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Origen
+            </label>
             <select
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
               value={originCityId}
               onChange={(e) => setOriginCityId(e.target.value)}
               required
@@ -107,9 +116,11 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="text-sm">Destino</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Destino
+            </label>
             <select
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
               value={destinationCityId}
               onChange={(e) => setDestinationCityId(e.target.value)}
               required
@@ -123,12 +134,23 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             </select>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="border-t border-gray-100 pt-6">
+        <h2 className="text-base font-semibold text-[#0B2C4A]">
+          Detalles del viaje
+        </h2>
+        <p className="mt-1 text-sm text-gray-500">
+          Define cuándo sales y cuánta capacidad puedes llevar.
+        </p>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="text-sm">Fecha de salida</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Fecha de salida
+            </label>
             <input
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
               type="date"
               value={departureDate}
               onChange={(e) => setDepartureDate(e.target.value)}
@@ -137,32 +159,59 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="text-sm">Capacidad (kg) (opcional)</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Capacidad (kg)
+            </label>
             <input
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              type="number"
+              step="0.1"
+              min="0"
               value={capacityKg}
               onChange={(e) => setCapacityKg(e.target.value)}
               placeholder="Ej: 5"
             />
           </div>
         </div>
+      </div>
 
-        {msg && <div className="rounded-md border p-3 text-sm">{msg}</div>}
+      <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] p-4">
+        <p className="text-sm text-gray-600">
+          <span className="font-semibold text-[#0B2C4A]">Consejo:</span>{" "}
+          publicar tu viaje con tiempo y con una capacidad clara aumenta las
+          probabilidades de recibir solicitudes compatibles.
+        </p>
+      </div>
 
+      {msg && (
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm ${
+            msg.startsWith("✅")
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-700"
+          }`}
+        >
+          {msg}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
         <button
           disabled={loading}
-          className="rounded-md bg-black text-white px-4 py-2 disabled:opacity-60"
+          className="inline-flex justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
         >
           {loading ? "Publicando..." : "Publicar viaje"}
         </button>
 
-        <p className="text-sm">
-          <a className="underline" href="/app/market">
-            Volver a market
-          </a>
-        </p>
-      </form>
-    </div>
+        <button
+          type="button"
+          onClick={() => router.push("/app/market")}
+          className="inline-flex justify-center rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+        >
+          Volver a market
+        </button>
+      </div>
+    </form>
   )
 }

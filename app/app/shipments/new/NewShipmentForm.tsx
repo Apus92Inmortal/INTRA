@@ -51,7 +51,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
     if (userError || !user) {
       setLoading(false)
-      setMsg("❌ No estas autenticado.")
+      setMsg("❌ No estás autenticado.")
       return
     }
 
@@ -60,13 +60,13 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
     if (weight !== null && (Number.isNaN(weight) || weight <= 0)) {
       setLoading(false)
-      setMsg("❌ Peso invalido.")
+      setMsg("❌ Peso inválido.")
       return
     }
 
     if (declared !== null && (Number.isNaN(declared) || declared < 0)) {
       setLoading(false)
-      setMsg("❌ Valor declarado invalido.")
+      setMsg("❌ Valor declarado inválido.")
       return
     }
 
@@ -83,22 +83,33 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     setLoading(false)
 
     if (error) {
-      setMsg("❌ Error creando envio: " + error.message)
+      setMsg("❌ Error creando envío: " + error.message)
       return
     }
 
-    setMsg("✅ Envio creado")
+    setMsg("✅ Envío creado correctamente.")
     router.push("/app/market")
   }
 
   return (
-    <div className="rounded-xl border p-6">
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={onSubmit} className="space-y-6">
+      
+      {/* Ruta */}
+      <div>
+        <h2 className="text-base font-semibold text-[#0B2C4A]">
+          Ruta del envío
+        </h2>
+        <p className="mt-1 text-sm text-gray-500">
+          Selecciona desde qué ciudad sale y a cuál va.
+        </p>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="text-sm">Origen</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Origen
+            </label>
             <select
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
               value={originCityId}
               onChange={(e) => setOriginCityId(e.target.value)}
               required
@@ -113,9 +124,11 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="text-sm">Destino</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Destino
+            </label>
             <select
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
               value={destinationCityId}
               onChange={(e) => setDestinationCityId(e.target.value)}
               required
@@ -129,37 +142,55 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
             </select>
           </div>
         </div>
+      </div>
 
-        <div>
-          <label className="text-sm">Tipo de envio</label>
-          <select
-            className="mt-1 w-full rounded-md border px-3 py-2"
-            value={kind}
-            onChange={(e) => setKind(e.target.value as any)}
-          >
-            <option value="document">Documento</option>
-            <option value="package">Paquete</option>
-            <option value="ecommerce">Ecommerce</option>
-          </select>
-        </div>
+      {/* Info envío */}
+      <div className="border-t border-gray-100 pt-6">
+        <h2 className="text-base font-semibold text-[#0B2C4A]">
+          Información del envío
+        </h2>
 
-        <div>
-          <label className="text-sm">Descripcion</label>
-          <textarea
-            className="mt-1 w-full rounded-md border px-3 py-2"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            rows={4}
-            placeholder="Ej: Sobre con documentos, caja pequena, etc."
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-4 space-y-4">
           <div>
-            <label className="text-sm">Peso (kg) (opcional)</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Tipo de envío
+            </label>
+            <select
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              value={kind}
+              onChange={(e) => setKind(e.target.value as any)}
+            >
+              <option value="document">Documento</option>
+              <option value="package">Paquete</option>
+              <option value="ecommerce">Ecommerce</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Descripción
+            </label>
+            <textarea
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+              rows={4}
+              placeholder="Ej: Sobre con documentos, caja pequeña, etc."
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Opcionales */}
+      <div className="border-t border-gray-100 pt-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Peso (kg)
+            </label>
             <input
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm"
               value={weightKg}
               onChange={(e) => setWeightKg(e.target.value)}
               placeholder="Ej: 1.5"
@@ -167,32 +198,49 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="text-sm">Valor declarado COP (opcional)</label>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Valor declarado (COP)
+            </label>
             <input
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm"
               value={declaredValueCop}
               onChange={(e) => setDeclaredValueCop(e.target.value)}
               placeholder="Ej: 200000"
             />
           </div>
         </div>
+      </div>
 
-        {msg && <div className="rounded-md border p-3 text-sm">{msg}</div>}
+      {/* Mensaje */}
+      {msg && (
+        <div
+          className={`rounded-2xl px-4 py-3 text-sm ${
+            msg.startsWith("✅")
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-red-50 text-red-700 border border-red-200"
+          }`}
+        >
+          {msg}
+        </div>
+      )}
 
+      {/* Botones */}
+      <div className="flex flex-col gap-3 sm:flex-row">
         <button
           disabled={loading}
-          className="rounded-md bg-black text-white px-4 py-2 disabled:opacity-60"
-          type="submit"
+          className="rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
         >
-          {loading ? "Creando..." : "Crear envio"}
+          {loading ? "Creando..." : "Crear envío"}
         </button>
 
-        <p className="text-sm">
-          <a className="underline" href="/app">
-            Volver a /app
-          </a>
-        </p>
-      </form>
-    </div>
+        <button
+          type="button"
+          onClick={() => router.push("/app")}
+          className="rounded-2xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        >
+          Volver
+        </button>
+      </div>
+    </form>
   )
 }

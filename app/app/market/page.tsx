@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
+import MatchButton from "./MatchButton";
+import { getShipmentKindLabel, getStatusLabel } from "@/lib/labels"
 
 type CityRow = {
   name: string;
@@ -255,7 +257,7 @@ export default async function MarketPage() {
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
                           <h3 className="text-base font-semibold text-[#0B2C4A]">
-                            {shipment.kind || "Envío"} · {shipment.status}
+                            {getShipmentKindLabel(shipment.kind)} · {getStatusLabel(shipment.status)}
                           </h3>
                           <p className="mt-1 text-sm text-gray-700">
                             Ruta: {getCityName(shipment.origin_city) ?? "Origen"} →{" "}
@@ -294,7 +296,7 @@ export default async function MarketPage() {
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
                           <h3 className="text-base font-semibold text-[#0B2C4A]">
-                            Viaje · {trip.status}
+                            Viaje · {getStatusLabel(trip.status)}
                           </h3>
                           <p className="mt-1 text-sm text-gray-700">
                             Ruta: {getCityName(trip.origin_city) ?? "Origen"} →{" "}
@@ -323,33 +325,55 @@ export default async function MarketPage() {
                 <EmptyState text="No hay envíos compatibles por ahora." />
               ) : (
                 <div className="space-y-4">
-                  {compatibleShipments.map((shipment) => (
-                    <div
-                      key={shipment.id}
-                      className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
-                    >
-                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                        <div>
-                          <h3 className="text-base font-semibold text-[#0B2C4A]">
-                            {shipment.kind || "Envío disponible"}
-                          </h3>
-                          <p className="mt-1 text-sm text-gray-700">
-                            Ruta: {getCityName(shipment.origin_city) ?? "Origen"} →{" "}
-                            {getCityName(shipment.destination_city) ?? "Destino"}
-                          </p>
-                          {shipment.description ? (
-                            <p className="mt-2 text-sm text-gray-500">
-                              {shipment.description}
-                            </p>
-                          ) : null}
-                        </div>
+                  {compatibleShipments.map((shipment) => {
+                    const matchingTrip = userTrips.find(
+                      (trip) =>
+                        getCityName(trip.origin_city) === getCityName(shipment.origin_city) &&
+                        getCityName(trip.destination_city) === getCityName(shipment.destination_city) &&
+                        trip.status === "open"
+                    );
 
-                        <div className="text-sm text-gray-500">
-                          {shipment.weight_kg ? `${shipment.weight_kg} kg` : "Sin peso"}
+                    return (
+                      <div
+                        key={shipment.id}
+                        className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
+                      >
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <h3 className="text-base font-semibold text-[#0B2C4A]">
+                              {getShipmentKindLabel(shipment.kind)}
+                            </h3>
+                            <p className="mt-1 text-sm text-gray-700">
+                              Ruta: {getCityName(shipment.origin_city) ?? "Origen"} →{" "}
+                              {getCityName(shipment.destination_city) ?? "Destino"}
+                            </p>
+                            {shipment.description ? (
+                              <p className="mt-2 text-sm text-gray-500">
+                                {shipment.description}
+                              </p>
+                            ) : null}
+
+                            <div className="mt-4">
+                              {matchingTrip ? (
+                                <MatchButton
+                                  shipmentId={shipment.id}
+                                  tripId={matchingTrip.id}
+                                />
+                              ) : (
+                                <p className="text-sm text-gray-500">
+                                  No tienes un viaje abierto para esta ruta.
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="text-sm text-gray-500">
+                            {shipment.weight_kg ? `${shipment.weight_kg} kg` : "Sin peso"}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </SectionCard>

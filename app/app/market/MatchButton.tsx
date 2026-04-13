@@ -46,9 +46,9 @@ export default function MatchButton({
 
     if (error) {
       const m = (error.message || "").toLowerCase()
-      // Mensaje amigable cuando es duplicado por constraint unique(shipment_id, trip_id)
+
       if (m.includes("duplicate") || m.includes("matches_unique")) {
-        setMsg("Ya solicitaste este envio para ese viaje ✅")
+        setMsg("Solicitud enviada ✅")
         setDone(true)
         return
       }
@@ -58,20 +58,24 @@ export default function MatchButton({
     }
 
     setDone(true)
-    setMsg("Solicitud enviada ✅ (esperando respuesta del cliente)")
+    setMsg("Solicitud enviada ✅")
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
       <button
         onClick={onClick}
         disabled={loading || done}
-        className="rounded-md bg-black text-white px-3 py-2 disabled:opacity-60"
+        className="rounded-2xl bg-[#2ECC71] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Enviando..." : done ? "Solicitado" : "Solicitar transporte"}
+        {loading ? "Enviando..." : done ? "Pendiente" : "Solicitar transporte"}
       </button>
 
-      {msg && <span className="text-sm opacity-80">{msg}</span>}
+      {msg && (
+        <span className="text-sm text-gray-600">
+          {msg}
+        </span>
+      )}
     </div>
   )
 }

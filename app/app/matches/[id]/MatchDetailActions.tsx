@@ -3,14 +3,19 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+type ActionResult = Promise<{ success: boolean; error?: string }>;
+
 type Props = {
   matchId: string;
   status: string;
   canAccept: boolean;
   canCancel: boolean;
-  onAccept: (matchId: string) => Promise<{ success: boolean; error?: string }>;
-  onCancel: (matchId: string) => Promise<{ success: boolean; error?: string }>;
+  onAccept: (matchId: string) => ActionResult;
+  onReject: (matchId: string) => ActionResult;
+  onCancel: (matchId: string) => ActionResult;
 };
+
+type ActiveAction = "accept" | "reject" | "cancel" | null;
 
 export default function MatchDetailActions({
   matchId,
@@ -18,20 +23,41 @@ export default function MatchDetailActions({
   canAccept,
   canCancel,
   onAccept,
+  onReject,
   onCancel,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [activeAction, setActiveAction] = useState<ActiveAction>(null);
   const [error, setError] = useState<string | null>(null);
 
   function handleAccept() {
     setError(null);
+    setActiveAction("accept");
 
     startTransition(async () => {
       const result = await onAccept(matchId);
 
       if (!result.success) {
         setError(result.error || "No se pudo aceptar el match");
+        setActiveAction(null);
+        return;
+      }
+
+      router.refresh();
+    });
+  }
+
+  function handleReject() {
+    setError(null);
+    setActiveAction("reject");
+
+    startTransition(async () => {
+      const result = await onReject(matchId);
+
+      if (!result.success) {
+        setError(result.error || "No se pudo rechazar el match");
+        setActiveAction(null);
         return;
       }
 
@@ -41,12 +67,14 @@ export default function MatchDetailActions({
 
   function handleCancel() {
     setError(null);
+    setActiveAction("cancel");
 
     startTransition(async () => {
       const result = await onCancel(matchId);
 
       if (!result.success) {
         setError(result.error || "No se pudo cancelar el match");
+        setActiveAction(null);
         return;
       }
 
@@ -58,35 +86,44 @@ export default function MatchDetailActions({
     return null;
   }
 
-  return (
-    <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4">
-      <h2 className="text-lg font-semibold text-slate-900">Acciones del match</h2>
+  const isOwnerPending = status === "pending" && canAccept;
+  const redButtonText =
+    status === "pending"
+      ? canAccept
+        ? "Rechazar match"
+        : "Cancelar solicitud"
+      : "Cancelar match";
 
-      <div className="mt-4 flex flex-wrap gap-3">
+  return (
+    <div className="mt-2">
+      <div className="flex flex-wrap gap-3">
         {canAccept && status === "pending" && (
           <button
             onClick={handleAccept}
             disabled={isPending}
-            className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
           >
-            {isPending ? "Procesando..." : "Aceptar match"}
+            {isPending && activeAction === "accept"
+              ? "Procesando..."
+              : "Aceptar match"}
           </button>
         )}
 
         {canCancel && (status === "pending" || status === "accepted") && (
           <button
-            onClick={handleCancel}
+            onClick={isOwnerPending ? handleReject : handleCancel}
             disabled={isPending}
-            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
           >
-            {isPending ? "Procesando..." : "Cancelar match"}
+            {isPending &&
+            (activeAction === "reject" || activeAction === "cancel")
+              ? "Procesando..."
+              : redButtonText}
           </button>
         )}
       </div>
 
-      {error && (
-        <p className="mt-3 text-sm text-red-600">{error}</p>
-      )}
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
     </div>
   );
 }

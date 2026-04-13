@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
+import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 
 type CityRow = {
   name: string;
@@ -92,21 +93,6 @@ function getStatusClasses(status: string) {
       return "bg-gray-100 text-gray-600 border border-gray-200";
     default:
       return "bg-gray-100 text-gray-600 border border-gray-200";
-  }
-}
-
-function getStatusLabel(status: string) {
-  switch (status) {
-    case "accepted":
-      return "Aceptado";
-    case "pending":
-      return "Pendiente";
-    case "rejected":
-      return "Rechazado";
-    case "cancelled":
-      return "Cancelado";
-    default:
-      return status;
   }
 }
 
@@ -380,7 +366,7 @@ export default async function MatchesPage() {
                             </p>
                             <p>
                               <span className="font-medium">Tipo:</span>{" "}
-                              {shipment?.kind ?? "No definido"}
+                              {getShipmentKindLabel(shipment?.kind)}
                             </p>
                             <p>
                               <span className="font-medium">Peso:</span>{" "}
@@ -394,40 +380,40 @@ export default async function MatchesPage() {
                         </div>
 
                         <div className="flex flex-col gap-3">
-                          <Link
-                            href={`/app/matches/${match.id}`}
-                            className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
-                          >
-                            Ver detalle
-                          </Link>
-
                           {match.status === "accepted" ? (
-                            <Link
-                              href={`/app/matches/${match.id}/chat`}
-                              className="flex h-12 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-sm font-semibold text-white transition hover:opacity-95"
-                            >
-                              Abrir chat
-                            </Link>
-                          ) : null}
+                            <>
+                              <Link
+                                href={`/app/matches/${match.id}`}
+                                className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                              >
+                                Ver detalle
+                              </Link>
 
-                          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                              Estado del envío
-                            </p>
+                              <Link
+                                href={`/app/matches/${match.id}/chat`}
+                                className="flex h-12 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-sm font-semibold text-white transition hover:opacity-95"
+                              >
+                                Abrir chat
+                              </Link>
 
-                            <div className="mt-3">
-                              <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-semibold text-[#0B2C4A]">
-                                Match realizado
-                              </span>
-                            </div>
+                              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                  Estado del envío
+                                </p>
 
-                            <p className="mt-3 text-xs text-gray-500">
-                              Próximamente podrás seguir aquí el avance del
-                              paquete.
-                            </p>
-                          </div>
+                                <div className="mt-3">
+                                  <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-semibold text-[#0B2C4A]">
+                                    Match realizado
+                                  </span>
+                                </div>
 
-                          {match.status !== "accepted" && (
+                                <p className="mt-3 text-xs text-gray-500">
+                                  Próximamente podrás seguir aquí el avance del
+                                  paquete.
+                                </p>
+                              </div>
+                            </>
+                          ) : (
                             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
                               <MatchActions
                                 matchId={match.id}

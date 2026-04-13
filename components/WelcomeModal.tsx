@@ -61,7 +61,7 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         <h2 className="text-2xl font-bold text-[#0B2C4A]">
-          Bienvenido a INTRA 🚀
+          Bienvenido a INTRA 
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-gray-600">
