@@ -366,7 +366,7 @@ export default async function MatchesPage() {
                             </p>
                             <p>
                               <span className="font-medium">Tipo:</span>{" "}
-                              {getShipmentKindLabel(shipment?.kind)}
+                              {getShipmentKindLabel(shipment?.kind ?? null)}
                             </p>
                             <p>
                               <span className="font-medium">Peso:</span>{" "}
