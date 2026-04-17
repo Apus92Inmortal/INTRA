@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 type Props = {
-  currentUserId: string;
+  matchId: string;
 };
 
-export default function MatchesRealtime({ currentUserId }: Props) {
+export default function MatchDetailRealtime({ matchId }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -25,41 +25,21 @@ export default function MatchesRealtime({ currentUserId }: Props) {
 
   useEffect(() => {
     const channel = supabase
-      .channel(`matches-realtime-${currentUserId}`)
+      .channel(`match-detail-${matchId}`)
 
-      // NUEVOS MENSAJES
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
-        (payload: any) => {
-          console.log("📩 Nuevo mensaje:", payload.new);
-
-          // Solo refrescar si el mensaje no es mío
-          if (payload.new?.sender_id !== currentUserId) {
-            safeRefresh();
-          }
-        }
-      )
-
-      // CAMBIOS EN MATCHES
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "matches",
+          filter: `id=eq.${matchId}`,
         },
         () => {
-          console.log("🤝 Cambio en match");
           safeRefresh();
         }
       )
 
-      // CAMBIOS EN SHIPMENTS
       .on(
         "postgres_changes",
         {
@@ -68,14 +48,11 @@ export default function MatchesRealtime({ currentUserId }: Props) {
           table: "shipments",
         },
         () => {
-          console.log("📦 Cambio en shipment");
           safeRefresh();
         }
       )
 
-      .subscribe((status) => {
-        console.log("REALTIME STATUS:", status);
-      });
+      .subscribe();
 
     return () => {
       if (refreshTimeoutRef.current) {
@@ -84,7 +61,7 @@ export default function MatchesRealtime({ currentUserId }: Props) {
 
       supabase.removeChannel(channel);
     };
-  }, [supabase, router, currentUserId]);
+  }, [supabase, router, matchId]);
 
   return null;
 }

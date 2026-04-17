@@ -2,10 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import MatchDetailActions from "./MatchDetailActions";
+import MatchDetailRealtime from "./MatchDetailRealtime";
 import {
   acceptMatchAction,
   rejectMatchAction,
   cancelMatchAction,
+  markInTransitAndRevalidateAction,
+  confirmDeliveryAndRevalidateAction,
 } from "./actions";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 
@@ -29,6 +32,59 @@ function formatCurrency(value: number | null | undefined) {
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function getShipmentTrackingLabel(status: string | null | undefined) {
+  switch (status) {
+    case "open":
+      return "Solicitud creada";
+    case "matched":
+      return "Match realizado";
+    case "accepted":
+      return "Match aceptado";
+    case "in_transit":
+      return "En tránsito";
+    case "delivered":
+      return "Entregado";
+    case "cancelled":
+      return "Cancelado";
+    default:
+      return "Sin estado";
+  }
+}
+
+function getShipmentTrackingClasses(status: string | null | undefined) {
+  switch (status) {
+    case "accepted":
+      return "bg-emerald-100 text-emerald-700";
+    case "in_transit":
+      return "bg-blue-100 text-blue-700";
+    case "delivered":
+      return "bg-green-100 text-green-700";
+    case "cancelled":
+      return "bg-slate-100 text-slate-700";
+    case "matched":
+      return "bg-indigo-100 text-indigo-700";
+    default:
+      return "bg-slate-100 text-slate-700";
+  }
+}
+
+function getShipmentTrackingDescription(status: string | null | undefined) {
+  switch (status) {
+    case "accepted":
+      return "El match fue aceptado. El siguiente paso es recoger el paquete.";
+    case "in_transit":
+      return "El viajero ya recogió el paquete y está en camino.";
+    case "delivered":
+      return "La entrega fue confirmada correctamente.";
+    case "cancelled":
+      return "Este envío fue cancelado.";
+    case "matched":
+      return "Ya existe una coincidencia creada para este envío.";
+    default:
+      return "Próximamente podrás seguir aquí el avance del paquete.";
+  }
 }
 
 export default async function MatchDetailPage({ params }: PageProps) {
@@ -66,6 +122,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
         description,
         weight_kg,
         declared_value_cop,
+        status,
         origin_city_id,
         destination_city_id
       )
@@ -92,8 +149,30 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
   const canOpenChat = match.status === "accepted";
 
+  const canMarkInTransit =
+    isTraveler &&
+    match.status === "accepted" &&
+    shipment?.status === "accepted";
+
+  const canConfirmDelivery =
+    isOwner &&
+    match.status === "accepted" &&
+    shipment?.status === "in_transit";
+
+  const markInTransitFormAction =
+    shipment?.id && match?.id
+      ? markInTransitAndRevalidateAction.bind(null, shipment.id, match.id)
+      : undefined;
+
+  const confirmDeliveryFormAction =
+    shipment?.id && match?.id
+      ? confirmDeliveryAndRevalidateAction.bind(null, shipment.id, match.id)
+      : undefined;
+
   return (
     <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
+      <MatchDetailRealtime matchId={match.id} />
+
       <div className="mx-auto max-w-4xl">
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
@@ -156,6 +235,24 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     <span className="font-medium text-slate-900">Valor:</span>{" "}
                     {formatCurrency(shipment?.declared_value_cop)}
                   </p>
+
+                  <div className="pt-2">
+                    <p className="font-medium text-slate-900">Tracking:</p>
+
+                    <div className="mt-2">
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getShipmentTrackingClasses(
+                          shipment?.status
+                        )}`}
+                      >
+                        {getShipmentTrackingLabel(shipment?.status)}
+                      </span>
+                    </div>
+
+                    <p className="mt-2 text-xs text-slate-500">
+                      {getShipmentTrackingDescription(shipment?.status)}
+                    </p>
+                  </div>
                 </div>
               </section>
 
@@ -193,7 +290,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 Acciones del match
               </h2>
 
-              <div className="mt-4">
+              <div className="mt-4 space-y-3">
                 <MatchDetailActions
                   matchId={match.id}
                   status={match.status}
@@ -203,6 +300,28 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   onReject={rejectMatchAction}
                   onCancel={cancelMatchAction}
                 />
+
+                {canMarkInTransit && markInTransitFormAction ? (
+                  <form action={markInTransitFormAction}>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      Recogí el paquete
+                    </button>
+                  </form>
+                ) : null}
+
+                {canConfirmDelivery && confirmDeliveryFormAction ? (
+                  <form action={confirmDeliveryFormAction}>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center rounded-2xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
+                    >
+                      Confirmar entrega
+                    </button>
+                  </form>
+                ) : null}
               </div>
             </div>
 

@@ -8,44 +8,34 @@ type Props = {
   currentUserId: string;
 };
 
-export default function MatchesRealtime({ currentUserId }: Props) {
+export default function MarketRealtime({ currentUserId }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastRefreshRef = useRef(0);
 
   function safeRefresh() {
+    const now = Date.now();
+
+    // evita refreshes demasiado seguidos
+    if (now - lastRefreshRef.current < 1500) {
+      return;
+    }
+
     if (refreshTimeoutRef.current) {
       clearTimeout(refreshTimeoutRef.current);
     }
 
     refreshTimeoutRef.current = setTimeout(() => {
+      lastRefreshRef.current = Date.now();
       router.refresh();
-    }, 200);
+    }, 300);
   }
 
   useEffect(() => {
     const channel = supabase
-      .channel(`matches-realtime-${currentUserId}`)
+      .channel(`market-realtime-${currentUserId}`)
 
-      // NUEVOS MENSAJES
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
-        (payload: any) => {
-          console.log("📩 Nuevo mensaje:", payload.new);
-
-          // Solo refrescar si el mensaje no es mío
-          if (payload.new?.sender_id !== currentUserId) {
-            safeRefresh();
-          }
-        }
-      )
-
-      // CAMBIOS EN MATCHES
       .on(
         "postgres_changes",
         {
@@ -54,12 +44,10 @@ export default function MatchesRealtime({ currentUserId }: Props) {
           table: "matches",
         },
         () => {
-          console.log("🤝 Cambio en match");
           safeRefresh();
         }
       )
 
-      // CAMBIOS EN SHIPMENTS
       .on(
         "postgres_changes",
         {
@@ -68,14 +56,11 @@ export default function MatchesRealtime({ currentUserId }: Props) {
           table: "shipments",
         },
         () => {
-          console.log("📦 Cambio en shipment");
           safeRefresh();
         }
       )
 
-      .subscribe((status) => {
-        console.log("REALTIME STATUS:", status);
-      });
+      .subscribe();
 
     return () => {
       if (refreshTimeoutRef.current) {

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchButton from "./MatchButton";
-import { getShipmentKindLabel, getStatusLabel } from "@/lib/labels"
+import MarketRealtime from "./MarketRealtime";
+import { getShipmentKindLabel, getStatusLabel } from "@/lib/labels";
 
 type CityRow = {
   name: string;
@@ -208,6 +209,7 @@ export default async function MarketPage() {
   return (
     <>
       <AppNavbar />
+      <MarketRealtime currentUserId={user.id} />
 
       <main className="min-h-screen bg-[#EEF2F7]">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">

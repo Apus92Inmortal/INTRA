@@ -211,24 +211,17 @@ export function NotificationsBell() {
     if (!userId) return;
 
     const channel = supabase
-      .channel("notifications-realtime")
+      .channel(`notifications-realtime-${userId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "notifications",
+          filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
-          const newItem = payload.new as NotificationItem;
-
-          if (newItem.user_id !== userId) return;
-
-          setItems((prev) => [newItem, ...prev].slice(0, 20));
-
-          if (!newItem.is_read) {
-            setUnreadCount((prev) => prev + 1);
-          }
+        async () => {
+          await loadNotifications(userId);
         }
       )
       .on(
@@ -237,25 +230,17 @@ export function NotificationsBell() {
           event: "UPDATE",
           schema: "public",
           table: "notifications",
+          filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
-          const updated = payload.new as NotificationItem;
-
-          if (updated.user_id !== userId) return;
-
-          setItems((prev) => {
-            const exists = prev.some((n) => n.id === updated.id);
-
-            const merged = exists
-              ? prev.map((n) => (n.id === updated.id ? updated : n))
-              : [updated, ...prev].slice(0, 20);
-
-            setUnreadCount(merged.filter((n) => !n.is_read).length);
-            return merged;
-          });
+        async () => {
+          await loadNotifications(userId);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          loadNotifications(userId);
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);

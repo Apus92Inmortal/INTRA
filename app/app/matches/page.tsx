@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
+import { confirmDeliveryAction } from "./[id]/actions";
 
 type CityRow = {
   name: string;
@@ -27,6 +29,7 @@ type ShipmentItem = {
   kind: string | null;
   weight_kg: number | null;
   declared_value_cop: number | null;
+  status: string | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
 };
@@ -96,6 +99,59 @@ function getStatusClasses(status: string) {
   }
 }
 
+function getShipmentTrackingLabel(status: string | null) {
+  switch (status) {
+    case "open":
+      return "Solicitud creada";
+    case "matched":
+      return "Match realizado";
+    case "accepted":
+      return "Match aceptado";
+    case "in_transit":
+      return "En tránsito";
+    case "delivered":
+      return "Entregado";
+    case "cancelled":
+      return "Cancelado";
+    default:
+      return "Sin estado";
+  }
+}
+
+function getShipmentTrackingClasses(status: string | null) {
+  switch (status) {
+    case "accepted":
+      return "border-green-200 bg-green-50 text-green-700";
+    case "in_transit":
+      return "border-blue-200 bg-blue-50 text-[#0B2C4A]";
+    case "delivered":
+      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    case "cancelled":
+      return "border-gray-300 bg-gray-100 text-gray-600";
+    case "matched":
+      return "border-blue-200 bg-blue-50 text-[#0B2C4A]";
+    default:
+      return "border-gray-200 bg-gray-50 text-gray-600";
+  }
+}
+
+function getShipmentTrackingDescription(status: string | null) {
+  switch (status) {
+    case "accepted":
+      return "El match fue aceptado. El siguiente paso es recoger el paquete.";
+    case "in_transit":
+      return "El viajero ya recogió el paquete y está en camino.";
+    case "delivered":
+      return "La entrega fue confirmada correctamente.";
+    case "cancelled":
+      return "Este envío fue cancelado.";
+    case "matched":
+      return "Ya existe una coincidencia creada para este envío.";
+    default:
+      return "Próximamente podrás seguir aquí el avance del paquete.";
+  }
+}
+
 function getCityName(city: CityRelation) {
   if (!city) return null;
   if (Array.isArray(city)) return city[0]?.name ?? null;
@@ -155,6 +211,7 @@ export default async function MatchesPage() {
         kind,
         weight_kg,
         declared_value_cop,
+        status,
         origin_city:cities!shipments_origin_city_id_fkey(name),
         destination_city:cities!shipments_destination_city_id_fkey(name)
       )
@@ -261,6 +318,8 @@ export default async function MatchesPage() {
                 const lastMessage = messagesMap.get(match.id);
 
                 const isTraveler = trip?.traveler_id === user.id;
+                const isOwner = shipment?.owner_id === user.id;
+
                 const otherUserId = isTraveler
                   ? shipment?.owner_id
                   : trip?.traveler_id;
@@ -402,15 +461,38 @@ export default async function MatchesPage() {
                                 </p>
 
                                 <div className="mt-3">
-                                  <span className="inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-sm font-semibold text-[#0B2C4A]">
-                                    Match realizado
+                                  <span
+                                    className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${getShipmentTrackingClasses(
+                                      shipment?.status ?? null
+                                    )}`}
+                                  >
+                                    {getShipmentTrackingLabel(shipment?.status ?? null)}
                                   </span>
                                 </div>
 
                                 <p className="mt-3 text-xs text-gray-500">
-                                  Próximamente podrás seguir aquí el avance del
-                                  paquete.
+                                  {getShipmentTrackingDescription(
+                                    shipment?.status ?? null
+                                  )}
                                 </p>
+
+                                {shipment?.status === "in_transit" && isOwner && (
+                                  <form
+                                    action={async () => {
+                                      "use server";
+                                      await confirmDeliveryAction(shipment.id);
+                                      revalidatePath("/app/matches");
+                                      revalidatePath(`/app/matches/${match.id}`);
+                                    }}
+                                  >
+                                    <button
+                                      type="submit"
+                                      className="mt-4 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                                    >
+                                      Confirmar entrega
+                                    </button>
+                                  </form>
+                                )}
                               </div>
                             </>
                           ) : (
