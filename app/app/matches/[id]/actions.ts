@@ -162,54 +162,30 @@ export async function confirmDeliveryAction(shipmentId: string) {
   }
 }
 
-export async function markInTransitAndRevalidateAction(
+export async function markInTransitFormAction(
   shipmentId: string,
   matchId: string
-) {
-  try {
-    const result = await markInTransitAction(shipmentId);
+): Promise<void> {
+  const result = await markInTransitAction(shipmentId);
 
-    if (!result.success) {
-      return result;
-    }
-
-    revalidatePath(`/app/matches/${matchId}`);
-    revalidatePath("/app/matches");
-
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Error al marcar en tránsito",
-    };
+  if (!result.success) {
+    throw new Error(result.error || "Error al marcar en tránsito");
   }
+
+  revalidatePath(`/app/matches/${matchId}`);
+  revalidatePath("/app/matches");
 }
 
-export async function confirmDeliveryAndRevalidateAction(
+export async function confirmDeliveryFormAction(
   shipmentId: string,
   matchId: string
-) {
-  try {
-    const result = await confirmDeliveryAction(shipmentId);
+): Promise<void> {
+  const result = await confirmDeliveryAction(shipmentId);
 
-    if (!result.success) {
-      return result;
-    }
-
-    revalidatePath(`/app/matches/${matchId}`);
-    revalidatePath("/app/matches");
-
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Error al confirmar la entrega",
-    };
+  if (!result.success) {
+    throw new Error(result.error || "Error al confirmar la entrega");
   }
+
+  revalidatePath(`/app/matches/${matchId}`);
+  revalidatePath("/app/matches");
 }

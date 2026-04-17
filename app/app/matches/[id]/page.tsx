@@ -7,8 +7,8 @@ import {
   acceptMatchAction,
   rejectMatchAction,
   cancelMatchAction,
-  markInTransitAndRevalidateAction,
-  confirmDeliveryAndRevalidateAction,
+  markInTransitFormAction,
+  confirmDeliveryFormAction,
 } from "./actions";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 
@@ -159,14 +159,14 @@ export default async function MatchDetailPage({ params }: PageProps) {
     match.status === "accepted" &&
     shipment?.status === "in_transit";
 
-  const markInTransitFormAction =
+  const markInTransitSubmitAction =
     shipment?.id && match?.id
-      ? markInTransitAndRevalidateAction.bind(null, shipment.id, match.id)
+      ? markInTransitFormAction.bind(null, shipment.id, match.id)
       : undefined;
 
-  const confirmDeliveryFormAction =
+  const confirmDeliverySubmitAction =
     shipment?.id && match?.id
-      ? confirmDeliveryAndRevalidateAction.bind(null, shipment.id, match.id)
+      ? confirmDeliveryFormAction.bind(null, shipment.id, match.id)
       : undefined;
 
   return (
@@ -301,8 +301,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   onCancel={cancelMatchAction}
                 />
 
-                {canMarkInTransit && markInTransitFormAction ? (
-                  <form action={markInTransitFormAction}>
+                {canMarkInTransit && markInTransitSubmitAction ? (
+                  <form action={markInTransitSubmitAction}>
                     <button
                       type="submit"
                       className="inline-flex items-center rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
@@ -312,8 +312,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   </form>
                 ) : null}
 
-                {canConfirmDelivery && confirmDeliveryFormAction ? (
-                  <form action={confirmDeliveryFormAction}>
+                {canConfirmDelivery && confirmDeliverySubmitAction ? (
+                  <form action={confirmDeliverySubmitAction}>
                     <button
                       type="submit"
                       className="inline-flex items-center rounded-2xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
