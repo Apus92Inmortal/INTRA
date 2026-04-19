@@ -23,10 +23,22 @@ export function getStatusLabel(status: string | null) {
       return "Rechazado";
     case "cancelled":
       return "Cancelado";
+    case "completed":
+      return "Completado";
     case "full":
       return "Lleno";
     case "matched":
-      return "Con match";
+      return "Emparejado";
+    case "in_transit":
+      return "En tránsito";
+    case "delivered":
+      return "Entregado";
+    case "held":
+      return "Retenido";
+    case "released":
+      return "Liberado";
+    case "refunded":
+      return "Reembolsado";
     default:
       return status ?? "";
   }

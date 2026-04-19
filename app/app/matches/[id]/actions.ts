@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function acceptMatchAction(matchId: string) {
   try {
     if (!matchId) {
-      return { success: false, error: "No llegó el ID del match" };
+      return { success: false, error: "No llego el ID del match" };
     }
 
     const supabase = await createClient();
@@ -17,16 +17,6 @@ export async function acceptMatchAction(matchId: string) {
 
     if (acceptError) {
       return { success: false, error: acceptError.message };
-    }
-
-    const { error: paymentError } = await supabase.from("payments").insert({
-      match_id: matchId,
-      amount: 0,
-      status: "held",
-    });
-
-    if (paymentError) {
-      return { success: false, error: paymentError.message };
     }
 
     revalidatePath(`/app/matches/${matchId}`);
@@ -47,7 +37,7 @@ export async function acceptMatchAction(matchId: string) {
 export async function rejectMatchAction(matchId: string) {
   try {
     if (!matchId) {
-      return { success: false, error: "No llegó el ID del match" };
+      return { success: false, error: "No llego el ID del match" };
     }
 
     const supabase = await createClient();
@@ -78,17 +68,70 @@ export async function rejectMatchAction(matchId: string) {
 export async function cancelMatchAction(matchId: string) {
   try {
     if (!matchId) {
-      return { success: false, error: "No llegó el ID del match" };
+      return { success: false, error: "No llego el ID del match" };
     }
 
     const supabase = await createClient();
 
-    const { error } = await supabase.rpc("cancel_match", {
-      p_match_id: matchId,
-    });
+    const { data: match, error: matchError } = await supabase
+      .from("matches")
+      .select("id, shipment_id")
+      .eq("id", matchId)
+      .single();
 
-    if (error) {
-      return { success: false, error: error.message };
+    if (matchError || !match) {
+      return {
+        success: false,
+        error: matchError?.message ?? "No se encontro el match",
+      };
+    }
+
+    const { data: payment, error: paymentLookupError } = await supabase
+      .from("payments")
+      .select("id, status")
+      .eq("shipment_id", match.shipment_id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (paymentLookupError) {
+      return { success: false, error: paymentLookupError.message };
+    }
+
+    if (!payment) {
+      return {
+        success: false,
+        error: "No se encontro un pago asociado a este envio",
+      };
+    }
+
+    const previousPaymentStatus = payment.status;
+
+    if (payment.status !== "refunded") {
+      const { error: refundError } = await supabase
+        .from("payments")
+        .update({ status: "refunded" })
+        .eq("id", payment.id);
+
+      if (refundError) {
+        return { success: false, error: refundError.message };
+      }
+    }
+
+    const { error: cancelError } = await supabase
+      .from("matches")
+      .update({ status: "cancelled" })
+      .eq("id", matchId);
+
+    if (cancelError) {
+      if (previousPaymentStatus !== "refunded") {
+        await supabase
+          .from("payments")
+          .update({ status: previousPaymentStatus })
+          .eq("id", payment.id);
+      }
+
+      return { success: false, error: cancelError.message };
     }
 
     revalidatePath(`/app/matches/${matchId}`);
@@ -109,7 +152,7 @@ export async function cancelMatchAction(matchId: string) {
 export async function markInTransitAction(shipmentId: string) {
   try {
     if (!shipmentId) {
-      return { success: false, error: "No llegó el ID del shipment" };
+      return { success: false, error: "No llego el ID del shipment" };
     }
 
     const supabase = await createClient();
@@ -129,7 +172,7 @@ export async function markInTransitAction(shipmentId: string) {
       error:
         error instanceof Error
           ? error.message
-          : "Error al marcar en tránsito",
+          : "Error al marcar en transito",
     };
   }
 }
@@ -137,10 +180,23 @@ export async function markInTransitAction(shipmentId: string) {
 export async function confirmDeliveryAction(shipmentId: string) {
   try {
     if (!shipmentId) {
-      return { success: false, error: "No llegó el ID del shipment" };
+      return { success: false, error: "No llego el ID del shipment" };
     }
 
     const supabase = await createClient();
+
+    const { data: shipment, error: shipmentError } = await supabase
+      .from("shipments")
+      .select("id")
+      .eq("id", shipmentId)
+      .single();
+
+    if (shipmentError || !shipment) {
+      return {
+        success: false,
+        error: shipmentError?.message ?? "No se encontro el shipment",
+      };
+    }
 
     const { error } = await supabase.rpc("confirm_shipment_delivery", {
       p_shipment_id: shipmentId,
@@ -148,6 +204,37 @@ export async function confirmDeliveryAction(shipmentId: string) {
 
     if (error) {
       return { success: false, error: error.message };
+    }
+
+    const { data: payment, error: paymentLookupError } = await supabase
+      .from("payments")
+      .select("id")
+      .eq("shipment_id", shipment.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (paymentLookupError) {
+      return { success: false, error: paymentLookupError.message };
+    }
+
+    if (!payment) {
+      return {
+        success: false,
+        error: "No se encontro un pago asociado a este envio",
+      };
+    }
+
+    const { error: paymentUpdateError } = await supabase
+      .from("payments")
+      .update({
+        status: "released",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", payment.id);
+
+    if (paymentUpdateError) {
+      return { success: false, error: paymentUpdateError.message };
     }
 
     return { success: true };
@@ -169,7 +256,7 @@ export async function markInTransitFormAction(
   const result = await markInTransitAction(shipmentId);
 
   if (!result.success) {
-    throw new Error(result.error || "Error al marcar en tránsito");
+    throw new Error(result.error || "Error al marcar en transito");
   }
 
   revalidatePath(`/app/matches/${matchId}`);

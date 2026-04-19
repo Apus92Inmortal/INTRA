@@ -6,16 +6,20 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getStatusLabel } from "@/lib/labels";
 
+type ActionResult = Promise<{ success: boolean; error?: string }>;
+
 export default function MatchActions({
   matchId,
   matchStatus,
   currentUserId,
   shipmentOwnerId,
+  onCancel,
 }: {
   matchId: string;
   matchStatus: string;
   currentUserId: string;
   shipmentOwnerId: string | null;
+  onCancel: (matchId: string) => ActionResult;
 }) {
   const supabase = createClient();
   const router = useRouter();
@@ -32,13 +36,24 @@ export default function MatchActions({
     setLoading(true);
     setMsg(null);
 
-    const { error } = await supabase.rpc(fn, { p_match_id: matchId });
+    if (fn === "cancel_match") {
+      const result = await onCancel(matchId);
 
-    setLoading(false);
+      setLoading(false);
 
-    if (error) {
-      setMsg("❌ " + error.message);
-      return;
+      if (!result.success) {
+        setMsg("❌ " + (result.error ?? "No se pudo cancelar"));
+        return;
+      }
+    } else {
+      const { error } = await supabase.rpc(fn, { p_match_id: matchId });
+
+      setLoading(false);
+
+      if (error) {
+        setMsg("❌ " + error.message);
+        return;
+      }
     }
 
     setDone(true);
@@ -115,7 +130,7 @@ export default function MatchActions({
       {isClient ? (
         <>
           <div className="rounded-2xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-            El viajero solicitó transportar tu envío.
+            El viajero solicito transportar tu envio.
           </div>
 
           <button

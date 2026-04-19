@@ -6,7 +6,7 @@ import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
-import { confirmDeliveryAction } from "./[id]/actions";
+import { cancelMatchAction, confirmDeliveryAction } from "./[id]/actions";
 
 type CityRow = {
   name: string;
@@ -502,6 +502,7 @@ export default async function MatchesPage() {
                                 matchStatus={match.status}
                                 currentUserId={user.id}
                                 shipmentOwnerId={shipment?.owner_id ?? null}
+                                onCancel={cancelMatchAction}
                               />
                             </div>
                           )}

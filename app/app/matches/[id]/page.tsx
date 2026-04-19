@@ -152,7 +152,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const canMarkInTransit =
     isTraveler &&
     match.status === "accepted" &&
-    shipment?.status === "accepted";
+    shipment?.status === "matched";
 
   const canConfirmDelivery =
     isOwner &&
