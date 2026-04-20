@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -14,7 +14,7 @@ export default function MarketRealtime({ currentUserId }: Props) {
   const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastRefreshRef = useRef(0);
 
-  function safeRefresh() {
+  const safeRefresh = useCallback(() => {
     const now = Date.now();
 
     // evita refreshes demasiado seguidos
@@ -30,7 +30,7 @@ export default function MarketRealtime({ currentUserId }: Props) {
       lastRefreshRef.current = Date.now();
       router.refresh();
     }, 300);
-  }
+  }, [router]);
 
   useEffect(() => {
     const channel = supabase
@@ -69,7 +69,7 @@ export default function MarketRealtime({ currentUserId }: Props) {
 
       supabase.removeChannel(channel);
     };
-  }, [supabase, router, currentUserId]);
+  }, [currentUserId, safeRefresh, supabase]);
 
   return null;
 }

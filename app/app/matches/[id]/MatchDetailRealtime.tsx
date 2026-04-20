@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -13,7 +13,7 @@ export default function MatchDetailRealtime({ matchId }: Props) {
   const supabase = useMemo(() => createClient(), []);
   const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function safeRefresh() {
+  const safeRefresh = useCallback(() => {
     if (refreshTimeoutRef.current) {
       clearTimeout(refreshTimeoutRef.current);
     }
@@ -21,7 +21,7 @@ export default function MatchDetailRealtime({ matchId }: Props) {
     refreshTimeoutRef.current = setTimeout(() => {
       router.refresh();
     }, 200);
-  }
+  }, [router]);
 
   useEffect(() => {
     const channel = supabase
@@ -61,7 +61,7 @@ export default function MatchDetailRealtime({ matchId }: Props) {
 
       supabase.removeChannel(channel);
     };
-  }, [supabase, router, matchId]);
+  }, [matchId, safeRefresh, supabase]);
 
   return null;
 }

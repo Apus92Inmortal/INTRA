@@ -60,6 +60,13 @@ function mergeMessages(prev: Message[], incoming: Message[]) {
   return sortMessages(Array.from(map.values()));
 }
 
+function latestTimestamp(a: string | null, b: string | null) {
+  if (!a) return b;
+  if (!b) return a;
+
+  return new Date(a).getTime() >= new Date(b).getTime() ? a : b;
+}
+
 export default function MatchChatClient({
   matchId,
   currentUserId,
@@ -76,12 +83,11 @@ export default function MatchChatClient({
   );
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
   const [channelReady, setChannelReady] = useState(false);
-  const [readState, setReadState] = useState({
-    lastReadByOwner,
-    lastReadByTraveler,
+  const [readStateOverrides, setReadStateOverrides] = useState({
+    lastReadByOwner: null as string | null,
+    lastReadByTraveler: null as string | null,
   });
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -100,12 +106,24 @@ export default function MatchChatClient({
       ? "last_read_by_traveler"
       : "last_read_by_owner";
 
-  useEffect(() => {
-    setReadState({
+  const readState = useMemo(
+    () => ({
+      lastReadByOwner: latestTimestamp(
+        lastReadByOwner,
+        readStateOverrides.lastReadByOwner
+      ),
+      lastReadByTraveler: latestTimestamp(
+        lastReadByTraveler,
+        readStateOverrides.lastReadByTraveler
+      ),
+    }),
+    [
       lastReadByOwner,
       lastReadByTraveler,
-    });
-  }, [lastReadByOwner, lastReadByTraveler]);
+      readStateOverrides.lastReadByOwner,
+      readStateOverrides.lastReadByTraveler,
+    ]
+  );
 
   useEffect(() => {
     readStateRef.current = readState;
@@ -147,7 +165,7 @@ export default function MatchChatClient({
     });
   }
 
-  function sendReadReceipt(readAt: string) {
+  const sendReadReceipt = useCallback((readAt: string) => {
     const channel = messagesChannelRef.current;
     if (!channel || !channelReadyRef.current) return;
 
@@ -161,9 +179,9 @@ export default function MatchChatClient({
         readAt,
       },
     });
-  }
+  }, [currentUserId, matchId, viewerRole]);
 
-  async function refreshMessages() {
+  const refreshMessages = useCallback(async () => {
     const { data, error } = await supabase
       .from("messages")
       .select("id, match_id, sender_id, message, created_at")
@@ -178,9 +196,9 @@ export default function MatchChatClient({
     if (!data) return;
 
     setMessages((prev) => mergeMessages(prev, data as Message[]));
-  }
+  }, [matchId, supabase]);
 
-  async function refreshReadState() {
+  const refreshReadState = useCallback(async () => {
     const { data, error } = await supabase
       .from("matches")
       .select("last_read_by_owner, last_read_by_traveler")
@@ -194,13 +212,13 @@ export default function MatchChatClient({
 
     if (!data) return;
 
-    setReadState({
+    setReadStateOverrides({
       lastReadByOwner: data.last_read_by_owner,
       lastReadByTraveler: data.last_read_by_traveler,
     });
-  }
+  }, [matchId, supabase]);
 
-  async function markChatNotificationsAsRead() {
+  const markChatNotificationsAsRead = useCallback(async () => {
     const now = new Date().toISOString();
 
     const { error } = await supabase
@@ -216,7 +234,7 @@ export default function MatchChatClient({
     if (error) {
       console.error("Error marking chat notifications as read:", error.message);
     }
-  }
+  }, [matchId, supabase]);
 
   const markIncomingMessageAsRead = useCallback(
     async (readAt: string) => {
@@ -239,7 +257,7 @@ export default function MatchChatClient({
         return;
       }
 
-      setReadState((prev) => ({
+      setReadStateOverrides((prev) => ({
         ...prev,
         ...(viewerRole === "owner"
           ? { lastReadByOwner: readAt }
@@ -253,7 +271,14 @@ export default function MatchChatClient({
 
       markingReadRef.current = false;
     },
-    [matchId, readColumn, supabase, viewerRole]
+    [
+      markChatNotificationsAsRead,
+      matchId,
+      readColumn,
+      sendReadReceipt,
+      supabase,
+      viewerRole,
+    ]
   );
 
   const markAsReadNow = useCallback(async () => {
@@ -281,10 +306,6 @@ export default function MatchChatClient({
     const lastUnread = unreadIncoming[unreadIncoming.length - 1];
     await markIncomingMessageAsRead(lastUnread.created_at);
   }, [currentUserId, markIncomingMessageAsRead, messages, viewerRole]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -326,7 +347,7 @@ export default function MatchChatClient({
         if (!readerId || !incomingRole || !readAt) return;
         if (readerId === currentUserId) return;
 
-        setReadState((prev) => ({
+        setReadStateOverrides((prev) => ({
           ...prev,
           ...(incomingRole === "owner"
             ? { lastReadByOwner: readAt }
@@ -376,7 +397,7 @@ export default function MatchChatClient({
             last_read_by_traveler: string | null;
           };
 
-          setReadState({
+          setReadStateOverrides({
             lastReadByOwner: updated.last_read_by_owner,
             lastReadByTraveler: updated.last_read_by_traveler,
           });
@@ -439,11 +460,13 @@ export default function MatchChatClient({
       channelReadyRef.current = false;
     };
   }, [
-    supabase,
-    matchId,
     currentUserId,
     markAsReadNow,
     markIncomingMessageAsRead,
+    matchId,
+    refreshMessages,
+    refreshReadState,
+    supabase,
   ]);
 
   useEffect(() => {
@@ -540,11 +563,12 @@ export default function MatchChatClient({
                     </p>
 
                     <p
+                      suppressHydrationWarning
                       className={`mt-1 text-xs ${
                         isMine ? "text-slate-300" : "text-slate-500"
                       }`}
                     >
-                      {mounted ? formatMessageTime(msg.created_at) : ""}
+                      {formatMessageTime(msg.created_at)}
                     </p>
                   </div>
 

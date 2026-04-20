@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -8,12 +8,18 @@ type Props = {
   currentUserId: string;
 };
 
+type MessageInsertPayload = {
+  new: {
+    sender_id?: string | null;
+  } | null;
+};
+
 export default function MatchesRealtime({ currentUserId }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function safeRefresh() {
+  const safeRefresh = useCallback(() => {
     if (refreshTimeoutRef.current) {
       clearTimeout(refreshTimeoutRef.current);
     }
@@ -21,7 +27,7 @@ export default function MatchesRealtime({ currentUserId }: Props) {
     refreshTimeoutRef.current = setTimeout(() => {
       router.refresh();
     }, 200);
-  }
+  }, [router]);
 
   useEffect(() => {
     const channel = supabase
@@ -35,7 +41,7 @@ export default function MatchesRealtime({ currentUserId }: Props) {
           schema: "public",
           table: "messages",
         },
-        (payload: any) => {
+        (payload: MessageInsertPayload) => {
           console.log("📩 Nuevo mensaje:", payload.new);
 
           // Solo refrescar si el mensaje no es mío
@@ -84,7 +90,7 @@ export default function MatchesRealtime({ currentUserId }: Props) {
 
       supabase.removeChannel(channel);
     };
-  }, [supabase, router, currentUserId]);
+  }, [currentUserId, safeRefresh, supabase]);
 
   return null;
 }

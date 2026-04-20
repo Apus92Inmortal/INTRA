@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -29,7 +29,7 @@ export function NotificationsBell() {
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  async function loadNotifications(currentUserId: string) {
+  const loadNotifications = useCallback(async (currentUserId: string) => {
     const { data, error } = await supabase
       .from("notifications")
       .select(
@@ -52,7 +52,7 @@ export function NotificationsBell() {
     const rows = (data ?? []) as NotificationItem[];
     setItems(rows);
     setUnreadCount(rows.filter((n) => !n.is_read).length);
-  }
+  }, [supabase]);
 
   async function markOneAsRead(id: string) {
     const { error } = await supabase.rpc("mark_notification_as_read", {
@@ -205,7 +205,7 @@ export function NotificationsBell() {
     return () => {
       mounted = false;
     };
-  }, [supabase]);
+  }, [loadNotifications, supabase]);
 
   useEffect(() => {
     if (!userId) return;
@@ -238,14 +238,14 @@ export function NotificationsBell() {
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
-          loadNotifications(userId);
+          void loadNotifications(userId);
         }
       });
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, userId]);
+  }, [loadNotifications, supabase, userId]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

@@ -17,12 +17,14 @@ const customFetch: typeof fetch = async (input, init) => {
       const res = await fetch(input, { ...init, signal: controller.signal });
       clearTimeout(t);
       return res;
-    } catch (e: any) {
+    } catch (error: unknown) {
       clearTimeout(t);
 
-      if (e?.name === "AbortError") throw e;
+      if (error instanceof Error && error.name === "AbortError") {
+        throw error;
+      }
 
-      const msg = String(e?.message ?? e);
+      const msg = error instanceof Error ? error.message : String(error);
       const isNet =
         msg.includes("fetch failed") ||
         msg.includes("ECONNRESET") ||
@@ -30,7 +32,7 @@ const customFetch: typeof fetch = async (input, init) => {
         msg.includes("EAI_AGAIN") ||
         msg.includes("ENOTFOUND");
 
-      if (!isNet || attempt >= retries) throw e;
+      if (!isNet || attempt >= retries) throw error;
       await sleep(600 * (attempt + 1));
     }
   }

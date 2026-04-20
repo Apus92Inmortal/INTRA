@@ -1,4 +1,5 @@
-﻿import { AppNavbar } from "@/components/app-navbar";
+﻿import Link from "next/link";
+import { AppNavbar } from "@/components/app-navbar";
 import WelcomeModal from "@/components/WelcomeModal";
 import { createClient } from "@/lib/supabase/server";
 
@@ -39,12 +40,12 @@ export default async function AppHomePage() {
               </p>
             </div>
 
-            <a
+            <Link
               className="self-start md:self-auto rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-[#0B2C4A] hover:bg-gray-200 transition"
               href="/app/profile"
             >
               Mi perfil
-            </a>
+            </Link>
           </div>
 
           {/* INFO CARD */}
@@ -73,7 +74,7 @@ export default async function AppHomePage() {
 
           {/* ACCIONES PRINCIPALES */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
+            <Link
               href="/app/shipments/new"
               className="bg-[#0B2C4A] text-white rounded-2xl p-6 hover:scale-[1.02] transition"
             >
@@ -81,9 +82,9 @@ export default async function AppHomePage() {
               <p className="text-sm text-white/90 mt-1">
                 Publica un paquete para enviarlo con un viajero
               </p>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/app/trips/new"
               className="bg-[#2ECC71] border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-[#2ECC71] transition"
             >
@@ -93,9 +94,9 @@ export default async function AppHomePage() {
               <p className="text-sm text-white/90 mt-1">
                 Ofrece espacio en tu viaje para transportar paquetes
               </p>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/app/market"
               className="bg-white border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-gray-200 transition"
             >
@@ -105,9 +106,9 @@ export default async function AppHomePage() {
               <p className="text-sm text-gray-600 mt-1">
                 Encuentra envíos o viajes disponibles
               </p>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/app/matches"
               className="bg-white border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-gray-200 transition"
             >
@@ -117,7 +118,7 @@ export default async function AppHomePage() {
               <p className="text-sm text-gray-600 mt-1">
                 Gestiona tus solicitudes y conversaciones
               </p>
-            </a>
+            </Link>
           </div>
         </div>
       </main>
