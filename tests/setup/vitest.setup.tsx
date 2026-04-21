@@ -3,9 +3,15 @@ import React from "react";
 import { vi } from "vitest";
 
 vi.mock("next/image", () => ({
-  default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean }) => {
-    const { priority, ...imgProps } = props;
+  default: (
+    props: React.ImgHTMLAttributes<HTMLImageElement> & {
+      priority?: boolean;
+      fill?: boolean;
+    }
+  ) => {
+    const { priority, fill, ...imgProps } = props;
     void priority;
+    void fill;
 
     // eslint-disable-next-line @next/next/no-img-element
     return <img {...imgProps} alt={imgProps.alt ?? ""} />;
@@ -18,4 +24,10 @@ vi.mock("next/link", () => ({
       {children}
     </a>
   ),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
