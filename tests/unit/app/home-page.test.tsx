@@ -1,33 +1,21 @@
-import { render, screen } from "@testing-library/react"
-import HomePage from "@/app/page"
+import { render, screen } from "@testing-library/react";
+import HomePage from "@/app/page";
 
 describe("HomePage", () => {
-  it("renders the replicated marketing landing", () => {
-    render(<HomePage />)
+  it("shows the public CTA links", () => {
+    render(<HomePage />);
 
     expect(
-      screen.getByRole("heading", {
-        name: /envía documentos y paquetes entre ciudades, hoy mismo/i,
-      })
-    ).toBeInTheDocument()
+      screen.getByText(/conecta con viajeros y envía tus paquetes/i)
+    ).toBeInTheDocument();
 
     expect(
-      screen.getByText(
-        /conectamos personas que necesitan enviar algo con viajeros que ya van a volar/i
-      )
-    ).toBeInTheDocument()
+      screen.getByRole("link", { name: "Iniciar sesión" })
+    ).toHaveAttribute("href", "/login");
 
-    expect(screen.getAllByRole("link", { name: "Inicio" })[0]).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Registrarse" })).toHaveAttribute(
       "href",
-      "/"
-    )
-
-    expect(screen.getAllByRole("link", { name: "Cómo funciona" })[0]).toHaveAttribute(
-      "href",
-      "/como-funciona"
-    )
-
-    expect(screen.getByText("Publica tu envío")).toBeInTheDocument()
-    expect(screen.getByText("Rápido y sencillo")).toBeInTheDocument()
-  })
-})
+      "/register"
+    );
+  });
+});
