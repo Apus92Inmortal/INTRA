@@ -47,6 +47,19 @@ type Props = {
   initialMatches: MatchItem[];
 };
 
+type MessageInsertPayload = {
+  new: MessageRow;
+};
+
+type MatchUpdatePayload = {
+  new: {
+    id: string;
+    status: string;
+    last_read_by_owner: string | null;
+    last_read_by_traveler: string | null;
+  };
+};
+
 function formatCurrency(value?: number | null) {
   if (!value) return "$0";
   return new Intl.NumberFormat("es-CO", {
@@ -136,8 +149,8 @@ export default function MatchesListClient({
           schema: "public",
           table: "messages",
         },
-        (payload) => {
-          const incoming = payload.new as MessageRow;
+        (payload: MessageInsertPayload) => {
+          const incoming = payload.new;
           if (!matchIds.has(incoming.match_id)) return;
 
           setMatches((prev) =>
@@ -182,13 +195,8 @@ export default function MatchesListClient({
           schema: "public",
           table: "matches",
         },
-        (payload) => {
-          const updated = payload.new as {
-            id: string;
-            status: string;
-            last_read_by_owner: string | null;
-            last_read_by_traveler: string | null;
-          };
+        (payload: MatchUpdatePayload) => {
+          const updated = payload.new;
 
           if (!matchIds.has(updated.id)) return;
 

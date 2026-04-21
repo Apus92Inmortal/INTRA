@@ -79,7 +79,7 @@ export default function MatchesRealtime({ currentUserId }: Props) {
         }
       )
 
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         console.log("REALTIME STATUS:", status);
       });
 

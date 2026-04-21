@@ -236,7 +236,7 @@ export function NotificationsBell() {
           await loadNotifications(userId);
         }
       )
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         if (status === "SUBSCRIBED") {
           void loadNotifications(userId);
         }

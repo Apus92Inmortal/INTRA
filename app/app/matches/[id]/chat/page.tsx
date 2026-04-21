@@ -11,19 +11,6 @@ type Message = {
   created_at: string;
 };
 
-type MatchData = {
-  id: string;
-  status: string;
-  last_read_by_owner: string | null;
-  last_read_by_traveler: string | null;
-  trip: {
-    traveler_id: string | null;
-  } | null;
-  shipment: {
-    owner_id: string | null;
-  } | null;
-};
-
 type PageProps = {
   params: Promise<{
     id: string;
@@ -57,7 +44,7 @@ export default async function MatchChatPage({ params }: PageProps) {
       )
     `)
     .eq("id", matchId)
-    .single<MatchData>();
+    .single();
 
   if (matchError || !match) {
     return (

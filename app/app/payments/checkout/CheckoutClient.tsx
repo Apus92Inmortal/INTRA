@@ -1,9 +1,13 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { AppNavbar } from "@/components/app-navbar"
-import { createClient } from "@/lib/supabase/client"
+import {
+  createClient,
+  hasSupabaseEnv,
+  missingEnvMessage,
+} from "@/lib/supabase/client"
 import { useRouter, useSearchParams } from "next/navigation"
 
 function formatCurrency(value: number | null) {
@@ -57,7 +61,6 @@ function SummaryItem({
 }
 
 export default function CheckoutClient() {
-  const supabase = useMemo(() => createClient(), [])
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -107,7 +110,15 @@ export default function CheckoutClient() {
       return
     }
 
+    if (!hasSupabaseEnv()) {
+      setLoading(false)
+      setErrorMsg(missingEnvMessage)
+      return
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 800))
+
+    const supabase = createClient()
 
     const {
       data: { user },

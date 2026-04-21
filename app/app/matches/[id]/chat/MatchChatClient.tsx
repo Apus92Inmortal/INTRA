@@ -22,6 +22,31 @@ type Props = {
   lastReadByTraveler: string | null;
 };
 
+type BroadcastPayload<T> = {
+  payload?: T | null;
+};
+
+type TypingPayload = BroadcastPayload<{
+  senderId?: string | null;
+}>;
+
+type ReadReceiptPayload = BroadcastPayload<{
+  readerId?: string | null;
+  viewerRole?: "owner" | "traveler" | null;
+  readAt?: string | null;
+}>;
+
+type MessageInsertPayload = {
+  new: Message;
+};
+
+type MatchUpdatePayload = {
+  new: {
+    last_read_by_owner: string | null;
+    last_read_by_traveler: string | null;
+  };
+};
+
 function formatMessageTime(dateString: string) {
   const date = new Date(dateString);
 
@@ -324,7 +349,7 @@ export default function MatchChatClient({
     messagesChannelRef.current = messagesChannel;
 
     messagesChannel
-      .on("broadcast", { event: "typing" }, (payload) => {
+      .on("broadcast", { event: "typing" }, (payload: TypingPayload) => {
         const senderId = payload.payload?.senderId;
 
         if (!senderId || senderId === currentUserId) return;
@@ -339,7 +364,7 @@ export default function MatchChatClient({
           setOtherUserTyping(false);
         }, 1500);
       })
-      .on("broadcast", { event: "read_receipt" }, (payload) => {
+      .on("broadcast", { event: "read_receipt" }, (payload: ReadReceiptPayload) => {
         const readerId = payload.payload?.readerId;
         const incomingRole = payload.payload?.viewerRole;
         const readAt = payload.payload?.readAt;
@@ -362,10 +387,10 @@ export default function MatchChatClient({
           table: "messages",
           filter: `match_id=eq.${matchId}`,
         },
-        async (payload) => {
+        async (payload: MessageInsertPayload) => {
           if (!isActive) return;
 
-          const incoming = payload.new as Message;
+          const incoming = payload.new;
           setMessages((prev) => mergeMessages(prev, [incoming]));
 
           if (incoming.sender_id !== currentUserId) {
@@ -389,13 +414,10 @@ export default function MatchChatClient({
           table: "matches",
           filter: `id=eq.${matchId}`,
         },
-        (payload) => {
+        (payload: MatchUpdatePayload) => {
           if (!isActive) return;
 
-          const updated = payload.new as {
-            last_read_by_owner: string | null;
-            last_read_by_traveler: string | null;
-          };
+          const updated = payload.new;
 
           setReadStateOverrides({
             lastReadByOwner: updated.last_read_by_owner,
@@ -403,7 +425,7 @@ export default function MatchChatClient({
           });
         }
       )
-      .subscribe(async (status) => {
+      .subscribe(async (status: string) => {
         console.log("MESSAGES CHANNEL:", status);
 
         if (!isActive) return;
