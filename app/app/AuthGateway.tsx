@@ -168,15 +168,17 @@ export default function AuthGateway({
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-400 p-6">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
         <div className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_24px_70px_rgba(11,44,74,0.16)] lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="bg-[#0B2C4A] px-8 py-10 text-white sm:px-10 lg:px-12 lg:py-14">
-            <Image
-              src="/logo.png"
-              alt="INTRA"
-              width={280}
-              height={180}
-              className="h-auto w-[180px] sm:w-[220px]"
-              priority
-            />
+          <section className="bg-[linear-gradient(160deg,#0B2C4A_0%,#123d61_55%,#0f6b52_100%)] px-8 py-10 text-white sm:px-10 lg:px-12 lg:py-14">
+            <div className="inline-flex rounded-3xl bg-white/96 p-4 shadow-[0_18px_50px_rgba(8,26,44,0.22)] ring-1 ring-white/70 sm:p-5">
+              <Image
+                src="/logo.png"
+                alt="INTRA"
+                width={280}
+                height={180}
+                className="h-auto w-[180px] sm:w-[220px]"
+                priority
+              />
+            </div>
 
             <div className="mt-8 max-w-xl">
               <p className="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-white/90">
