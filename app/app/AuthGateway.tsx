@@ -169,7 +169,11 @@ export default function AuthGateway({
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
         <div className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_24px_70px_rgba(11,44,74,0.16)] lg:grid-cols-[1.05fr_0.95fr]">
           <section className="bg-[linear-gradient(160deg,#0B2C4A_0%,#123d61_55%,#0f6b52_100%)] px-8 py-10 text-white sm:px-10 lg:px-12 lg:py-14">
-            <div className="inline-flex rounded-3xl bg-white/96 p-4 shadow-[0_18px_50px_rgba(8,26,44,0.22)] ring-1 ring-white/70 sm:p-5">
+            <Link
+              href="/"
+              aria-label="Ir a la landing de INTRA"
+              className="inline-flex rounded-3xl bg-white/96 p-4 shadow-[0_18px_50px_rgba(8,26,44,0.22)] ring-1 ring-white/70 transition hover:scale-[1.01] sm:p-5"
+            >
               <Image
                 src="/logo.png"
                 alt="INTRA"
@@ -178,13 +182,10 @@ export default function AuthGateway({
                 className="h-auto w-[180px] sm:w-[220px]"
                 priority
               />
-            </div>
+            </Link>
 
             <div className="mt-8 max-w-xl">
-              <p className="inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-white/90">
-                Acceso a la app
-              </p>
-              <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">
+              <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
                 Entra a INTRA desde aquí
               </h1>
               <p className="mt-4 text-base leading-7 text-white/82 sm:text-lg">
@@ -215,12 +216,6 @@ export default function AuthGateway({
               </div>
             ) : null}
 
-            <div className="mt-8 text-sm text-white/75">
-              ¿Solo quieres ver la landing? {" "}
-              <Link href="/" className="font-semibold text-white underline underline-offset-4">
-                Volver al home
-              </Link>
-            </div>
           </section>
 
           <section className="px-6 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
