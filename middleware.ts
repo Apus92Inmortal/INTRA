@@ -1,7 +1,47 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@supabase/ssr"
 
+function redirectToAppAuth(request: NextRequest, tab: "login" | "register", next?: string) {
+  const url = request.nextUrl.clone()
+  url.pathname = "/app"
+  url.search = ""
+  url.searchParams.set("tab", tab)
+
+  if (next?.startsWith("/")) {
+    url.searchParams.set("next", next)
+  }
+
+  const error = request.nextUrl.searchParams.get("error")
+  if (error && tab === "login") {
+    url.searchParams.set("error", error)
+  }
+
+  return NextResponse.redirect(url)
+}
+
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  if (pathname === "/shipments/new") {
+    const url = request.nextUrl.clone()
+    url.pathname = "/app/shipments/new"
+    return NextResponse.redirect(url)
+  }
+
+  if (pathname === "/trips/new") {
+    const url = request.nextUrl.clone()
+    url.pathname = "/app/trips/new"
+    return NextResponse.redirect(url)
+  }
+
+  if (pathname === "/login") {
+    return redirectToAppAuth(request, "login", request.nextUrl.searchParams.get("next") ?? undefined)
+  }
+
+  if (pathname === "/register") {
+    return redirectToAppAuth(request, "register", request.nextUrl.searchParams.get("next") ?? undefined)
+  }
+
   const response = NextResponse.next({
     request: { headers: request.headers },
   })
@@ -27,19 +67,14 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (request.nextUrl.pathname.startsWith("/app") && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/login"
-    return NextResponse.redirect(url)
+  if (pathname.startsWith("/app/") && !user) {
+    return redirectToAppAuth(request, "login", pathname)
   }
 
-  if (
-    (request.nextUrl.pathname.startsWith("/login") ||
-      request.nextUrl.pathname.startsWith("/register")) &&
-    user
-  ) {
+  if ((pathname === "/login" || pathname === "/register") && user) {
     const url = request.nextUrl.clone()
     url.pathname = "/app"
+    url.search = ""
     return NextResponse.redirect(url)
   }
 
@@ -47,5 +82,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/login", "/register"],
+  matcher: ["/app", "/app/:path*", "/login", "/register", "/shipments/new", "/trips/new"],
 }

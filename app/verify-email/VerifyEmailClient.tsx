@@ -7,13 +7,23 @@ import { createClient } from "@/lib/supabase/client"
 
 type VerifyEmailClientProps = {
   email?: string
+  next?: string
 }
 
-function getAuthCallbackUrl() {
-  return `${window.location.origin}/auth/callback`
+function getAuthCallbackUrl(next?: string) {
+  const url = new URL("/auth/callback", window.location.origin)
+
+  if (next?.startsWith("/")) {
+    url.searchParams.set("next", next)
+  }
+
+  return url.toString()
 }
 
-export default function VerifyEmailClient({ email = "" }: VerifyEmailClientProps) {
+export default function VerifyEmailClient({
+  email = "",
+  next,
+}: VerifyEmailClientProps) {
   const supabase = createClient()
 
   const [loading, setLoading] = useState(false)
@@ -32,7 +42,7 @@ export default function VerifyEmailClient({ email = "" }: VerifyEmailClientProps
       type: "signup",
       email,
       options: {
-        emailRedirectTo: getAuthCallbackUrl(),
+        emailRedirectTo: getAuthCallbackUrl(next),
       },
     })
 
@@ -46,6 +56,10 @@ export default function VerifyEmailClient({ email = "" }: VerifyEmailClientProps
     setMsg("✅ Te reenviamos el correo de verificación.")
   }
 
+  const backHref = next?.startsWith("/")
+    ? `/app?tab=login&next=${encodeURIComponent(next)}`
+    : "/app?tab=login"
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-400 p-6">
       <div className="w-full max-w-md rounded-2xl shadow-lg bg-white p-8 text-center">
@@ -58,7 +72,7 @@ export default function VerifyEmailClient({ email = "" }: VerifyEmailClientProps
         </h1>
 
         <p className="mt-3 text-sm leading-6 text-gray-600">
-          Te enviamos un enlace de verificación a{" "}
+          Te enviamos un enlace de verificación a {" "}
           <span className="font-semibold text-[#0B2C4A]">
             {email || "tu correo"}
           </span>
@@ -91,7 +105,7 @@ export default function VerifyEmailClient({ email = "" }: VerifyEmailClientProps
           </button>
 
           <Link
-            href="/login"
+            href={backHref}
             className="inline-block text-sm font-semibold text-[#0B2C4A] hover:underline"
           >
             Volver a iniciar sesión

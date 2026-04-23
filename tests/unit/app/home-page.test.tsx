@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import HomePage from "@/app/page";
 
 describe("HomePage", () => {
-  it("shows the migrated Atlas-style CTA links", () => {
+  it("shows the exact Atlas landing as the public home", () => {
     render(<HomePage />);
 
     expect(
@@ -12,21 +12,15 @@ describe("HomePage", () => {
     ).toBeInTheDocument();
 
     expect(
-      screen
-        .getAllByRole("link", { name: "Iniciar sesión" })
-        .some((link) => link.getAttribute("href") === "/login")
-    ).toBe(true);
+      screen.getByRole("link", { name: "Iniciar sesión" })
+    ).toHaveAttribute("href", "https://intra-chi.vercel.app/login");
 
     expect(
-      screen
-        .getAllByRole("link", { name: "Registrarse gratis" })
-        .some((link) => link.getAttribute("href") === "/register")
-    ).toBe(true);
+      screen.getByRole("link", { name: "Registrarse gratis" })
+    ).toHaveAttribute("href", "https://intra-chi.vercel.app/register");
 
     expect(
-      screen
-        .getAllByRole("link", { name: "Publicar envío" })
-        .some((link) => link.getAttribute("href") === "/app/shipments/new")
-    ).toBe(true);
+      screen.getAllByRole("link", { name: "Publicar envío" })[0]
+    ).toHaveAttribute("href", "https://intra-chi.vercel.app/shipments/new");
   });
 });

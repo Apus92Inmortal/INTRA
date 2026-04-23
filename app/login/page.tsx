@@ -1,14 +1,23 @@
-import LoginForm from "./LoginForm"
+import { redirect } from "next/navigation";
 
 type LoginPageProps = {
   searchParams?: Promise<{
-    error?: string
-  }>
-}
+    error?: string;
+    next?: string;
+  }>;
+};
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const resolvedSearchParams = await searchParams
-  const initialError = resolvedSearchParams?.error ?? null
+  const resolvedSearchParams = await searchParams;
+  const params = new URLSearchParams({ tab: "login" });
 
-  return <LoginForm initialError={initialError} />
+  if (resolvedSearchParams?.error) {
+    params.set("error", resolvedSearchParams.error);
+  }
+
+  if (resolvedSearchParams?.next?.startsWith("/")) {
+    params.set("next", resolvedSearchParams.next);
+  }
+
+  redirect(`/app?${params.toString()}`);
 }
