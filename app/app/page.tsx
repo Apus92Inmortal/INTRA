@@ -1,16 +1,39 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { AppNavbar } from "@/components/app-navbar";
 import WelcomeModal from "@/components/WelcomeModal";
 import { createClient } from "@/lib/supabase/server";
+import AuthGateway from "./AuthGateway";
 
-export default async function AppHomePage() {
+type AppHomePageProps = {
+  searchParams?: Promise<{
+    tab?: string;
+    error?: string;
+    next?: string;
+  }>;
+};
+
+export default async function AppHomePage({ searchParams }: AppHomePageProps) {
+  const resolvedSearchParams = await searchParams;
   const supabase = await createClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return <div className="p-10">No autorizado</div>;
+  if (!user) {
+    const tab = resolvedSearchParams?.tab === "register" ? "register" : "login";
+    const nextPath = resolvedSearchParams?.next?.startsWith("/")
+      ? resolvedSearchParams.next
+      : null;
+
+    return (
+      <AuthGateway
+        initialTab={tab}
+        initialError={resolvedSearchParams?.error ?? null}
+        nextPath={nextPath}
+      />
+    );
+  }
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -28,29 +51,27 @@ export default async function AppHomePage() {
       />
 
       <main className="min-h-screen bg-[#EEF2F7] p-6">
-        <div className="max-w-5xl mx-auto space-y-6">
-          {/* HEADER */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="mx-auto max-w-5xl space-y-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-[#0B2C4A]">
                 Bienvenido{profile?.full_name ? `, ${profile.full_name}` : ""}
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="mt-1 text-sm text-gray-600">
                 Gestiona tus envíos y viajes en INTRA
               </p>
             </div>
 
             <Link
-              className="self-start md:self-auto rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-[#0B2C4A] hover:bg-gray-200 transition"
+              className="self-start rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-[#0B2C4A] transition hover:bg-gray-200 md:self-auto"
               href="/app/profile"
             >
               Mi perfil
             </Link>
           </div>
 
-          {/* INFO CARD */}
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
               <div>
                 <span className="text-gray-500">Email</span>
                 <p className="font-medium">{user.email}</p>
@@ -58,64 +79,57 @@ export default async function AppHomePage() {
 
               <div>
                 <span className="text-gray-500">Rol</span>
-                <p className="font-medium">
-                  {profile?.role ?? "No definido"}
-                </p>
+                <p className="font-medium">{profile?.role ?? "No definido"}</p>
               </div>
 
               <div>
                 <span className="text-gray-500">Teléfono</span>
-                <p className="font-medium">
-                  {profile?.phone ?? "No definido"}
-                </p>
+                <p className="font-medium">{profile?.phone ?? "No definido"}</p>
               </div>
             </div>
           </div>
 
-          {/* ACCIONES PRINCIPALES */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Link
               href="/app/shipments/new"
-              className="bg-[#0B2C4A] text-white rounded-2xl p-6 hover:scale-[1.02] transition"
+              className="rounded-2xl bg-[#0B2C4A] p-6 text-white transition hover:scale-[1.02]"
             >
               <h3 className="text-lg font-semibold">Crear envío</h3>
-              <p className="text-sm text-white/90 mt-1">
+              <p className="mt-1 text-sm text-white/90">
                 Publica un paquete para enviarlo con un viajero
               </p>
             </Link>
 
             <Link
               href="/app/trips/new"
-              className="bg-[#2ECC71] border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-[#2ECC71] transition"
+              className="rounded-2xl border border-gray-200 bg-[#2ECC71] p-6 transition hover:scale-[1.02] hover:bg-[#2ECC71]"
             >
-              <h3 className="text-lg font-semibold text-white">
-                Publicar viaje
-              </h3>
-              <p className="text-sm text-white/90 mt-1">
+              <h3 className="text-lg font-semibold text-white">Publicar viaje</h3>
+              <p className="mt-1 text-sm text-white/90">
                 Ofrece espacio en tu viaje para transportar paquetes
               </p>
             </Link>
 
             <Link
               href="/app/market"
-              className="bg-white border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-gray-200 transition"
+              className="rounded-2xl border border-gray-200 bg-white p-6 transition hover:scale-[1.02] hover:bg-gray-200"
             >
               <h3 className="text-lg font-semibold text-[#0B2C4A]">
                 Explorar market
               </h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="mt-1 text-sm text-gray-600">
                 Encuentra envíos o viajes disponibles
               </p>
             </Link>
 
             <Link
               href="/app/matches"
-              className="bg-white border border-gray-200 rounded-2xl p-6 hover:scale-[1.02] hover:bg-gray-200 transition"
+              className="rounded-2xl border border-gray-200 bg-white p-6 transition hover:scale-[1.02] hover:bg-gray-200"
             >
               <h3 className="text-lg font-semibold text-[#0B2C4A]">
                 Mis matches
               </h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="mt-1 text-sm text-gray-600">
                 Gestiona tus solicitudes y conversaciones
               </p>
             </Link>
