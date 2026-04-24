@@ -13,6 +13,15 @@ type City = {
 
 type ShipmentKind = "document" | "package" | "ecommerce"
 
+type FormErrors = {
+  originCityId?: string
+  destinationCityId?: string
+  description?: string
+  weightKg?: string
+  declaredValueCop?: string
+  route?: string
+}
+
 export default function NewShipmentForm({ cities }: { cities: City[] }) {
   const supabase = createClient()
   const router = useRouter()
@@ -26,6 +35,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
+  const [errors, setErrors] = useState<FormErrors>({})
 
   const [routeBasePrice, setRouteBasePrice] = useState<number | null>(null)
   const [routeLoading, setRouteLoading] = useState(false)
@@ -36,10 +46,74 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   const destinationCity =
     cityOptions.find((c) => c.id === destinationCityId) ?? null
 
+  const getInlineErrors = (
+    overrides?: Partial<{
+      originCityId: string
+      destinationCityId: string
+      description: string
+      weightKg: string
+      declaredValueCop: string
+    }>
+  ) => {
+    const nextOriginCityId = overrides?.originCityId ?? originCityId
+    const nextDestinationCityId = overrides?.destinationCityId ?? destinationCityId
+    const nextDescription = overrides?.description ?? description
+    const nextWeightKg = overrides?.weightKg ?? weightKg
+    const nextDeclaredValueCop = overrides?.declaredValueCop ?? declaredValueCop
+
+    const nextErrors: FormErrors = {}
+
+    if (nextOriginCityId && nextDestinationCityId && nextOriginCityId === nextDestinationCityId) {
+      nextErrors.destinationCityId = "Origen y destino no pueden ser iguales."
+    }
+
+    if (nextDescription.trim().length > 0 && nextDescription.trim().length < 8) {
+      nextErrors.description = "Describe mejor el envío para que el viajero lo entienda."
+    }
+
+    if (nextWeightKg.trim()) {
+      const weight = Number(nextWeightKg)
+      if (Number.isNaN(weight) || weight <= 0) {
+        nextErrors.weightKg = "Ingresa un peso válido mayor a 0."
+      }
+    }
+
+    if (nextDeclaredValueCop.trim()) {
+      const declared = Number(nextDeclaredValueCop)
+      if (Number.isNaN(declared) || declared < 0) {
+        nextErrors.declaredValueCop = "Ingresa un valor declarado válido."
+      }
+    }
+
+    return nextErrors
+  }
+
+  const applyInlineValidation = (
+    overrides?: Partial<{
+      originCityId: string
+      destinationCityId: string
+      description: string
+      weightKg: string
+      declaredValueCop: string
+    }>
+  ) => {
+    const nextInlineErrors = getInlineErrors(overrides)
+
+    setErrors((prev) => ({
+      ...prev,
+      destinationCityId: nextInlineErrors.destinationCityId,
+      description: nextInlineErrors.description,
+      weightKg: nextInlineErrors.weightKg,
+      declaredValueCop: nextInlineErrors.declaredValueCop,
+      route: prev.route,
+    }))
+  }
+
   useEffect(() => {
     const fetchRoutePrice = async () => {
       if (!originCityId || !destinationCityId || originCityId === destinationCityId) {
         setRouteBasePrice(null)
+        setErrors((prev) => ({ ...prev, route: undefined }))
         return
       }
 
@@ -55,10 +129,15 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
       if (error || !data) {
         setRouteBasePrice(null)
+        setErrors((prev) => ({
+          ...prev,
+          route: "No hay tarifa configurada para esta ruta.",
+        }))
         setRouteLoading(false)
         return
       }
 
+      setErrors((prev) => ({ ...prev, route: undefined }))
       setRouteBasePrice(data.base_price)
       setRouteLoading(false)
     }
@@ -86,36 +165,41 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     setLoading(true)
     setMsg(null)
 
-    if (!originCityId || !destinationCityId) {
-      setLoading(false)
-      setMsg("❌ Debes seleccionar origen y destino.")
-      return
+    const nextErrors: FormErrors = getInlineErrors()
+
+    if (!originCityId) {
+      nextErrors.originCityId = "Selecciona la ciudad de origen."
     }
 
-    if (originCityId === destinationCityId) {
-      setLoading(false)
-      setMsg("❌ Origen y destino no pueden ser iguales.")
-      return
+    if (!destinationCityId) {
+      nextErrors.destinationCityId = "Selecciona la ciudad de destino."
     }
 
-    if (routeBasePrice === null) {
-      setLoading(false)
-      setMsg("❌ No hay tarifa configurada para esa ruta.")
-      return
+    if (!description.trim()) {
+      nextErrors.description = "La descripción es obligatoria."
+    } else if (description.trim().length < 8) {
+      nextErrors.description = "Agrega un poco más de detalle para el viajero."
     }
 
     const weight = weightKg.trim() ? Number(weightKg) : null
     const declared = declaredValueCop.trim() ? Number(declaredValueCop) : null
 
     if (weight !== null && (Number.isNaN(weight) || weight <= 0)) {
-      setLoading(false)
-      setMsg("❌ Peso inválido.")
-      return
+      nextErrors.weightKg = "Peso inválido."
     }
 
     if (declared !== null && (Number.isNaN(declared) || declared < 0)) {
+      nextErrors.declaredValueCop = "Valor declarado inválido."
+    }
+
+    if (routeBasePrice === null) {
+      nextErrors.route = "No hay tarifa configurada para esa ruta."
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors)
       setLoading(false)
-      setMsg("❌ Valor declarado inválido.")
+      setMsg("❌ Revisa los campos marcados antes de continuar.")
       return
     }
 
@@ -136,9 +220,11 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     router.push(`/app/payments/checkout?${params.toString()}`)
   }
 
+  const fieldBaseClassName =
+    "w-full rounded-2xl border bg-white px-4 py-3 text-base text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      {/* Ruta */}
+    <form onSubmit={onSubmit} className="space-y-6 pb-28 sm:pb-0">
       <div>
         <h2 className="text-base font-semibold text-[#0B2C4A]">
           Ruta del envío
@@ -153,9 +239,12 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               Origen
             </label>
             <select
-              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              className={`${fieldBaseClassName} ${errors.originCityId ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={originCityId}
-              onChange={(e) => setOriginCityId(e.target.value)}
+              onChange={(e) => {
+                setOriginCityId(e.target.value)
+                applyInlineValidation({ originCityId: e.target.value })
+              }}
               required
             >
               <option value="">Selecciona ciudad</option>
@@ -166,6 +255,9 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 </option>
               ))}
             </select>
+            {errors.originCityId ? (
+              <p className="mt-2 text-sm text-red-600">{errors.originCityId}</p>
+            ) : null}
           </div>
 
           <div>
@@ -173,9 +265,12 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               Destino
             </label>
             <select
-              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              className={`${fieldBaseClassName} ${errors.destinationCityId ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={destinationCityId}
-              onChange={(e) => setDestinationCityId(e.target.value)}
+              onChange={(e) => {
+                setDestinationCityId(e.target.value)
+                applyInlineValidation({ destinationCityId: e.target.value })
+              }}
               required
             >
               <option value="">Selecciona ciudad</option>
@@ -186,11 +281,13 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 </option>
               ))}
             </select>
+            {errors.destinationCityId ? (
+              <p className="mt-2 text-sm text-red-600">{errors.destinationCityId}</p>
+            ) : null}
           </div>
         </div>
       </div>
 
-      {/* Info envío */}
       <div className="border-t border-gray-100 pt-6">
         <h2 className="text-base font-semibold text-[#0B2C4A]">
           Información del envío
@@ -202,7 +299,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               Tipo de envío
             </label>
             <select
-              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              className={`${fieldBaseClassName} border-gray-300`}
               value={kind}
               onChange={(e) => setKind(e.target.value as ShipmentKind)}
             >
@@ -217,18 +314,25 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               Descripción
             </label>
             <textarea
-              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              className={`${fieldBaseClassName} min-h-28 ${errors.description ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value)
+                applyInlineValidation({ description: e.target.value })
+              }}
               required
               rows={4}
               placeholder="Ej: Sobre con documentos, caja pequeña, accesorios, etc."
             />
+            {errors.description ? (
+              <p className="mt-2 text-sm text-red-600">{errors.description}</p>
+            ) : (
+              <p className="mt-2 text-sm text-gray-500">Entre más clara sea la descripción, mejor para el viajero.</p>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Opcionales */}
       <div className="border-t border-gray-100 pt-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
@@ -236,11 +340,21 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               Peso (kg)
             </label>
             <input
-              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm"
+              className={`${fieldBaseClassName} ${errors.weightKg ? "border-red-300 bg-red-50" : "border-gray-300"}`}
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min="0"
               value={weightKg}
-              onChange={(e) => setWeightKg(e.target.value)}
+              onChange={(e) => {
+                setWeightKg(e.target.value)
+                applyInlineValidation({ weightKg: e.target.value })
+              }}
               placeholder="Ej: 1.5"
             />
+            {errors.weightKg ? (
+              <p className="mt-2 text-sm text-red-600">{errors.weightKg}</p>
+            ) : null}
           </div>
 
           <div>
@@ -248,23 +362,30 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               Valor declarado (COP)
             </label>
             <input
-              className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm"
+              className={`${fieldBaseClassName} ${errors.declaredValueCop ? "border-red-300 bg-red-50" : "border-gray-300"}`}
+              type="number"
+              inputMode="numeric"
+              min="0"
               value={declaredValueCop}
-              onChange={(e) => setDeclaredValueCop(e.target.value)}
+              onChange={(e) => {
+                setDeclaredValueCop(e.target.value)
+                applyInlineValidation({ declaredValueCop: e.target.value })
+              }}
               placeholder="Ej: 200000"
             />
+            {errors.declaredValueCop ? (
+              <p className="mt-2 text-sm text-red-600">{errors.declaredValueCop}</p>
+            ) : null}
           </div>
         </div>
       </div>
 
-      {/* Estado carga ruta */}
       {routeLoading && (
         <div className="rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
           Consultando tarifa de la ruta...
         </div>
       )}
 
-      {/* Resumen del servicio */}
       {price && originCity && destinationCity && !routeLoading && (
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <h3 className="text-base font-semibold text-[#0B2C4A]">
@@ -281,8 +402,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               {kind === "document"
                 ? "Documento"
                 : kind === "package"
-                ? "Paquete"
-                : "Ecommerce"}
+                  ? "Paquete"
+                  : "Ecommerce"}
             </p>
           </div>
 
@@ -295,19 +416,13 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
         </div>
       )}
 
-      {/* Ruta sin precio */}
-      {!routeLoading &&
-        originCityId &&
-        destinationCityId &&
-        originCityId !== destinationCityId &&
-        routeBasePrice === null && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            ❌ No encontramos una tarifa configurada para esta ruta.
-          </div>
-        )}
+      {!routeLoading && errors.route ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          ❌ {errors.route}
+        </div>
+      ) : null}
 
-      {/* Mensaje */}
-      {msg && (
+      {msg ? (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm ${
             msg.startsWith("✅")
@@ -317,24 +432,25 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
         >
           {msg}
         </div>
-      )}
+      ) : null}
 
-      {/* Botones */}
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <button
-          disabled={loading || routeLoading}
-          className="rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
-        >
-          {loading ? "Procesando..." : "Continuar"}
-        </button>
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/95 p-4 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+        <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row">
+          <button
+            disabled={loading || routeLoading}
+            className="min-h-11 rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60 sm:flex-1"
+          >
+            {loading ? "Procesando..." : "Continuar"}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => router.push("/app")}
-          className="rounded-2xl border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-        >
-          Volver
-        </button>
+          <button
+            type="button"
+            onClick={() => router.push("/app")}
+            className="min-h-11 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 sm:flex-1"
+          >
+            Volver
+          </button>
+        </div>
       </div>
     </form>
   )

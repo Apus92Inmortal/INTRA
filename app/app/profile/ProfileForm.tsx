@@ -98,7 +98,7 @@ export default function ProfileForm({
           </label>
           <input
             id="fullName"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
@@ -115,7 +115,9 @@ export default function ProfileForm({
           </label>
           <input
             id="phone"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            type="tel"
+            inputMode="tel"
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Opcional"
@@ -131,7 +133,7 @@ export default function ProfileForm({
           </label>
           <input
             id="role"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
             value={role}
             onChange={(e) => setRole(e.target.value)}
             placeholder="Ej: cliente, viajero"

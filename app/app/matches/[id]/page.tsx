@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { AppNavbar } from "@/components/app-navbar";
 import MatchDetailActions from "./MatchDetailActions";
 import MatchDetailRealtime from "./MatchDetailRealtime";
 import {
@@ -174,12 +175,14 @@ export default async function MatchDetailPage({ params }: PageProps) {
       : undefined;
 
   return (
-    <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
-      <MatchDetailRealtime matchId={match.id} />
+    <>
+      <AppNavbar />
+      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 sm:py-8">
+        <MatchDetailRealtime matchId={match.id} />
 
-      <div className="mx-auto max-w-4xl">
-        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
+        <div className="mx-auto max-w-4xl">
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight text-[#0B2C4A]">
@@ -207,8 +210,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="px-6 py-6 sm:px-8">
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="px-4 py-5 sm:px-8 sm:py-6">
+              <div className="grid gap-5 md:grid-cols-2">
               <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">📦</span>
@@ -289,70 +292,71 @@ export default async function MatchDetailPage({ params }: PageProps) {
               </section>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <h2 className="text-lg font-semibold text-[#0B2C4A]">
-                Acciones del match
-              </h2>
+              <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <h2 className="text-lg font-semibold text-[#0B2C4A]">
+                  Acciones del match
+                </h2>
 
-              <div className="mt-4 space-y-3">
-                <MatchDetailActions
-                  matchId={match.id}
-                  status={match.status}
-                  canAccept={canAccept}
-                  canCancel={canCancel}
-                  onAccept={acceptMatchAction}
-                  onReject={rejectMatchAction}
-                  onCancel={cancelMatchAction}
-                />
+                <div className="mt-4 space-y-3">
+                  <MatchDetailActions
+                    matchId={match.id}
+                    status={match.status}
+                    canAccept={canAccept}
+                    canCancel={canCancel}
+                    onAccept={acceptMatchAction}
+                    onReject={rejectMatchAction}
+                    onCancel={cancelMatchAction}
+                  />
 
-                {canMarkInTransit && markInTransitSubmitAction ? (
-                  <form action={markInTransitSubmitAction}>
-                    <button
-                      type="submit"
-                      className="inline-flex items-center rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
-                    >
-                      Recogí el paquete
-                    </button>
-                  </form>
-                ) : null}
+                  {canMarkInTransit && markInTransitSubmitAction ? (
+                    <form action={markInTransitSubmitAction}>
+                      <button
+                        type="submit"
+                        className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
+                      >
+                        Recogí el paquete
+                      </button>
+                    </form>
+                  ) : null}
 
-                {canConfirmDelivery && confirmDeliverySubmitAction ? (
-                  <form action={confirmDeliverySubmitAction}>
-                    <button
-                      type="submit"
-                      className="inline-flex items-center rounded-2xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700"
-                    >
-                      Confirmar entrega
-                    </button>
-                  </form>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              {canOpenChat ? (
-                <Link
-                  href={`/app/matches/${match.id}/chat`}
-                  className="inline-flex items-center rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
-                >
-                  💬 Abrir chat
-                </Link>
-              ) : (
-                <div className="rounded-2xl bg-slate-100 px-4 py-2.5 text-sm text-slate-500">
-                  El chat se activará automáticamente cuando el match sea aceptado.
+                  {canConfirmDelivery && confirmDeliverySubmitAction ? (
+                    <form action={confirmDeliverySubmitAction}>
+                      <button
+                        type="submit"
+                        className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 sm:w-auto"
+                      >
+                        Confirmar entrega
+                      </button>
+                    </form>
+                  ) : null}
                 </div>
-              )}
+              </div>
 
-              <Link
-                href="/app/matches"
-                className="inline-flex items-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                ← Volver a matches
-              </Link>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                {canOpenChat ? (
+                  <Link
+                    href={`/app/matches/${match.id}/chat`}
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
+                  >
+                    💬 Abrir chat
+                  </Link>
+                ) : (
+                  <div className="rounded-2xl bg-slate-100 px-4 py-2.5 text-sm text-slate-500">
+                    El chat se activará automáticamente cuando el match sea aceptado.
+                  </div>
+                )}
+
+                <Link
+                  href="/app/matches"
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  ← Volver a matches
+                </Link>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

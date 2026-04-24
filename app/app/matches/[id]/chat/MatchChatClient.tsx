@@ -125,6 +125,7 @@ export default function MatchChatClient({
     lastReadByOwner,
     lastReadByTraveler,
   });
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const readColumn =
     viewerRole === "traveler"
@@ -157,6 +158,14 @@ export default function MatchChatClient({
   useEffect(() => {
     channelReadyRef.current = channelReady;
   }, [channelReady]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = "0px";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 140)}px`;
+  }, [newMessage]);
 
   function getOtherUserLastRead() {
     return viewerRole === "owner"
@@ -426,8 +435,6 @@ export default function MatchChatClient({
         }
       )
       .subscribe(async (status: string) => {
-        console.log("MESSAGES CHANNEL:", status);
-
         if (!isActive) return;
 
         if (status === "SUBSCRIBED") {
@@ -554,82 +561,95 @@ export default function MatchChatClient({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="h-[500px] overflow-y-auto rounded-2xl border bg-white p-4">
+    <div className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col overflow-hidden rounded-none bg-[#EEF2F7] sm:min-h-[calc(100dvh-7rem)] sm:rounded-3xl sm:border sm:border-gray-200 sm:bg-white sm:shadow-sm">
+      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-base font-semibold text-[#0B2C4A]">Chat del match</p>
+            <p className="text-xs text-gray-500">
+              {otherUserTyping ? "La otra persona está escribiendo..." : "Mensajes en tiempo real"}
+            </p>
+          </div>
+
+          <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-medium text-[#0B2C4A]">
+            {viewerRole === "owner" ? "Cliente" : "Viajero"}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-5">
         {messages.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-slate-500">
-            Aún no hay mensajes. Inicia la conversación.
+          <div className="flex h-full min-h-60 items-center justify-center">
+            <div className="max-w-sm rounded-3xl border border-dashed border-gray-300 bg-white px-5 py-6 text-center text-sm text-slate-500">
+              Aún no hay mensajes. Inicia la conversación.
+            </div>
           </div>
         ) : (
-          messages.map((msg) => {
-            const isMine = msg.sender_id === currentUserId;
-            const read = isMessageRead(msg);
+          <div className="space-y-3">
+            {messages.map((msg) => {
+              const isMine = msg.sender_id === currentUserId;
+              const read = isMessageRead(msg);
 
-            return (
-              <div
-                key={msg.id}
-                className={`mb-3 flex ${
-                  isMine ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div className="max-w-[75%]">
-                  <div
-                    className={`rounded-2xl px-4 py-3 ${
-                      isMine
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 text-slate-900"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap break-words text-sm">
-                      {msg.message}
-                    </p>
-
-                    <p
-                      suppressHydrationWarning
-                      className={`mt-1 text-xs ${
-                        isMine ? "text-slate-300" : "text-slate-500"
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+                >
+                  <div className="max-w-[85%] sm:max-w-[75%]">
+                    <div
+                      className={`rounded-[22px] px-4 py-3 shadow-sm ${
+                        isMine
+                          ? "rounded-br-md bg-[#0B2C4A] text-white"
+                          : "rounded-bl-md border border-gray-200 bg-white text-slate-900"
                       }`}
                     >
-                      {formatMessageTime(msg.created_at)}
-                    </p>
-                  </div>
+                      <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                        {msg.message}
+                      </p>
 
-                  {isMine && read && (
-                    <p className="mt-1 text-right text-xs text-green-600">
-                      Leído
-                    </p>
-                  )}
+                      <div
+                        suppressHydrationWarning
+                        className={`mt-2 flex items-center justify-end gap-2 text-[11px] ${
+                          isMine ? "text-slate-300" : "text-slate-400"
+                        }`}
+                      >
+                        <span>{formatMessageTime(msg.created_at)}</span>
+                        {isMine && read ? <span>Leído</span> : null}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         )}
+
         <div ref={bottomRef} />
       </div>
 
-      {otherUserTyping && (
-        <p className="text-sm text-slate-500">Escribiendo...</p>
-      )}
-
-      <form onSubmit={handleSendMessage} className="flex gap-2">
-        <input
-          value={newMessage}
-          onChange={(e) => {
-            setNewMessage(e.target.value);
-            sendTypingEvent();
-          }}
-          className="flex-1 rounded border p-2"
-          placeholder="Escribe un mensaje..."
-          maxLength={1000}
-        />
-        <button
-          type="submit"
-          disabled={sending || !newMessage.trim()}
-          className="rounded bg-slate-900 px-4 py-2 text-white disabled:opacity-50"
-        >
-          {sending ? "Enviando..." : "Enviar"}
-        </button>
-      </form>
+      <div className="sticky bottom-0 border-t border-gray-200 bg-white/95 px-3 py-3 backdrop-blur sm:px-5">
+        <form onSubmit={handleSendMessage} className="flex items-end gap-2 sm:gap-3">
+          <textarea
+            ref={textareaRef}
+            value={newMessage}
+            onChange={(e) => {
+              setNewMessage(e.target.value);
+              sendTypingEvent();
+            }}
+            rows={1}
+            className="max-h-36 min-h-11 flex-1 resize-none rounded-3xl border border-gray-300 bg-white px-4 py-3 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            placeholder="Escribe un mensaje..."
+            maxLength={1000}
+          />
+          <button
+            type="submit"
+            disabled={sending || !newMessage.trim()}
+            className="inline-flex min-h-11 items-center justify-center rounded-3xl bg-[#0B2C4A] px-4 py-3 text-sm font-semibold text-white transition disabled:opacity-50 sm:px-5"
+          >
+            {sending ? "Enviando..." : "Enviar"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

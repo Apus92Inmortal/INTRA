@@ -267,7 +267,7 @@ export function NotificationsBell() {
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-full p-2 hover:bg-slate-100"
+        className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-[#0B2C4A] transition hover:bg-slate-50"
         aria-label="Notificaciones"
         type="button"
       >
@@ -280,12 +280,12 @@ export function NotificationsBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-96 rounded-xl border bg-white p-3 shadow-xl">
+        <div className="absolute right-0 z-50 mt-2 w-[min(24rem,calc(100vw-2rem))] rounded-2xl border border-gray-200 bg-white p-3 shadow-xl">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-semibold">Notificaciones</h3>
             <button
               onClick={markAllAsRead}
-              className="text-sm text-blue-600 hover:underline"
+              className="min-h-11 text-sm text-blue-600 hover:underline"
               type="button"
             >
               Marcar todas como leídas
@@ -305,7 +305,7 @@ export function NotificationsBell() {
                   key={item.id}
                   onClick={() => handleNotificationClick(item)}
                   type="button"
-                  className={`w-full rounded-lg border p-3 text-left transition hover:bg-slate-50 ${
+                  className={`min-h-11 w-full rounded-xl border p-3 text-left transition hover:bg-slate-50 ${
                     item.is_read ? "bg-white" : "bg-slate-50"
                   }`}
                 >

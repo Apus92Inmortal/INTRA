@@ -11,6 +11,13 @@ type City = {
   iata_code: string | null
 }
 
+type FormErrors = {
+  originCityId?: string
+  destinationCityId?: string
+  departureDate?: string
+  capacityKg?: string
+}
+
 export default function NewTripForm({ cities }: { cities: City[] }) {
   const supabase = createClient()
   const router = useRouter()
@@ -22,29 +29,66 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
+  const [errors, setErrors] = useState<FormErrors>({})
 
   const cityOptions = useMemo(() => cities, [cities])
+
+  const fieldBaseClassName =
+    "w-full rounded-2xl border bg-white px-4 py-3 text-base text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+
+  const validate = (
+    overrides?: Partial<{
+      originCityId: string
+      destinationCityId: string
+      departureDate: string
+      capacityKg: string
+    }>
+  ) => {
+    const nextOriginCityId = overrides?.originCityId ?? originCityId
+    const nextDestinationCityId = overrides?.destinationCityId ?? destinationCityId
+    const nextDepartureDate = overrides?.departureDate ?? departureDate
+    const nextCapacityKg = overrides?.capacityKg ?? capacityKg
+
+    const nextErrors: FormErrors = {}
+
+    if (!nextOriginCityId) {
+      nextErrors.originCityId = "Selecciona la ciudad de origen."
+    }
+
+    if (!nextDestinationCityId) {
+      nextErrors.destinationCityId = "Selecciona la ciudad de destino."
+    }
+
+    if (
+      nextOriginCityId &&
+      nextDestinationCityId &&
+      nextOriginCityId === nextDestinationCityId
+    ) {
+      nextErrors.destinationCityId = "Origen y destino no pueden ser iguales."
+    }
+
+    if (!nextDepartureDate) {
+      nextErrors.departureDate = "Selecciona la fecha de salida."
+    }
+
+    const cap = nextCapacityKg.trim() ? Number(nextCapacityKg) : null
+    if (cap !== null && (Number.isNaN(cap) || cap <= 0)) {
+      nextErrors.capacityKg = "Ingresa una capacidad válida mayor a 0."
+    }
+
+    setErrors(nextErrors)
+    return nextErrors
+  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMsg(null)
 
-    if (!originCityId || !destinationCityId) {
+    const nextErrors = validate()
+    if (Object.keys(nextErrors).length > 0) {
       setLoading(false)
-      setMsg("❌ Debes seleccionar origen y destino.")
-      return
-    }
-
-    if (originCityId === destinationCityId) {
-      setLoading(false)
-      setMsg("❌ Origen y destino no pueden ser iguales.")
-      return
-    }
-
-    if (!departureDate) {
-      setLoading(false)
-      setMsg("❌ Debes seleccionar la fecha de salida.")
+      setMsg("❌ Revisa los campos marcados antes de publicar el viaje.")
       return
     }
 
@@ -60,11 +104,6 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     }
 
     const cap = capacityKg.trim() ? Number(capacityKg) : null
-    if (cap !== null && (Number.isNaN(cap) || cap <= 0)) {
-      setLoading(false)
-      setMsg("❌ Capacidad inválida.")
-      return
-    }
 
     const { error } = await supabase.from("trips").insert({
       traveler_id: user.id,
@@ -86,7 +125,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={onSubmit} className="space-y-6 pb-28 sm:pb-0">
       <div>
         <h2 className="text-base font-semibold text-[#0B2C4A]">
           Ruta del viaje
@@ -101,9 +140,12 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               Origen
             </label>
             <select
-              className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              className={`${fieldBaseClassName} ${errors.originCityId ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={originCityId}
-              onChange={(e) => setOriginCityId(e.target.value)}
+              onChange={(e) => {
+                setOriginCityId(e.target.value)
+                validate({ originCityId: e.target.value })
+              }}
               required
             >
               <option value="">Selecciona ciudad</option>
@@ -113,6 +155,9 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 </option>
               ))}
             </select>
+            {errors.originCityId ? (
+              <p className="mt-2 text-sm text-red-600">{errors.originCityId}</p>
+            ) : null}
           </div>
 
           <div>
@@ -120,9 +165,12 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               Destino
             </label>
             <select
-              className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              className={`${fieldBaseClassName} ${errors.destinationCityId ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={destinationCityId}
-              onChange={(e) => setDestinationCityId(e.target.value)}
+              onChange={(e) => {
+                setDestinationCityId(e.target.value)
+                validate({ destinationCityId: e.target.value })
+              }}
               required
             >
               <option value="">Selecciona ciudad</option>
@@ -132,6 +180,9 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 </option>
               ))}
             </select>
+            {errors.destinationCityId ? (
+              <p className="mt-2 text-sm text-red-600">{errors.destinationCityId}</p>
+            ) : null}
           </div>
         </div>
       </div>
@@ -150,12 +201,18 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               Fecha de salida
             </label>
             <input
-              className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              className={`${fieldBaseClassName} ${errors.departureDate ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               type="date"
               value={departureDate}
-              onChange={(e) => setDepartureDate(e.target.value)}
+              onChange={(e) => {
+                setDepartureDate(e.target.value)
+                validate({ departureDate: e.target.value })
+              }}
               required
             />
+            {errors.departureDate ? (
+              <p className="mt-2 text-sm text-red-600">{errors.departureDate}</p>
+            ) : null}
           </div>
 
           <div>
@@ -163,14 +220,21 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               Capacidad (kg)
             </label>
             <input
-              className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+              className={`${fieldBaseClassName} ${errors.capacityKg ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               type="number"
+              inputMode="decimal"
               step="0.1"
               min="0"
               value={capacityKg}
-              onChange={(e) => setCapacityKg(e.target.value)}
+              onChange={(e) => {
+                setCapacityKg(e.target.value)
+                validate({ capacityKg: e.target.value })
+              }}
               placeholder="Ej: 5"
             />
+            {errors.capacityKg ? (
+              <p className="mt-2 text-sm text-red-600">{errors.capacityKg}</p>
+            ) : null}
           </div>
         </div>
       </div>
@@ -183,7 +247,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
         </p>
       </div>
 
-      {msg && (
+      {msg ? (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm ${
             msg.startsWith("✅")
@@ -193,24 +257,26 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
         >
           {msg}
         </div>
-      )}
+      ) : null}
 
-      <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center">
-        <button
-          disabled={loading}
-          className="inline-flex justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-          type="submit"
-        >
-          {loading ? "Publicando..." : "Publicar viaje"}
-        </button>
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/95 p-4 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+        <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center">
+          <button
+            disabled={loading}
+            className="min-h-11 rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+            type="submit"
+          >
+            {loading ? "Publicando..." : "Publicar viaje"}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => router.push("/app/market")}
-          className="inline-flex justify-center rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-        >
-          Volver a market
-        </button>
+          <button
+            type="button"
+            onClick={() => router.push("/app/market")}
+            className="min-h-11 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 sm:flex-1"
+          >
+            Volver a market
+          </button>
+        </div>
       </div>
     </form>
   )
