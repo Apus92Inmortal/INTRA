@@ -219,18 +219,7 @@ export default async function MatchesPage() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return (
-      <>
-        <AppNavbar />
-        <main className="min-h-screen bg-[#EEF2F7]">
-          <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-            <div className="rounded-2xl border border-red-200 bg-white p-6 text-red-600 shadow-sm">
-              Error cargando matches.
-            </div>
-          </div>
-        </main>
-      </>
-    );
+    throw new Error(`Error cargando matches: ${error.message}`);
   }
 
   const allMatches = ((matchesData ?? []) as MatchRow[]).filter((match) => {
@@ -258,10 +247,14 @@ export default async function MatchesPage() {
     )
   );
 
-  const { data: profilesData } = await supabase
+  const { data: profilesData, error: profilesError } = await supabase
     .from("profiles")
     .select("id, full_name")
     .in("id", relatedUserIds);
+
+  if (profilesError) {
+    throw new Error(`Error cargando perfiles relacionados: ${profilesError.message}`);
+  }
 
   const profilesMap = new Map(
     ((profilesData ?? []) as ProfileRow[]).map((profile) => [
@@ -275,11 +268,15 @@ export default async function MatchesPage() {
   let messagesMap = new Map<string, MessageRow>();
 
   if (matchIds.length > 0) {
-    const { data: messagesData } = await supabase
+    const { data: messagesData, error: messagesError } = await supabase
       .from("messages")
       .select("id, match_id, sender_id, message, created_at")
       .in("match_id", matchIds)
       .order("created_at", { ascending: false });
+
+    if (messagesError) {
+      throw new Error(`Error cargando mensajes de matches: ${messagesError.message}`);
+    }
 
     const latestMessages = new Map<string, MessageRow>();
 

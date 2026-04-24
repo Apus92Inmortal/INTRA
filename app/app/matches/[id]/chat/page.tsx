@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { AppNavbar } from "@/components/app-navbar";
 import { createClient } from "@/lib/supabase/server";
 import MatchChatClient from "./MatchChatClient";
@@ -47,16 +47,7 @@ export default async function MatchChatPage({ params }: PageProps) {
     .single();
 
   if (matchError || !match) {
-    return (
-      <>
-        <AppNavbar />
-        <main className="mx-auto max-w-3xl px-4 py-8">
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
-            Error cargando chat: {matchError?.message ?? "Match no encontrado"}
-          </div>
-        </main>
-      </>
-    );
+    notFound();
   }
 
   const travelerId = match.trip?.traveler_id ?? null;
@@ -66,7 +57,7 @@ export default async function MatchChatPage({ params }: PageProps) {
   const isOwner = ownerId === user.id;
 
   if (!isTraveler && !isOwner) {
-    redirect("/app/matches");
+    notFound();
   }
 
   if (match.status !== "accepted") {
@@ -77,16 +68,7 @@ export default async function MatchChatPage({ params }: PageProps) {
   const otherUserId = isTraveler ? ownerId : travelerId;
 
   if (!otherUserId) {
-    return (
-      <>
-        <AppNavbar />
-        <main className="mx-auto max-w-3xl px-4 py-8">
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
-            Error: no se pudo identificar al otro usuario del chat.
-          </div>
-        </main>
-      </>
-    );
+    throw new Error("No se pudo identificar al otro usuario del chat.");
   }
 
   const { data: messagesData, error: messagesError } = await supabase
@@ -96,16 +78,7 @@ export default async function MatchChatPage({ params }: PageProps) {
     .order("created_at", { ascending: true });
 
   if (messagesError) {
-    return (
-      <>
-        <AppNavbar />
-        <main className="mx-auto max-w-3xl px-4 py-8">
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
-            Error cargando mensajes: {messagesError.message}
-          </div>
-        </main>
-      </>
-    );
+    throw new Error(`Error cargando mensajes: ${messagesError.message}`);
   }
 
   return (

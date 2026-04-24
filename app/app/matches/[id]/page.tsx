@@ -142,6 +142,10 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const isOwner = user.id === shipment?.owner_id;
   const isTraveler = user.id === trip?.traveler_id;
 
+  if (!isOwner && !isTraveler) {
+    notFound();
+  }
+
   const canAccept = isOwner && match.status === "pending";
   const canCancel =
     (isOwner || isTraveler) &&
