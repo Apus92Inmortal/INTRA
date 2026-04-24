@@ -2,7 +2,6 @@ export type DashboardUser = {
   id: string;
   email: string | null;
   fullName: string | null;
-  role: string | null;
   phone: string | null;
   showWelcomeModal: boolean;
 };

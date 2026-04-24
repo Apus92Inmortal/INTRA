@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import HomePage from "@/app/page";
 
 describe("HomePage", () => {
-  it("shows the exact Atlas landing as the public home", () => {
-    render(<HomePage />);
+  it("shows the exact Atlas landing as the public home", async () => {
+    render(await HomePage());
 
     expect(
       screen.getByRole("heading", {
@@ -13,14 +13,14 @@ describe("HomePage", () => {
 
     expect(
       screen.getByRole("link", { name: "Iniciar sesión" })
-    ).toHaveAttribute("href", "https://intra-chi.vercel.app/login");
+    ).toHaveAttribute("href", "/login");
 
     expect(
       screen.getByRole("link", { name: "Registrarse gratis" })
-    ).toHaveAttribute("href", "https://intra-chi.vercel.app/register");
+    ).toHaveAttribute("href", "/register");
 
     expect(
       screen.getAllByRole("link", { name: "Publicar envío" })[0]
-    ).toHaveAttribute("href", "https://intra-chi.vercel.app/shipments/new");
+    ).toHaveAttribute("href", "/register?next=/app/shipments/new");
   });
 });

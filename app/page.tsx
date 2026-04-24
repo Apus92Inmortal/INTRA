@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: {
@@ -590,10 +591,60 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
 }
 `;
 
-export default function HomePage() {
+export default async function HomePage() {
+  let user: { id: string } | null = null;
+
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user: sessionUser },
+    } = await supabase.auth.getUser();
+
+    user = sessionUser;
+  } catch {
+    user = null;
+  }
+
+  const isAuthenticated = Boolean(user);
+  const navActionsHtml = isAuthenticated
+    ? `<a class="nav-cta nav-cta-outline" href="/app">Abrir app</a>
+      <a class="nav-cta nav-cta-solid" href="/app/shipments/new">Crear envío</a>`
+    : `<a class="nav-cta nav-cta-outline" href="/login">Iniciar sesión</a>
+      <a class="nav-cta nav-cta-solid" href="/register">Registrarse gratis</a>`;
+
+  const shipmentCtaHref = isAuthenticated
+    ? "/app/shipments/new"
+    : "/register?next=/app/shipments/new";
+  const tripCtaHref = isAuthenticated
+    ? "/app/trips/new"
+    : "/register?next=/app/trips/new";
+
+  const landingHtml = atlasLandingHtml
+    .replace(
+      `<a class="nav-cta nav-cta-outline" href="https://intra-chi.vercel.app/login">Iniciar sesión</a>
+      <a class="nav-cta nav-cta-solid" href="https://intra-chi.vercel.app/register">Registrarse gratis</a>`,
+      navActionsHtml
+    )
+    .replace(
+      `<a class="btn btn-primary" href="https://intra-chi.vercel.app/register">Comenzar gratis</a>`,
+      isAuthenticated
+        ? `<a class="btn btn-primary" href="/app">Abrir dashboard</a>`
+        : `<a class="btn btn-primary" href="/register">Comenzar gratis</a>`
+    )
+    .replaceAll("https://intra-chi.vercel.app/shipments/new", shipmentCtaHref)
+    .replaceAll("https://intra-chi.vercel.app/trips/new", tripCtaHref)
+    .replaceAll(
+      "https://intra-chi.vercel.app/register",
+      isAuthenticated ? "/app" : "/register"
+    )
+    .replaceAll(
+      "https://intra-chi.vercel.app/login",
+      isAuthenticated ? "/app" : "/login"
+    );
+
   return (
     <>
-      <div dangerouslySetInnerHTML={{ __html: atlasLandingHtml }} />
+      <div dangerouslySetInnerHTML={{ __html: landingHtml }} />
       <style dangerouslySetInnerHTML={{ __html: atlasLandingCss }} />
     </>
   );
