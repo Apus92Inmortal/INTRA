@@ -30,7 +30,7 @@ export function AppNavbar() {
             alt="INTRA logo"
             width={320}
             height={96}
-            className="h-14 w-auto object-contain sm:h-9"
+            className="h-[6.25rem] w-auto object-contain sm:h-9"
             priority
           />
         </Link>
