@@ -23,14 +23,14 @@ export function AppNavbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
-      <div className="mx-auto flex h-28 max-w-6xl items-center justify-between gap-3 px-4 sm:h-20 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link href="/app" className="flex min-w-0 items-center rounded-2xl p-1">
           <Image
             src="/logoshort.png"
             alt="INTRA logo"
             width={320}
             height={96}
-            className="h-24 w-auto object-contain sm:h-[4.5rem]"
+            className="h-14 w-auto object-contain sm:h-9"
             priority
           />
         </Link>

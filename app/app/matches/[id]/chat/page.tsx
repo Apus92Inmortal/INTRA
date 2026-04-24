@@ -84,7 +84,7 @@ export default async function MatchChatPage({ params }: PageProps) {
   return (
     <>
       <AppNavbar />
-      <main className="mx-auto flex min-h-[calc(100dvh-7rem)] max-w-3xl flex-col px-0 sm:px-4 sm:py-6">
+      <main className="mx-auto flex min-h-[calc(100dvh-4rem)] max-w-3xl flex-col px-0 sm:px-4 sm:py-6">
         <MatchChatClient
           matchId={matchId}
           currentUserId={user.id}
