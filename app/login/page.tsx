@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { isSafeInternalPath } from "@/lib/safe-next";
 
 type LoginPageProps = {
   searchParams?: Promise<{
@@ -15,7 +16,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     params.set("error", resolvedSearchParams.error);
   }
 
-  if (resolvedSearchParams?.next?.startsWith("/")) {
+  if (isSafeInternalPath(resolvedSearchParams?.next)) {
     params.set("next", resolvedSearchParams.next);
   }
 

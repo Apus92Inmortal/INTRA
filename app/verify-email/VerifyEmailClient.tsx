@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
+import { isSafeInternalPath } from "@/lib/safe-next"
 
 type VerifyEmailClientProps = {
   email?: string
@@ -13,7 +14,7 @@ type VerifyEmailClientProps = {
 function getAuthCallbackUrl(next?: string) {
   const url = new URL("/auth/callback", window.location.origin)
 
-  if (next?.startsWith("/")) {
+  if (isSafeInternalPath(next)) {
     url.searchParams.set("next", next)
   }
 
@@ -56,7 +57,7 @@ export default function VerifyEmailClient({
     setMsg("✅ Te reenviamos el correo de verificación.")
   }
 
-  const backHref = next?.startsWith("/")
+  const backHref = isSafeInternalPath(next)
     ? `/app?tab=login&next=${encodeURIComponent(next)}`
     : "/app?tab=login"
 

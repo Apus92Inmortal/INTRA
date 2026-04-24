@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@supabase/ssr"
+import { isSafeInternalPath } from "@/lib/safe-next"
 
 function redirectToAppAuth(request: NextRequest, tab: "login" | "register", next?: string) {
   const url = request.nextUrl.clone()
@@ -7,7 +8,7 @@ function redirectToAppAuth(request: NextRequest, tab: "login" | "register", next
   url.search = ""
   url.searchParams.set("tab", tab)
 
-  if (next?.startsWith("/")) {
+  if (isSafeInternalPath(next)) {
     url.searchParams.set("next", next)
   }
 

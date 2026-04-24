@@ -1,6 +1,7 @@
 import { type EmailOtpType } from "@supabase/supabase-js"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
+import { getSafeInternalPath } from "@/lib/safe-next"
 
 function createSupabaseRouteClient(request: NextRequest, response: NextResponse) {
   return createServerClient(
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
   const type = requestUrl.searchParams.get("type")
   const next = requestUrl.searchParams.get("next")
 
-  const safeNext = next?.startsWith("/") ? next : "/app"
+  const safeNext = getSafeInternalPath(next)
   const successUrl = new URL(safeNext, requestUrl.origin)
   const errorUrl = new URL("/login", requestUrl.origin)
   const response = NextResponse.redirect(successUrl)

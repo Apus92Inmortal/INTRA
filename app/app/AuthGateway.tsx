@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getSafeInternalPath, isSafeInternalPath } from "@/lib/safe-next";
 
 type AuthTab = "login" | "register";
 
@@ -26,7 +27,7 @@ function isUnconfirmedEmailMessage(message: string) {
 function getAuthCallbackUrl(nextPath?: string | null) {
   const url = new URL("/auth/callback", window.location.origin);
 
-  if (nextPath?.startsWith("/")) {
+  if (isSafeInternalPath(nextPath)) {
     url.searchParams.set("next", nextPath);
   }
 
@@ -53,15 +54,12 @@ export default function AuthGateway({
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
 
-  const nextDestination = useMemo(() => {
-    if (nextPath?.startsWith("/")) return nextPath;
-    return "/app";
-  }, [nextPath]);
+  const nextDestination = useMemo(() => getSafeInternalPath(nextPath), [nextPath]);
 
   const syncQuery = (nextTab: AuthTab) => {
     const params = new URLSearchParams();
     params.set("tab", nextTab);
-    if (nextPath?.startsWith("/")) {
+    if (isSafeInternalPath(nextPath)) {
       params.set("next", nextPath);
     }
     router.replace(`/app?${params.toString()}`);
@@ -75,7 +73,7 @@ export default function AuthGateway({
   };
 
   const goAfterAuth = (path?: string | null) => {
-    window.location.assign(path?.startsWith("/") ? path : "/app");
+    window.location.assign(getSafeInternalPath(path));
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -157,7 +155,7 @@ export default function AuthGateway({
       email: registerEmail,
     });
 
-    if (nextDestination.startsWith("/")) {
+    if (isSafeInternalPath(nextDestination)) {
       params.set("next", nextDestination);
     }
 
@@ -210,7 +208,7 @@ export default function AuthGateway({
               </div>
             </div>
 
-            {nextPath?.startsWith("/") ? (
+            {isSafeInternalPath(nextPath) ? (
               <div className="mt-8 rounded-2xl border border-[#2ECC71]/35 bg-[#2ECC71]/14 p-4 text-sm text-white/92">
                 Después de autenticarte te llevaremos a <span className="font-bold">{nextPath}</span>.
               </div>
@@ -318,7 +316,7 @@ export default function AuthGateway({
                       <Link
                         className="mt-2 inline-block font-semibold text-[#0B2C4A] hover:underline"
                         href={`/verify-email?email=${encodeURIComponent(loginEmail)}${
-                          nextDestination.startsWith("/")
+                          isSafeInternalPath(nextDestination)
                             ? `&next=${encodeURIComponent(nextDestination)}`
                             : ""
                         }`}
