@@ -54,9 +54,16 @@ export async function GET(request: NextRequest) {
   const type = requestUrl.searchParams.get("type")
   const next = requestUrl.searchParams.get("next")
 
-  const safeNext = getSafeInternalPath(next)
+  const isRecoveryFlow = type === "recovery"
+  const safeNext = getSafeInternalPath(
+    next,
+    isRecoveryFlow ? "/login/update-password" : "/app"
+  )
   const successUrl = new URL(safeNext, requestUrl.origin)
-  const errorUrl = new URL("/login", requestUrl.origin)
+  const errorUrl = new URL(
+    isRecoveryFlow ? "/login/update-password" : "/login",
+    requestUrl.origin
+  )
   const response = NextResponse.redirect(successUrl)
 
   const supabase = createSupabaseRouteClient(request, response)
@@ -65,7 +72,12 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      errorUrl.searchParams.set("error", "No pude validar el enlace de confirmación.")
+      errorUrl.searchParams.set(
+        "error",
+        isRecoveryFlow
+          ? "No pude validar el enlace para cambiar tu contraseña."
+          : "No pude validar el enlace de confirmación."
+      )
       return NextResponse.redirect(errorUrl)
     }
 
@@ -80,7 +92,12 @@ export async function GET(request: NextRequest) {
     })
 
     if (error) {
-      errorUrl.searchParams.set("error", "El enlace de confirmación es inválido o expiró.")
+      errorUrl.searchParams.set(
+        "error",
+        isRecoveryFlow
+          ? "El enlace para cambiar tu contraseña es inválido o expiró."
+          : "El enlace de confirmación es inválido o expiró."
+      )
       return NextResponse.redirect(errorUrl)
     }
 
@@ -88,6 +105,11 @@ export async function GET(request: NextRequest) {
     return response
   }
 
-  errorUrl.searchParams.set("error", "El enlace de confirmación no es válido.")
+  errorUrl.searchParams.set(
+    "error",
+    isRecoveryFlow
+      ? "El enlace para cambiar tu contraseña no es válido."
+      : "El enlace de confirmación no es válido."
+  )
   return NextResponse.redirect(errorUrl)
 }

@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import {
+  getSignupEmailRedirectUrl,
+  isUnconfirmedEmailMessage,
+} from "@/lib/auth-flows";
 import { getSafeInternalPath, isSafeInternalPath } from "@/lib/safe-next";
 
 type AuthTab = "login" | "register";
@@ -14,25 +18,6 @@ type AuthGatewayProps = {
   initialError?: string | null;
   nextPath?: string | null;
 };
-
-function isUnconfirmedEmailMessage(message: string) {
-  const normalized = message.toLowerCase();
-  return (
-    normalized.includes("email not confirmed") ||
-    normalized.includes("email_not_confirmed") ||
-    (normalized.includes("correo") && normalized.includes("confirm"))
-  );
-}
-
-function getAuthCallbackUrl(nextPath?: string | null) {
-  const url = new URL("/auth/callback", window.location.origin);
-
-  if (isSafeInternalPath(nextPath)) {
-    url.searchParams.set("next", nextPath);
-  }
-
-  return url.toString();
-}
 
 export default function AuthGateway({
   initialTab = "login",
@@ -113,7 +98,7 @@ export default function AuthGateway({
       email: registerEmail,
       password: registerPassword,
       options: {
-        emailRedirectTo: getAuthCallbackUrl(nextDestination),
+        emailRedirectTo: getSignupEmailRedirectUrl(nextDestination),
         data: {
           full_name: fullName.trim(),
         },
@@ -290,9 +275,19 @@ export default function AuthGateway({
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-[#0B2C4A]">
-                    Contraseña
-                  </label>
+                  <div className="flex items-center justify-between gap-3">
+                    <label className="text-sm font-medium text-[#0B2C4A]">
+                      Contraseña
+                    </label>
+                    {tab === "login" ? (
+                      <Link
+                        href="/login/reset-password"
+                        className="text-sm font-semibold text-[#0B2C4A] hover:underline"
+                      >
+                        ¿Olvidaste tu contraseña?
+                      </Link>
+                    ) : null}
+                  </div>
                   <input
                     className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
                     type="password"

@@ -112,6 +112,14 @@ function createMissingEnvClient(): BrowserSupabaseClient {
         data: { user: null, session: null },
         error: { message: missingEnvMessage },
       }),
+      resetPasswordForEmail: async () => ({
+        data: {},
+        error: { message: missingEnvMessage },
+      }),
+      updateUser: async () => ({
+        data: { user: null },
+        error: { message: missingEnvMessage },
+      }),
       signOut: async () => ({ error: null }),
     },
     from: () => createMissingEnvQueryBuilder(),
