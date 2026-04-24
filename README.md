@@ -1,3 +1,7 @@
+# INTRA
+
+[![CI](https://github.com/Apus92Inmortal/INTRA/actions/workflows/ci.yml/badge.svg)](https://github.com/Apus92Inmortal/INTRA/actions/workflows/ci.yml)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -32,11 +36,32 @@ Run unit tests with Vitest:
 npm run test:unit
 ```
 
+Typecheck the project:
+
+```bash
+npx tsc --noEmit
+```
+
+Run lint:
+
+```bash
+npm run lint
+```
+
 Run end to end tests with Playwright:
 
 ```bash
 npm run test:e2e
 ```
+
+## CI
+
+GitHub Actions validates every push and pull request with:
+
+- lint
+- unit tests
+- typecheck
+- build
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
