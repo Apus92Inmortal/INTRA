@@ -183,6 +183,77 @@ La migración debe conservar esa estructura.
 
 ---
 
+## Macro-subtareas oficiales de 3.5
+
+Además del detalle técnico de este documento, el trabajo de 3.5 debe leerse con este desglose ejecutivo aprobado por Atlas.
+Estas son las **subtareas oficiales y secuenciales** dentro de 3.5:
+
+### 3.5.1 — Base: Layout + Navbar + tokens de diseño
+
+- migrar la estructura base del boceto a la app real
+- preservar la navbar actual salvo que exista conflicto funcional real
+- definir tokens y utilidades visuales mínimas para que la UI se vea igual al mockup
+
+### 3.5.2 — Queries de datos (Supabase server-side)
+
+- resolver todas las consultas del dashboard desde server components / utilidades server-side
+- no usar datos ficticios
+- dejar la agregación lista para métricas, actividad, revenue, envíos, viajes y matches
+
+### 3.5.3 — Componentes UI (métricas, envíos, viajes, actividad, ganancias)
+
+- construir los bloques visuales del boceto exactamente igual
+- separar presentación de agregación de datos
+- conservar jerarquía visual y predominio de verde INTRA
+
+### 3.5.4 — Integración: nueva `/app` como server component
+
+- reemplazar la home autenticada actual por la nueva composición del dashboard
+- mantener el auth gate actual y el flujo de navegación existente
+
+### 3.5.5 — Acciones inline (Accept/Reject matches sin recargar)
+
+- aceptar y rechazar desde `/app`
+- reusar Server Actions / RPCs existentes
+- revalidar rutas sin hard refresh innecesario
+
+### 3.5.6 — Estados UX (loading skeletons, empty states, errores)
+
+- skeleton real del layout
+- estados vacíos por bloque
+- errores locales por bloque sin romper toda la home
+
+### 3.5.7 — Tests unit + e2e / smoke
+
+- tests de helpers y agregaciones
+- smoke de render del dashboard autenticado
+- validación de acciones críticas donde aplique
+
+### 3.5.8 — Deploy preview + aprobación
+
+- publicar preview de la migración
+- revisar visualmente contra el boceto
+- ajustar solo diferencias necesarias antes del merge
+
+## Lo que cubre 3.5
+
+- datos reales de Supabase, no ficticios
+- Server Components para queries (Next.js App Router)
+- Server Actions para Accept/Reject sin recarga completa
+- responsive mobile-first
+- ganancias reales calculadas desde `payments`
+- feed de actividad desde `notifications`
+- empty states cuando no hay datos
+
+## Lo que Joy debe evaluar explícitamente
+
+1. si mantener un hamburger menu en mobile para `Market`, `Matches`, `Chat` y `Perfil`, porque el boceto no lo muestra pero la app real sí necesita navegación
+2. si el sidebar del boceto se mantiene tal cual o se simplifica para convivir con la navbar actual sin romper el producto
+
+> Si cualquiera de estos dos puntos obliga a alterar la estructura del mockup, Joy debe preguntar antes de implementar una variante.
+
+---
+
 ## Contrato funcional de datos
 
 ## 3.5.1 — Tipos y contrato de dashboard
@@ -771,7 +842,7 @@ Si el layout del boceto en desktop no cabe igual en mobile, Joy debe:
 
 ---
 
-## 3.5.8 — Testing y validación
+## 3.5.8 — Testing, preview y validación
 
 ### Validación técnica obligatoria
 
@@ -801,37 +872,52 @@ Si el layout del boceto en desktop no cabe igual en mobile, Joy debe:
 - usuario con pending matches
 - usuario con cero actividad
 
+### Preview obligatorio
+
+Antes de pedir merge de 3.5, Joy debe dejar una preview desplegada para revisión del equipo.
+
+Checklist mínimo en preview:
+
+- `/app` se parece al boceto aprobado
+- mobile no se rompe
+- los CTAs navegan bien
+- aceptar / rechazar funciona si hay matches pendientes
+- métricas y revenue no muestran datos inventados
+
 ---
 
 ## 3.5.9 — Secuencia de ejecución recomendada
 
-### PR 1 — Base funcional + UI completa
+### PR 1 — 3.5.1 + 3.5.2 + 3.5.3 + 3.5.4
 
 Incluye:
 
-- tipos
-- queries
+- base de layout
+- navbar / convivencia con navegación actual
+- tokens mínimos de diseño
+- queries server-side
 - componentes UI
 - integración completa en `/app`
-- sin inline actions todavía si eso ralentiza
 
-### PR 2 — Acciones + UX states
+### PR 2 — 3.5.5 + 3.5.6
 
 Incluye:
 
-- accept/reject inline
+- accept / reject inline
 - loading / empty / error states
-- ajustes responsive
+- pulido de UX y responsive
 
-### PR 3 — Tests + polish final
+### PR 3 — 3.5.7 + 3.5.8
 
 Incluye:
 
-- unit tests
-- ajustes menores validados en preview
+- tests unit / smoke / e2e según aplique
+- preview final
+- revisión del equipo
 - cierre de 3.5
 
-> Si Joy logra dejar todo estable en 2 PRs sin volverlo riesgoso, mejor.
+> Recomendación oficial: **2 a 3 PRs máximo**, no fragmentar en 8 PRs individuales.
+> Si Joy logra dejarlo estable en 2 PRs sin aumentar riesgo, mejor.
 
 ---
 
@@ -861,6 +947,8 @@ Joy debe pausar y preguntar si aparece cualquiera de estos casos:
 3. revenue mensual no puede calcularse con semántica clara
 4. el sidebar / navbar del boceto contradice la navbar actual del producto
 5. la capacidad usada del viaje no puede derivarse sin inventar lógica de negocio nueva
+6. mantener la navbar actual entra en conflicto con un hamburger menu o sidebar del boceto
+7. el sidebar del boceto obliga a alterar navegación, espacio o responsive más allá de una migración fiel
 
 ---
 
