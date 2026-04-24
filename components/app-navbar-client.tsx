@@ -185,14 +185,14 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
-      <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
-        <Link href={context.hasSession ? "/app" : "/"} className="flex min-w-0 items-center rounded-2xl p-1">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+        <Link href={context.hasSession ? "/app" : "/"} className="flex min-w-0 items-center rounded-2xl">
           <Image
             src="/logoshort.png"
             alt="INTRA logo"
             width={320}
             height={96}
-            className="h-[6.25rem] w-auto object-contain sm:h-9"
+            className="h-10 w-[4.5rem] object-cover object-center sm:h-9 sm:w-auto sm:object-contain"
             priority
           />
         </Link>
