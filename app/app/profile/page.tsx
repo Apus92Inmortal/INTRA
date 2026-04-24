@@ -16,7 +16,7 @@ export default async function ProfilePage() {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, full_name, phone, role")
+    .select("id, full_name, phone")
     .eq("id", user.id)
     .single();
 
@@ -41,7 +41,6 @@ export default async function ProfilePage() {
             <ProfileForm
               initialFullName={profile?.full_name ?? ""}
               initialPhone={profile?.phone ?? ""}
-              initialRole={profile?.role ?? ""}
             />
           </section>
         </div>

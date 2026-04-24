@@ -66,7 +66,6 @@ create table if not exists public."payments" (
 create table if not exists public."profiles" (
     "id" uuid not null,
     "full_name" text,
-    "role" text,
     "phone" text,
     "created_at" timestamp without time zone default now(),
     "show_welcome_modal" boolean default true not null

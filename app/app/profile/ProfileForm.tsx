@@ -7,20 +7,17 @@ import { createClient } from "@/lib/supabase/client";
 type Props = {
   initialFullName: string;
   initialPhone: string;
-  initialRole: string;
 };
 
 export default function ProfileForm({
   initialFullName,
   initialPhone,
-  initialRole,
 }: Props) {
   const supabase = createClient();
   const router = useRouter();
 
   const [fullName, setFullName] = useState(initialFullName);
   const [phone, setPhone] = useState(initialPhone);
-  const [role, setRole] = useState(initialRole);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -49,7 +46,6 @@ export default function ProfileForm({
       .update({
         full_name: fullName.trim(),
         phone: phone.trim() || null,
-        role: role.trim() || null,
       })
       .eq("id", user.id);
 
@@ -124,20 +120,9 @@ export default function ProfileForm({
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="role"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
-            Rol
-          </label>
-          <input
-            id="role"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            placeholder="Ej: cliente, viajero"
-          />
+        <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm leading-6 text-slate-600">
+          En INTRA no te fijamos un rol permanente. Puedes publicar envíos y también
+          publicar viajes según lo que necesites en cada momento.
         </div>
 
         {msg && (

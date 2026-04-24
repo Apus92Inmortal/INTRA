@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react"
 import { useState } from "react"
-import { AppNavbar } from "@/components/app-navbar"
 import {
   createClient,
   hasSupabaseEnv,
@@ -173,10 +172,7 @@ export default function CheckoutClient() {
   }
 
   return (
-    <>
-      <AppNavbar />
-
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
+    <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
         <div className="mx-auto max-w-3xl">
           <div className="mb-6">
             <h1 className="text-3xl font-bold tracking-tight text-[#0B2C4A]">
@@ -258,6 +254,5 @@ export default function CheckoutClient() {
           </section>
         </div>
       </main>
-    </>
   )
 }
