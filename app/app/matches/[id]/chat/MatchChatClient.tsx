@@ -116,11 +116,17 @@ export default function MatchChatClient({
   });
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const messagesViewportRef = useRef<HTMLDivElement | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messagesChannelRef = useRef<RealtimeChannel | null>(null);
   const channelReadyRef = useRef(false);
   const markingReadRef = useRef(false);
   const lastMarkedReadAtRef = useRef<string | null>(null);
+  const shouldStickToBottomRef = useRef(true);
+  const hasAutoScrolledInitiallyRef = useRef(false);
+  const previousLastMessageIdRef = useRef<string | null>(
+    initialMessages[initialMessages.length - 1]?.id ?? null
+  );
   const readStateRef = useRef({
     lastReadByOwner,
     lastReadByTraveler,
@@ -166,6 +172,20 @@ export default function MatchChatClient({
     textarea.style.height = "0px";
     textarea.style.height = `${Math.min(textarea.scrollHeight, 140)}px`;
   }, [newMessage]);
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
+    bottomRef.current?.scrollIntoView({ behavior });
+  }, []);
+
+  const updateShouldStickToBottom = useCallback(() => {
+    const viewport = messagesViewportRef.current;
+    if (!viewport) return;
+
+    const distanceToBottom =
+      viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+
+    shouldStickToBottomRef.current = distanceToBottom < 80;
+  }, []);
 
   function getOtherUserLastRead() {
     return viewerRole === "owner"
@@ -342,8 +362,30 @@ export default function MatchChatClient({
   }, [currentUserId, markIncomingMessageAsRead, messages, viewerRole]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, otherUserTyping]);
+    if (!hasAutoScrolledInitiallyRef.current) {
+      scrollToBottom("auto");
+      hasAutoScrolledInitiallyRef.current = true;
+      previousLastMessageIdRef.current =
+        messages[messages.length - 1]?.id ?? previousLastMessageIdRef.current;
+      return;
+    }
+
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage) return;
+
+    if (lastMessage.id === previousLastMessageIdRef.current) {
+      return;
+    }
+
+    const shouldAutoScroll =
+      shouldStickToBottomRef.current || lastMessage.sender_id === currentUserId;
+
+    previousLastMessageIdRef.current = lastMessage.id;
+
+    if (shouldAutoScroll) {
+      scrollToBottom(lastMessage.sender_id === currentUserId ? "smooth" : "auto");
+    }
+  }, [currentUserId, messages, scrollToBottom]);
 
   useEffect(() => {
     let isActive = true;
@@ -577,7 +619,11 @@ export default function MatchChatClient({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-5">
+      <div
+        ref={messagesViewportRef}
+        onScroll={updateShouldStickToBottom}
+        className="flex-1 overflow-y-auto px-3 py-4 sm:px-5"
+      >
         {messages.length === 0 ? (
           <div className="flex h-full min-h-60 items-center justify-center">
             <div className="max-w-sm rounded-3xl border border-dashed border-gray-300 bg-white px-5 py-6 text-center text-sm text-slate-500">
