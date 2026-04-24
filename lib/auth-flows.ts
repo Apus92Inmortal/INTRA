@@ -1,5 +1,8 @@
 import { isSafeInternalPath } from "@/lib/safe-next"
 
+const publicAppUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://intra-chi.vercel.app"
+
 // Nota operativa: la verificación de email queda lista en código,
 // pero debe activarse en Supabase Dashboard cuando el proyecto salga
 // del plan free y deje de ser un bloqueo el límite de emails por hora.
@@ -24,7 +27,7 @@ export function getVerifyEmailSuccessPath(nextPath?: string | null) {
 }
 
 export function buildBrowserAuthCallbackUrl(nextPath?: string | null) {
-  const url = new URL("/auth/callback", window.location.origin)
+  const url = new URL("/auth/callback", publicAppUrl)
 
   if (isSafeInternalPath(nextPath)) {
     url.searchParams.set("next", nextPath)
@@ -38,7 +41,7 @@ export function getSignupEmailRedirectUrl(nextPath?: string | null) {
 }
 
 export function getPasswordRecoveryRedirectUrl() {
-  return new URL("/login/update-password", window.location.origin).toString()
+  return new URL("/login/update-password", publicAppUrl).toString()
 }
 
 export function getResetPasswordErrorMessage(message: string) {

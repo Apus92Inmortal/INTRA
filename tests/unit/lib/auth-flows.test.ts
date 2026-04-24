@@ -26,17 +26,17 @@ describe("auth-flows", () => {
 
   it("builds callback URLs for signup verification and recovery", () => {
     expect(buildBrowserAuthCallbackUrl("/login/update-password")).toBe(
-      "http://localhost:3000/auth/callback?next=%2Flogin%2Fupdate-password"
+      "https://intra-chi.vercel.app/auth/callback?next=%2Flogin%2Fupdate-password"
     )
 
     expect(getSignupEmailRedirectUrl("/app/profile")).toBe(
-      "http://localhost:3000/auth/callback?next=%2Fverify-email%3Fstatus%3Dverified%26next%3D%252Fapp%252Fprofile"
+      "https://intra-chi.vercel.app/auth/callback?next=%2Fverify-email%3Fstatus%3Dverified%26next%3D%252Fapp%252Fprofile"
     )
   })
 
   it("uses update-password as the recovery redirect target", () => {
     expect(getPasswordRecoveryRedirectUrl()).toBe(
-      "http://localhost:3000/login/update-password"
+      "https://intra-chi.vercel.app/login/update-password"
     )
   })
 
