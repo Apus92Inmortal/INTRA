@@ -66,7 +66,7 @@ export default function MatchButton({
       <button
         onClick={onClick}
         disabled={loading || done}
-        className="rounded-2xl bg-[#2ECC71] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="min-h-11 rounded-2xl bg-[#2ECC71] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Enviando..." : done ? "Pendiente" : "Solicitar transporte"}
       </button>

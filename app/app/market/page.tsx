@@ -65,16 +65,21 @@ function getCityName(city: CityRelation) {
 }
 
 function SectionCard({
+  id,
   title,
   subtitle,
   children,
 }: {
+  id?: string;
   title: string;
   subtitle?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <section
+      id={id}
+      className="scroll-mt-24 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6"
+    >
       <div className="mb-5">
         <h2 className="text-xl font-semibold text-[#0B2C4A]">{title}</h2>
         {subtitle ? <p className="mt-1 text-sm text-gray-500">{subtitle}</p> : null}
@@ -237,10 +242,10 @@ export default async function MarketPage() {
             </p>
           </div>
 
-          <div className="mb-8 grid gap-4 md:grid-cols-2">
+          <div className="mb-6 grid gap-4 md:grid-cols-2">
             <Link
               href="/app/shipments/new"
-              className="rounded-2xl bg-[#0B2C4A] p-6 text-white shadow-sm transition hover:scale-[1.01]"
+              className="min-h-28 rounded-2xl bg-[#0B2C4A] p-5 text-white shadow-sm transition hover:scale-[1.01] sm:p-6"
             >
               <h2 className="text-xl font-semibold">Crear envío</h2>
               <p className="mt-2 text-sm text-white/85">
@@ -250,7 +255,7 @@ export default async function MarketPage() {
 
             <Link
               href="/app/trips/new"
-              className="rounded-2xl bg-[#2ECC71] p-6 text-white shadow-sm transition hover:scale-[1.01]"
+              className="min-h-28 rounded-2xl bg-[#2ECC71] p-5 text-white shadow-sm transition hover:scale-[1.01] sm:p-6"
             >
               <h2 className="text-xl font-semibold">Publicar viaje</h2>
               <p className="mt-2 text-sm text-white/90">
@@ -259,8 +264,16 @@ export default async function MarketPage() {
             </Link>
           </div>
 
+          <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-gray-200 bg-white p-3 sm:hidden">
+            <Link href="#mis-envios" className="flex min-h-11 items-center justify-center rounded-xl bg-[#EEF2F7] px-3 py-2 text-center text-sm font-medium text-[#0B2C4A]">Mis envíos</Link>
+            <Link href="#mis-viajes" className="flex min-h-11 items-center justify-center rounded-xl bg-[#EEF2F7] px-3 py-2 text-center text-sm font-medium text-[#0B2C4A]">Mis viajes</Link>
+            <Link href="#envios-compatibles" className="flex min-h-11 items-center justify-center rounded-xl bg-[#EEF2F7] px-3 py-2 text-center text-sm font-medium text-[#0B2C4A]">Envíos compatibles</Link>
+            <Link href="#viajes-compatibles" className="flex min-h-11 items-center justify-center rounded-xl bg-[#EEF2F7] px-3 py-2 text-center text-sm font-medium text-[#0B2C4A]">Viajes compatibles</Link>
+          </div>
+
           <div className="grid gap-6">
             <SectionCard
+              id="mis-envios"
               title="Mis envíos"
               subtitle="Tus publicaciones activas y su estado actual."
             >
@@ -271,7 +284,7 @@ export default async function MarketPage() {
                   {userShipments.map((shipment) => (
                     <div
                       key={shipment.id}
-                      className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
+                      className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -300,6 +313,7 @@ export default async function MarketPage() {
             </SectionCard>
 
             <SectionCard
+              id="mis-viajes"
               title="Mis viajes"
               subtitle="Tus trayectos publicados disponibles para transportar paquetes."
             >
@@ -310,7 +324,7 @@ export default async function MarketPage() {
                   {userTrips.map((trip) => (
                     <div
                       key={trip.id}
-                      className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
+                      className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>
@@ -337,6 +351,7 @@ export default async function MarketPage() {
             </SectionCard>
 
             <SectionCard
+              id="envios-compatibles"
               title="Envíos compatibles con mis viajes"
               subtitle="Opciones que podrían hacer match con tus rutas actuales."
             >
@@ -355,7 +370,7 @@ export default async function MarketPage() {
                     return (
                       <div
                         key={shipment.id}
-                        className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
+                        className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5"
                       >
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                           <div>
@@ -398,6 +413,7 @@ export default async function MarketPage() {
             </SectionCard>
 
             <SectionCard
+              id="viajes-compatibles"
               title="Viajes compatibles con mis envíos"
               subtitle="Viajes que podrían transportar alguno de tus paquetes."
             >
@@ -408,7 +424,7 @@ export default async function MarketPage() {
                   {compatibleTrips.map((trip) => (
                     <div
                       key={trip.id}
-                      className="rounded-2xl border border-gray-200 bg-gray-50 p-5"
+                      className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5"
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                         <div>

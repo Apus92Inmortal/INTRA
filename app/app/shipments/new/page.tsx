@@ -41,7 +41,7 @@ export default async function NewShipmentPage() {
     <>
       <AppNavbar />
 
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
+      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 sm:py-8">
         <div className="mx-auto max-w-3xl">
           
           {/* Encabezado */}
@@ -56,7 +56,7 @@ export default async function NewShipmentPage() {
           </div>
 
           {/* Card */}
-          <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <NewShipmentForm cities={cities ?? []} />
           </div>
         </div>

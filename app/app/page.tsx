@@ -221,7 +221,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Link
               href="/app/shipments/new"
-              className="group flex items-center gap-4 rounded-2xl bg-[#2ECC71] p-4 text-left shadow-lg shadow-[#2ECC71]/20 transition hover:bg-[#27ae60] sm:p-5"
+              className="group flex min-h-28 items-center gap-4 rounded-2xl bg-[#2ECC71] p-4 text-left shadow-lg shadow-[#2ECC71]/20 transition hover:bg-[#27ae60] sm:p-5"
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
                 <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,7 +241,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
             <Link
               href="/app/trips/new"
-              className="group flex items-center gap-4 rounded-2xl bg-[#0B2C4A] p-4 text-left transition hover:bg-[#123a5f] sm:p-5"
+              className="group flex min-h-28 items-center gap-4 rounded-2xl bg-[#0B2C4A] p-4 text-left transition hover:bg-[#123a5f] sm:p-5"
             >
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10">
                 <svg className="h-5 w-5 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -382,14 +382,14 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                               {shipment.progressPercent}%
                             </span>
                           </div>
-                          <div className="mt-3 flex items-center justify-between border-t border-gray-50 pt-3">
+                          <div className="mt-3 flex flex-col gap-3 border-t border-gray-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex items-center gap-2">
                               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFFBF4] text-[10px] font-bold text-[#2ECC71]">
                                 {shipment.travelerName.slice(0, 2).toUpperCase()}
                               </div>
                               <span className="text-sm text-gray-600">{shipment.travelerName}</span>
                             </div>
-                            <Link href="/app/matches" className="text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]">
+                            <Link href="/app/matches" className="inline-flex min-h-11 items-center text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]">
                               Ver detalles
                             </Link>
                           </div>
@@ -445,7 +445,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             <p className="text-xs text-gray-400">{trip.departureDateLabel}</p>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-center gap-2">
                             <div className="h-1.5 max-w-[120px] flex-1 rounded-full bg-gray-100 sm:w-[120px]">
                               <div className="h-full rounded-full bg-[#2ECC71]" style={{ width: `${trip.progressPercent}%` }} />
@@ -512,7 +512,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   {dashboard.monthlyRevenue.deltaVsPreviousMonthLabel ?? dashboard.monthlyRevenue.monthLabel}
                 </p>
 
-                <div className="mt-5 grid grid-cols-3 gap-3 rounded-2xl bg-white/5 p-4">
+                <div className="mt-5 grid grid-cols-1 gap-3 rounded-2xl bg-white/5 p-4 sm:grid-cols-3">
                   <div>
                     <p className="text-xs text-white/50">Entregas</p>
                     <p className="mt-1 font-semibold">{dashboard.monthlyRevenue.deliveriesCount}</p>

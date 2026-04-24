@@ -96,12 +96,12 @@ export default function MatchDetailActions({
 
   return (
     <div className="mt-2">
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         {canAccept && status === "pending" && (
           <button
             onClick={handleAccept}
             disabled={isPending}
-            className="rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+            className="min-h-11 w-full rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50 sm:w-auto"
           >
             {isPending && activeAction === "accept"
               ? "Procesando..."
@@ -113,7 +113,7 @@ export default function MatchDetailActions({
           <button
             onClick={isOwnerPending ? handleReject : handleCancel}
             disabled={isPending}
-            className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+            className="min-h-11 w-full rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50 sm:w-auto"
           >
             {isPending &&
             (activeAction === "reject" || activeAction === "cancel")

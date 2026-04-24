@@ -297,7 +297,7 @@ export default async function MatchesPage() {
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <MatchesRealtime currentUserId={user.id} />
 
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2C4A]">Mis matches</h1>
             <p className="mt-2 text-sm text-gray-600">
               Revisa tus coincidencias, administra solicitudes y entra al chat
@@ -308,7 +308,7 @@ export default async function MatchesPage() {
           {allMatches.length === 0 ? (
             <EmptyState text="Aún no tienes matches disponibles." />
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {allMatches.map((match) => {
                 const trip = normalizeTrip(match.trips);
                 const shipment = normalizeShipment(match.shipments);
@@ -349,7 +349,7 @@ export default async function MatchesPage() {
                     key={match.id}
                     className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
                   >
-                    <div className="border-b border-gray-100 px-6 py-4">
+                    <div className="border-b border-gray-100 px-4 py-4 sm:px-6">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <div className="flex flex-wrap items-center gap-2">
                           <span
@@ -383,9 +383,9 @@ export default async function MatchesPage() {
                       </div>
                     </div>
 
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6">
                       <div className="grid gap-4 xl:grid-cols-[1fr_1fr_220px]">
-                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
                           <h3 className="mb-4 text-base font-semibold text-[#0B2C4A]">
                             ✈️ Viaje
                           </h3>
@@ -409,7 +409,7 @@ export default async function MatchesPage() {
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
                           <h3 className="mb-4 text-base font-semibold text-[#0B2C4A]">
                             📦 Envío
                           </h3>
@@ -440,14 +440,14 @@ export default async function MatchesPage() {
                             <>
                               <Link
                                 href={`/app/matches/${match.id}`}
-                                className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
                               >
                                 Ver detalle
                               </Link>
 
                               <Link
                                 href={`/app/matches/${match.id}/chat`}
-                                className="flex h-12 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-sm font-semibold text-white transition hover:opacity-95"
+                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-sm font-semibold text-white transition hover:opacity-95"
                               >
                                 Abrir chat
                               </Link>
@@ -484,7 +484,7 @@ export default async function MatchesPage() {
                                   >
                                     <button
                                       type="submit"
-                                      className="mt-4 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                                      className="mt-4 min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
                                     >
                                       Confirmar entrega
                                     </button>
@@ -519,7 +519,7 @@ export default async function MatchesPage() {
                           ) : null}
                         </div>
 
-                        <div className="rounded-2xl bg-white px-4 py-3 text-sm text-gray-700">
+                        <div className="rounded-2xl bg-white px-4 py-3 text-sm text-gray-700 break-words">
                           {lastMessage?.message?.trim()
                             ? lastMessage.message
                             : "Aún no hay mensajes en este match."}
