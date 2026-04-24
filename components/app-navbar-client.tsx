@@ -192,7 +192,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
             alt="INTRA logo"
             width={320}
             height={96}
-            className="h-10 w-[4.5rem] object-cover object-center sm:h-9 sm:w-auto sm:object-contain"
+            className="h-27 w-[4.5rem] object-cover object-center sm:h-9 sm:w-auto sm:object-contain"
             priority
           />
         </Link>
