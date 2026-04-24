@@ -561,7 +561,7 @@ export default function MatchChatClient({
   }
 
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col overflow-hidden rounded-none bg-[#EEF2F7] sm:min-h-[calc(100dvh-7rem)] sm:rounded-3xl sm:border sm:border-gray-200 sm:bg-white sm:shadow-sm">
+    <div className="flex min-h-[calc(100dvh-5rem)] flex-1 flex-col overflow-hidden rounded-none bg-[#EEF2F7] sm:min-h-[calc(100dvh-8rem)] sm:rounded-3xl sm:border sm:border-gray-200 sm:bg-white sm:shadow-sm">
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <div>
