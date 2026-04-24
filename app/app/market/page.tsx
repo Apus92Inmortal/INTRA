@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchButton from "./MatchButton";
@@ -99,10 +100,10 @@ export default async function MarketPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return <div className="p-10">No autorizado</div>;
+    redirect("/login");
   }
 
-  const { data: shipments } = await supabase
+  const { data: shipments, error: shipmentsError } = await supabase
     .from("shipments")
     .select(`
       id,
@@ -116,7 +117,11 @@ export default async function MarketPage() {
     .eq("owner_id", user.id)
     .order("created_at", { ascending: false });
 
-  const { data: trips } = await supabase
+  if (shipmentsError) {
+    throw new Error(`Error cargando envíos: ${shipmentsError.message}`);
+  }
+
+  const { data: trips, error: tripsError } = await supabase
     .from("trips")
     .select(`
       id,
@@ -128,6 +133,10 @@ export default async function MarketPage() {
     `)
     .eq("traveler_id", user.id)
     .order("created_at", { ascending: false });
+
+  if (tripsError) {
+    throw new Error(`Error cargando viajes: ${tripsError.message}`);
+  }
 
   const userTrips = (trips ?? []) as TripRow[];
   const userShipments = (shipments ?? []) as ShipmentRow[];
@@ -146,7 +155,7 @@ export default async function MarketPage() {
     );
 
     if (validTripRoutes.length > 0) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("shipments")
         .select(`
           id,
@@ -159,6 +168,10 @@ export default async function MarketPage() {
         `)
         .eq("status", "open")
         .neq("owner_id", user.id);
+
+      if (error) {
+        throw new Error(`Error cargando envíos compatibles: ${error.message}`);
+      }
 
       compatibleShipments =
         ((data ?? []) as CompatibleShipmentRow[]).filter((shipment) =>
@@ -182,7 +195,7 @@ export default async function MarketPage() {
     );
 
     if (validShipmentRoutes.length > 0) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("trips")
         .select(`
           id,
@@ -194,6 +207,10 @@ export default async function MarketPage() {
         `)
         .eq("status", "open")
         .neq("traveler_id", user.id);
+
+      if (error) {
+        throw new Error(`Error cargando viajes compatibles: ${error.message}`);
+      }
 
       compatibleTrips =
         ((data ?? []) as CompatibleTripRow[]).filter((trip) =>

@@ -195,16 +195,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
   const dashboard = await getDashboardData();
 
   if (!dashboard) {
-    return (
-      <>
-        <AppNavbar />
-        <main className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6">
-          <div className="mx-auto max-w-4xl rounded-2xl border border-red-200 bg-white p-6 text-red-600 shadow-sm">
-            No pudimos cargar tu dashboard en este momento.
-          </div>
-        </main>
-      </>
-    );
+    throw new Error("No pudimos cargar tu dashboard en este momento.");
   }
 
   const greetingName = getGreetingName(dashboard.user.fullName, dashboard.user.email);

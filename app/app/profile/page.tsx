@@ -1,4 +1,5 @@
 ﻿import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import { AppNavbar } from "@/components/app-navbar";
 import ProfileForm from "./ProfileForm";
 
@@ -10,7 +11,7 @@ export default async function ProfilePage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return <div className="p-10">No autorizado</div>;
+    redirect("/login");
   }
 
   const { data: profile, error } = await supabase
@@ -20,18 +21,7 @@ export default async function ProfilePage() {
     .single();
 
   if (error) {
-    return (
-      <>
-        <AppNavbar />
-        <main className="min-h-screen bg-[#EEF2F7]">
-          <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-            <div className="rounded-2xl border border-red-200 bg-white p-6 text-red-600 shadow-sm">
-              Error cargando perfil: {error.message}
-            </div>
-          </div>
-        </main>
-      </>
-    );
+    throw new Error(`Error cargando perfil: ${error.message}`);
   }
 
   return (
