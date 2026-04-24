@@ -38,7 +38,7 @@ export function getSignupEmailRedirectUrl(nextPath?: string | null) {
 }
 
 export function getPasswordRecoveryRedirectUrl() {
-  return buildBrowserAuthCallbackUrl("/login/update-password")
+  return new URL("/login/update-password", window.location.origin).toString()
 }
 
 export function getResetPasswordErrorMessage(message: string) {

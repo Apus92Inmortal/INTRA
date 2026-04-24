@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   buildBrowserAuthCallbackUrl,
+  getPasswordRecoveryRedirectUrl,
   getResendVerificationErrorMessage,
   getResetPasswordErrorMessage,
   getSignupEmailRedirectUrl,
@@ -30,6 +31,12 @@ describe("auth-flows", () => {
 
     expect(getSignupEmailRedirectUrl("/app/profile")).toBe(
       "http://localhost:3000/auth/callback?next=%2Fverify-email%3Fstatus%3Dverified%26next%3D%252Fapp%252Fprofile"
+    )
+  })
+
+  it("uses update-password as the recovery redirect target", () => {
+    expect(getPasswordRecoveryRedirectUrl()).toBe(
+      "http://localhost:3000/login/update-password"
     )
   })
 
