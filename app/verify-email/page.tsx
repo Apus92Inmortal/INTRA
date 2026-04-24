@@ -1,4 +1,5 @@
 import VerifyEmailClient from "./VerifyEmailClient"
+import { isSafeInternalPath } from "@/lib/safe-next"
 
 type VerifyEmailPageProps = {
   searchParams?: Promise<{
@@ -12,7 +13,7 @@ export default async function VerifyEmailPage({
 }: VerifyEmailPageProps) {
   const resolvedSearchParams = await searchParams
   const email = resolvedSearchParams?.email ?? ""
-  const next = resolvedSearchParams?.next?.startsWith("/")
+  const next = isSafeInternalPath(resolvedSearchParams?.next)
     ? resolvedSearchParams.next
     : undefined
 

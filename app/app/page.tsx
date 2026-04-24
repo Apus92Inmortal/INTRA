@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppNavbar } from "@/components/app-navbar";
 import WelcomeModal from "@/components/WelcomeModal";
 import { createClient } from "@/lib/supabase/server";
+import { isSafeInternalPath } from "@/lib/safe-next";
 import AuthGateway from "./AuthGateway";
 
 type AppHomePageProps = {
@@ -22,7 +23,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
   if (!user) {
     const tab = resolvedSearchParams?.tab === "register" ? "register" : "login";
-    const nextPath = resolvedSearchParams?.next?.startsWith("/")
+    const nextPath = isSafeInternalPath(resolvedSearchParams?.next)
       ? resolvedSearchParams.next
       : null;
 
