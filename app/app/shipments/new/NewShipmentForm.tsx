@@ -488,7 +488,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 ${(paymentQuote.amount ?? 0).toLocaleString("es-CO")}
               </p>
               <p className="mt-2 text-xs text-gray-500">
-                Pago seguro con retención temporal. Se libera al viajero después de la entrega si no hay disputa.
+                Pago seguro con retención temporal. El dinero se libera al viajero cuando confirmes la entrega. Si no lo haces, se liberará automáticamente en 48h.
               </p>
             </div>
           </div>

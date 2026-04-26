@@ -303,7 +303,7 @@ export default function CheckoutClient() {
                     {formatCurrency(Number.isNaN(totalAmount) ? serviceAmount : totalAmount)}
                   </p>
                   <p className="mt-2 text-xs text-gray-500">
-                    Retención temporal: el saldo del viajero se libera {autoReleaseHours}h después de la entrega si no hay disputa. Ventana de disputa: {disputeWindowHours}h.
+                    Pago seguro con retención temporal: el dinero se libera al viajero cuando confirmes la entrega. Si no lo haces, se liberará automáticamente en {autoReleaseHours}h. Ventana de disputa: {disputeWindowHours}h.
                   </p>
                 </div>
               </div>
