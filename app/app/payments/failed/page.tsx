@@ -1,22 +1,42 @@
 import Link from "next/link"
 import { AppNavbar } from "@/components/app-navbar"
 import { formatCop, getPaymentResultLabel } from "@/lib/payments/wallet"
+import { createClient } from "@/lib/supabase/server"
 
 type PaymentFailedPageProps = {
   searchParams?: Promise<{
-    amount?: string
-    reference?: string
-    paymentStatus?: string
-    reason?: string
+    paymentId?: string
   }>
+}
+
+type PaymentRow = {
+  id: string
+  amount: number | null
+  status: string | null
+  external_reference: string | null
 }
 
 export default async function PaymentFailedPage({ searchParams }: PaymentFailedPageProps) {
   const params = await searchParams
-  const amount = Number(params?.amount ?? "0")
-  const reference = params?.reference ?? "Sin referencia"
-  const paymentStatus = params?.paymentStatus ?? "failed"
-  const reason = params?.reason ?? "El pago no pudo completarse."
+  const paymentId = params?.paymentId ?? ""
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const paymentRes = user && paymentId
+    ? await supabase
+        .from("payments")
+        .select("id, amount, status, external_reference")
+        .eq("id", paymentId)
+        .maybeSingle()
+    : { data: null }
+
+  const payment = (paymentRes.data ?? null) as PaymentRow | null
+  const amount = Number(payment?.amount ?? 0)
+  const paymentStatus = payment?.status ?? "failed"
+  const reference = payment?.external_reference ?? "Sin referencia"
 
   return (
     <>
@@ -34,8 +54,7 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
               <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Pago no completado</p>
               <h1 className="mt-2 text-3xl font-bold text-[#0B2C4A]">No pudimos registrar el pago</h1>
               <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
-                Puedes revisar los datos e intentarlo de nuevo. No uses esta pantalla para reintentar con llaves reales
-                hasta terminar la aprobación de Bold.
+                Puedes revisar los datos e intentarlo de nuevo. Esta pantalla ya no depende de datos operativos visibles en la URL.
               </p>
             </div>
 
@@ -51,9 +70,15 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
               <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Referencia</p>
                 <p className="mt-2 break-all text-sm font-semibold text-[#0B2C4A]">{reference}</p>
-                <p className="mt-3 text-sm text-slate-500">Motivo: {reason}</p>
+                <p className="mt-3 text-sm text-slate-500">Motivo: revisa el método de pago e inténtalo de nuevo.</p>
               </div>
             </div>
+
+            {!paymentId || !payment ? (
+              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                Si llegaste aquí sin un pago asociado, puedes volver al checkout sin haber expuesto identificadores del envío en el navegador.
+              </div>
+            ) : null}
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link

@@ -1,10 +1,7 @@
 import { AppNavbar } from "@/components/app-navbar"
+import { requireAdminUser } from "@/lib/auth/admin"
+import { getAccountTypeLabel, maskAccountNumber } from "@/lib/payments/wallet"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { createClient } from "@/lib/supabase/server"
-import {
-  getAccountTypeLabel,
-  maskAccountNumber,
-} from "@/lib/payments/wallet"
 import PayoutReviewClient from "./PayoutReviewClient"
 
 type PayoutRow = {
@@ -23,7 +20,6 @@ type PayoutRow = {
 type ProfileRow = {
   id: string
   full_name: string | null
-  email: string | null
 }
 
 type AccountRow = {
@@ -34,12 +30,8 @@ type AccountRow = {
 }
 
 export default async function AdminPayoutsPage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
   let loadError: string | null = null
+  let hasAccess = false
   let enrichedPayouts: Array<{
     id: string
     amount: number | null
@@ -55,65 +47,66 @@ export default async function AdminPayoutsPage() {
     accountMask: string
   }> = []
 
-  if (user) {
-    try {
-      const admin = createAdminClient()
-      const { data: payoutRows, error: payoutsError } = await admin
-        .from("payouts")
-        .select(
-          "id, traveler_user_id, payout_account_id, amount, status, requested_at, reviewed_at, paid_at, review_notes, paid_reference"
-        )
-        .order("status", { ascending: true })
-        .order("requested_at", { ascending: false })
+  try {
+    await requireAdminUser()
+    hasAccess = true
 
-      if (payoutsError) {
-        loadError = payoutsError.message
-      } else {
-        const payouts = (payoutRows ?? []) as PayoutRow[]
-        const travelerIds = Array.from(
-          new Set(payouts.map((payout) => payout.traveler_user_id).filter(Boolean))
-        )
-        const accountIds = Array.from(
-          new Set(payouts.map((payout) => payout.payout_account_id).filter(Boolean))
-        )
+    const admin = createAdminClient()
+    const { data: payoutRows, error: payoutsError } = await admin
+      .from("payouts")
+      .select(
+        "id, traveler_user_id, payout_account_id, amount, status, requested_at, reviewed_at, paid_at, review_notes, paid_reference"
+      )
+      .order("status", { ascending: true })
+      .order("requested_at", { ascending: false })
 
-        const [profilesRes, accountsRes] = await Promise.all([
-          travelerIds.length
-            ? admin.from("profiles").select("id, full_name, email").in("id", travelerIds)
-            : Promise.resolve({ data: [] as ProfileRow[] }),
-          accountIds.length
-            ? admin
-                .from("traveler_payout_accounts")
-                .select("id, bank_name, account_type, account_number")
-                .in("id", accountIds)
-            : Promise.resolve({ data: [] as AccountRow[] }),
-        ])
+    if (payoutsError) {
+      loadError = payoutsError.message
+    } else {
+      const payouts = (payoutRows ?? []) as PayoutRow[]
+      const travelerIds = Array.from(
+        new Set(payouts.map((payout) => payout.traveler_user_id).filter(Boolean))
+      )
+      const accountIds = Array.from(
+        new Set(payouts.map((payout) => payout.payout_account_id).filter(Boolean))
+      ) as string[]
 
-        const profiles = new Map(
-          ((profilesRes.data ?? []) as ProfileRow[]).map((profile) => [profile.id, profile])
-        )
-        const accounts = new Map(
-          ((accountsRes.data ?? []) as AccountRow[]).map((account) => [account.id, account])
-        )
+      const [profilesRes, accountsRes] = await Promise.all([
+        travelerIds.length
+          ? admin.from("profiles").select("id, full_name").in("id", travelerIds)
+          : Promise.resolve({ data: [] as ProfileRow[] }),
+        accountIds.length
+          ? admin
+              .from("traveler_payout_accounts")
+              .select("id, bank_name, account_type, account_number")
+              .in("id", accountIds)
+          : Promise.resolve({ data: [] as AccountRow[] }),
+      ])
 
-        enrichedPayouts = payouts.map((payout) => {
-          const traveler = profiles.get(payout.traveler_user_id)
-          const account = payout.payout_account_id ? accounts.get(payout.payout_account_id) : null
+      const profiles = new Map(
+        ((profilesRes.data ?? []) as ProfileRow[]).map((profile) => [profile.id, profile])
+      )
+      const accounts = new Map(
+        ((accountsRes.data ?? []) as AccountRow[]).map((account) => [account.id, account])
+      )
 
-          return {
-            ...payout,
-            travelerName: traveler?.full_name || traveler?.email || "Viajero sin nombre",
-            travelerEmail: traveler?.email || "Correo no disponible",
-            accountLabel: account
-              ? `${account.bank_name || getAccountTypeLabel(account.account_type)} · ${getAccountTypeLabel(account.account_type)}`
-              : "Cuenta no disponible",
-            accountMask: account ? maskAccountNumber(account.account_number) : "Sin cuenta",
-          }
-        })
-      }
-    } catch (error) {
-      loadError = error instanceof Error ? error.message : "No pudimos cargar el panel admin."
+      enrichedPayouts = payouts.map((payout) => {
+        const traveler = profiles.get(payout.traveler_user_id)
+        const account = payout.payout_account_id ? accounts.get(payout.payout_account_id) : null
+
+        return {
+          ...payout,
+          travelerName: traveler?.full_name || "Viajero sin nombre",
+          travelerEmail: "Correo no disponible",
+          accountLabel: account
+            ? `${account.bank_name || getAccountTypeLabel(account.account_type)} · ${getAccountTypeLabel(account.account_type)}`
+            : "Cuenta no disponible",
+          accountMask: account ? maskAccountNumber(account.account_number) : "Sin cuenta",
+        }
+      })
     }
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "No pudimos cargar el panel admin."
   }
 
   return (
@@ -121,7 +114,7 @@ export default async function AdminPayoutsPage() {
       <AppNavbar />
       <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6">
         <div className="mx-auto max-w-6xl">
-          {loadError || !user ? (
+          {loadError || !hasAccess ? (
             <div className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
               <h1 className="text-2xl font-bold text-[#0B2C4A]">Admin de retiros</h1>
               <p className="mt-2 text-sm text-slate-500 sm:text-base">

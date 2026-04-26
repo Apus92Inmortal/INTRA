@@ -222,11 +222,7 @@ export default function CheckoutClient() {
     }
 
     const params = new URLSearchParams({
-      amount: String(payment.amount ?? quote.amount ?? totalAmount),
-      paymentStatus: payment.status ?? "held",
-      reference: externalReference,
-      shipmentId: shipment.id,
-      method: "Pago seguro",
+      paymentId: payment.id,
     })
 
     router.push(`/app/payments/success?${params.toString()}`)

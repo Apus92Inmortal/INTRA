@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { requireAdminUser } from "@/lib/auth/admin"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { getOpenPayoutAmount } from "@/lib/payments/wallet"
@@ -355,7 +356,7 @@ export async function requestPayoutAction(formData: FormData): Promise<ActionRes
 
 export async function updatePayoutStatusAction(formData: FormData): Promise<ActionResult> {
   try {
-    const { supabase, user } = await requireUser()
+    const { user } = await requireAdminUser()
     const payoutId = toTrimmedString(formData.get("payoutId"))
     const status = toTrimmedString(formData.get("status"))
     const reviewNotes = toTrimmedString(formData.get("reviewNotes"))
@@ -369,11 +370,7 @@ export async function updatePayoutStatusAction(formData: FormData): Promise<Acti
       return { success: false, error: "Estado de retiro no válido." }
     }
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session?.user?.id || session.user.id !== user.id) {
+    if (!user.id) {
       return { success: false, error: "No pudimos validar la sesión actual." }
     }
 

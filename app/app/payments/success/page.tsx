@@ -1,23 +1,44 @@
 import Link from "next/link"
 import { AppNavbar } from "@/components/app-navbar"
 import { formatCop, getPaymentResultLabel } from "@/lib/payments/wallet"
+import { createClient } from "@/lib/supabase/server"
 
 type PaymentSuccessPageProps = {
   searchParams?: Promise<{
-    amount?: string
-    reference?: string
-    shipmentId?: string
-    paymentStatus?: string
-    method?: string
+    paymentId?: string
   }>
+}
+
+type PaymentRow = {
+  id: string
+  amount: number | null
+  status: string | null
+  external_reference: string | null
+  payment_method: string | null
 }
 
 export default async function PaymentSuccessPage({ searchParams }: PaymentSuccessPageProps) {
   const params = await searchParams
-  const amount = Number(params?.amount ?? "0")
-  const reference = params?.reference ?? params?.shipmentId ?? "Pendiente"
-  const paymentStatus = params?.paymentStatus ?? "held"
-  const method = params?.method ?? "Pago seguro"
+  const paymentId = params?.paymentId ?? ""
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const paymentRes = user && paymentId
+    ? await supabase
+        .from("payments")
+        .select("id, amount, status, external_reference, payment_method")
+        .eq("id", paymentId)
+        .maybeSingle()
+    : { data: null }
+
+  const payment = (paymentRes.data ?? null) as PaymentRow | null
+  const amount = Number(payment?.amount ?? 0)
+  const paymentStatus = payment?.status ?? "held"
+  const reference = payment?.external_reference ?? "Pendiente"
+  const method = payment?.payment_method === "simulated" ? "Pago seguro" : payment?.payment_method ?? "Pago seguro"
 
   return (
     <>
@@ -58,6 +79,12 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
                 <p className="mt-2 text-sm font-semibold text-[#0B2C4A]">{method}</p>
               </div>
             </div>
+
+            {!paymentId || !payment ? (
+              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                No pudimos recuperar todos los detalles del pago desde este enlace, pero el flujo quedó protegido sin exponer datos en la URL.
+              </div>
+            ) : null}
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
