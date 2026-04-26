@@ -37,7 +37,9 @@ type ProfileNameRow = {
 };
 
 const SWIPE_ACTION_WIDTH = 88;
+const SWIPE_CONFIRM_WIDTH = 156;
 const SWIPE_OPEN_THRESHOLD = 44;
+const SWIPE_CONFIRM_THRESHOLD = 132;
 
 function pickJoinedRow<T>(value: T | T[] | null | undefined): T | null {
   if (!value) return null;
@@ -201,6 +203,7 @@ export function NotificationsBell() {
   const activeDragIdRef = useRef<string | null>(null);
   const pointerStartXRef = useRef(0);
   const pointerStartOffsetRef = useRef(0);
+  const suppressClickRef = useRef(false);
 
   const loadCounterpartNames = useCallback(
     async (currentUserId: string, rows: NotificationItem[]) => {
@@ -527,6 +530,11 @@ export function NotificationsBell() {
   }
 
   async function handleNotificationClick(item: NotificationItem) {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
+
     if (swipedId === item.id) {
       setSwipedId(null);
       return;
@@ -551,47 +559,59 @@ export function NotificationsBell() {
     router.push(`/app/matches/${item.related_match_id}`);
   }
 
-  const handlePointerDown = useCallback(
-    (notificationId: string) => (event: React.PointerEvent<HTMLButtonElement>) => {
+  function handlePointerDown(notificationId: string) {
+    return (event: React.PointerEvent<HTMLButtonElement>) => {
       if (deletingId || clearingAll) return;
 
+      suppressClickRef.current = false;
       activeDragIdRef.current = notificationId;
       pointerStartXRef.current = event.clientX;
       pointerStartOffsetRef.current = swipedId === notificationId ? -SWIPE_ACTION_WIDTH : 0;
       setActiveDragId(notificationId);
       setDragOffset(pointerStartOffsetRef.current);
       event.currentTarget.setPointerCapture(event.pointerId);
-    },
-    [clearingAll, deletingId, swipedId]
-  );
+    };
+  }
 
-  const handlePointerMove = useCallback(
-    (notificationId: string) => (event: React.PointerEvent<HTMLButtonElement>) => {
+  function handlePointerMove(notificationId: string) {
+    return (event: React.PointerEvent<HTMLButtonElement>) => {
       if (activeDragIdRef.current !== notificationId) return;
 
       const deltaX = event.clientX - pointerStartXRef.current;
       const nextOffset = Math.min(
         0,
-        Math.max(-SWIPE_ACTION_WIDTH, pointerStartOffsetRef.current + deltaX)
+        Math.max(-SWIPE_CONFIRM_WIDTH, pointerStartOffsetRef.current + deltaX)
       );
 
-      setDragOffset(nextOffset);
-    },
-    []
-  );
+      if (Math.abs(deltaX) > 8) {
+        suppressClickRef.current = true;
+      }
 
-  const handlePointerEnd = useCallback(
-    (notificationId: string) => () => {
+      setDragOffset(nextOffset);
+    };
+  }
+
+  function handlePointerEnd(notificationId: string) {
+    return () => {
       if (activeDragIdRef.current !== notificationId) return;
 
+      const startedOpen = pointerStartOffsetRef.current <= -SWIPE_ACTION_WIDTH;
+      const shouldConfirmDelete = startedOpen && dragOffset <= -SWIPE_CONFIRM_THRESHOLD;
       const shouldStayOpen = dragOffset <= -SWIPE_OPEN_THRESHOLD;
-      setSwipedId(shouldStayOpen ? notificationId : null);
+
       setActiveDragId(null);
       activeDragIdRef.current = null;
       setDragOffset(0);
-    },
-    [dragOffset]
-  );
+
+      if (shouldConfirmDelete) {
+        setSwipedId(null);
+        void deleteNotificationById(notificationId);
+        return;
+      }
+
+      setSwipedId(shouldStayOpen ? notificationId : null);
+    };
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -728,7 +748,7 @@ export function NotificationsBell() {
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
               <h3 className="font-semibold text-[#0B2C4A]">Notificaciones</h3>
-              <p className="mt-1 text-xs text-slate-400">Desliza una tarjeta para borrarla</p>
+              <p className="mt-1 text-xs text-slate-400">Desliza una vez para mostrar borrar, dos para confirmar</p>
             </div>
             <div className="flex flex-col items-end gap-1">
               <button
@@ -802,20 +822,19 @@ export function NotificationsBell() {
                     key={item.id}
                     className="relative overflow-hidden rounded-xl"
                   >
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        void deleteNotificationById(item.id);
-                      }}
-                      disabled={Boolean(deletingId) || clearingAll}
-                      className="absolute inset-y-0 right-0 flex w-[88px] items-center justify-center bg-red-500 text-sm font-semibold text-white disabled:opacity-60"
+                    <div
+                      className="absolute inset-y-0 right-0 flex w-[156px] items-center justify-end rounded-xl bg-red-500 pr-4 text-sm font-semibold text-white"
                     >
-                      <div className="flex flex-col items-center gap-1">
+                      <div className="flex items-center gap-2 text-right">
                         <Trash2 className="h-4 w-4" />
-                        <span>{isDeleting ? "Borrando" : "Borrar"}</span>
+                        <div className="flex flex-col leading-tight">
+                          <span>{isDeleting ? "Borrando..." : "Borrar"}</span>
+                          <span className="text-[11px] font-medium text-white/80">
+                            {swipedId === item.id ? "Desliza otra vez" : "Desliza para ver"}
+                          </span>
+                        </div>
                       </div>
-                    </button>
+                    </div>
 
                     <button
                       onClick={() => void handleNotificationClick(item)}
