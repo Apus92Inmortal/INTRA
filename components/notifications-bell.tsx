@@ -818,7 +818,7 @@ export function NotificationsBell() {
                         void deleteNotificationById(item.id);
                       }}
                       disabled={Boolean(deletingId) || clearingAll}
-                      className="absolute inset-y-0 right-0 flex w-[88px] items-center justify-center rounded-xl bg-red-500 text-sm font-semibold text-white disabled:opacity-60"
+                      className="absolute inset-0 flex w-full items-center justify-end rounded-xl bg-red-500 pr-5 text-sm font-semibold text-white disabled:opacity-60"
                     >
                       <div className="flex flex-col items-center gap-1">
                         <Trash2 className="h-4 w-4" />
