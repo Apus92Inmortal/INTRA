@@ -291,7 +291,7 @@ export default function CheckoutClient() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
-                    <span>Fee gateway estimado</span>
+                    <span>Fee de pasarela (estimado)</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(gatewayFeeEstimated) ? 0 : gatewayFeeEstimated)}
                     </span>

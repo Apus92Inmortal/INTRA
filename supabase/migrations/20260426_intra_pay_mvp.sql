@@ -1,5 +1,4 @@
 begin;
-
 create table if not exists public.fee_configs (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -28,7 +27,6 @@ create table if not exists public.fee_configs (
     and auto_release_hours > 0
   )
 );
-
 insert into public.fee_configs (
   name,
   customer_fee_percent,
@@ -59,15 +57,12 @@ where not exists (
   from public.fee_configs
   where is_active = true
 );
-
 alter table public.matches
   drop constraint if exists matches_status_check;
-
 alter table public.matches
   add column if not exists disputed_at timestamptz,
   add column if not exists resolved_at timestamptz,
   add column if not exists resolution_notes text;
-
 alter table public.matches
   add constraint matches_status_check
   check (
@@ -83,10 +78,8 @@ alter table public.matches
       ]
     )
   );
-
 alter table public.payments
   drop constraint if exists payments_status_check;
-
 alter table public.payments
   add column if not exists gateway_provider text not null default 'bold_mvp',
   add column if not exists gateway_transaction_id text,
@@ -109,7 +102,6 @@ alter table public.payments
   add column if not exists refunded_at timestamptz,
   add column if not exists released_by text,
   add column if not exists metadata jsonb not null default '{}'::jsonb;
-
 update public.payments
 set
   gross_amount = coalesce(gross_amount, amount),
@@ -119,7 +111,6 @@ set
     greatest(amount - coalesce(gateway_fee_actual, gateway_fee_estimated, 0), 0)
   )
 where true;
-
 alter table public.payments
   add constraint payments_status_check
   check (
@@ -135,23 +126,18 @@ alter table public.payments
       ]
     )
   );
-
 alter table public.payments
   drop constraint if exists payments_dispute_status_check;
-
 alter table public.payments
   add constraint payments_dispute_status_check
   check (dispute_status = any (array['none'::text, 'open'::text, 'resolved'::text]));
-
 create unique index if not exists payments_gateway_transaction_id_idx
   on public.payments (gateway_transaction_id)
   where gateway_transaction_id is not null;
-
 create index if not exists payments_match_id_idx on public.payments (match_id);
 create index if not exists payments_auto_release_idx on public.payments (auto_release_at)
   where status = 'held' and dispute_status = 'none';
 create index if not exists payments_dispute_status_idx on public.payments (dispute_status);
-
 create table if not exists public.wallets (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null unique references public.profiles(id) on delete cascade,
@@ -162,7 +148,6 @@ create table if not exists public.wallets (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
-
 create table if not exists public.traveler_payout_accounts (
   id uuid primary key default gen_random_uuid(),
   traveler_user_id uuid not null references public.profiles(id) on delete cascade,
@@ -179,11 +164,9 @@ create table if not exists public.traveler_payout_accounts (
     or account_type = any (array['ahorros'::text, 'corriente'::text, 'nequi'::text, 'daviplata'::text])
   )
 );
-
 create unique index if not exists traveler_payout_accounts_default_idx
   on public.traveler_payout_accounts (traveler_user_id)
   where is_default = true;
-
 create table if not exists public.payouts (
   id uuid primary key default gen_random_uuid(),
   traveler_user_id uuid not null references public.profiles(id) on delete cascade,
@@ -203,9 +186,7 @@ create table if not exists public.payouts (
     status = any (array['pending'::text, 'approved'::text, 'rejected'::text, 'paid'::text])
   )
 );
-
 create index if not exists payouts_traveler_status_idx on public.payouts (traveler_user_id, status);
-
 create table if not exists public.wallet_ledger (
   id uuid primary key default gen_random_uuid(),
   wallet_id uuid not null references public.wallets(id) on delete cascade,
@@ -228,7 +209,6 @@ create table if not exists public.wallet_ledger (
     direction = any (array['credit'::text, 'debit'::text])
   )
 );
-
 create index if not exists wallet_ledger_user_created_idx on public.wallet_ledger (user_id, created_at desc);
 create index if not exists wallet_ledger_payment_idx on public.wallet_ledger (payment_id);
 create index if not exists wallet_ledger_match_idx on public.wallet_ledger (match_id);
@@ -247,7 +227,6 @@ create unique index if not exists wallet_ledger_refund_pending_once_idx
 create unique index if not exists wallet_ledger_refund_available_once_idx
   on public.wallet_ledger (payment_id, entry_type)
   where entry_type = 'refund_available_debit';
-
 create table if not exists public.reconciliation_logs (
   id uuid primary key default gen_random_uuid(),
   payment_id uuid references public.payments(id) on delete set null,
@@ -263,7 +242,6 @@ create table if not exists public.reconciliation_logs (
     status = any (array['pending'::text, 'matched'::text, 'mismatch'::text, 'resolved'::text])
   )
 );
-
 create table if not exists public.bold_webhook_events (
   id uuid primary key default gen_random_uuid(),
   event_key text not null unique,
@@ -276,7 +254,6 @@ create table if not exists public.bold_webhook_events (
   processed_at timestamptz,
   created_at timestamptz not null default now()
 );
-
 create or replace function public.ensure_wallet(p_user_id uuid)
 returns public.wallets
 language plpgsql
@@ -302,7 +279,6 @@ begin
   return v_wallet;
 end;
 $function$;
-
 create or replace function public.sync_wallet_balance(p_user_id uuid)
 returns public.wallets
 language plpgsql
@@ -340,7 +316,6 @@ begin
   return v_wallet;
 end;
 $function$;
-
 create or replace function public.add_wallet_ledger_entry(
   p_user_id uuid,
   p_payment_id uuid,
@@ -401,7 +376,6 @@ begin
   return v_entry;
 end;
 $function$;
-
 create or replace function public.calculate_payment_amount(p_base_amount numeric)
 returns jsonb
 language plpgsql
@@ -410,9 +384,10 @@ set search_path to 'public'
 as $function$
 declare
   v_config public.fee_configs;
-  v_gateway_fee numeric := 0;
+  v_gateway_percent_factor numeric := 0;
   v_intra_fee numeric := 0;
   v_total numeric := 0;
+  v_gateway_fee numeric := 0;
   v_net numeric := 0;
 begin
   select *
@@ -445,9 +420,22 @@ begin
     );
   end if;
 
-  v_gateway_fee := ceil((p_base_amount * v_config.gateway_fee_percent / 100) + v_config.gateway_fee_fixed_cop);
   v_intra_fee := ceil((p_base_amount * v_config.customer_fee_percent / 100) + v_config.customer_fee_fixed_cop);
-  v_total := p_base_amount + v_gateway_fee + v_intra_fee;
+  v_gateway_percent_factor := coalesce(v_config.gateway_fee_percent, 0) / 100;
+
+  if v_gateway_percent_factor >= 1 then
+    return jsonb_build_object(
+      'success', false,
+      'error', 'invalid_gateway_fee_config'
+    );
+  end if;
+
+  v_total := ceil(
+    (p_base_amount + v_intra_fee + coalesce(v_config.gateway_fee_fixed_cop, 0))
+    / (1 - v_gateway_percent_factor)
+  );
+
+  v_gateway_fee := greatest(v_total - p_base_amount - v_intra_fee, 0);
   v_net := greatest(v_total - v_gateway_fee, 0);
 
   return jsonb_build_object(
@@ -467,7 +455,6 @@ begin
   );
 end;
 $function$;
-
 create or replace function public.attach_payment_hold_to_match(
   p_match_id uuid,
   p_shipment_id uuid,
@@ -538,7 +525,6 @@ begin
   );
 end;
 $function$;
-
 create or replace function public.release_payment(
   p_payment_id uuid,
   p_reason text default 'delivery_completed'
@@ -642,7 +628,6 @@ begin
   return jsonb_build_object('success', true, 'payment_id', v_payment.id);
 end;
 $function$;
-
 create or replace function public.refund_payment(
   p_payment_id uuid,
   p_reason text default 'cancelled'
@@ -748,7 +733,6 @@ begin
   return jsonb_build_object('success', true, 'payment_id', v_payment.id);
 end;
 $function$;
-
 create or replace function public.process_bold_webhook(
   p_gateway_transaction_id text,
   p_status text,
@@ -808,7 +792,6 @@ begin
   return jsonb_build_object('success', true, 'payment_id', v_payment.id);
 end;
 $function$;
-
 create or replace function public.open_dispute(
   p_match_id uuid,
   p_reason text default null
@@ -886,7 +869,6 @@ begin
   return jsonb_build_object('success', true, 'payment_id', v_payment.id);
 end;
 $function$;
-
 create or replace function public.auto_release_due_payments(p_limit integer default 100)
 returns integer
 language plpgsql
@@ -917,7 +899,6 @@ begin
   return v_count;
 end;
 $function$;
-
 create or replace function public.accept_match(p_match_id uuid)
  returns void
  language plpgsql
@@ -1058,7 +1039,6 @@ begin
   );
 end;
 $function$;
-
 create or replace function public.confirm_shipment_delivery(p_shipment_id uuid)
  returns void
  language plpgsql
@@ -1142,7 +1122,6 @@ begin
   where id = v_payment.id;
 end;
 $function$;
-
 create or replace function public.mark_shipment_in_transit(p_shipment_id uuid)
  returns void
  language plpgsql
@@ -1206,7 +1185,6 @@ begin
   end if;
 end;
 $function$;
-
 alter table public.wallets enable row level security;
 alter table public.wallet_ledger enable row level security;
 alter table public.traveler_payout_accounts enable row level security;
@@ -1214,60 +1192,49 @@ alter table public.payouts enable row level security;
 alter table public.fee_configs enable row level security;
 alter table public.reconciliation_logs enable row level security;
 alter table public.bold_webhook_events enable row level security;
-
 drop policy if exists wallets_select_own on public.wallets;
 create policy wallets_select_own on public.wallets
   for select to authenticated
   using (user_id = auth.uid());
-
 drop policy if exists wallet_ledger_select_own on public.wallet_ledger;
 create policy wallet_ledger_select_own on public.wallet_ledger
   for select to authenticated
   using (user_id = auth.uid());
-
 drop policy if exists traveler_payout_accounts_select_own on public.traveler_payout_accounts;
 create policy traveler_payout_accounts_select_own on public.traveler_payout_accounts
   for select to authenticated
   using (traveler_user_id = auth.uid());
-
 drop policy if exists traveler_payout_accounts_insert_own on public.traveler_payout_accounts;
 create policy traveler_payout_accounts_insert_own on public.traveler_payout_accounts
   for insert to authenticated
   with check (traveler_user_id = auth.uid());
-
 drop policy if exists traveler_payout_accounts_update_own on public.traveler_payout_accounts;
 create policy traveler_payout_accounts_update_own on public.traveler_payout_accounts
   for update to authenticated
   using (traveler_user_id = auth.uid())
   with check (traveler_user_id = auth.uid());
-
 drop policy if exists payouts_select_own on public.payouts;
 create policy payouts_select_own on public.payouts
   for select to authenticated
   using (traveler_user_id = auth.uid());
-
 drop policy if exists payouts_insert_own on public.payouts;
 create policy payouts_insert_own on public.payouts
   for insert to authenticated
   with check (traveler_user_id = auth.uid());
-
 drop policy if exists fee_configs_read_all on public.fee_configs;
 create policy fee_configs_read_all on public.fee_configs
   for select to anon, authenticated
   using (is_active = true);
-
 revoke execute on function public.ensure_wallet(uuid) from public, anon, authenticated;
 revoke execute on function public.sync_wallet_balance(uuid) from public, anon, authenticated;
 revoke execute on function public.add_wallet_ledger_entry(uuid, uuid, uuid, uuid, text, text, text, numeric, text, jsonb) from public, anon, authenticated;
 revoke execute on function public.attach_payment_hold_to_match(uuid, uuid, uuid) from public, anon, authenticated;
 revoke execute on function public.process_bold_webhook(text, text, text, jsonb) from public, anon, authenticated;
 revoke execute on function public.auto_release_due_payments(integer) from public, anon, authenticated;
-
 grant execute on function public.calculate_payment_amount(numeric) to anon, authenticated;
 grant execute on function public.open_dispute(uuid, text) to authenticated;
 grant execute on function public.release_payment(uuid, text) to authenticated;
 grant execute on function public.refund_payment(uuid, text) to authenticated;
 grant execute on function public.process_bold_webhook(text, text, text, jsonb) to service_role;
 grant execute on function public.auto_release_due_payments(integer) to service_role;
-
 commit;

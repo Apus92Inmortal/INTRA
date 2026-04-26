@@ -381,7 +381,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     </div>
                     <div className="rounded-2xl bg-slate-50 p-4">
                       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Fee gateway
+                        Fee de pasarela
                       </p>
                       <p className="mt-2 text-lg font-semibold text-slate-900">
                         {formatCurrency(payment.gateway_fee_estimated)}

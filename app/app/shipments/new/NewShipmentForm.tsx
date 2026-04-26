@@ -475,7 +475,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span>Fee gateway estimado</span>
+                <span>Fee de pasarela (estimado)</span>
                 <span className="font-medium text-gray-800">
                   ${(paymentQuote.gateway_fee_estimated ?? 0).toLocaleString("es-CO")}
                 </span>
