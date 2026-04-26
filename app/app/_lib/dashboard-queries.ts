@@ -199,12 +199,21 @@ function getTripProgressPercent(usedCapacityKg: number, totalCapacityKg: number)
 
 function getActivityIcon(type: string | null): DashboardActivityIcon {
   switch (type) {
+    case "match_requested":
     case "match_accepted":
     case "match_rejected":
     case "match_cancelled":
       return "match";
+    case "shipment_in_transit":
+    case "delivery_confirmed":
+      return "shipment";
     case "new_message":
       return "message";
+    case "payment_released":
+    case "refund_processed":
+      return "payment";
+    case "dispute_opened":
+      return "alert";
     default:
       return "default";
   }

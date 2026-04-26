@@ -17,6 +17,11 @@ type PageProps = {
   }>;
 };
 
+type ProfileNameRow = {
+  id: string;
+  full_name: string | null;
+};
+
 export default async function MatchChatPage({ params }: PageProps) {
   const { id: matchId } = await params;
   const supabase = await createClient();
@@ -81,6 +86,18 @@ export default async function MatchChatPage({ params }: PageProps) {
     throw new Error(`Error cargando mensajes: ${messagesError.message}`);
   }
 
+  const { data: participantProfiles } = await supabase
+    .from("profiles")
+    .select("id, full_name")
+    .in("id", [user.id, otherUserId]);
+
+  const profileNameById = new Map<string, string>(
+    ((participantProfiles ?? []) as ProfileNameRow[]).map((profile: ProfileNameRow) => [
+      profile.id,
+      profile.full_name?.trim() || "La otra persona",
+    ])
+  );
+
   return (
     <>
       <AppNavbar />
@@ -89,6 +106,8 @@ export default async function MatchChatPage({ params }: PageProps) {
           matchId={matchId}
           currentUserId={user.id}
           otherUserId={otherUserId}
+          currentUserName={profileNameById.get(user.id) ?? "Alguien"}
+          otherUserName={profileNameById.get(otherUserId) ?? "La otra persona"}
           initialMessages={(messagesData ?? []) as Message[]}
           viewerRole={viewerRole}
           lastReadByOwner={match.last_read_by_owner}
