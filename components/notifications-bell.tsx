@@ -36,8 +36,8 @@ type ProfileNameRow = {
   full_name: string | null;
 };
 
-const SWIPE_ACTION_WIDTH = 88;
-const SWIPE_OPEN_THRESHOLD = 44;
+const SWIPE_ACTION_WIDTH = 112;
+const SWIPE_OPEN_THRESHOLD = 56;
 
 function pickJoinedRow<T>(value: T | T[] | null | undefined): T | null {
   if (!value) return null;
