@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { parsePaymentQuote, type PaymentQuote } from "@/lib/payments/quote"
 import { createClient } from "@/lib/supabase/client"
 
 type City = {
@@ -39,6 +40,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
   const [routeBasePrice, setRouteBasePrice] = useState<number | null>(null)
   const [routeLoading, setRouteLoading] = useState(false)
+  const [quoteLoading, setQuoteLoading] = useState(false)
+  const [paymentQuote, setPaymentQuote] = useState<PaymentQuote | null>(null)
 
   const cityOptions = useMemo(() => cities, [cities])
 
@@ -158,7 +161,42 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     }
   }
 
-  const price = routeBasePrice !== null ? routeBasePrice + getKindPrice() : null
+  const serviceAmount = routeBasePrice !== null ? routeBasePrice + getKindPrice() : null
+
+  useEffect(() => {
+    const fetchQuote = async () => {
+      if (serviceAmount === null) {
+        setPaymentQuote(null)
+        return
+      }
+
+      setQuoteLoading(true)
+
+      const { data, error } = await supabase.rpc("calculate_payment_amount", {
+        p_base_amount: serviceAmount,
+      })
+
+      const nextQuote = parsePaymentQuote(data)
+
+      if (error || !nextQuote || !nextQuote.success) {
+        const nextMessage =
+          nextQuote?.error === "below_minimum"
+            ? `El valor mínimo del envío es ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(nextQuote.minimum_amount ?? 20000)}.`
+            : "No se pudo calcular el cobro total para esta ruta."
+
+        setPaymentQuote(nextQuote)
+        setErrors((prev) => ({ ...prev, route: nextMessage }))
+        setQuoteLoading(false)
+        return
+      }
+
+      setPaymentQuote(nextQuote)
+      setErrors((prev) => ({ ...prev, route: undefined }))
+      setQuoteLoading(false)
+    }
+
+    fetchQuote()
+  }, [serviceAmount, supabase])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -196,6 +234,13 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.route = "No hay tarifa configurada para esa ruta."
     }
 
+    if (!paymentQuote?.success || !paymentQuote.amount) {
+      nextErrors.route =
+        paymentQuote?.error === "below_minimum"
+          ? `El valor mínimo del envío es ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(paymentQuote.minimum_amount ?? 20000)}.`
+          : "No se pudo calcular el pago seguro para este envío."
+    }
+
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors)
       setLoading(false)
@@ -210,7 +255,15 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       description: description.trim(),
       weightKg,
       declaredValueCop,
-      price: String(price),
+      serviceAmount: String(serviceAmount),
+      totalAmount: String(paymentQuote?.amount ?? 0),
+      travelerAmount: String(paymentQuote?.traveler_amount ?? 0),
+      gatewayFeeEstimated: String(paymentQuote?.gateway_fee_estimated ?? 0),
+      intraFee: String(paymentQuote?.intra_fee ?? 0),
+      netAmountReceived: String(paymentQuote?.net_amount_received ?? 0),
+      autoReleaseHours: String(paymentQuote?.auto_release_hours ?? 48),
+      disputeWindowHours: String(paymentQuote?.dispute_window_hours ?? 24),
+      disputeSlaHours: String(paymentQuote?.dispute_sla_hours ?? 72),
       origin: originCity?.name ?? originCityId,
       destination: destinationCity?.name ?? destinationCityId,
       weight: weightKg,
@@ -386,7 +439,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
         </div>
       )}
 
-      {price && originCity && destinationCity && !routeLoading && (
+      {serviceAmount && originCity && destinationCity && !routeLoading && paymentQuote?.success && (
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <h3 className="text-base font-semibold text-[#0B2C4A]">
             💰 Resumen del servicio
@@ -408,10 +461,36 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           </div>
 
           <div className="mt-4 rounded-xl bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Valor del servicio</p>
-            <p className="mt-1 text-3xl font-bold text-[#2ECC71]">
-              ${price.toLocaleString("es-CO")}
-            </p>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex items-center justify-between gap-4">
+                <span>Valor para el viajero</span>
+                <span className="font-medium text-gray-800">
+                  ${serviceAmount.toLocaleString("es-CO")}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span>Comisión INTRA</span>
+                <span className="font-medium text-gray-800">
+                  ${(paymentQuote.intra_fee ?? 0).toLocaleString("es-CO")}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span>Fee de pasarela (estimado)</span>
+                <span className="font-medium text-gray-800">
+                  ${(paymentQuote.gateway_fee_estimated ?? 0).toLocaleString("es-CO")}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 border-t border-gray-200 pt-4">
+              <p className="text-sm text-gray-500">Total a pagar</p>
+              <p className="mt-1 text-3xl font-bold text-[#2ECC71]">
+                ${(paymentQuote.amount ?? 0).toLocaleString("es-CO")}
+              </p>
+              <p className="mt-2 text-xs text-gray-500">
+                Pago seguro con retención temporal. El dinero se libera al viajero cuando confirmes la entrega. Si no lo haces, se liberará automáticamente en 48h.
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -437,7 +516,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/95 p-4 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
         <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row">
           <button
-            disabled={loading || routeLoading}
+            disabled={loading || routeLoading || quoteLoading}
             className="min-h-11 rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60 sm:flex-1"
           >
             {loading ? "Procesando..." : "Continuar"}

@@ -75,7 +75,7 @@ export async function cancelMatchAction(matchId: string) {
 
     const { data: match, error: matchError } = await supabase
       .from("matches")
-      .select("id, shipment_id")
+      .select("id, shipment_id, status")
       .eq("id", matchId)
       .single();
 
@@ -107,14 +107,32 @@ export async function cancelMatchAction(matchId: string) {
 
     const previousPaymentStatus = payment.status;
 
-    if (payment.status !== "refunded") {
-      const { error: refundError } = await supabase
-        .from("payments")
-        .update({ status: "refunded" })
-        .eq("id", payment.id);
+    if (match.status === "accepted" && payment.status !== "refunded") {
+      const { data: refundResult, error: refundError } = await supabase.rpc(
+        "refund_payment",
+        {
+          p_payment_id: payment.id,
+          p_reason: "match_cancelled",
+        }
+      );
 
       if (refundError) {
         return { success: false, error: refundError.message };
+      }
+
+      if (
+        refundResult &&
+        typeof refundResult === "object" &&
+        "success" in refundResult &&
+        refundResult.success === false
+      ) {
+        return {
+          success: false,
+          error:
+            typeof refundResult.error === "string"
+              ? refundResult.error
+              : "No se pudo revertir el pago del match",
+        };
       }
     }
 
@@ -206,37 +224,6 @@ export async function confirmDeliveryAction(shipmentId: string) {
       return { success: false, error: error.message };
     }
 
-    const { data: payment, error: paymentLookupError } = await supabase
-      .from("payments")
-      .select("id")
-      .eq("shipment_id", shipment.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (paymentLookupError) {
-      return { success: false, error: paymentLookupError.message };
-    }
-
-    if (!payment) {
-      return {
-        success: false,
-        error: "No se encontro un pago asociado a este envio",
-      };
-    }
-
-    const { error: paymentUpdateError } = await supabase
-      .from("payments")
-      .update({
-        status: "released",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", payment.id);
-
-    if (paymentUpdateError) {
-      return { success: false, error: paymentUpdateError.message };
-    }
-
     return { success: true };
   } catch (error) {
     return {
@@ -249,6 +236,53 @@ export async function confirmDeliveryAction(shipmentId: string) {
   }
 }
 
+export async function openDisputeAction(matchId: string) {
+  try {
+    if (!matchId) {
+      return { success: false, error: "No llego el ID del match" };
+    }
+
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.rpc("open_dispute", {
+      p_match_id: matchId,
+      p_reason: "Disputa abierta desde la app",
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    if (
+      data &&
+      typeof data === "object" &&
+      "success" in data &&
+      data.success === false
+    ) {
+      return {
+        success: false,
+        error:
+          typeof data.error === "string"
+            ? data.error
+            : "No se pudo abrir la disputa",
+      };
+    }
+
+    revalidatePath(`/app/matches/${matchId}`);
+    revalidatePath("/app/matches");
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al abrir la disputa",
+    };
+  }
+}
+
 export async function markInTransitFormAction(
   shipmentId: string,
   matchId: string
@@ -257,6 +291,17 @@ export async function markInTransitFormAction(
 
   if (!result.success) {
     throw new Error(result.error || "Error al marcar en transito");
+  }
+
+  revalidatePath(`/app/matches/${matchId}`);
+  revalidatePath("/app/matches");
+}
+
+export async function openDisputeFormAction(matchId: string): Promise<void> {
+  const result = await openDisputeAction(matchId);
+
+  if (!result.success) {
+    throw new Error(result.error || "Error al abrir la disputa");
   }
 
   revalidatePath(`/app/matches/${matchId}`);

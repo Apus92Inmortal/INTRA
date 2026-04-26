@@ -35,10 +35,18 @@ export function getStatusLabel(status: string | null) {
       return "Entregado";
     case "held":
       return "Retenido";
+    case "processing":
+      return "Procesando";
     case "released":
       return "Liberado";
     case "refunded":
       return "Reembolsado";
+    case "failed":
+      return "Fallido";
+    case "disputed":
+      return "En disputa";
+    case "resolved":
+      return "Resuelto";
     default:
       return status ?? "";
   }

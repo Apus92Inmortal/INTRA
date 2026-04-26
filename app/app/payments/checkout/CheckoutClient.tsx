@@ -7,6 +7,7 @@ import {
   hasSupabaseEnv,
   missingEnvMessage,
 } from "@/lib/supabase/client"
+import { parsePaymentQuote } from "@/lib/payments/quote"
 import { useRouter, useSearchParams } from "next/navigation"
 
 function formatCurrency(value: number | null) {
@@ -79,7 +80,21 @@ export default function CheckoutClient() {
     searchParams.get("declaredValueCop") ?? searchParams.get("declared") ?? ""
   const weight = weightParam.trim() ? Number(weightParam) : null
   const declared = declaredParam.trim() ? Number(declaredParam) : null
-  const price = Number(searchParams.get("price") ?? "")
+  const serviceAmount = Number(
+    searchParams.get("serviceAmount") ?? searchParams.get("price") ?? ""
+  )
+  const totalAmount = Number(
+    searchParams.get("totalAmount") ?? searchParams.get("price") ?? ""
+  )
+  const travelerAmount = Number(
+    searchParams.get("travelerAmount") ?? searchParams.get("serviceAmount") ?? ""
+  )
+  const gatewayFeeEstimated = Number(
+    searchParams.get("gatewayFeeEstimated") ?? ""
+  )
+  const intraFee = Number(searchParams.get("intraFee") ?? "")
+  const autoReleaseHours = Number(searchParams.get("autoReleaseHours") ?? "48")
+  const disputeWindowHours = Number(searchParams.get("disputeWindowHours") ?? "24")
 
   async function handlePayment() {
     setLoading(true)
@@ -103,9 +118,9 @@ export default function CheckoutClient() {
       return
     }
 
-    if (Number.isNaN(price) || price < 0) {
+    if (Number.isNaN(serviceAmount) || serviceAmount < 0) {
       setLoading(false)
-      setErrorMsg("El valor del pago recibido no es válido.")
+      setErrorMsg("El valor del servicio recibido no es válido.")
       return
     }
 
@@ -127,6 +142,25 @@ export default function CheckoutClient() {
     if (userError || !user) {
       setLoading(false)
       setErrorMsg("Debes iniciar sesión para completar el pago.")
+      return
+    }
+
+    const { data: quoteData, error: quoteError } = await supabase.rpc(
+      "calculate_payment_amount",
+      {
+        p_base_amount: serviceAmount,
+      }
+    )
+
+    const quote = parsePaymentQuote(quoteData)
+
+    if (quoteError || !quote || !quote.success || !quote.amount) {
+      setLoading(false)
+      setErrorMsg(
+        quote?.error === "below_minimum"
+          ? `El valor mínimo del envío es ${formatCurrency(quote.minimum_amount ?? 20000)}.`
+          : "No se pudo recalcular el pago seguro antes de registrar el cobro."
+      )
       return
     }
 
@@ -156,10 +190,23 @@ export default function CheckoutClient() {
     const { error: paymentError } = await supabase.from("payments").insert({
       shipment_id: shipment.id,
       user_id: user.id,
-      amount: price,
+      amount: quote.amount,
+      gross_amount: quote.gross_amount ?? quote.amount,
+      traveler_amount: quote.traveler_amount ?? serviceAmount,
+      intra_fee: quote.intra_fee ?? 0,
+      gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
+      net_amount_received: quote.net_amount_received ?? quote.amount,
+      currency: quote.currency ?? "COP",
       status: "held",
+      gateway_provider: "bold_mvp",
+      gateway_status: "simulated_approved",
       payment_method: "simulated",
-      external_reference: null,
+      external_reference: `shipment:${shipment.id}`,
+      metadata: {
+        source: "checkout_mvp",
+        auto_release_hours: quote.auto_release_hours ?? autoReleaseHours,
+        dispute_window_hours: quote.dispute_window_hours ?? disputeWindowHours,
+      },
     })
 
     if (paymentError) {
@@ -230,10 +277,35 @@ export default function CheckoutClient() {
               </div>
 
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
-                <p className="text-sm text-gray-500">Precio total</p>
-                <p className="mt-1 text-4xl font-bold text-[#2ECC71]">
-                  {formatCurrency(price)}
-                </p>
+                <div className="space-y-2 text-sm text-gray-500">
+                  <div className="flex items-center justify-between gap-4">
+                    <span>Valor para el viajero</span>
+                    <span className="font-medium text-gray-700">
+                      {formatCurrency(Number.isNaN(travelerAmount) ? serviceAmount : travelerAmount)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span>Comisión INTRA</span>
+                    <span className="font-medium text-gray-700">
+                      {formatCurrency(Number.isNaN(intraFee) ? 0 : intraFee)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span>Fee de pasarela (estimado)</span>
+                    <span className="font-medium text-gray-700">
+                      {formatCurrency(Number.isNaN(gatewayFeeEstimated) ? 0 : gatewayFeeEstimated)}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-4 border-t border-gray-200 pt-4">
+                  <p className="text-sm text-gray-500">Precio total</p>
+                  <p className="mt-1 text-4xl font-bold text-[#2ECC71]">
+                    {formatCurrency(Number.isNaN(totalAmount) ? serviceAmount : totalAmount)}
+                  </p>
+                  <p className="mt-2 text-xs text-gray-500">
+                    Pago seguro con retención temporal: el dinero se libera al viajero cuando confirmes la entrega. Si no lo haces, se liberará automáticamente en {autoReleaseHours}h. Ventana de disputa: {disputeWindowHours}h.
+                  </p>
+                </div>
               </div>
 
               {errorMsg && (
