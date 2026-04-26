@@ -759,7 +759,7 @@ export function NotificationsBell() {
             </div>
           </div>
 
-          <div className="max-h-[calc(100dvh-11rem)] space-y-2 overflow-x-hidden overflow-y-auto overscroll-contain pb-2 sm:max-h-96">
+          <div className="max-h-[calc(100dvh-11rem)] space-y-2 overflow-x-hidden overflow-y-auto overscroll-contain pb-4 sm:max-h-96">
             {loading ? (
               <p className="text-sm text-slate-500">Cargando...</p>
             ) : items.length === 0 ? (
