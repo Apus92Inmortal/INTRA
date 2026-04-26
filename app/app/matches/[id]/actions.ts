@@ -86,70 +86,30 @@ export async function cancelMatchAction(matchId: string) {
       };
     }
 
-    const { data: payment, error: paymentLookupError } = await supabase
-      .from("payments")
-      .select("id, status")
-      .eq("shipment_id", match.shipment_id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (paymentLookupError) {
-      return { success: false, error: paymentLookupError.message };
-    }
-
-    if (!payment) {
-      return {
-        success: false,
-        error: "No se encontro un pago asociado a este envio",
-      };
-    }
-
-    const previousPaymentStatus = payment.status;
-
-    if (match.status === "accepted" && payment.status !== "refunded") {
-      const { data: refundResult, error: refundError } = await supabase.rpc(
-        "refund_payment",
-        {
-          p_payment_id: payment.id,
-          p_reason: "match_cancelled",
-        }
-      );
-
-      if (refundError) {
-        return { success: false, error: refundError.message };
+    const { data: cancelResult, error: cancelError } = await supabase.rpc(
+      "cancel_match",
+      {
+        p_match_id: matchId,
       }
-
-      if (
-        refundResult &&
-        typeof refundResult === "object" &&
-        "success" in refundResult &&
-        refundResult.success === false
-      ) {
-        return {
-          success: false,
-          error:
-            typeof refundResult.error === "string"
-              ? refundResult.error
-              : "No se pudo revertir el pago del match",
-        };
-      }
-    }
-
-    const { error: cancelError } = await supabase
-      .from("matches")
-      .update({ status: "cancelled" })
-      .eq("id", matchId);
+    );
 
     if (cancelError) {
-      if (previousPaymentStatus !== "refunded") {
-        await supabase
-          .from("payments")
-          .update({ status: previousPaymentStatus })
-          .eq("id", payment.id);
-      }
-
       return { success: false, error: cancelError.message };
+    }
+
+    if (
+      cancelResult &&
+      typeof cancelResult === "object" &&
+      "success" in cancelResult &&
+      cancelResult.success === false
+    ) {
+      return {
+        success: false,
+        error:
+          typeof cancelResult.error === "string"
+            ? cancelResult.error
+            : "No se pudo cancelar el match",
+      };
     }
 
     revalidatePath(`/app/matches/${matchId}`);
