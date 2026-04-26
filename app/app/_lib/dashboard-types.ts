@@ -57,6 +57,7 @@ export type DashboardActivityIcon =
   | "message"
   | "trip"
   | "payment"
+  | "alert"
   | "default";
 
 export type DashboardActivityItem = {

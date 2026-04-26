@@ -16,6 +16,8 @@ type Props = {
   matchId: string;
   currentUserId: string;
   otherUserId: string;
+  currentUserName: string;
+  otherUserName: string;
   initialMessages: Message[];
   viewerRole: "traveler" | "owner";
   lastReadByOwner: string | null;
@@ -92,10 +94,22 @@ function latestTimestamp(a: string | null, b: string | null) {
   return new Date(a).getTime() >= new Date(b).getTime() ? a : b;
 }
 
+function getMessagePreview(message: string, maxLength = 60) {
+  const normalized = message.replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength).trimEnd()}...`;
+}
+
 export default function MatchChatClient({
   matchId,
   currentUserId,
   otherUserId,
+  currentUserName,
+  otherUserName,
   initialMessages,
   viewerRole,
   lastReadByOwner,
@@ -582,8 +596,8 @@ export default function MatchChatClient({
       .insert({
         user_id: otherUserId,
         type: "new_message",
-        title: "Nuevo mensaje",
-        message: "Tienes un nuevo mensaje",
+        title: `${currentUserName} te envió un mensaje`,
+        message: getMessagePreview(trimmed),
         related_match_id: matchId,
         is_read: false,
       });
@@ -607,9 +621,9 @@ export default function MatchChatClient({
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-base font-semibold text-[#0B2C4A]">Chat del match</p>
+            <p className="text-base font-semibold text-[#0B2C4A]">Chat con {otherUserName}</p>
             <p className="text-xs text-gray-500">
-              {otherUserTyping ? "La otra persona está escribiendo..." : "Mensajes en tiempo real"}
+              {otherUserTyping ? `${otherUserName} está escribiendo...` : "Mensajes en tiempo real"}
             </p>
           </div>
 

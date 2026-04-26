@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Bell } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  Handshake,
+  MessageCircle,
+  Package,
+  Wallet,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -17,6 +24,155 @@ type NotificationItem = {
   created_at: string;
 };
 
+type MatchNotificationRelation = {
+  id: string;
+  shipment: { owner_id: string | null } | { owner_id: string | null }[] | null;
+  trip: { traveler_id: string | null } | { traveler_id: string | null }[] | null;
+};
+
+type ProfileNameRow = {
+  id: string;
+  full_name: string | null;
+};
+
+function pickJoinedRow<T>(value: T | T[] | null | undefined): T | null {
+  if (!value) return null;
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
+
+function getRelativeTimeLabel(dateString: string) {
+  const now = new Date();
+  const target = new Date(dateString);
+  const diffMs = now.getTime() - target.getTime();
+  const diffMinutes = Math.max(1, Math.round(diffMs / 60000));
+
+  if (diffMinutes < 60) {
+    return `Hace ${diffMinutes} min`;
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (diffHours < 24) {
+    return `Hace ${diffHours} hora${diffHours === 1 ? "" : "s"}`;
+  }
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const targetDay = new Date(
+    target.getFullYear(),
+    target.getMonth(),
+    target.getDate()
+  ).getTime();
+  const diffDays = Math.round((today - targetDay) / 86400000);
+
+  if (diffDays === 1) {
+    return "Ayer";
+  }
+
+  const safeDays = Math.max(1, diffDays);
+  return `Hace ${safeDays} día${safeDays === 1 ? "" : "s"}`;
+}
+
+function truncateText(value: string | null | undefined, maxLength = 90) {
+  const normalized = value?.replace(/\s+/g, " ").trim() ?? "";
+
+  if (!normalized) return "";
+  if (normalized.length <= maxLength) return normalized;
+
+  return `${normalized.slice(0, maxLength).trimEnd()}...`;
+}
+
+function getNotificationVisual(type: string | null) {
+  switch (type) {
+    case "new_message":
+      return {
+        icon: MessageCircle,
+        iconClassName: "text-[#0B2C4A]",
+        badgeClassName: "bg-[#EEF2F7]",
+      };
+    case "shipment_in_transit":
+    case "delivery_confirmed":
+      return {
+        icon: Package,
+        iconClassName: "text-[#0B2C4A]",
+        badgeClassName: "bg-[#EEF2F7]",
+      };
+    case "payment_released":
+    case "refund_processed":
+      return {
+        icon: Wallet,
+        iconClassName: "text-[#2ECC71]",
+        badgeClassName: "bg-[#EFFBF4]",
+      };
+    case "dispute_opened":
+      return {
+        icon: AlertTriangle,
+        iconClassName: "text-[#F39C12]",
+        badgeClassName: "bg-[#FFF4E5]",
+      };
+    case "match_requested":
+    case "match_accepted":
+    case "match_rejected":
+    case "match_cancelled":
+      return {
+        icon: Handshake,
+        iconClassName: "text-[#2ECC71]",
+        badgeClassName: "bg-[#EFFBF4]",
+      };
+    default:
+      return {
+        icon: Bell,
+        iconClassName: "text-[#0B2C4A]",
+        badgeClassName: "bg-[#EEF2F7]",
+      };
+  }
+}
+
+function getNotificationTitle(item: NotificationItem, counterpartName?: string) {
+  switch (item.type) {
+    case "new_message":
+      return counterpartName
+        ? `${counterpartName} te envió un mensaje`
+        : item.title ?? "Nuevo mensaje";
+    case "match_requested":
+      return counterpartName
+        ? `${counterpartName} quiere transportar tu envío`
+        : item.title ?? "Nueva solicitud";
+    case "match_accepted":
+      return counterpartName
+        ? `${counterpartName} aceptó tu solicitud`
+        : item.title ?? "Solicitud aceptada";
+    case "match_rejected":
+      return counterpartName
+        ? `${counterpartName} rechazó tu solicitud`
+        : item.title ?? "Solicitud rechazada";
+    case "match_cancelled":
+      return counterpartName
+        ? `${counterpartName} canceló el match`
+        : item.title ?? "Match cancelado";
+    case "shipment_in_transit":
+      return counterpartName
+        ? `${counterpartName} puso tu envío en camino`
+        : item.title ?? "Tu envío está en camino";
+    case "delivery_confirmed":
+      return counterpartName
+        ? `${counterpartName} confirmó la entrega`
+        : item.title ?? "Entrega confirmada";
+    case "dispute_opened":
+      return counterpartName
+        ? `${counterpartName} abrió una disputa`
+        : item.title ?? "Disputa abierta";
+    default:
+      return item.title ?? "Nueva notificación";
+  }
+}
+
+function getNotificationBody(item: NotificationItem) {
+  if (item.type === "new_message") {
+    return truncateText(item.message, 60);
+  }
+
+  return truncateText(item.message, 90);
+}
+
 export function NotificationsBell() {
   const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
@@ -26,33 +182,150 @@ export function NotificationsBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [counterpartNames, setCounterpartNames] = useState<Record<string, string>>({});
+  const [animateBadge, setAnimateBadge] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const previousUnreadCountRef = useRef(0);
+  const badgeAnimationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const loadNotifications = useCallback(async (currentUserId: string) => {
-    const { data, error } = await supabase
-      .from("notifications")
-      .select(
-        "id, user_id, title, message, type, related_match_id, is_read, read_at, created_at"
-      )
-      .eq("user_id", currentUserId)
-      .order("created_at", { ascending: false })
-      .limit(20);
+  const loadCounterpartNames = useCallback(
+    async (currentUserId: string, rows: NotificationItem[]) => {
+      const matchIds = Array.from(
+        new Set(rows.map((row) => row.related_match_id).filter(Boolean))
+      ) as string[];
 
-    if (error) {
-      console.error("Error loading notifications:", {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code,
-      });
-      return;
-    }
+      if (matchIds.length === 0) {
+        setCounterpartNames({});
+        return;
+      }
 
-    const rows = (data ?? []) as NotificationItem[];
-    setItems(rows);
-    setUnreadCount(rows.filter((n) => !n.is_read).length);
-  }, [supabase]);
+      const { data: matchesData, error: matchesError } = await supabase
+        .from("matches")
+        .select(
+          `
+            id,
+            shipment:shipments!matches_shipment_id_fkey(owner_id),
+            trip:trips!matches_trip_id_fkey(traveler_id)
+          `
+        )
+        .in("id", matchIds);
+
+      if (matchesError) {
+        console.error(
+          "Error loading match relations for notifications:",
+          matchesError.message
+        );
+        return;
+      }
+
+      const relations = ((matchesData ?? []) as MatchNotificationRelation[]).filter(Boolean);
+      const counterpartIdByMatchId = new Map<string, string>();
+
+      for (const relation of relations) {
+        const shipment = pickJoinedRow(relation.shipment);
+        const trip = pickJoinedRow(relation.trip);
+        const ownerId = shipment?.owner_id ?? null;
+        const travelerId = trip?.traveler_id ?? null;
+        const counterpartId =
+          ownerId === currentUserId
+            ? travelerId
+            : travelerId === currentUserId
+              ? ownerId
+              : ownerId ?? travelerId;
+
+        if (counterpartId) {
+          counterpartIdByMatchId.set(relation.id, counterpartId);
+        }
+      }
+
+      const counterpartIds = Array.from(new Set(counterpartIdByMatchId.values()));
+      if (counterpartIds.length === 0) {
+        setCounterpartNames({});
+        return;
+      }
+
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", counterpartIds);
+
+      if (profilesError) {
+        console.error(
+          "Error loading notification counterpart profiles:",
+          profilesError.message
+        );
+        return;
+      }
+
+      const profileNameById = new Map<string, string>(
+        ((profilesData ?? []) as ProfileNameRow[]).map((profile: ProfileNameRow) => [
+          profile.id,
+          profile.full_name?.trim() || "La otra persona",
+        ])
+      );
+
+      const nextNames: Record<string, string> = {};
+      for (const [matchId, counterpartId] of counterpartIdByMatchId.entries()) {
+        nextNames[matchId] = profileNameById.get(counterpartId) ?? "La otra persona";
+      }
+
+      setCounterpartNames(nextNames);
+    },
+    [supabase]
+  );
+
+  const loadNotifications = useCallback(
+    async (currentUserId: string) => {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select(
+          "id, user_id, title, message, type, related_match_id, is_read, read_at, created_at"
+        )
+        .eq("user_id", currentUserId)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (error) {
+        console.error("Error loading notifications:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
+        return;
+      }
+
+      const rows = (data ?? []) as NotificationItem[];
+      const nextUnreadCount = rows.filter((notification) => !notification.is_read).length;
+
+      if (nextUnreadCount > previousUnreadCountRef.current) {
+        setAnimateBadge(true);
+
+        if (badgeAnimationTimeoutRef.current) {
+          clearTimeout(badgeAnimationTimeoutRef.current);
+        }
+
+        badgeAnimationTimeoutRef.current = setTimeout(() => {
+          setAnimateBadge(false);
+        }, 1200);
+      }
+
+      previousUnreadCountRef.current = nextUnreadCount;
+      setItems(rows);
+      setUnreadCount(nextUnreadCount);
+      await loadCounterpartNames(currentUserId, rows);
+    },
+    [loadCounterpartNames, supabase]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (badgeAnimationTimeoutRef.current) {
+        clearTimeout(badgeAnimationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   async function markOneAsRead(id: string) {
     const { error } = await supabase.rpc("mark_notification_as_read", {
@@ -72,22 +345,30 @@ export function NotificationsBell() {
     const now = new Date().toISOString();
 
     setItems((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true, read_at: now } : n))
+      prev.map((notification) =>
+        notification.id === id
+          ? { ...notification, is_read: true, read_at: now }
+          : notification
+      )
     );
 
-    setUnreadCount((prev) => Math.max(0, prev - 1));
+    setUnreadCount((prev) => {
+      const nextCount = Math.max(0, prev - 1);
+      previousUnreadCountRef.current = nextCount;
+      return nextCount;
+    });
     return true;
   }
 
   async function markNotificationsForMatchAsRead(matchId: string) {
     const idsToMark = items
       .filter(
-        (n) =>
-          !n.is_read &&
-          n.related_match_id === matchId &&
-          n.type === "new_message"
+        (notification) =>
+          !notification.is_read &&
+          notification.related_match_id === matchId &&
+          notification.type === "new_message"
       )
-      .map((n) => n.id);
+      .map((notification) => notification.id);
 
     if (idsToMark.length === 0) {
       return true;
@@ -114,12 +395,18 @@ export function NotificationsBell() {
     }
 
     setItems((prev) =>
-      prev.map((n) =>
-        idsToMark.includes(n.id) ? { ...n, is_read: true, read_at: now } : n
+      prev.map((notification) =>
+        idsToMark.includes(notification.id)
+          ? { ...notification, is_read: true, read_at: now }
+          : notification
       )
     );
 
-    setUnreadCount((prev) => Math.max(0, prev - idsToMark.length));
+    setUnreadCount((prev) => {
+      const nextCount = Math.max(0, prev - idsToMark.length);
+      previousUnreadCountRef.current = nextCount;
+      return nextCount;
+    });
     return true;
   }
 
@@ -139,13 +426,14 @@ export function NotificationsBell() {
     const now = new Date().toISOString();
 
     setItems((prev) =>
-      prev.map((n) => ({
-        ...n,
+      prev.map((notification) => ({
+        ...notification,
         is_read: true,
-        read_at: n.read_at ?? now,
+        read_at: notification.read_at ?? now,
       }))
     );
 
+    previousUnreadCountRef.current = 0;
     setUnreadCount(0);
   }
 
@@ -189,6 +477,7 @@ export function NotificationsBell() {
         setUserId(null);
         setItems([]);
         setUnreadCount(0);
+        setCounterpartNames({});
         setLoading(false);
         return;
       }
@@ -266,14 +555,18 @@ export function NotificationsBell() {
   return (
     <div className="relative" ref={containerRef}>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen((value) => !value)}
         className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-[#0B2C4A] transition hover:bg-slate-50"
         aria-label="Notificaciones"
         type="button"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 min-w-[18px] rounded-full bg-red-500 px-1.5 text-center text-xs text-white">
+          <span
+            className={`absolute -right-1 -top-1 min-w-[18px] rounded-full bg-red-500 px-1.5 text-center text-xs text-white ${
+              animateBadge ? "animate-pulse" : ""
+            }`}
+          >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -296,38 +589,81 @@ export function NotificationsBell() {
             {loading ? (
               <p className="text-sm text-slate-500">Cargando...</p>
             ) : items.length === 0 ? (
-              <p className="text-sm text-slate-500">
-                No tienes notificaciones.
-              </p>
+              <div className="rounded-2xl border border-dashed border-gray-200 bg-slate-50 p-4 text-center">
+                <p className="text-sm font-semibold text-[#0B2C4A]">Sin novedades 🎉</p>
+                <p className="mt-1 text-sm text-slate-500">
+                  Publica un envío o un viaje para empezar a ver actividad aquí.
+                </p>
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      router.push("/app/shipments/new");
+                    }}
+                    type="button"
+                    className="min-h-11 flex-1 rounded-xl bg-[#2ECC71] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#27ae60]"
+                  >
+                    Publicar envío
+                  </button>
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      router.push("/app/trips/new");
+                    }}
+                    type="button"
+                    className="min-h-11 flex-1 rounded-xl border border-[#0B2C4A]/10 bg-white px-4 py-2 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                  >
+                    Publicar viaje
+                  </button>
+                </div>
+              </div>
             ) : (
-              items.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleNotificationClick(item)}
-                  type="button"
-                  className={`min-h-11 w-full rounded-xl border p-3 text-left transition hover:bg-slate-50 ${
-                    item.is_read ? "bg-white" : "bg-slate-50"
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="break-words font-medium text-slate-900">
-                        {item.title ?? "Nueva notificación"}
-                      </p>
-                      <p className="mt-1 break-words text-sm text-slate-600">
-                        {item.message ?? ""}
-                      </p>
-                      <p className="mt-2 text-xs text-slate-400">
-                        {new Date(item.created_at).toLocaleString()}
-                      </p>
-                    </div>
+              items.map((item) => {
+                const counterpartName = item.related_match_id
+                  ? counterpartNames[item.related_match_id]
+                  : undefined;
+                const visual = getNotificationVisual(item.type);
+                const Icon = visual.icon;
 
-                    {!item.is_read && (
-                      <span className="mt-1 h-2.5 w-2.5 rounded-full bg-blue-500" />
-                    )}
-                  </div>
-                </button>
-              ))
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNotificationClick(item)}
+                    type="button"
+                    className={`min-h-11 w-full rounded-xl border p-3 text-left transition hover:bg-slate-50 ${
+                      item.is_read ? "bg-white" : "bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${visual.badgeClassName}`}
+                      >
+                        <Icon className={`h-4 w-4 ${visual.iconClassName}`} />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <p className="break-words font-medium text-slate-900">
+                              {getNotificationTitle(item, counterpartName)}
+                            </p>
+                            <p className="mt-1 break-words text-sm text-slate-600">
+                              {getNotificationBody(item)}
+                            </p>
+                            <p className="mt-2 text-xs text-slate-400">
+                              {getRelativeTimeLabel(item.created_at)}
+                            </p>
+                          </div>
+
+                          {!item.is_read && (
+                            <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
             )}
           </div>
         </div>

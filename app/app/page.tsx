@@ -99,6 +99,21 @@ function getActivityIcon(icon: DashboardActivityIcon) {
           </svg>
         ),
       };
+    case "alert":
+      return {
+        bgClassName: "bg-[#FFF4E5]",
+        textClassName: "text-[#F39C12]",
+        svg: (
+          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v4m0 4h.01M10.29 3.86l-7.5 13A1 1 0 003.65 18h16.7a1 1 0 00.86-1.5l-7.5-13a1 1 0 00-1.72 0z"
+            />
+          </svg>
+        ),
+      };
     default:
       return {
         bgClassName: "bg-[#EEF2F7]",
@@ -467,10 +482,26 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               <div>
                 <h2 className="mb-3 text-lg font-bold text-[#0B2C4A]">Actividad reciente</h2>
                 {dashboard.recentActivity.length === 0 ? (
-                  <EmptyCard
-                    title="Sin actividad reciente"
-                    description="Cuando publiques envíos, viajes o recibas mensajes, aparecerán aquí."
-                  />
+                  <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-5 text-sm text-gray-500">
+                    <p className="font-semibold text-[#0B2C4A]">Sin novedades 🎉</p>
+                    <p className="mt-1">
+                      Cuando publiques envíos, viajes o recibas mensajes, aparecerán aquí.
+                    </p>
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                      <Link
+                        href="/app/shipments/new"
+                        className="inline-flex items-center justify-center rounded-xl bg-[#2ECC71] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#27ae60]"
+                      >
+                        Publicar envío
+                      </Link>
+                      <Link
+                        href="/app/trips/new"
+                        className="inline-flex items-center justify-center rounded-xl border border-[#0B2C4A]/10 bg-white px-4 py-2 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                      >
+                        Publicar viaje
+                      </Link>
+                    </div>
+                  </div>
                 ) : (
                   <div className="divide-y divide-gray-50 rounded-2xl border border-gray-100 bg-white">
                     {dashboard.recentActivity.map((item) => {
