@@ -187,35 +187,45 @@ export default function CheckoutClient() {
       return
     }
 
-    const { error: paymentError } = await supabase.from("payments").insert({
-      shipment_id: shipment.id,
-      user_id: user.id,
-      amount: quote.amount,
-      gross_amount: quote.gross_amount ?? quote.amount,
-      traveler_amount: quote.traveler_amount ?? serviceAmount,
-      intra_fee: quote.intra_fee ?? 0,
-      gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
-      net_amount_received: quote.net_amount_received ?? quote.amount,
-      currency: quote.currency ?? "COP",
-      status: "held",
-      gateway_provider: "bold_mvp",
-      gateway_status: "simulated_approved",
-      payment_method: "simulated",
-      external_reference: `shipment:${shipment.id}`,
-      metadata: {
-        source: "checkout_mvp",
-        auto_release_hours: quote.auto_release_hours ?? autoReleaseHours,
-        dispute_window_hours: quote.dispute_window_hours ?? disputeWindowHours,
-      },
-    })
+    const externalReference = `shipment:${shipment.id}`
 
-    if (paymentError) {
+    const { data: payment, error: paymentError } = await supabase
+      .from("payments")
+      .insert({
+        shipment_id: shipment.id,
+        user_id: user.id,
+        amount: quote.amount,
+        gross_amount: quote.gross_amount ?? quote.amount,
+        traveler_amount: quote.traveler_amount ?? serviceAmount,
+        intra_fee: quote.intra_fee ?? 0,
+        gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
+        net_amount_received: quote.net_amount_received ?? quote.amount,
+        currency: quote.currency ?? "COP",
+        status: "held",
+        gateway_provider: "bold_mvp",
+        gateway_status: "simulated_approved",
+        payment_method: "simulated",
+        external_reference: externalReference,
+        metadata: {
+          source: "checkout_mvp",
+          auto_release_hours: quote.auto_release_hours ?? autoReleaseHours,
+          dispute_window_hours: quote.dispute_window_hours ?? disputeWindowHours,
+        },
+      })
+      .select("id, amount, status")
+      .single()
+
+    if (paymentError || !payment) {
       setLoading(false)
-      setErrorMsg("No se pudo registrar el pago: " + paymentError.message)
+      setErrorMsg("No se pudo registrar el pago: " + (paymentError?.message ?? "Error desconocido"))
       return
     }
 
-    router.push("/app/market")
+    const params = new URLSearchParams({
+      paymentId: payment.id,
+    })
+
+    router.push(`/app/payments/success?${params.toString()}`)
   }
 
   return (

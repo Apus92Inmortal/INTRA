@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Home, Menu, MessageSquareText, Package, User, X } from "lucide-react";
+import { CreditCard, Home, Menu, MessageSquareText, Package, User, X } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications-bell";
 
 export type AppNavbarContext = {
@@ -167,6 +167,12 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
         label: "Matches",
         mobileLabel: "Matches y chat",
         icon: MessageSquareText,
+      },
+      {
+        href: "/app/wallet",
+        label: "Wallet",
+        mobileLabel: "Wallet",
+        icon: CreditCard,
       },
       { href: "/app/profile", label: "Perfil", mobileLabel: "Perfil", icon: User },
     ];
