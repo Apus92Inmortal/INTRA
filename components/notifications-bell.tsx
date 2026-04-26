@@ -733,7 +733,7 @@ export function NotificationsBell() {
       </button>
 
       {open && (
-        <div className="fixed inset-x-3 top-20 z-50 max-h-[calc(100dvh-6rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white p-3 shadow-xl sm:absolute sm:right-0 sm:left-auto sm:top-auto sm:mt-2 sm:w-[24rem] sm:max-h-96">
+        <div className="fixed inset-x-3 top-20 z-50 flex max-h-[calc(100dvh-6rem)] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-xl sm:absolute sm:right-0 sm:left-auto sm:top-auto sm:mt-2 sm:w-[24rem] sm:max-h-96">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
               <h3 className="font-semibold text-[#0B2C4A]">Notificaciones</h3>
@@ -759,7 +759,7 @@ export function NotificationsBell() {
             </div>
           </div>
 
-          <div className="max-h-[calc(100dvh-11rem)] space-y-2 overflow-x-hidden overflow-y-auto overscroll-contain pb-4 sm:max-h-96">
+          <div className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto overscroll-contain pb-4">
             {loading ? (
               <p className="text-sm text-slate-500">Cargando...</p>
             ) : items.length === 0 ? (
