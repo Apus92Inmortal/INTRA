@@ -9,6 +9,7 @@ import {
   rejectMatchAction,
   cancelMatchAction,
   markInTransitFormAction,
+  openDisputeFormAction,
   confirmDeliveryFormAction,
 } from "./actions";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
@@ -33,6 +34,17 @@ function formatCurrency(value: number | null | undefined) {
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function formatDateTime(dateString: string | null | undefined) {
+  if (!dateString) return "Sin fecha";
+  return new Intl.DateTimeFormat("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(dateString));
 }
 
 function getShipmentTrackingLabel(status: string | null | undefined) {
@@ -140,6 +152,18 @@ export default async function MatchDetailPage({ params }: PageProps) {
     ? match.shipments[0]
     : match.shipments;
 
+  const { data: payment } = shipment?.id
+    ? await supabase
+        .from("payments")
+        .select(
+          "id, status, amount, gross_amount, traveler_amount, intra_fee, gateway_fee_estimated, dispute_status, dispute_deadline_at, auto_release_at, released_at, refunded_at, delivered_at"
+        )
+        .eq("shipment_id", shipment.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+    : { data: null };
+
   const isOwner = user.id === shipment?.owner_id;
   const isTraveler = user.id === trip?.traveler_id;
 
@@ -164,10 +188,21 @@ export default async function MatchDetailPage({ params }: PageProps) {
     match.status === "accepted" &&
     shipment?.status === "in_transit";
 
+  const canOpenDispute =
+    isOwner &&
+    match.status === "completed" &&
+    payment?.status === "held" &&
+    payment?.dispute_status !== "open" &&
+    Boolean(payment?.dispute_deadline_at);
+
   const markInTransitSubmitAction =
     shipment?.id && match?.id
       ? markInTransitFormAction.bind(null, shipment.id, match.id)
       : undefined;
+
+  const openDisputeSubmitAction = match?.id
+    ? openDisputeFormAction.bind(null, match.id)
+    : undefined;
 
   const confirmDeliverySubmitAction =
     shipment?.id && match?.id
@@ -292,6 +327,98 @@ export default async function MatchDetailPage({ params }: PageProps) {
               </section>
             </div>
 
+              {payment ? (
+                <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold text-[#0B2C4A]">
+                        💳 Pago seguro
+                      </h2>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Retención temporal del dinero hasta que la entrega quede validada.
+                      </p>
+                    </div>
+
+                    <span
+                      className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                        payment.status === "held"
+                          ? "bg-amber-100 text-amber-700"
+                          : payment.status === "released"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : payment.status === "refunded"
+                          ? "bg-rose-100 text-rose-700"
+                          : "bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      {getStatusLabel(payment.status)}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Total pagado
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-slate-900">
+                        {formatCurrency(payment.gross_amount ?? payment.amount)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Valor para viajero
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-slate-900">
+                        {formatCurrency(payment.traveler_amount)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Comisión INTRA
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-slate-900">
+                        {formatCurrency(payment.intra_fee)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Fee gateway
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-slate-900">
+                        {formatCurrency(payment.gateway_fee_estimated)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-2 text-sm text-slate-600">
+                    {payment.delivered_at ? (
+                      <p>
+                        Entrega confirmada: <span className="font-medium text-slate-900">{formatDateTime(payment.delivered_at)}</span>
+                      </p>
+                    ) : null}
+                    {payment.dispute_deadline_at ? (
+                      <p>
+                        Ventana de disputa: <span className="font-medium text-slate-900">hasta {formatDateTime(payment.dispute_deadline_at)}</span>
+                      </p>
+                    ) : null}
+                    {payment.auto_release_at ? (
+                      <p>
+                        Auto liberación programada: <span className="font-medium text-slate-900">{formatDateTime(payment.auto_release_at)}</span>
+                      </p>
+                    ) : null}
+                    {payment.released_at ? (
+                      <p>
+                        Liberado al viajero: <span className="font-medium text-slate-900">{formatDateTime(payment.released_at)}</span>
+                      </p>
+                    ) : null}
+                    {payment.dispute_status === "open" ? (
+                      <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">
+                        Hay una disputa abierta. El dinero seguirá retenido hasta revisión manual.
+                      </p>
+                    ) : null}
+                  </div>
+                </section>
+              ) : null}
+
               <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <h2 className="text-lg font-semibold text-[#0B2C4A]">
                   Acciones del match
@@ -326,6 +453,17 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 sm:w-auto"
                       >
                         Confirmar entrega
+                      </button>
+                    </form>
+                  ) : null}
+
+                  {canOpenDispute && openDisputeSubmitAction ? (
+                    <form action={openDisputeSubmitAction}>
+                      <button
+                        type="submit"
+                        className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700 sm:w-auto"
+                      >
+                        Abrir disputa
                       </button>
                     </form>
                   ) : null}
