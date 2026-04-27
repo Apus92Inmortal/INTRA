@@ -4,7 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchButton from "./MatchButton";
 import MarketRealtime from "./MarketRealtime";
+import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { getShipmentKindLabel, getStatusLabel } from "@/lib/labels";
+import { fetchRatingSummaryMap } from "@/lib/reviews";
 
 type CityRow = {
   name: string;
@@ -48,6 +50,11 @@ type CompatibleTripRow = {
   capacity_kg: number | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
+};
+
+type ProfileRow = {
+  id: string;
+  full_name: string | null;
 };
 
 function formatDate(date: string) {
@@ -228,6 +235,32 @@ export default async function MarketPage() {
     }
   }
 
+  const counterpartIds = Array.from(
+    new Set([
+      ...compatibleShipments.map((shipment) => shipment.owner_id),
+      ...compatibleTrips.map((trip) => trip.traveler_id),
+    ])
+  );
+
+  const { data: counterpartProfiles } = counterpartIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", counterpartIds)
+    : { data: [] as ProfileRow[] };
+
+  const counterpartNameById = new Map<string, string>(
+    ((counterpartProfiles ?? []) as ProfileRow[]).map((profile) => [
+      profile.id,
+      profile.full_name?.trim() || "Usuario INTRA",
+    ])
+  );
+
+  const counterpartRatingSummaryMap = await fetchRatingSummaryMap(
+    supabase,
+    counterpartIds
+  );
+
   return (
     <>
       <AppNavbar />
@@ -377,6 +410,15 @@ export default async function MarketPage() {
                             <h3 className="text-base font-semibold text-[#0B2C4A]">
                               {getShipmentKindLabel(shipment.kind)}
                             </h3>
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                              <span>
+                                Cliente: {counterpartNameById.get(shipment.owner_id) ?? "Usuario INTRA"}
+                              </span>
+                              <RatingSummaryBadge
+                                avgRating={counterpartRatingSummaryMap[shipment.owner_id]?.avgRating ?? null}
+                                totalReviews={counterpartRatingSummaryMap[shipment.owner_id]?.totalReviews ?? 0}
+                              />
+                            </div>
                             <p className="mt-1 text-sm text-gray-700">
                               Ruta: {getCityName(shipment.origin_city) ?? "Origen"} →{" "}
                               {getCityName(shipment.destination_city) ?? "Destino"}
@@ -431,6 +473,15 @@ export default async function MarketPage() {
                           <h3 className="text-base font-semibold text-[#0B2C4A]">
                             Viaje disponible
                           </h3>
+                          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                            <span>
+                              Viajero: {counterpartNameById.get(trip.traveler_id) ?? "Usuario INTRA"}
+                            </span>
+                            <RatingSummaryBadge
+                              avgRating={counterpartRatingSummaryMap[trip.traveler_id]?.avgRating ?? null}
+                              totalReviews={counterpartRatingSummaryMap[trip.traveler_id]?.totalReviews ?? 0}
+                            />
+                          </div>
                           <p className="mt-1 text-sm text-gray-700">
                             Ruta: {getCityName(trip.origin_city) ?? "Origen"} →{" "}
                             {getCityName(trip.destination_city) ?? "Destino"}

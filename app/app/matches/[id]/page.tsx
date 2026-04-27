@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchDetailActions from "./MatchDetailActions";
 import MatchDetailRealtime from "./MatchDetailRealtime";
+import ReviewComposer from "./ReviewComposer";
 import {
   acceptMatchAction,
   rejectMatchAction,
@@ -12,10 +13,30 @@ import {
   openDisputeFormAction,
   confirmDeliveryFormAction,
 } from "./actions";
+import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
+import { fetchRatingSummaryMap } from "@/lib/reviews";
 
 type PageProps = {
   params: Promise<{ id: string }>;
+};
+
+type ProfileRow = {
+  id: string;
+  full_name: string | null;
+};
+
+type MatchReviewRow = {
+  id: string;
+  reviewer_id: string;
+  reviewed_user_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  reviewer_profile:
+    | { full_name: string | null }
+    | { full_name: string | null }[]
+    | null;
 };
 
 function formatDate(dateString: string | null | undefined) {
@@ -45,6 +66,31 @@ function formatDateTime(dateString: string | null | undefined) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(dateString));
+}
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("") || "IN";
+}
+
+function getReviewerName(review: MatchReviewRow) {
+  const reviewerProfile = Array.isArray(review.reviewer_profile)
+    ? review.reviewer_profile[0]
+    : review.reviewer_profile;
+
+  return reviewerProfile?.full_name?.trim() || "Usuario INTRA";
+}
+
+function renderStars(rating: number) {
+  return Array.from({ length: 5 }, (_, index) => (
+    <span key={`${rating}-${index}`} className={index < rating ? "text-amber-400" : "text-slate-200"}>
+      ★
+    </span>
+  ));
 }
 
 function getShipmentTrackingLabel(status: string | null | undefined) {
@@ -164,12 +210,57 @@ export default async function MatchDetailPage({ params }: PageProps) {
         .maybeSingle()
     : { data: null };
 
-  const isOwner = user.id === shipment?.owner_id;
-  const isTraveler = user.id === trip?.traveler_id;
+  const ownerId = shipment?.owner_id ?? null;
+  const travelerId = trip?.traveler_id ?? null;
+  const isOwner = user.id === ownerId;
+  const isTraveler = user.id === travelerId;
 
   if (!isOwner && !isTraveler) {
     notFound();
   }
+
+  const participantIds = [ownerId, travelerId].filter(
+    (value): value is string => Boolean(value)
+  );
+
+  const { data: participantProfiles } = participantIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", participantIds)
+    : { data: [] as ProfileRow[] };
+
+  const participantNameById = new Map<string, string>(
+    ((participantProfiles ?? []) as ProfileRow[]).map((profile) => [
+      profile.id,
+      profile.full_name?.trim() || "Usuario INTRA",
+    ])
+  );
+
+  const ratingSummaryMap = await fetchRatingSummaryMap(supabase, participantIds);
+
+  const { data: reviewsData } = await supabase
+    .from("reviews")
+    .select(
+      `
+        id,
+        reviewer_id,
+        reviewed_user_id,
+        rating,
+        comment,
+        created_at,
+        reviewer_profile:profiles!reviews_reviewer_id_fkey(full_name)
+      `
+    )
+    .eq("match_id", match.id)
+    .order("created_at", { ascending: false });
+
+  const matchReviews = (reviewsData ?? []) as MatchReviewRow[];
+  const currentUserReview = matchReviews.find((review) => review.reviewer_id === user.id) ?? null;
+  const otherUserId = isOwner ? travelerId : ownerId;
+  const otherUserName = otherUserId
+    ? participantNameById.get(otherUserId) ?? "la otra persona"
+    : "la otra persona";
 
   const canAccept = isOwner && match.status === "pending";
   const canCancel =
@@ -194,6 +285,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
     payment?.status === "held" &&
     payment?.dispute_status !== "open" &&
     Boolean(payment?.dispute_deadline_at);
+
+  const canLeaveReview =
+    match.status === "completed" &&
+    Boolean(otherUserId) &&
+    !currentUserReview;
 
   const markInTransitSubmitAction =
     shipment?.id && match?.id
@@ -278,6 +374,23 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     {formatCurrency(shipment?.declared_value_cop)}
                   </p>
 
+                  {ownerId ? (
+                    <div className="rounded-2xl bg-slate-50 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Cliente
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <p className="font-medium text-slate-900">
+                          {participantNameById.get(ownerId) ?? "Usuario INTRA"}
+                        </p>
+                        <RatingSummaryBadge
+                          avgRating={ratingSummaryMap[ownerId]?.avgRating ?? null}
+                          totalReviews={ratingSummaryMap[ownerId]?.totalReviews ?? 0}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
                   <div className="pt-2">
                     <p className="font-medium text-slate-900">Tracking:</p>
 
@@ -323,6 +436,23 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     <span className="font-medium text-slate-900">Estado:</span>{" "}
                     {getStatusLabel(match.status)}
                   </p>
+
+                  {travelerId ? (
+                    <div className="rounded-2xl bg-slate-50 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Viajero
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <p className="font-medium text-slate-900">
+                          {participantNameById.get(travelerId) ?? "Usuario INTRA"}
+                        </p>
+                        <RatingSummaryBadge
+                          avgRating={ratingSummaryMap[travelerId]?.avgRating ?? null}
+                          totalReviews={ratingSummaryMap[travelerId]?.totalReviews ?? 0}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </section>
             </div>
@@ -469,6 +599,74 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   ) : null}
                 </div>
               </div>
+
+              <section className="mt-8 space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-[#0B2C4A]">
+                      Reviews de este match
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Aquí se refleja la experiencia entre cliente y viajero después de una entrega completada.
+                    </p>
+                  </div>
+
+                  {otherUserId ? (
+                    <RatingSummaryBadge
+                      avgRating={ratingSummaryMap[otherUserId]?.avgRating ?? null}
+                      totalReviews={ratingSummaryMap[otherUserId]?.totalReviews ?? 0}
+                    />
+                  ) : null}
+                </div>
+
+                {canLeaveReview ? (
+                  <ReviewComposer matchId={match.id} otherUserName={otherUserName} />
+                ) : null}
+
+                {matchReviews.length > 0 ? (
+                  <div className="space-y-3">
+                    {matchReviews.map((review) => {
+                      const reviewerName = getReviewerName(review);
+
+                      return (
+                        <article
+                          key={review.id}
+                          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0B2C4A] text-sm font-semibold text-white">
+                              {getInitials(reviewerName)}
+                            </div>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                  <p className="font-semibold text-[#0B2C4A]">{reviewerName}</p>
+                                  <div className="mt-1 flex items-center gap-1 text-lg leading-none">
+                                    {renderStars(review.rating)}
+                                  </div>
+                                </div>
+
+                                <p className="text-xs text-slate-400">
+                                  {formatDate(review.created_at)}
+                                </p>
+                              </div>
+
+                              <p className="mt-3 text-sm leading-6 text-slate-600">
+                                {review.comment?.trim() || "Sin comentario adicional."}
+                              </p>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
+                    Aún no hay reviews para este match.
+                  </div>
+                )}
+              </section>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 {canOpenChat ? (

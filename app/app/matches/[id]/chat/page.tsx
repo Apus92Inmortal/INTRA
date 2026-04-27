@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { AppNavbar } from "@/components/app-navbar";
 import { createClient } from "@/lib/supabase/server";
 import MatchChatClient from "./MatchChatClient";
+import { fetchRatingSummaryMap } from "@/lib/reviews";
 
 type Message = {
   id: string;
@@ -98,6 +99,12 @@ export default async function MatchChatPage({ params }: PageProps) {
     ])
   );
 
+  const ratingSummaryMap = await fetchRatingSummaryMap(supabase, [otherUserId]);
+  const otherUserRating = ratingSummaryMap[otherUserId] ?? {
+    avgRating: null,
+    totalReviews: 0,
+  };
+
   return (
     <>
       <AppNavbar />
@@ -108,6 +115,8 @@ export default async function MatchChatPage({ params }: PageProps) {
           otherUserId={otherUserId}
           currentUserName={profileNameById.get(user.id) ?? "Alguien"}
           otherUserName={profileNameById.get(otherUserId) ?? "La otra persona"}
+          otherUserAvgRating={otherUserRating.avgRating}
+          otherUserTotalReviews={otherUserRating.totalReviews}
           initialMessages={(messagesData ?? []) as Message[]}
           viewerRole={viewerRole}
           lastReadByOwner={match.last_read_by_owner}
