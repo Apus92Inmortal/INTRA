@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 type Message = {
@@ -18,6 +19,8 @@ type Props = {
   otherUserId: string;
   currentUserName: string;
   otherUserName: string;
+  otherUserAvgRating: number | null;
+  otherUserTotalReviews: number;
   initialMessages: Message[];
   viewerRole: "traveler" | "owner";
   lastReadByOwner: string | null;
@@ -110,6 +113,8 @@ export default function MatchChatClient({
   otherUserId,
   currentUserName,
   otherUserName,
+  otherUserAvgRating,
+  otherUserTotalReviews,
   initialMessages,
   viewerRole,
   lastReadByOwner,
@@ -621,7 +626,13 @@ export default function MatchChatClient({
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-base font-semibold text-[#0B2C4A]">Chat con {otherUserName}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-base font-semibold text-[#0B2C4A]">Chat con {otherUserName}</p>
+              <RatingSummaryBadge
+                avgRating={otherUserAvgRating}
+                totalReviews={otherUserTotalReviews}
+              />
+            </div>
             <p className="text-xs text-gray-500">
               {otherUserTyping ? `${otherUserName} está escribiendo...` : "Mensajes en tiempo real"}
             </p>

@@ -281,3 +281,66 @@ export async function confirmDeliveryFormAction(
   revalidatePath(`/app/matches/${matchId}`);
   revalidatePath("/app/matches");
 }
+
+export async function createReviewAction(
+  matchId: string,
+  rating: number,
+  comment?: string
+) {
+  try {
+    if (!matchId) {
+      return { success: false, error: "No llegó el ID del match" };
+    }
+
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return { success: false, error: "Selecciona una calificación entre 1 y 5 estrellas" };
+    }
+
+    if ((comment ?? "").length > 300) {
+      return { success: false, error: "El comentario no puede superar 300 caracteres" };
+    }
+
+    const supabase = await createClient();
+
+    const { data, error } = await supabase.rpc("create_review", {
+      p_match_id: matchId,
+      p_rating: rating,
+      p_comment: comment?.trim() || null,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    if (
+      data &&
+      typeof data === "object" &&
+      "success" in data &&
+      data.success === false
+    ) {
+      return {
+        success: false,
+        error:
+          typeof data.error === "string"
+            ? data.error
+            : "No se pudo crear la review",
+      };
+    }
+
+    revalidatePath(`/app/matches/${matchId}`);
+    revalidatePath(`/app/matches/${matchId}/chat`);
+    revalidatePath("/app/market");
+    revalidatePath("/app/matches");
+    revalidatePath("/app");
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al crear la review",
+    };
+  }
+}
