@@ -36,9 +36,20 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
 
   const payment = (paymentRes.data ?? null) as PaymentRow | null
   const amount = Number(payment?.amount ?? 0)
-  const paymentStatus = payment?.status ?? "held"
+  const paymentStatus = payment?.status ?? "processing"
   const reference = payment?.external_reference ?? "Pendiente"
-  const method = payment?.payment_method === "simulated" ? "Pago seguro" : payment?.payment_method ?? "Pago seguro"
+  const method =
+    payment?.payment_method === "simulated"
+      ? "Pago seguro"
+      : payment?.payment_method === "wompi_widget"
+      ? "Wompi"
+      : payment?.payment_method ?? "Pago seguro"
+  const isConfirmed = paymentStatus === "held" || paymentStatus === "released"
+  const eyebrow = isConfirmed ? "Pago seguro confirmado" : "Pago en validación"
+  const title = isConfirmed ? "Tu pago quedó registrado" : "Estamos confirmando tu pago"
+  const description = isConfirmed
+    ? "El dinero quedó bajo retención temporal y se liberará al viajero cuando confirmes la entrega, o automáticamente al cumplirse la ventana configurada."
+    : "Wompi ya recibió la transacción. Estamos esperando la confirmación final para dejar el pago en retención temporal."
 
   return (
     <>
@@ -53,11 +64,10 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-sm font-semibold uppercase tracking-wide text-[#1e8c4e]">Pago seguro confirmado</p>
-              <h1 className="mt-2 text-3xl font-bold text-[#0B2C4A]">Tu pago quedó registrado</h1>
+              <p className="text-sm font-semibold uppercase tracking-wide text-[#1e8c4e]">{eyebrow}</p>
+              <h1 className="mt-2 text-3xl font-bold text-[#0B2C4A]">{title}</h1>
               <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
-                El dinero quedó bajo retención temporal y se liberará al viajero cuando confirmes la entrega,
-                o automáticamente al cumplirse la ventana configurada.
+                {description}
               </p>
             </div>
 
