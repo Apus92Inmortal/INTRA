@@ -117,27 +117,31 @@ export function buildWompiCheckoutUrl({
   expirationTime?: string
   customerEmail?: string
 }) {
-  const params = new URLSearchParams({
-    "public-key": getWompiPublicKey(),
-    currency,
-    "amount-in-cents": String(amountInCents),
-    reference,
-    "signature:integrity": integritySignature,
-  })
+  const params: Array<[string, string]> = [
+    ["public-key", getWompiPublicKey()],
+    ["currency", currency],
+    ["amount-in-cents", String(amountInCents)],
+    ["reference", reference],
+    ["signature:integrity", integritySignature],
+  ]
 
   if (redirectUrl?.trim()) {
-    params.set("redirect-url", redirectUrl.trim())
+    params.push(["redirect-url", redirectUrl.trim()])
   }
 
   if (expirationTime?.trim()) {
-    params.set("expiration-time", expirationTime.trim())
+    params.push(["expiration-time", expirationTime.trim()])
   }
 
   if (customerEmail?.trim()) {
-    params.set("customer-data:email", customerEmail.trim())
+    params.push(["customer-data:email", customerEmail.trim()])
   }
 
-  return `https://checkout.wompi.co/p/?${params.toString()}`
+  const query = params
+    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+    .join("&")
+
+  return `https://checkout.wompi.co/p/?${query}`
 }
 
 function getNestedValue(input: unknown, path: string) {

@@ -39,9 +39,9 @@ describe("wompi helpers", () => {
     expect(url).toContain("public-key=pub_test_123")
     expect(url).toContain("amount-in-cents=4950000")
     expect(url).toContain("reference=ORDER-123")
-    expect(url).toContain("signature%3Aintegrity=sig-123")
+    expect(url).toContain("signature:integrity=sig-123")
     expect(url).toContain("redirect-url=https%3A%2F%2Fintra.test%2Freturn%3FpaymentId%3Dabc")
-    expect(url).toContain("customer-data%3Aemail=joy%40example.com")
+    expect(url).toContain("customer-data:email=joy%40example.com")
   })
 
   it("verifies wompi event signature", () => {
