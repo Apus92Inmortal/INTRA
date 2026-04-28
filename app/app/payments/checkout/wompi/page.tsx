@@ -1,13 +1,13 @@
 import Link from "next/link"
 import { headers } from "next/headers"
+import { redirect } from "next/navigation"
 import { AppNavbar } from "@/components/app-navbar"
 import { createClient } from "@/lib/supabase/server"
 import { formatCop, getPaymentResultLabel } from "@/lib/payments/wallet"
 import {
+  buildWompiCheckoutUrl,
   buildWompiIntegritySignature,
-  getWompiPublicKey,
   isWompiSandbox,
-  WOMPI_WIDGET_URL,
   wompiAmountToCents,
 } from "@/lib/wompi"
 
@@ -23,14 +23,6 @@ type PaymentRow = {
   status: string | null
   external_reference: string | null
   currency: string | null
-}
-
-function escapeHtmlAttribute(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
 }
 
 function buildOrigin(host: string, proto: string) {
@@ -62,39 +54,34 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
   const proto = headerStore.get("x-forwarded-proto") ?? "https"
   const origin = buildOrigin(host, proto)
 
-  const canRenderWidget =
+  const canStartCheckout =
     payment &&
     payment.external_reference &&
     Number.isFinite(amount) &&
     amount > 0 &&
     (payment.status === "pending" || payment.status === "processing")
 
-  const amountInCents = canRenderWidget ? wompiAmountToCents(amount) : 0
-  const redirectUrl = canRenderWidget
-    ? `${origin}/app/payments/checkout/return?paymentId=${payment.id}`
-    : ""
-  const integritySignature = canRenderWidget
-    ? buildWompiIntegritySignature({
-        reference: payment.external_reference!,
-        amountInCents,
-        currency: payment.currency ?? "COP",
-      })
-    : ""
+  if (canStartCheckout) {
+    const amountInCents = wompiAmountToCents(amount)
+    const redirectUrl = `${origin}/app/payments/checkout/return?paymentId=${payment.id}`
+    const reference = payment.external_reference!
+    const integritySignature = buildWompiIntegritySignature({
+      reference,
+      amountInCents,
+      currency: payment.currency ?? "COP",
+    })
 
-  const widgetMarkup = canRenderWidget
-    ? `<form>
-  <script
-    src="${escapeHtmlAttribute(WOMPI_WIDGET_URL)}"
-    data-render="button"
-    data-public-key="${escapeHtmlAttribute(getWompiPublicKey())}"
-    data-currency="${escapeHtmlAttribute(payment.currency ?? "COP")}"
-    data-amount-in-cents="${escapeHtmlAttribute(String(amountInCents))}"
-    data-reference="${escapeHtmlAttribute(payment.external_reference!)}"
-    data-signature:integrity="${escapeHtmlAttribute(integritySignature)}"
-    data-redirect-url="${escapeHtmlAttribute(redirectUrl)}"
-  ></script>
-</form>`
-    : null
+    redirect(
+      buildWompiCheckoutUrl({
+        amountInCents,
+        reference,
+        integritySignature,
+        currency: payment.currency ?? "COP",
+        redirectUrl,
+        customerEmail: user?.email ?? undefined,
+      })
+    )
+  }
 
   return (
     <>
@@ -107,10 +94,10 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
                 Checkout Wompi
               </p>
               <h1 className="mt-2 text-3xl font-bold text-[#0B2C4A]">
-                Completa tu pago seguro
+                No pudimos abrir el checkout
               </h1>
               <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
-                Vas a pagar con Wompi y el dinero quedará en retención temporal hasta confirmar la entrega.
+                Revisa el estado del pago y vuelve a intentarlo.
               </p>
             </div>
 
@@ -142,10 +129,6 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
                 No encontramos un pago válido para abrir Wompi.
               </div>
             )}
-
-            {widgetMarkup ? (
-              <div className="mt-8 flex justify-center" dangerouslySetInnerHTML={{ __html: widgetMarkup }} />
-            ) : null}
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link

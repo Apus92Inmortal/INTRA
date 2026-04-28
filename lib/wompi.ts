@@ -100,6 +100,46 @@ export function buildWompiIntegritySignature(
   return crypto.createHash("sha256").update(raw).digest("hex")
 }
 
+export function buildWompiCheckoutUrl({
+  amountInCents,
+  reference,
+  integritySignature,
+  currency = "COP",
+  redirectUrl,
+  expirationTime,
+  customerEmail,
+}: {
+  amountInCents: number
+  reference: string
+  integritySignature: string
+  currency?: string
+  redirectUrl?: string
+  expirationTime?: string
+  customerEmail?: string
+}) {
+  const params = new URLSearchParams({
+    "public-key": getWompiPublicKey(),
+    currency,
+    "amount-in-cents": String(amountInCents),
+    reference,
+    "signature:integrity": integritySignature,
+  })
+
+  if (redirectUrl?.trim()) {
+    params.set("redirect-url", redirectUrl.trim())
+  }
+
+  if (expirationTime?.trim()) {
+    params.set("expiration-time", expirationTime.trim())
+  }
+
+  if (customerEmail?.trim()) {
+    params.set("customer-data:email", customerEmail.trim())
+  }
+
+  return `https://checkout.wompi.co/p/?${params.toString()}`
+}
+
 function getNestedValue(input: unknown, path: string) {
   const normalizedPath = path.replace(/^data\./, "")
   const segments = normalizedPath.split(".").filter(Boolean)
