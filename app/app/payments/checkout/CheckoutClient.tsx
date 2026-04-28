@@ -187,7 +187,7 @@ export default function CheckoutClient() {
       return
     }
 
-    const externalReference = `shipment:${shipment.id}`
+    const externalReference = `intra-shipment-${shipment.id}`
 
     const { data: payment, error: paymentError } = await supabase
       .from("payments")
@@ -201,13 +201,14 @@ export default function CheckoutClient() {
         gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
         net_amount_received: quote.net_amount_received ?? quote.amount,
         currency: quote.currency ?? "COP",
-        status: "held",
-        gateway_provider: "bold_mvp",
-        gateway_status: "simulated_approved",
-        payment_method: "simulated",
+        status: "pending",
+        gateway_provider: "wompi",
+        gateway_status: "created",
+        payment_method: "wompi_widget",
         external_reference: externalReference,
         metadata: {
-          source: "checkout_mvp",
+          source: "wompi_widget",
+          sandbox: process.env.NEXT_PUBLIC_WOMPI_SANDBOX === "true",
           auto_release_hours: quote.auto_release_hours ?? autoReleaseHours,
           dispute_window_hours: quote.dispute_window_hours ?? disputeWindowHours,
         },
@@ -225,7 +226,7 @@ export default function CheckoutClient() {
       paymentId: payment.id,
     })
 
-    router.push(`/app/payments/success?${params.toString()}`)
+    router.push(`/app/payments/checkout/wompi?${params.toString()}`)
   }
 
   return (
