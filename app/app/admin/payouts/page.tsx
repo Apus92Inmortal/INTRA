@@ -1,6 +1,6 @@
 import { AppNavbar } from "@/components/app-navbar"
 import { requireAdminUser } from "@/lib/auth/admin"
-import { getAccountTypeLabel, maskAccountNumber } from "@/lib/payments/wallet"
+import { getPayoutAccountDisplayName, maskAccountNumber } from "@/lib/payments/wallet"
 import { createAdminClient } from "@/lib/supabase/admin"
 import PayoutReviewClient from "./PayoutReviewClient"
 
@@ -27,6 +27,7 @@ type AccountRow = {
   bank_name: string | null
   account_type: string | null
   account_number: string | null
+  breb_key: string | null
 }
 
 export default async function AdminPayoutsPage() {
@@ -42,9 +43,9 @@ export default async function AdminPayoutsPage() {
     review_notes: string | null
     paid_reference: string | null
     travelerName: string
-    travelerEmail: string
     accountLabel: string
     accountMask: string
+    brebKey: string | null
   }> = []
 
   try {
@@ -78,7 +79,7 @@ export default async function AdminPayoutsPage() {
         accountIds.length
           ? admin
               .from("traveler_payout_accounts")
-              .select("id, bank_name, account_type, account_number")
+              .select("id, bank_name, account_type, account_number, breb_key")
               .in("id", accountIds)
           : Promise.resolve({ data: [] as AccountRow[] }),
       ])
@@ -90,6 +91,13 @@ export default async function AdminPayoutsPage() {
         ((accountsRes.data ?? []) as AccountRow[]).map((account) => [account.id, account])
       )
 
+      const statusPriority: Record<string, number> = {
+        pending: 0,
+        approved: 1,
+        paid: 2,
+        rejected: 3,
+      }
+
       enrichedPayouts = payouts.map((payout) => {
         const traveler = profiles.get(payout.traveler_user_id)
         const account = payout.payout_account_id ? accounts.get(payout.payout_account_id) : null
@@ -97,12 +105,18 @@ export default async function AdminPayoutsPage() {
         return {
           ...payout,
           travelerName: traveler?.full_name || "Viajero sin nombre",
-          travelerEmail: "Correo no disponible",
-          accountLabel: account
-            ? `${account.bank_name || getAccountTypeLabel(account.account_type)} · ${getAccountTypeLabel(account.account_type)}`
-            : "Cuenta no disponible",
+          accountLabel: account ? getPayoutAccountDisplayName(account) : "Cuenta no disponible",
           accountMask: account ? maskAccountNumber(account.account_number) : "Sin cuenta",
+          brebKey: account?.breb_key ?? null,
         }
+      }).sort((a, b) => {
+        const statusDiff = (statusPriority[a.status ?? ""] ?? 99) - (statusPriority[b.status ?? ""] ?? 99)
+
+        if (statusDiff !== 0) {
+          return statusDiff
+        }
+
+        return new Date(b.requested_at ?? 0).getTime() - new Date(a.requested_at ?? 0).getTime()
       })
     }
   } catch (error) {

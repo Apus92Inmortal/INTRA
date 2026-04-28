@@ -20,9 +20,9 @@ type AdminPayout = {
   review_notes: string | null
   paid_reference: string | null
   travelerName: string
-  travelerEmail: string
   accountLabel: string
   accountMask: string
+  brebKey: string | null
 }
 
 export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[] }) {
@@ -118,12 +118,14 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Viajero</p>
                         <p className="mt-1 font-medium text-[#0B2C4A]">{payout.travelerName}</p>
-                        <p className="text-slate-500">{payout.travelerEmail}</p>
                       </div>
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Cuenta</p>
                         <p className="mt-1 font-medium text-[#0B2C4A]">{payout.accountLabel}</p>
                         <p className="text-slate-500">{payout.accountMask}</p>
+                        {payout.brebKey ? (
+                          <p className="text-slate-500">Llave BRE-B: {payout.brebKey}</p>
+                        ) : null}
                       </div>
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Solicitado</p>

@@ -119,6 +119,23 @@ export function getAccountTypeLabel(accountType: string | null) {
   }
 }
 
+export function getPayoutAccountDisplayName(input: {
+  bank_name?: string | null
+  account_type?: string | null
+}) {
+  const accountTypeLabel = getAccountTypeLabel(input.account_type ?? null)
+
+  if (input.account_type === "nequi" || input.account_type === "daviplata") {
+    return input.bank_name || accountTypeLabel
+  }
+
+  if (input.bank_name?.trim()) {
+    return `${input.bank_name.trim()} · ${accountTypeLabel}`
+  }
+
+  return accountTypeLabel
+}
+
 export function maskAccountNumber(accountNumber: string | null | undefined) {
   const cleaned = (accountNumber ?? "").replace(/\s+/g, "")
 

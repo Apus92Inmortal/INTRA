@@ -8,6 +8,7 @@ import {
   savePayoutAccountAction,
 } from "@/app/app/wallet/actions"
 import {
+  getPayoutAccountDisplayName,
   getAccountTypeLabel,
   maskAccountNumber,
 } from "@/lib/payments/wallet"
@@ -19,6 +20,7 @@ type PayoutAccount = {
   bank_name: string | null
   account_type: string | null
   account_number: string | null
+  breb_key: string | null
   is_default: boolean | null
 }
 
@@ -29,6 +31,7 @@ type FormState = {
   bankName: string
   accountType: string
   accountNumber: string
+  brebKey: string
   isDefault: boolean
 }
 
@@ -38,6 +41,7 @@ const EMPTY_FORM: FormState = {
   bankName: "",
   accountType: "nequi",
   accountNumber: "",
+  brebKey: "",
   isDefault: true,
 }
 
@@ -80,6 +84,7 @@ export default function PayoutAccountsManager({
       formData.set("bankName", form.bankName)
       formData.set("accountType", form.accountType)
       formData.set("accountNumber", form.accountNumber)
+      formData.set("brebKey", form.brebKey)
       formData.set("isDefault", String(form.isDefault))
 
       const result = await savePayoutAccountAction(formData)
@@ -104,6 +109,7 @@ export default function PayoutAccountsManager({
       bankName: account.bank_name ?? "",
       accountType: account.account_type ?? "nequi",
       accountNumber: account.account_number ?? "",
+      brebKey: account.breb_key ?? "",
       isDefault: Boolean(account.is_default),
     })
   }
@@ -231,6 +237,21 @@ export default function PayoutAccountsManager({
             />
           </label>
 
+          {isBankAccount ? (
+            <label className="space-y-2 md:col-span-2">
+              <span className="text-sm font-semibold text-[#0B2C4A]">Llave BRE-B</span>
+              <input
+                value={form.brebKey}
+                onChange={(event) => setForm((current) => ({ ...current, brebKey: event.target.value }))}
+                className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                placeholder="Ej: correo, celular o identificador BRE-B"
+              />
+              <p className="text-xs text-slate-500">
+                Obligatoria para cuentas bancarias. Es la llave que usarán en operación para enviar el retiro.
+              </p>
+            </label>
+          ) : null}
+
           <label className="md:col-span-2 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
             <input
               type="checkbox"
@@ -298,7 +319,7 @@ export default function PayoutAccountsManager({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold text-[#0B2C4A]">
+                    <p className="font-semibold text-[#0B2C4A]">
                         {getAccountTypeLabel(account.account_type)}
                       </p>
                       {account.is_default ? (
@@ -311,8 +332,11 @@ export default function PayoutAccountsManager({
                       {account.account_holder_name || "Sin titular"}
                     </p>
                     <p className="text-sm text-slate-500">
-                      {account.bank_name || getAccountTypeLabel(account.account_type)} · {maskAccountNumber(account.account_number)}
+                      {getPayoutAccountDisplayName(account)} · {maskAccountNumber(account.account_number)}
                     </p>
+                    {account.breb_key ? (
+                      <p className="text-xs text-slate-500">Llave BRE-B: {account.breb_key}</p>
+                    ) : null}
                     <p className="text-xs text-slate-400">Documento: {account.document_number || "Sin documento"}</p>
                   </div>
 
