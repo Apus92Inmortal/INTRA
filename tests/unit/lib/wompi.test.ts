@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   buildWompiCheckoutUrl,
   buildWompiIntegritySignature,
+  isWompiApprovedStatus,
   verifyWompiEventSignature,
   wompiAmountToCents,
 } from "@/lib/wompi"
@@ -66,5 +67,13 @@ describe("wompi helpers", () => {
     }
 
     expect(verifyWompiEventSignature(payload, "prod_events_OcHnIzeBl5socpwByQ4hA52Em3USQ93Z")).toBe(true)
+  })
+
+  it("only treats approved transactions as success", () => {
+    expect(isWompiApprovedStatus("APPROVED")).toBe(true)
+    expect(isWompiApprovedStatus("approved")).toBe(true)
+    expect(isWompiApprovedStatus("PENDING")).toBe(false)
+    expect(isWompiApprovedStatus("DECLINED")).toBe(false)
+    expect(isWompiApprovedStatus(undefined)).toBe(false)
   })
 })

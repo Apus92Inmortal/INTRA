@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { getWompiTransaction } from "@/lib/wompi"
+import { getWompiTransaction, isWompiApprovedStatus } from "@/lib/wompi"
 
 function buildRedirectUrl(request: NextRequest, pathname: string, paymentId: string) {
   const url = new URL(pathname, request.url)
@@ -36,9 +36,7 @@ export async function GET(request: NextRequest) {
       throw new Error(error.message)
     }
 
-    const normalizedStatus = (transaction.status ?? "").toLowerCase()
-    const successStatuses = new Set(["approved", "paid", "success", "succeeded", "pending"])
-    const targetPath = successStatuses.has(normalizedStatus)
+    const targetPath = isWompiApprovedStatus(transaction.status)
       ? "/app/payments/success"
       : "/app/payments/failed"
 

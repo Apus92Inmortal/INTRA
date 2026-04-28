@@ -44,6 +44,8 @@ type WompiTransactionResponse = {
   error?: unknown
 }
 
+const WOMPI_APPROVED_STATUSES = new Set(["approved"])
+
 function getRequiredEnv(name: string) {
   const value = process.env[name]?.trim()
 
@@ -193,6 +195,10 @@ export function verifyWompiEventSignature(
   const expected = crypto.createHash("sha256").update(raw).digest("hex").toUpperCase()
 
   return expected === signature.checksum.toUpperCase()
+}
+
+export function isWompiApprovedStatus(status: string | null | undefined) {
+  return WOMPI_APPROVED_STATUSES.has((status ?? "").trim().toLowerCase())
 }
 
 export async function getWompiTransaction(transactionId: string) {
