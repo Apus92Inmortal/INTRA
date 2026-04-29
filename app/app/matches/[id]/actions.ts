@@ -158,6 +158,34 @@ export async function markInTransitAction(shipmentId: string) {
   }
 }
 
+export async function markDeliveredAction(shipmentId: string) {
+  try {
+    if (!shipmentId) {
+      return { success: false, error: "No llego el ID del shipment" };
+    }
+
+    const supabase = await createClient();
+
+    const { error } = await supabase.rpc("mark_shipment_delivered", {
+      p_shipment_id: shipmentId,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Error al marcar el paquete como entregado",
+    };
+  }
+}
+
 export async function confirmDeliveryAction(shipmentId: string) {
   try {
     if (!shipmentId) {
@@ -254,6 +282,21 @@ export async function markInTransitFormAction(
 
   if (!result.success) {
     throw new Error(result.error || "Error al marcar en transito");
+  }
+
+  revalidatePath(`/app/matches/${matchId}`);
+  revalidatePath("/app/matches");
+  revalidatePath("/app");
+}
+
+export async function markDeliveredFormAction(
+  shipmentId: string,
+  matchId: string
+): Promise<void> {
+  const result = await markDeliveredAction(shipmentId);
+
+  if (!result.success) {
+    throw new Error(result.error || "Error al marcar el paquete como entregado");
   }
 
   revalidatePath(`/app/matches/${matchId}`);

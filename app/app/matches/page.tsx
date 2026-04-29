@@ -57,6 +57,14 @@ type ProfileRow = {
   full_name: string | null;
 };
 
+type PaymentRow = {
+  shipment_id: string | null;
+  status: string | null;
+  dispute_status: string | null;
+  traveler_delivered_at: string | null;
+  created_at: string;
+};
+
 function formatDate(dateString: string) {
   return new Intl.DateTimeFormat("es-CO", {
     day: "2-digit",
@@ -264,8 +272,16 @@ export default async function MatchesPage() {
   );
 
   const matchIds = allMatches.map((match) => match.id);
+  const shipmentIds = Array.from(
+    new Set(
+      allMatches
+        .map((match) => normalizeShipment(match.shipments)?.id)
+        .filter(Boolean)
+    )
+  ) as string[];
 
   let messagesMap = new Map<string, MessageRow>();
+  let paymentsMap = new Map<string, PaymentRow>();
 
   if (matchIds.length > 0) {
     const { data: messagesData, error: messagesError } = await supabase
@@ -287,6 +303,30 @@ export default async function MatchesPage() {
     }
 
     messagesMap = latestMessages;
+  }
+
+  if (shipmentIds.length > 0) {
+    const { data: paymentsData, error: paymentsError } = await supabase
+      .from("payments")
+      .select("shipment_id, status, dispute_status, traveler_delivered_at, created_at")
+      .in("shipment_id", shipmentIds)
+      .order("created_at", { ascending: false });
+
+    if (paymentsError) {
+      throw new Error(`Error cargando pagos de matches: ${paymentsError.message}`);
+    }
+
+    const latestPayments = new Map<string, PaymentRow>();
+
+    for (const payment of (paymentsData ?? []) as PaymentRow[]) {
+      if (!payment.shipment_id || latestPayments.has(payment.shipment_id)) {
+        continue;
+      }
+
+      latestPayments.set(payment.shipment_id, payment);
+    }
+
+    paymentsMap = latestPayments;
   }
 
   return (
@@ -313,6 +353,7 @@ export default async function MatchesPage() {
                 const trip = normalizeTrip(match.trips);
                 const shipment = normalizeShipment(match.shipments);
                 const lastMessage = messagesMap.get(match.id);
+                const payment = shipment?.id ? paymentsMap.get(shipment.id) ?? null : null;
 
                 const isTraveler = trip?.traveler_id === user.id;
                 const isOwner = shipment?.owner_id === user.id;
@@ -473,20 +514,25 @@ export default async function MatchesPage() {
                                   )}
                                 </p>
 
-                                {shipment?.status === "in_transit" && isOwner && (
+                                {shipment?.status === "in_transit" &&
+                                  isOwner &&
+                                  payment?.status === "held" &&
+                                  payment?.dispute_status !== "open" &&
+                                  payment?.traveler_delivered_at && (
                                   <form
                                     action={async () => {
                                       "use server";
                                       await confirmDeliveryAction(shipment.id);
                                       revalidatePath("/app/matches");
                                       revalidatePath(`/app/matches/${match.id}`);
+                                      revalidatePath("/app");
                                     }}
                                   >
                                     <button
                                       type="submit"
                                       className="mt-4 min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
                                     >
-                                      Confirmar entrega
+                                      Paquete recibido
                                     </button>
                                   </form>
                                 )}

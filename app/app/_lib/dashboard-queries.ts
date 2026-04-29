@@ -205,6 +205,7 @@ function getActivityIcon(type: string | null): DashboardActivityIcon {
     case "match_cancelled":
       return "match";
     case "shipment_in_transit":
+    case "delivery_reported":
     case "delivery_confirmed":
       return "shipment";
     case "new_message":
