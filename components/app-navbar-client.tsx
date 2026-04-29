@@ -177,8 +177,8 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
       },
       {
         href: "/app/admin/payouts",
-        label: "Admin retiros",
-        mobileLabel: "Admin retiros",
+        label: "Retiros",
+        mobileLabel: "Retiros",
         icon: CreditCard,
       },
       { href: "/app/profile", label: "Perfil", mobileLabel: "Perfil", icon: User },
