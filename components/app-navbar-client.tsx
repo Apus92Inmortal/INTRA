@@ -9,6 +9,7 @@ import { NotificationsBell } from "@/components/notifications-bell";
 
 export type AppNavbarContext = {
   hasSession: boolean;
+  isAdmin: boolean;
   fullName: string | null;
   activeShipmentsCount: number;
   publishedTripsCount: number;
@@ -174,9 +175,20 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
         mobileLabel: "Wallet",
         icon: CreditCard,
       },
+      {
+        href: "/app/admin/payouts",
+        label: "Retiros",
+        mobileLabel: "Retiros",
+        icon: CreditCard,
+      },
       { href: "/app/profile", label: "Perfil", mobileLabel: "Perfil", icon: User },
     ];
   }, [context.hasSession]);
+
+  const visibleLinks = useMemo(
+    () => links.filter((link) => (link.href === "/app/admin/payouts" ? context.isAdmin : true)),
+    [context.isAdmin, links]
+  );
 
   const quickActions = useMemo(
     () => getQuickActions(pathname, context),
@@ -205,7 +217,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
 
         {context.hasSession ? (
           <nav className="hidden items-center gap-2 md:flex">
-            {links.map((link) => {
+            {visibleLinks.map((link) => {
               const isActive = isActiveLink(link.href);
               const showPending = link.href === "/app/matches" && context.pendingMatchesCount > 0;
 
@@ -269,7 +281,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
           <div className="mx-auto max-w-6xl px-4 py-4">
             {context.hasSession ? (
               <nav className="grid grid-cols-2 gap-3">
-                {links.map((link) => {
+                {visibleLinks.map((link) => {
                   const isActive = isActiveLink(link.href);
                   const Icon = link.icon;
                   const showPending =

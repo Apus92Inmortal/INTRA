@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isConfiguredAdmin } from "@/lib/auth/admin";
 import {
   AppNavbarClient,
   type AppNavbarContext,
@@ -23,6 +24,7 @@ async function getAppNavbarContext(): Promise<AppNavbarContext> {
   if (!user) {
     return {
       hasSession: false,
+      isAdmin: false,
       fullName: null,
       activeShipmentsCount: 0,
       publishedTripsCount: 0,
@@ -59,6 +61,7 @@ async function getAppNavbarContext(): Promise<AppNavbarContext> {
 
   return {
     hasSession: true,
+    isAdmin: isConfiguredAdmin({ id: user.id, email: user.email }),
     fullName: profileRes.data?.full_name ?? null,
     activeShipmentsCount,
     publishedTripsCount,
