@@ -25,7 +25,7 @@ export default async function WalletPayoutPage() {
           .maybeSingle(),
         supabase
           .from("traveler_payout_accounts")
-          .select("id, account_holder_name, bank_name, account_type, account_number, is_default")
+          .select("id, account_holder_name, bank_name, account_type, account_number, breb_key, is_default")
           .eq("traveler_user_id", user.id)
           .order("is_default", { ascending: false })
           .order("created_at", { ascending: true }),

@@ -4,7 +4,13 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import { requestPayoutAction } from "@/app/app/wallet/actions"
-import { formatCop, getPayoutStatusClasses, getPayoutStatusLabel } from "@/lib/payments/wallet"
+import {
+  formatCop,
+  getPayoutAccountDisplayName,
+  getPayoutStatusClasses,
+  getPayoutStatusLabel,
+  maskAccountNumber,
+} from "@/lib/payments/wallet"
 
 type PayoutAccount = {
   id: string
@@ -12,6 +18,7 @@ type PayoutAccount = {
   bank_name: string | null
   account_type: string | null
   account_number: string | null
+  breb_key: string | null
   is_default: boolean | null
 }
 
@@ -102,7 +109,9 @@ export default function PayoutRequestForm({
           <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
             <p className="text-sm text-slate-500">Cuenta principal</p>
             <p className="mt-2 text-base font-semibold text-[#0B2C4A]">
-              {payoutAccounts.find((account) => account.is_default)?.bank_name || "Sin cuenta principal"}
+              {payoutAccounts.find((account) => account.is_default)
+                ? getPayoutAccountDisplayName(payoutAccounts.find((account) => account.is_default)!)
+                : "Sin cuenta principal"}
             </p>
             <p className="mt-2 text-xs text-slate-500">
               Si quieres cambiarla, edítala desde Cuentas de retiro.
@@ -142,7 +151,7 @@ export default function PayoutRequestForm({
                 >
                   {payoutAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
-                      {(account.bank_name || account.account_type || "Cuenta").toString()} {account.is_default ? "· principal" : ""}
+                      {`${getPayoutAccountDisplayName(account)} · ${maskAccountNumber(account.account_number)}${account.is_default ? " · principal" : ""}`}
                     </option>
                   ))}
                 </select>

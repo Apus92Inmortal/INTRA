@@ -19,6 +19,7 @@ type PayoutAccountInput = {
   bankName: string
   accountType: string
   accountNumber: string
+  brebKey: string
   isDefault: boolean
 }
 
@@ -62,6 +63,7 @@ function normalizePayoutAccount(formData: FormData): PayoutAccountInput {
     bankName: toTrimmedString(formData.get("bankName")),
     accountType,
     accountNumber: toTrimmedString(formData.get("accountNumber")),
+    brebKey: toTrimmedString(formData.get("brebKey")),
     isDefault: parseBoolean(formData.get("isDefault")),
   }
 }
@@ -85,6 +87,10 @@ function validatePayoutAccount(input: PayoutAccountInput) {
 
   if ((input.accountType === "ahorros" || input.accountType === "corriente") && !input.bankName) {
     return "El banco es obligatorio para cuentas bancarias."
+  }
+
+  if ((input.accountType === "ahorros" || input.accountType === "corriente") && !input.brebKey) {
+    return "La llave BRE-B es obligatoria para cuentas bancarias."
   }
 
   return null
@@ -134,6 +140,7 @@ export async function savePayoutAccountAction(formData: FormData): Promise<Actio
           : payload.bankName,
       account_type: payload.accountType,
       account_number: payload.accountNumber,
+      breb_key: payload.brebKey || null,
       is_default: shouldBeDefault,
     }
 
