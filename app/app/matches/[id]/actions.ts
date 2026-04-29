@@ -21,6 +21,7 @@ export async function acceptMatchAction(matchId: string) {
 
     revalidatePath(`/app/matches/${matchId}`);
     revalidatePath("/app/matches");
+    revalidatePath("/app");
 
     return { success: true };
   } catch (error) {
@@ -52,6 +53,7 @@ export async function rejectMatchAction(matchId: string) {
 
     revalidatePath(`/app/matches/${matchId}`);
     revalidatePath("/app/matches");
+    revalidatePath("/app");
 
     return { success: true };
   } catch (error) {
@@ -114,6 +116,7 @@ export async function cancelMatchAction(matchId: string) {
 
     revalidatePath(`/app/matches/${matchId}`);
     revalidatePath("/app/matches");
+    revalidatePath("/app");
 
     return { success: true };
   } catch (error) {
@@ -255,6 +258,7 @@ export async function markInTransitFormAction(
 
   revalidatePath(`/app/matches/${matchId}`);
   revalidatePath("/app/matches");
+  revalidatePath("/app");
 }
 
 export async function openDisputeFormAction(matchId: string): Promise<void> {
@@ -266,6 +270,7 @@ export async function openDisputeFormAction(matchId: string): Promise<void> {
 
   revalidatePath(`/app/matches/${matchId}`);
   revalidatePath("/app/matches");
+  revalidatePath("/app");
 }
 
 export async function confirmDeliveryFormAction(
@@ -280,6 +285,7 @@ export async function confirmDeliveryFormAction(
 
   revalidatePath(`/app/matches/${matchId}`);
   revalidatePath("/app/matches");
+  revalidatePath("/app");
 }
 
 export async function createReviewAction(
