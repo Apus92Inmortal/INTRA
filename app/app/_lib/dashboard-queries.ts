@@ -561,6 +561,21 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     })
     .slice(0, 2);
 
+  const completedTravelerDeliveriesCount = new Set(
+    tripMatches
+      .filter((match) => ["accepted", "completed"].includes(match.status))
+      .map((match) => {
+        const shipment = normalizeShipmentRelation(match.shipment);
+
+        if (!shipment || shipment.status !== "delivered") {
+          return null;
+        }
+
+        return shipment.id;
+      })
+      .filter(Boolean) as string[]
+  ).size;
+
   const recentActivity: DashboardActivityItem[] = notifications.map((notification) => ({
     id: notification.id,
     title:
@@ -676,7 +691,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
       activeShipmentsCount: activeShipmentsRaw.length,
       publishedTripsCount: activeTripsRaw.length,
       pendingActionMatchesCount: activeShipments.filter((shipment) => shipment.hasPendingAction).length,
-      completedDeliveriesCount: shipments.filter((shipment) => shipment.status === "delivered").length,
+      completedDeliveriesCount: completedTravelerDeliveriesCount,
     },
     activeShipments,
     publishedTrips,
