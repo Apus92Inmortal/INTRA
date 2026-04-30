@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const transaction = await getWompiTransaction(transactionId)
     const supabase = createAdminClient()
 
-    const { error } = await supabase.rpc("process_bold_webhook", {
+    const { error } = await supabase.rpc("process_wompi_payment_event", {
       p_gateway_transaction_id: transaction.id ?? transactionId,
       p_status: transaction.status ?? "PENDING",
       p_external_reference: transaction.reference ?? null,
