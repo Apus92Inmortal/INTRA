@@ -11,8 +11,20 @@ alter table if exists public.wompi_webhook_events
 alter table if exists public.wompi_webhook_events
   rename constraint bold_webhook_events_event_key_key to wompi_webhook_events_event_key_key;
 
-alter function if exists public.process_bold_webhook(text, text, text, jsonb)
-  rename to process_wompi_payment_event;
+do $$
+begin
+  if exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname = 'process_bold_webhook'
+      and pg_get_function_identity_arguments(p.oid) = 'p_gateway_transaction_id text, p_status text, p_external_reference text, p_payload jsonb'
+  ) then
+    alter function public.process_bold_webhook(text, text, text, jsonb)
+      rename to process_wompi_payment_event;
+  end if;
+end $$;
 
 create or replace function public.process_wompi_payment_event(
   p_gateway_transaction_id text,
