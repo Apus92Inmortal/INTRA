@@ -10,6 +10,7 @@ import {
   rejectMatchAction,
   cancelMatchAction,
   markInTransitFormAction,
+  markDeliveredFormAction,
   openDisputeFormAction,
   confirmDeliveryFormAction,
 } from "./actions";
@@ -202,7 +203,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
     ? await supabase
         .from("payments")
         .select(
-          "id, status, amount, gross_amount, traveler_amount, intra_fee, gateway_fee_estimated, dispute_status, dispute_deadline_at, auto_release_at, released_at, refunded_at, delivered_at"
+          "id, status, amount, gross_amount, traveler_amount, intra_fee, gateway_fee_estimated, dispute_status, dispute_deadline_at, auto_release_at, released_at, refunded_at, delivered_at, traveler_delivered_at"
         )
         .eq("shipment_id", shipment.id)
         .order("created_at", { ascending: false })
@@ -274,17 +275,26 @@ export default async function MatchDetailPage({ params }: PageProps) {
     match.status === "accepted" &&
     shipment?.status === "matched";
 
+  const canMarkDelivered =
+    isTraveler &&
+    match.status === "accepted" &&
+    shipment?.status === "in_transit" &&
+    payment?.status === "held" &&
+    payment?.dispute_status !== "open" &&
+    !payment?.traveler_delivered_at;
+
   const canConfirmDelivery =
     isOwner &&
     match.status === "accepted" &&
-    shipment?.status === "in_transit";
+    shipment?.status === "in_transit" &&
+    payment?.status === "held" &&
+    payment?.dispute_status !== "open" &&
+    Boolean(payment?.traveler_delivered_at);
 
   const canOpenDispute =
     isOwner &&
-    match.status === "completed" &&
     payment?.status === "held" &&
-    payment?.dispute_status !== "open" &&
-    Boolean(payment?.dispute_deadline_at);
+    payment?.dispute_status !== "open";
 
   const canLeaveReview =
     match.status === "completed" &&
@@ -294,6 +304,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const markInTransitSubmitAction =
     shipment?.id && match?.id
       ? markInTransitFormAction.bind(null, shipment.id, match.id)
+      : undefined;
+
+  const markDeliveredSubmitAction =
+    shipment?.id && match?.id
+      ? markDeliveredFormAction.bind(null, shipment.id, match.id)
       : undefined;
 
   const openDisputeSubmitAction = match?.id
@@ -520,12 +535,17 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   </div>
 
                   <div className="mt-4 space-y-2 text-sm text-slate-600">
-                    {payment.delivered_at ? (
+                    {payment.traveler_delivered_at ? (
                       <p>
-                        Entrega confirmada: <span className="font-medium text-slate-900">{formatDateTime(payment.delivered_at)}</span>
+                        Viajero reportó entrega: <span className="font-medium text-slate-900">{formatDateTime(payment.traveler_delivered_at)}</span>
                       </p>
                     ) : null}
-                    {payment.dispute_deadline_at ? (
+                    {payment.delivered_at ? (
+                      <p>
+                        Cliente confirmó recepción: <span className="font-medium text-slate-900">{formatDateTime(payment.delivered_at)}</span>
+                      </p>
+                    ) : null}
+                    {payment.dispute_status === "open" && payment.dispute_deadline_at ? (
                       <p>
                         Ventana de disputa: <span className="font-medium text-slate-900">hasta {formatDateTime(payment.dispute_deadline_at)}</span>
                       </p>
@@ -576,13 +596,24 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     </form>
                   ) : null}
 
+                  {canMarkDelivered && markDeliveredSubmitAction ? (
+                    <form action={markDeliveredSubmitAction}>
+                      <button
+                        type="submit"
+                        className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:w-auto"
+                      >
+                        Paquete entregado
+                      </button>
+                    </form>
+                  ) : null}
+
                   {canConfirmDelivery && confirmDeliverySubmitAction ? (
                     <form action={confirmDeliverySubmitAction}>
                       <button
                         type="submit"
                         className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 sm:w-auto"
                       >
-                        Confirmar entrega
+                        Paquete recibido
                       </button>
                     </form>
                   ) : null}
