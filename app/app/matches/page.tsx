@@ -6,7 +6,7 @@ import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
-import { cancelMatchAction, confirmDeliveryAction } from "./[id]/actions";
+import { cancelMatchAction, confirmDeliveryAction, markDeliveredAction } from "./[id]/actions";
 
 type CityRow = {
   name: string;
@@ -148,7 +148,7 @@ function getShipmentTrackingDescription(status: string | null) {
     case "accepted":
       return "El match fue aceptado. El siguiente paso es recoger el paquete.";
     case "in_transit":
-      return "El viajero ya recogió el paquete y está en camino.";
+      return "El viajero ya recogió el paquete. Cuando lo entregue, debe reportarlo aquí.";
     case "delivered":
       return "La entrega fue confirmada correctamente.";
     case "cancelled":
@@ -255,10 +255,12 @@ export default async function MatchesPage() {
     )
   );
 
-  const { data: profilesData, error: profilesError } = await supabase
-    .from("profiles")
-    .select("id, full_name")
-    .in("id", relatedUserIds);
+  const { data: profilesData, error: profilesError } = relatedUserIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", relatedUserIds)
+    : { data: [] as ProfileRow[], error: null };
 
   if (profilesError) {
     throw new Error(`Error cargando perfiles relacionados: ${profilesError.message}`);
@@ -515,27 +517,58 @@ export default async function MatchesPage() {
                                 </p>
 
                                 {shipment?.status === "in_transit" &&
+                                  isTraveler &&
+                                  payment?.status === "held" &&
+                                  payment?.dispute_status !== "open" &&
+                                  !payment?.traveler_delivered_at && (
+                                    <form
+                                      action={async () => {
+                                        "use server";
+                                        await markDeliveredAction(shipment.id);
+                                        revalidatePath("/app/matches");
+                                        revalidatePath(`/app/matches/${match.id}`);
+                                        revalidatePath("/app");
+                                      }}
+                                    >
+                                      <button
+                                        type="submit"
+                                        className="mt-4 min-h-11 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                                      >
+                                        Paquete entregado
+                                      </button>
+                                    </form>
+                                  )}
+
+                                {shipment?.status === "in_transit" &&
+                                  isTraveler &&
+                                  payment?.traveler_delivered_at && (
+                                    <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-700">
+                                      Entrega reportada. Esperando confirmación del cliente.
+                                    </p>
+                                  )}
+
+                                {shipment?.status === "in_transit" &&
                                   isOwner &&
                                   payment?.status === "held" &&
                                   payment?.dispute_status !== "open" &&
                                   payment?.traveler_delivered_at && (
-                                  <form
-                                    action={async () => {
-                                      "use server";
-                                      await confirmDeliveryAction(shipment.id);
-                                      revalidatePath("/app/matches");
-                                      revalidatePath(`/app/matches/${match.id}`);
-                                      revalidatePath("/app");
-                                    }}
-                                  >
-                                    <button
-                                      type="submit"
-                                      className="mt-4 min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                                    <form
+                                      action={async () => {
+                                        "use server";
+                                        await confirmDeliveryAction(shipment.id);
+                                        revalidatePath("/app/matches");
+                                        revalidatePath(`/app/matches/${match.id}`);
+                                        revalidatePath("/app");
+                                      }}
                                     >
-                                      Paquete recibido
-                                    </button>
-                                  </form>
-                                )}
+                                      <button
+                                        type="submit"
+                                        className="mt-4 min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                                      >
+                                        Paquete recibido
+                                      </button>
+                                    </form>
+                                  )}
                               </div>
                             </>
                           ) : (
