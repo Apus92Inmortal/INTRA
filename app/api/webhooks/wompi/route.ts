@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient()
 
     const { data: existingEvent } = await supabase
-      .from("bold_webhook_events")
+      .from("wompi_webhook_events")
       .select("id, processed")
       .eq("event_key", eventKey)
       .maybeSingle()
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data: eventRow, error: eventError } = await supabase
-      .from("bold_webhook_events")
+      .from("wompi_webhook_events")
       .upsert(
         {
           event_key: eventKey,
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     if (!transactionId && !externalReference) {
       await supabase
-        .from("bold_webhook_events")
+        .from("wompi_webhook_events")
         .update({ processed: true, processed_at: new Date().toISOString() })
         .eq("event_key", eventKey)
 
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data: rpcData, error: rpcError } = await supabase.rpc(
-      "process_bold_webhook",
+      "process_wompi_payment_event",
       {
         p_gateway_transaction_id: transactionId,
         p_status: status,
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     }
 
     await supabase
-      .from("bold_webhook_events")
+      .from("wompi_webhook_events")
       .update({ processed: true, processed_at: new Date().toISOString() })
       .eq("event_key", eventKey)
 
