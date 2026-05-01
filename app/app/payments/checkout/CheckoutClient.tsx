@@ -81,7 +81,7 @@ function getShipmentKindLabel(kind: string) {
 
 function IconShell({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#EFFBF4] text-[#1e8c4e]">
+    <span className="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-[#EFFBF4] text-[#1e8c4e] lg:h-7 lg:w-7">
       {children}
     </span>
   )
@@ -99,12 +99,12 @@ function SummaryRow({
   detail?: ReactNode
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5">
+    <div className="flex items-start gap-2.5 rounded-2xl border border-slate-200 bg-white p-3 lg:p-2.5">
       <IconShell>{icon}</IconShell>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-        <div className="mt-1 text-sm font-semibold leading-5 text-[#0B2C4A]">{value}</div>
-        {detail ? <div className="mt-1 text-xs leading-4 text-slate-500">{detail}</div> : null}
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <div className="mt-0.5 text-sm font-semibold leading-5 text-[#0B2C4A]">{value}</div>
+        {detail ? <div className="mt-0.5 text-[11px] leading-4 text-slate-500">{detail}</div> : null}
       </div>
     </div>
   )
@@ -309,16 +309,16 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   }
 
   return (
-    <main className="min-h-screen bg-[#EEF2F7] px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
+    <main className="min-h-screen bg-[#EEF2F7] px-4 py-3 sm:px-6 lg:px-8 lg:py-3">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-4 flex flex-col gap-1.5 lg:mb-5">
+        <div className="mb-3 flex flex-col gap-1 lg:mb-3.5">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1e8c4e]">
             Checkout seguro
           </p>
-          <h1 className="max-w-4xl text-2xl font-bold tracking-tight text-[#0B2C4A] sm:text-3xl lg:text-[32px] lg:leading-tight">
+          <h1 className="max-w-4xl text-2xl font-bold tracking-tight text-[#0B2C4A] sm:text-3xl lg:text-[28px] lg:leading-tight">
             Confirma tu pago
           </h1>
-          <p className="max-w-4xl text-sm leading-5 text-slate-600 sm:text-[15px]">
+          <p className="max-w-4xl text-sm leading-5 text-slate-600 lg:text-[14px]">
             Revisa los datos del envío y confirma el cobro. El dinero queda protegido hasta que se complete la entrega.
           </p>
         </div>
@@ -329,27 +329,27 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
           </div>
         ) : null}
 
-        <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_320px] xl:grid-cols-[minmax(0,1.45fr)_340px] xl:items-start">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-            <div className="mb-4 flex items-center justify-between gap-4">
+        <section className="grid gap-3 lg:grid-cols-[minmax(0,1.48fr)_300px] xl:grid-cols-[minmax(0,1.52fr)_315px] xl:items-start">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4">
+            <div className="mb-3 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold text-[#0B2C4A]">Resumen del envío</h2>
+                <h2 className="text-base font-semibold text-[#0B2C4A]">Resumen del envío</h2>
               </div>
-              <div className="rounded-full bg-[#EFFBF4] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#1e8c4e]">
+              <div className="rounded-full bg-[#EFFBF4] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#1e8c4e]">
                 Tarifa confirmada
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-3.5 sm:p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ruta</p>
-              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-lg font-bold text-[#0B2C4A] sm:text-[28px] sm:leading-tight">
+            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-3 sm:p-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Ruta</p>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-lg font-bold text-[#0B2C4A] sm:text-[24px] sm:leading-tight">
                 <span>{view.origin}</span>
                 <span className="text-[#2ECC71]">→</span>
                 <span>{view.destination}</span>
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               <SummaryRow
                 label="Tipo de envío"
                 value={getShipmentKindLabel(view.kind)}
@@ -358,7 +358,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 7.5 12 3l9 4.5M3 7.5V16.5L12 21m-9-13.5L12 12m9-4.5V16.5L12 21m0-9v9" />
                   </svg>
                 }
-                detail="El viajero verá esta categoría al aceptar el match."
+                detail="Visible para el viajero al aceptar."
               />
               <SummaryRow
                 label="Peso estimado"
@@ -368,7 +368,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M7 6h10m-8 0V4a3 3 0 0 1 6 0v2m-8 0a4 4 0 1 0 8 0m-11 3h14l1 10H5L4 9Z" />
                   </svg>
                 }
-                detail="Dato usado para que el viajero evalúe capacidad y manejo."
+                detail="Referencia para capacidad y manejo."
               />
               <SummaryRow
                 label="Valor declarado"
@@ -378,7 +378,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 6v12m4-9a4 4 0 0 0-8 0c0 5 8 3 8 8a4 4 0 0 1-8 0" />
                   </svg>
                 }
-                detail="Se usa como referencia del contenido reportado por el cliente."
+                detail="Referencia del contenido reportado."
               />
               <SummaryRow
                 label="Pago protegido"
@@ -388,41 +388,41 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 3l7 4v5c0 4.97-3.05 7.97-7 9-3.95-1.03-7-4.03-7-9V7l7-4Z" />
                   </svg>
                 }
-                detail={`Auto liberación en ${autoReleaseHours}h. Ventana de disputa: ${disputeWindowHours}h.`}
+                detail={`Auto liberación ${autoReleaseHours}h · disputa ${disputeWindowHours}h.`}
               />
             </div>
 
-            <div className="mt-3 rounded-[24px] border border-slate-200 bg-white p-3.5 sm:p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Descripción</p>
-              <p className="mt-1.5 text-sm leading-5 text-slate-700">{view.description}</p>
+            <div className="mt-2.5 rounded-[24px] border border-slate-200 bg-white p-3 sm:p-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Descripción</p>
+              <p className="mt-1 text-sm leading-5 text-slate-700 lg:max-h-10 lg:overflow-hidden">{view.description}</p>
             </div>
           </div>
 
-          <aside className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:sticky lg:top-20">
+          <aside className="rounded-[28px] border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4 lg:sticky lg:top-16">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0B2C4A]/70">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0B2C4A]/70">
                 Resumen de pago
               </p>
             </div>
 
-            <div className="mt-3 space-y-2.5 rounded-[24px] bg-slate-50 p-3.5">
-              <div className="flex items-center justify-between gap-4 text-sm text-slate-600">
+            <div className="mt-2.5 space-y-2 rounded-[24px] bg-slate-50 p-3">
+              <div className="flex items-center justify-between gap-4 text-[13px] text-slate-600">
                 <span>Valor del transporte</span>
                 <span className="font-semibold text-[#0B2C4A]">{formatCurrency(travelerAmount)}</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-sm text-slate-600">
+              <div className="flex items-center justify-between gap-4 text-[13px] text-slate-600">
                 <span>Servicio de plataforma</span>
                 <span className="font-semibold text-[#0B2C4A]">{formatCurrency(intraFee)}</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-sm text-slate-600">
+              <div className="flex items-center justify-between gap-4 text-[13px] text-slate-600">
                 <span>Procesamiento de pago</span>
                 <span className="font-semibold text-[#0B2C4A]">{formatCurrency(gatewayFeeEstimated)}</span>
               </div>
             </div>
 
-            <div className="mt-4 rounded-[24px] bg-[#0B2C4A] px-4 py-5 text-white">
-              <p className="text-sm uppercase tracking-wide text-white/70">Total a pagar</p>
-              <p className="mt-2 text-center text-4xl font-extrabold text-[#2ECC71] sm:text-[44px] sm:leading-none">
+            <div className="mt-3 rounded-[24px] bg-[#0B2C4A] px-3.5 py-4 text-white">
+              <p className="text-xs uppercase tracking-wide text-white/70">Total a pagar</p>
+              <p className="mt-1.5 text-center text-4xl font-extrabold text-[#2ECC71] sm:text-[40px] sm:leading-none">
                 {formatCurrency(totalAmount)}
               </p>
             </div>
@@ -437,7 +437,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               type="button"
               onClick={handlePayment}
               disabled={loading}
-              className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3.5 text-base font-bold text-[#08321d] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-[15px] font-bold text-[#08321d] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Preparando checkout..." : "Pagar con Wompi"}
             </button>
