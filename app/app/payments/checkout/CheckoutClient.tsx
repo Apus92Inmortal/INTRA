@@ -421,7 +421,8 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             </div>
 
             <div className="mt-4 rounded-[24px] bg-[#0B2C4A] px-4 py-5 text-white">
-              <p className="text-center text-4xl font-extrabold text-[#2ECC71] sm:text-[44px] sm:leading-none">
+              <p className="text-sm uppercase tracking-wide text-white/70">Total a pagar</p>
+              <p className="mt-2 text-center text-4xl font-extrabold text-[#2ECC71] sm:text-[44px] sm:leading-none">
                 {formatCurrency(totalAmount)}
               </p>
             </div>
