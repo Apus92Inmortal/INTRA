@@ -311,13 +311,16 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   return (
     <main className="min-h-screen bg-[#EEF2F7] px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-4 flex flex-col gap-2 lg:mb-5">
+        <div className="mb-4 flex flex-col gap-1.5 lg:mb-5">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1e8c4e]">
             Checkout seguro
           </p>
           <h1 className="max-w-4xl text-2xl font-bold tracking-tight text-[#0B2C4A] sm:text-3xl lg:text-[32px] lg:leading-tight">
-            Revisa los datos del envío y confirma el cobro. El dinero queda protegido hasta que se complete la entrega.
+            Confirma tu pago
           </h1>
+          <p className="max-w-4xl text-sm leading-5 text-slate-600 sm:text-[15px]">
+            Revisa los datos del envío y confirma el cobro. El dinero queda protegido hasta que se complete la entrega.
+          </p>
         </div>
 
         {view.isRetry ? (
@@ -333,7 +336,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 <h2 className="text-lg font-semibold text-[#0B2C4A]">Resumen del envío</h2>
               </div>
               <div className="rounded-full bg-[#EFFBF4] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#1e8c4e]">
-                {view.routeCategory ? `Ruta ${view.routeCategory}` : "Ruta pendiente"}
+                Tarifa confirmada
               </div>
             </div>
 
@@ -417,9 +420,8 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               </div>
             </div>
 
-            <div className="mt-4 rounded-[24px] bg-[#0B2C4A] px-4 py-4 text-white">
-              <p className="text-sm uppercase tracking-wide text-white/70">Total a pagar</p>
-              <p className="mt-1.5 text-4xl font-extrabold text-[#2ECC71] sm:text-[44px] sm:leading-none">
+            <div className="mt-4 rounded-[24px] bg-[#0B2C4A] px-4 py-5 text-white">
+              <p className="text-center text-4xl font-extrabold text-[#2ECC71] sm:text-[44px] sm:leading-none">
                 {formatCurrency(totalAmount)}
               </p>
             </div>
