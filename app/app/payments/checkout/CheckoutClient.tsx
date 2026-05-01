@@ -7,7 +7,7 @@ import {
   hasSupabaseEnv,
   missingEnvMessage,
 } from "@/lib/supabase/client"
-import { parsePaymentQuote } from "@/lib/payments/quote"
+import { buildFixedRouteQuote, isRouteCategory } from "@/lib/payments/quote"
 import { useRouter, useSearchParams } from "next/navigation"
 
 function formatCurrency(value: number | null) {
@@ -71,6 +71,7 @@ export default function CheckoutClient() {
   const destination = searchParams.get("destination") ?? "No definido"
   const originCityId = searchParams.get("originCityId") ?? ""
   const destinationCityId = searchParams.get("destinationCityId") ?? ""
+  const routeCategoryParam = searchParams.get("routeCategory")
   const kind = searchParams.get("kind") ?? ""
   const rawDescription = searchParams.get("description") ?? ""
   const description = rawDescription || "Sin descripción"
@@ -95,6 +96,7 @@ export default function CheckoutClient() {
   const intraFee = Number(searchParams.get("intraFee") ?? "")
   const autoReleaseHours = Number(searchParams.get("autoReleaseHours") ?? "48")
   const disputeWindowHours = Number(searchParams.get("disputeWindowHours") ?? "24")
+  const routeCategory = isRouteCategory(routeCategoryParam) ? routeCategoryParam : null
 
   async function handlePayment() {
     setLoading(true)
@@ -120,7 +122,13 @@ export default function CheckoutClient() {
 
     if (Number.isNaN(serviceAmount) || serviceAmount < 0) {
       setLoading(false)
-      setErrorMsg("El valor del servicio recibido no es válido.")
+      setErrorMsg("La ganancia del viajero recibida no es válida.")
+      return
+    }
+
+    if (Number.isNaN(totalAmount) || totalAmount < 0) {
+      setLoading(false)
+      setErrorMsg("El precio total recibido no es válido.")
       return
     }
 
@@ -145,16 +153,9 @@ export default function CheckoutClient() {
       return
     }
 
-    const { data: quoteData, error: quoteError } = await supabase.rpc(
-      "calculate_payment_amount",
-      {
-        p_base_amount: serviceAmount,
-      }
-    )
+    const quote = routeCategory ? buildFixedRouteQuote(routeCategory) : null
 
-    const quote = parsePaymentQuote(quoteData)
-
-    if (quoteError || !quote || !quote.success || !quote.amount) {
+    if (!quote || !quote.success || !quote.amount) {
       setLoading(false)
       setErrorMsg(
         quote?.error === "below_minimum"
@@ -195,7 +196,7 @@ export default function CheckoutClient() {
         shipment_id: shipment.id,
         user_id: user.id,
         amount: quote.amount,
-        gross_amount: quote.gross_amount ?? quote.amount,
+        gross_amount: quote.gross_amount ?? totalAmount ?? quote.amount,
         traveler_amount: quote.traveler_amount ?? serviceAmount,
         intra_fee: quote.intra_fee ?? 0,
         gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
@@ -290,19 +291,19 @@ export default function CheckoutClient() {
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
                 <div className="space-y-2 text-sm text-gray-500">
                   <div className="flex items-center justify-between gap-4">
-                    <span>Valor para el viajero</span>
+                    <span>Valor del transporte</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(travelerAmount) ? serviceAmount : travelerAmount)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
-                    <span>Comisión INTRA</span>
+                    <span>Servicio de plataforma</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(intraFee) ? 0 : intraFee)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
-                    <span>Fee de pasarela (estimado)</span>
+                    <span>Procesamiento de pago</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(gatewayFeeEstimated) ? 0 : gatewayFeeEstimated)}
                     </span>

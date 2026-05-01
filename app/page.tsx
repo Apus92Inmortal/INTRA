@@ -6,11 +6,11 @@ export const metadata: Metadata = {
     absolute: "INTRA — Envía paquetes con viajeros reales",
   },
   description:
-    "Conecta con viajeros que ya van a tu destino. Envía documentos y paquetes entre ciudades por menos de $24.000 COP. Rápido, seguro y sin intermediarios.",
+    "Conecta con viajeros que ya van a tu destino. Envía documentos y paquetes entre ciudades desde $20.000 COP. Rápido, seguro y sin intermediarios.",
   openGraph: {
     title: "INTRA — Envía paquetes con viajeros reales",
     description:
-      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $14.000 COP.",
+      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $20.000 COP.",
     type: "website",
     url: "https://intra-chi.vercel.app",
     images: [
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "INTRA — Envía paquetes con viajeros reales",
     description:
-      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $14.000 COP.",
+      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $20.000 COP.",
     images: ["/assets/ChatGPT-Image-1-feb-2026-12_09_59-a.m.png"],
   },
   icons: {
@@ -63,7 +63,7 @@ const atlasLandingHtml = String.raw`
     <div class="hero-content">
       <div class="hero-badge">✈️ 12 ciudades colombianas cubiertas</div>
       <h1>Envía documentos y paquetes entre ciudades, <span class="text-green">hoy mismo</span></h1>
-      <p>Viajeros reales los llevan por ti entre aeropuertos. Desde <strong>$14.000 COP</strong>.</p>
+      <p>Viajeros reales los llevan por ti entre aeropuertos. Desde <strong>$20.000 COP</strong>.</p>
       <div class="btn-row">
         <a class="btn btn-primary" href="https://intra-chi.vercel.app/shipments/new">Publicar envío</a>
         <a class="btn btn-secondary" href="#como-funciona">Cómo funciona</a>
@@ -89,7 +89,7 @@ const atlasLandingHtml = String.raw`
     </div>
     <div class="proof-divider"></div>
     <div class="proof-item">
-      <div class="proof-num">$14K</div>
+      <div class="proof-num">$20K</div>
       <div class="proof-label">Desde COP</div>
     </div>
     <div class="proof-divider"></div>
@@ -133,20 +133,20 @@ const atlasLandingHtml = String.raw`
     <div class="grid-3">
       <div class="price-card">
         <div class="price-badge">📍 Corta distancia</div>
-        <div class="price-tag"><span class="price-currency">$</span><span class="price-amount">14.000</span></div>
+        <div class="price-tag"><span class="price-currency">$</span><span class="price-amount">20.000</span></div>
         <div class="price-unit">COP</div>
         <p class="price-desc">Misma región</p>
         <div class="price-examples">
           <span>Bogotá → Villavicencio</span>
           <span>Medellín → Pereira</span>
-          <span>Cali → Buenaventura</span>
+          <span>Cartagena → Santa Marta</span>
         </div>
         <a class="btn btn-outline" href="https://intra-chi.vercel.app/shipments/new">Enviar ahora</a>
       </div>
       <div class="price-card price-popular">
         <div class="popular-tag">⭐ Más popular</div>
         <div class="price-badge">🏙️ Media distancia</div>
-        <div class="price-tag"><span class="price-currency">$</span><span class="price-amount">18.000</span></div>
+        <div class="price-tag"><span class="price-currency">$</span><span class="price-amount">25.000</span></div>
         <div class="price-unit">COP</div>
         <p class="price-desc">Entre regiones</p>
         <div class="price-examples">
@@ -158,13 +158,13 @@ const atlasLandingHtml = String.raw`
       </div>
       <div class="price-card">
         <div class="price-badge">✈️ Larga distancia</div>
-        <div class="price-tag"><span class="price-currency">$</span><span class="price-amount">24.000</span></div>
+        <div class="price-tag"><span class="price-currency">$</span><span class="price-amount">35.000</span></div>
         <div class="price-unit">COP</div>
         <p class="price-desc">Costa a costa</p>
         <div class="price-examples">
           <span>Bogotá → San Andrés</span>
           <span>Bogotá → Leticia</span>
-          <span>Medellín → Cartagena</span>
+          <span>Cali → Santa Marta</span>
         </div>
         <a class="btn btn-outline" href="https://intra-chi.vercel.app/shipments/new">Enviar ahora</a>
       </div>
@@ -268,7 +268,7 @@ const atlasLandingHtml = String.raw`
       </details>
       <details class="faq-item">
         <summary>¿Cuánto puedo ganar como viajero?</summary>
-        <p>Desde $14.000 COP por envío corto, $18.000 por medio y $24.000 por largo. Si viajas con espacio libre y llevas varios paquetes, los ingresos se acumulan.</p>
+        <p>Desde $16.000 COP por envío corto, $20.000 por medio y $28.000 por largo. Si viajas con espacio libre y llevas varios paquetes, los ingresos se acumulan.</p>
       </details>
       <details class="faq-item">
         <summary>¿En qué ciudades están disponibles?</summary>

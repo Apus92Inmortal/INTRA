@@ -79,6 +79,7 @@ create table if not exists public."route_prices" (
     "destination_city_id" uuid not null,
     "route_category" text not null,
     "base_price" integer not null,
+    "customer_price" integer not null,
     "is_active" boolean default true not null,
     "created_at" timestamp with time zone default now() not null,
     "updated_at" timestamp with time zone default now() not null
@@ -137,6 +138,7 @@ alter table only public."profiles" add constraint "profiles_id_fkey" FOREIGN KEY
 alter table only public."profiles" add constraint "profiles_pkey" PRIMARY KEY (id);
 
 alter table only public."route_prices" add constraint "route_prices_base_price_check" CHECK (base_price > 0);
+alter table only public."route_prices" add constraint "route_prices_customer_price_check" CHECK ((customer_price is null) or (customer_price > 0 and customer_price >= base_price));
 alter table only public."route_prices" add constraint "route_prices_check" CHECK (origin_city_id <> destination_city_id);
 alter table only public."route_prices" add constraint "route_prices_destination_city_id_fkey" FOREIGN KEY (destination_city_id) REFERENCES cities(id) ON DELETE CASCADE;
 alter table only public."route_prices" add constraint "route_prices_origin_city_id_destination_city_id_key" UNIQUE (origin_city_id, destination_city_id);

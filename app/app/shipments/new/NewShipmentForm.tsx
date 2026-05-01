@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { parsePaymentQuote, type PaymentQuote } from "@/lib/payments/quote"
+import {
+  buildFixedRouteQuote,
+  isRouteCategory,
+  type PaymentQuote,
+  type RouteCategory,
+} from "@/lib/payments/quote"
 import { createClient } from "@/lib/supabase/client"
 
 type City = {
@@ -13,6 +18,12 @@ type City = {
 }
 
 type ShipmentKind = "document" | "package" | "ecommerce"
+
+type RoutePricing = {
+  routeCategory: RouteCategory
+  travelerPrice: number
+  customerPrice: number
+}
 
 type FormErrors = {
   originCityId?: string
@@ -38,10 +49,9 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   const [msg, setMsg] = useState<string | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
 
-  const [routeBasePrice, setRouteBasePrice] = useState<number | null>(null)
+  const [routePricing, setRoutePricing] = useState<RoutePricing | null>(null)
   const [routeLoading, setRouteLoading] = useState(false)
-  const [quoteLoading, setQuoteLoading] = useState(false)
-  const [paymentQuote, setPaymentQuote] = useState<PaymentQuote | null>(null)
+  const quoteLoading = false
 
   const cityOptions = useMemo(() => cities, [cities])
 
@@ -115,7 +125,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   useEffect(() => {
     const fetchRoutePrice = async () => {
       if (!originCityId || !destinationCityId || originCityId === destinationCityId) {
-        setRouteBasePrice(null)
+        setRoutePricing(null)
         setErrors((prev) => ({ ...prev, route: undefined }))
         return
       }
@@ -124,79 +134,49 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
       const { data, error } = await supabase
         .from("route_prices")
-        .select("base_price")
+        .select("route_category")
         .eq("origin_city_id", originCityId)
         .eq("destination_city_id", destinationCityId)
         .eq("is_active", true)
         .maybeSingle()
 
-      if (error || !data) {
-        setRouteBasePrice(null)
+      const routeCategory = isRouteCategory(data?.route_category)
+        ? data.route_category
+        : null
+      const quote = routeCategory ? buildFixedRouteQuote(routeCategory) : null
+      const travelerPrice = quote?.traveler_amount ?? null
+      const customerPrice = quote?.amount ?? null
+
+      if (error || !data || routeCategory === null || travelerPrice === null || customerPrice === null) {
+        setRoutePricing(null)
         setErrors((prev) => ({
           ...prev,
-          route: "No hay tarifa configurada para esta ruta.",
+          route: data
+            ? "La tarifa de esta ruta está incompleta."
+            : "No hay tarifa configurada para esta ruta.",
         }))
         setRouteLoading(false)
         return
       }
 
       setErrors((prev) => ({ ...prev, route: undefined }))
-      setRouteBasePrice(data.base_price)
+      setRoutePricing({
+        routeCategory,
+        travelerPrice,
+        customerPrice,
+      })
       setRouteLoading(false)
     }
 
     fetchRoutePrice()
   }, [originCityId, destinationCityId, supabase])
 
-  const getKindPrice = () => {
-    switch (kind) {
-      case "document":
-        return 4000
-      case "package":
-        return 8000
-      case "ecommerce":
-        return 10000
-      default:
-        return 0
-    }
-  }
-
-  const serviceAmount = routeBasePrice !== null ? routeBasePrice + getKindPrice() : null
-
-  useEffect(() => {
-    const fetchQuote = async () => {
-      if (serviceAmount === null) {
-        setPaymentQuote(null)
-        return
-      }
-
-      setQuoteLoading(true)
-
-      const { data, error } = await supabase.rpc("calculate_payment_amount", {
-        p_base_amount: serviceAmount,
-      })
-
-      const nextQuote = parsePaymentQuote(data)
-
-      if (error || !nextQuote || !nextQuote.success) {
-        const nextMessage =
-          nextQuote?.error === "below_minimum"
-            ? `El valor mínimo del envío es ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(nextQuote.minimum_amount ?? 20000)}.`
-            : "No se pudo calcular el cobro total para esta ruta."
-
-        setPaymentQuote(nextQuote)
-        setErrors((prev) => ({ ...prev, route: nextMessage }))
-        setQuoteLoading(false)
-        return
-      }
-
-      setPaymentQuote(nextQuote)
-      setErrors((prev) => ({ ...prev, route: undefined }))
-      setQuoteLoading(false)
-    }
-
-    fetchQuote()
-  }, [serviceAmount, supabase])
+  const travelerRouteAmount = routePricing?.travelerPrice ?? null
+  const customerRouteAmount = routePricing?.customerPrice ?? null
+  const routeCategory = routePricing?.routeCategory ?? null
+  const paymentQuote: PaymentQuote | null = routeCategory
+    ? buildFixedRouteQuote(routeCategory)
+    : null
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -230,7 +210,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.declaredValueCop = "Valor declarado inválido."
     }
 
-    if (routeBasePrice === null) {
+    if (routePricing === null) {
       nextErrors.route = "No hay tarifa configurada para esa ruta."
     }
 
@@ -255,9 +235,10 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       description: description.trim(),
       weightKg,
       declaredValueCop,
-      serviceAmount: String(serviceAmount),
-      totalAmount: String(paymentQuote?.amount ?? 0),
+      serviceAmount: String(travelerRouteAmount),
+      totalAmount: String(paymentQuote?.amount ?? customerRouteAmount ?? 0),
       travelerAmount: String(paymentQuote?.traveler_amount ?? 0),
+      routeCategory: routeCategory ?? "",
       gatewayFeeEstimated: String(paymentQuote?.gateway_fee_estimated ?? 0),
       intraFee: String(paymentQuote?.intra_fee ?? 0),
       netAmountReceived: String(paymentQuote?.net_amount_received ?? 0),
@@ -439,7 +420,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
         </div>
       )}
 
-      {serviceAmount && originCity && destinationCity && !routeLoading && paymentQuote?.success && (
+      {travelerRouteAmount && customerRouteAmount && originCity && destinationCity && !routeLoading && paymentQuote?.success && (
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <h3 className="text-base font-semibold text-[#0B2C4A]">
             💰 Resumen del servicio
@@ -463,19 +444,19 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           <div className="mt-4 rounded-xl bg-gray-50 p-4">
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex items-center justify-between gap-4">
-                <span>Valor para el viajero</span>
+                <span>Valor del transporte</span>
                 <span className="font-medium text-gray-800">
-                  ${serviceAmount.toLocaleString("es-CO")}
+                  ${travelerRouteAmount.toLocaleString("es-CO")}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span>Comisión INTRA</span>
+                <span>Servicio de plataforma</span>
                 <span className="font-medium text-gray-800">
                   ${(paymentQuote.intra_fee ?? 0).toLocaleString("es-CO")}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span>Fee de pasarela (estimado)</span>
+                <span>Procesamiento de pago</span>
                 <span className="font-medium text-gray-800">
                   ${(paymentQuote.gateway_fee_estimated ?? 0).toLocaleString("es-CO")}
                 </span>
