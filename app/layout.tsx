@@ -21,11 +21,11 @@ export const metadata: Metadata = {
     template: "%s | INTRA",
   },
   description:
-    "Conecta con viajeros que ya van a tu destino. Envía documentos y paquetes entre ciudades por menos de $24.000 COP. Rápido, seguro y sin intermediarios.",
+    "Conecta con viajeros que ya van a tu destino. Envía documentos y paquetes entre ciudades desde $20.000 COP. Rápido, seguro y sin intermediarios.",
   openGraph: {
     title: "INTRA — Envía paquetes con viajeros reales",
     description:
-      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $14.000 COP.",
+      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $20.000 COP.",
     type: "website",
     images: [
       {
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "INTRA — Envía paquetes con viajeros reales",
     description:
-      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $14.000 COP.",
+      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $20.000 COP.",
     images: ["/logo.png"],
   },
   icons: {

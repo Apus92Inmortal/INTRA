@@ -22,8 +22,8 @@ export const ROUTE_PRICING_BY_CATEGORY: Record<
   { travelerAmount: number; customerAmount: number }
 > = {
   short: { travelerAmount: 16000, customerAmount: 20000 },
-  medium: { travelerAmount: 24000, customerAmount: 30000 },
-  long: { travelerAmount: 36000, customerAmount: 45000 },
+  medium: { travelerAmount: 20000, customerAmount: 25000 },
+  long: { travelerAmount: 28000, customerAmount: 35000 },
 }
 
 const WOMPI_EFFECTIVE_PERCENT = 3.1535

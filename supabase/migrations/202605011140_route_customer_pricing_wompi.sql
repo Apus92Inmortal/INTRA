@@ -5,14 +5,14 @@ update public.route_prices
 set
   base_price = case route_category
     when 'short' then 16000
-    when 'medium' then 24000
-    when 'long' then 36000
+    when 'medium' then 20000
+    when 'long' then 28000
     else base_price
   end,
   customer_price = case route_category
     when 'short' then 20000
-    when 'medium' then 30000
-    when 'long' then 45000
+    when 'medium' then 25000
+    when 'long' then 35000
     else customer_price
   end,
   updated_at = now()
