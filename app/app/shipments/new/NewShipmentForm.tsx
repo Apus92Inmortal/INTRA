@@ -51,8 +51,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
   const [routePricing, setRoutePricing] = useState<RoutePricing | null>(null)
   const [routeLoading, setRouteLoading] = useState(false)
-  const [quoteLoading, setQuoteLoading] = useState(false)
-  const [paymentQuote, setPaymentQuote] = useState<PaymentQuote | null>(null)
+  const quoteLoading = false
 
   const cityOptions = useMemo(() => cities, [cities])
 
@@ -175,19 +174,9 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   const travelerRouteAmount = routePricing?.travelerPrice ?? null
   const customerRouteAmount = routePricing?.customerPrice ?? null
   const routeCategory = routePricing?.routeCategory ?? null
-
-  useEffect(() => {
-    if (routeCategory === null) {
-      setPaymentQuote(null)
-      return
-    }
-
-    setQuoteLoading(true)
-    const nextQuote = buildFixedRouteQuote(routeCategory)
-    setPaymentQuote(nextQuote)
-    setErrors((prev) => ({ ...prev, route: nextQuote.success ? undefined : "No se pudo calcular el cobro total para esta ruta." }))
-    setQuoteLoading(false)
-  }, [routeCategory])
+  const paymentQuote: PaymentQuote | null = routeCategory
+    ? buildFixedRouteQuote(routeCategory)
+    : null
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
