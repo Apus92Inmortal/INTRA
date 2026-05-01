@@ -120,7 +120,13 @@ export default function CheckoutClient() {
 
     if (Number.isNaN(serviceAmount) || serviceAmount < 0) {
       setLoading(false)
-      setErrorMsg("El valor del servicio recibido no es válido.")
+      setErrorMsg("La ganancia del viajero recibida no es válida.")
+      return
+    }
+
+    if (Number.isNaN(totalAmount) || totalAmount < 0) {
+      setLoading(false)
+      setErrorMsg("El precio total recibido no es válido.")
       return
     }
 
@@ -149,6 +155,7 @@ export default function CheckoutClient() {
       "calculate_payment_amount",
       {
         p_base_amount: serviceAmount,
+        p_customer_amount: totalAmount,
       }
     )
 
@@ -195,7 +202,7 @@ export default function CheckoutClient() {
         shipment_id: shipment.id,
         user_id: user.id,
         amount: quote.amount,
-        gross_amount: quote.gross_amount ?? quote.amount,
+        gross_amount: quote.gross_amount ?? totalAmount ?? quote.amount,
         traveler_amount: quote.traveler_amount ?? serviceAmount,
         intra_fee: quote.intra_fee ?? 0,
         gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
@@ -290,7 +297,7 @@ export default function CheckoutClient() {
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
                 <div className="space-y-2 text-sm text-gray-500">
                   <div className="flex items-center justify-between gap-4">
-                    <span>Valor para el viajero</span>
+                    <span>Gana el viajero</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(travelerAmount) ? serviceAmount : travelerAmount)}
                     </span>
@@ -302,7 +309,7 @@ export default function CheckoutClient() {
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
-                    <span>Fee de pasarela (estimado)</span>
+                    <span>Fee Wompi (estimado)</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(gatewayFeeEstimated) ? 0 : gatewayFeeEstimated)}
                     </span>

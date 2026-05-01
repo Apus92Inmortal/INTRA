@@ -104,6 +104,7 @@ type RoutePriceRow = {
   origin_city_id: string;
   destination_city_id: string;
   base_price: number;
+  customer_price: number | null;
   is_active: boolean;
 };
 
@@ -413,7 +414,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     shipments.length
       ? supabase
           .from("route_prices")
-          .select("id, origin_city_id, destination_city_id, base_price, is_active")
+          .select("id, origin_city_id, destination_city_id, base_price, customer_price, is_active")
           .eq("is_active", true)
           .in(
             "origin_city_id",
@@ -455,7 +456,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   const routePriceByKey = new Map(
     routePrices.map((routePrice) => [
       `${routePrice.origin_city_id}:${routePrice.destination_city_id}`,
-      routePrice.base_price,
+      routePrice.customer_price ?? routePrice.base_price,
     ])
   );
 
