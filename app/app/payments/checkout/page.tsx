@@ -13,7 +13,15 @@ type CheckoutPageProps = {
 type RetryPaymentRow = {
   id: string
   status: string | null
+  gateway_status: string | null
   shipment_id: string | null
+}
+
+function isRetryablePaymentStatus(status: string | null | undefined) {
+  if (!status) return false
+
+  const normalized = status.trim().toLowerCase()
+  return ["failed", "cancelled", "canceled", "rejected", "declined", "voided", "error"].includes(normalized)
 }
 
 type RetryShipmentRow = {
@@ -45,14 +53,22 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
 
   const paymentRes = await supabase
     .from("payments")
-    .select("id, status, shipment_id")
+    .select("id, status, gateway_status, shipment_id")
     .eq("id", retryPaymentId)
     .eq("user_id", user.id)
     .maybeSingle()
 
   const payment = (paymentRes.data ?? null) as RetryPaymentRow | null
 
-  if (!payment?.shipment_id || !payment.status || !["failed", "cancelled"].includes(payment.status)) {
+  const paymentStatus = payment?.status ?? null
+  const gatewayStatus = payment?.gateway_status ?? null
+  const retryStatus = isRetryablePaymentStatus(paymentStatus)
+    ? paymentStatus
+    : isRetryablePaymentStatus(gatewayStatus)
+    ? gatewayStatus
+    : null
+
+  if (!payment?.shipment_id || !retryStatus) {
     return null
   }
 
@@ -97,7 +113,7 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
 
   return {
     retryPaymentId: payment.id,
-    paymentStatus: payment.status,
+    paymentStatus: retryStatus,
     shipmentId: shipment.id,
     origin: shipment.origin_city?.name?.trim() || "No definido",
     destination: shipment.destination_city?.name?.trim() || "No definido",
