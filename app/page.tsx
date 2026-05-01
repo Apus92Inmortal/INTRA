@@ -139,7 +139,7 @@ const atlasLandingHtml = String.raw`
         <div class="price-examples">
           <span>Bogotá → Villavicencio</span>
           <span>Medellín → Pereira</span>
-          <span>Cali → Buenaventura</span>
+          <span>Cartagena → Santa Marta</span>
         </div>
         <a class="btn btn-outline" href="https://intra-chi.vercel.app/shipments/new">Enviar ahora</a>
       </div>
@@ -164,7 +164,7 @@ const atlasLandingHtml = String.raw`
         <div class="price-examples">
           <span>Bogotá → San Andrés</span>
           <span>Bogotá → Leticia</span>
-          <span>Medellín → Cartagena</span>
+          <span>Cali → Santa Marta</span>
         </div>
         <a class="btn btn-outline" href="https://intra-chi.vercel.app/shipments/new">Enviar ahora</a>
       </div>
