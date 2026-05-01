@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { ROUTE_PRICING_BY_CATEGORY, isRouteCategory } from "@/lib/payments/quote";
 import { getShipmentKindLabel, getStatusLabel } from "@/lib/labels";
 import type {
   DashboardActivityIcon,
@@ -103,8 +104,7 @@ type RoutePriceRow = {
   id: string;
   origin_city_id: string;
   destination_city_id: string;
-  base_price: number;
-  customer_price: number | null;
+  route_category: string;
   is_active: boolean;
 };
 
@@ -414,7 +414,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     shipments.length
       ? supabase
           .from("route_prices")
-          .select("id, origin_city_id, destination_city_id, base_price, customer_price, is_active")
+          .select("id, origin_city_id, destination_city_id, route_category, is_active")
           .eq("is_active", true)
           .in(
             "origin_city_id",
@@ -456,7 +456,9 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   const routePriceByKey = new Map(
     routePrices.map((routePrice) => [
       `${routePrice.origin_city_id}:${routePrice.destination_city_id}`,
-      routePrice.customer_price ?? routePrice.base_price,
+      isRouteCategory(routePrice.route_category)
+        ? ROUTE_PRICING_BY_CATEGORY[routePrice.route_category].customerAmount
+        : 0,
     ])
   );
 

@@ -2,7 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import { parsePaymentQuote, type PaymentQuote } from "@/lib/payments/quote"
+import {
+  buildFixedRouteQuote,
+  isRouteCategory,
+  type PaymentQuote,
+  type RouteCategory,
+} from "@/lib/payments/quote"
 import { createClient } from "@/lib/supabase/client"
 
 type City = {
@@ -15,6 +20,7 @@ type City = {
 type ShipmentKind = "document" | "package" | "ecommerce"
 
 type RoutePricing = {
+  routeCategory: RouteCategory
   travelerPrice: number
   customerPrice: number
 }
@@ -129,16 +135,20 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
       const { data, error } = await supabase
         .from("route_prices")
-        .select("base_price, customer_price")
+        .select("route_category")
         .eq("origin_city_id", originCityId)
         .eq("destination_city_id", destinationCityId)
         .eq("is_active", true)
         .maybeSingle()
 
-      const travelerPrice = data?.base_price ?? null
-      const customerPrice = data?.customer_price ?? null
+      const routeCategory = isRouteCategory(data?.route_category)
+        ? data.route_category
+        : null
+      const quote = routeCategory ? buildFixedRouteQuote(routeCategory) : null
+      const travelerPrice = quote?.traveler_amount ?? null
+      const customerPrice = quote?.amount ?? null
 
-      if (error || !data || travelerPrice === null || customerPrice === null) {
+      if (error || !data || routeCategory === null || travelerPrice === null || customerPrice === null) {
         setRoutePricing(null)
         setErrors((prev) => ({
           ...prev,
@@ -152,6 +162,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
       setErrors((prev) => ({ ...prev, route: undefined }))
       setRoutePricing({
+        routeCategory,
         travelerPrice,
         customerPrice,
       })
@@ -163,42 +174,20 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
   const travelerRouteAmount = routePricing?.travelerPrice ?? null
   const customerRouteAmount = routePricing?.customerPrice ?? null
+  const routeCategory = routePricing?.routeCategory ?? null
 
   useEffect(() => {
-    const fetchQuote = async () => {
-      if (travelerRouteAmount === null || customerRouteAmount === null) {
-        setPaymentQuote(null)
-        return
-      }
-
-      setQuoteLoading(true)
-
-      const { data, error } = await supabase.rpc("calculate_payment_amount", {
-        p_base_amount: travelerRouteAmount,
-        p_customer_amount: customerRouteAmount,
-      })
-
-      const nextQuote = parsePaymentQuote(data)
-
-      if (error || !nextQuote || !nextQuote.success) {
-        const nextMessage =
-          nextQuote?.error === "below_minimum"
-            ? `El valor mínimo del envío es ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(nextQuote.minimum_amount ?? 20000)}.`
-            : "No se pudo calcular el cobro total para esta ruta."
-
-        setPaymentQuote(nextQuote)
-        setErrors((prev) => ({ ...prev, route: nextMessage }))
-        setQuoteLoading(false)
-        return
-      }
-
-      setPaymentQuote(nextQuote)
-      setErrors((prev) => ({ ...prev, route: undefined }))
-      setQuoteLoading(false)
+    if (routeCategory === null) {
+      setPaymentQuote(null)
+      return
     }
 
-    fetchQuote()
-  }, [customerRouteAmount, supabase, travelerRouteAmount])
+    setQuoteLoading(true)
+    const nextQuote = buildFixedRouteQuote(routeCategory)
+    setPaymentQuote(nextQuote)
+    setErrors((prev) => ({ ...prev, route: nextQuote.success ? undefined : "No se pudo calcular el cobro total para esta ruta." }))
+    setQuoteLoading(false)
+  }, [routeCategory])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -260,6 +249,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       serviceAmount: String(travelerRouteAmount),
       totalAmount: String(paymentQuote?.amount ?? customerRouteAmount ?? 0),
       travelerAmount: String(paymentQuote?.traveler_amount ?? 0),
+      routeCategory: routeCategory ?? "",
       gatewayFeeEstimated: String(paymentQuote?.gateway_fee_estimated ?? 0),
       intraFee: String(paymentQuote?.intra_fee ?? 0),
       netAmountReceived: String(paymentQuote?.net_amount_received ?? 0),

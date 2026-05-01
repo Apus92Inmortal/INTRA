@@ -7,7 +7,7 @@ import {
   hasSupabaseEnv,
   missingEnvMessage,
 } from "@/lib/supabase/client"
-import { parsePaymentQuote } from "@/lib/payments/quote"
+import { buildFixedRouteQuote, isRouteCategory } from "@/lib/payments/quote"
 import { useRouter, useSearchParams } from "next/navigation"
 
 function formatCurrency(value: number | null) {
@@ -71,6 +71,7 @@ export default function CheckoutClient() {
   const destination = searchParams.get("destination") ?? "No definido"
   const originCityId = searchParams.get("originCityId") ?? ""
   const destinationCityId = searchParams.get("destinationCityId") ?? ""
+  const routeCategoryParam = searchParams.get("routeCategory")
   const kind = searchParams.get("kind") ?? ""
   const rawDescription = searchParams.get("description") ?? ""
   const description = rawDescription || "Sin descripción"
@@ -95,6 +96,7 @@ export default function CheckoutClient() {
   const intraFee = Number(searchParams.get("intraFee") ?? "")
   const autoReleaseHours = Number(searchParams.get("autoReleaseHours") ?? "48")
   const disputeWindowHours = Number(searchParams.get("disputeWindowHours") ?? "24")
+  const routeCategory = isRouteCategory(routeCategoryParam) ? routeCategoryParam : null
 
   async function handlePayment() {
     setLoading(true)
@@ -151,17 +153,9 @@ export default function CheckoutClient() {
       return
     }
 
-    const { data: quoteData, error: quoteError } = await supabase.rpc(
-      "calculate_payment_amount",
-      {
-        p_base_amount: serviceAmount,
-        p_customer_amount: totalAmount,
-      }
-    )
+    const quote = routeCategory ? buildFixedRouteQuote(routeCategory) : null
 
-    const quote = parsePaymentQuote(quoteData)
-
-    if (quoteError || !quote || !quote.success || !quote.amount) {
+    if (!quote || !quote.success || !quote.amount) {
       setLoading(false)
       setErrorMsg(
         quote?.error === "below_minimum"
