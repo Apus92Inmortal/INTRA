@@ -81,7 +81,7 @@ function getShipmentKindLabel(kind: string) {
 
 function IconShell({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EFFBF4] text-[#1e8c4e]">
+    <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[#EFFBF4] text-[#1e8c4e]">
       {children}
     </span>
   )
@@ -99,12 +99,12 @@ function SummaryRow({
   detail?: ReactNode
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3.5">
       <IconShell>{icon}</IconShell>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-        <div className="mt-1 text-sm font-semibold leading-6 text-[#0B2C4A]">{value}</div>
-        {detail ? <div className="mt-1 text-sm leading-5 text-slate-500">{detail}</div> : null}
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+        <div className="mt-1 text-sm font-semibold leading-5 text-[#0B2C4A]">{value}</div>
+        {detail ? <div className="mt-1 text-xs leading-4 text-slate-500">{detail}</div> : null}
       </div>
     </div>
   )
@@ -309,18 +309,15 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   }
 
   return (
-    <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <main className="min-h-screen bg-[#EEF2F7] px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-5 flex flex-col gap-2 lg:mb-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#1e8c4e]">
+        <div className="mb-4 flex flex-col gap-2 lg:mb-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1e8c4e]">
             Checkout seguro
           </p>
-          <h1 className="text-3xl font-bold tracking-tight text-[#0B2C4A] sm:text-4xl">
-            Confirma tu envío y paga en un solo paso
-          </h1>
-          <p className="max-w-3xl text-sm text-slate-600 sm:text-base">
+          <h1 className="max-w-4xl text-2xl font-bold tracking-tight text-[#0B2C4A] sm:text-3xl lg:text-[32px] lg:leading-tight">
             Revisa los datos del envío y confirma el cobro. El dinero queda protegido hasta que se complete la entrega.
-          </p>
+          </h1>
         </div>
 
         {view.isRetry ? (
@@ -329,28 +326,27 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
           </div>
         ) : null}
 
-        <section className="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_360px] xl:grid-cols-[minmax(0,1.35fr)_380px] xl:items-start">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <div className="mb-5 flex items-center justify-between gap-4">
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_320px] xl:grid-cols-[minmax(0,1.45fr)_340px] xl:items-start">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="mb-4 flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-[#0B2C4A]">Resumen del envío</h2>
-                <p className="mt-1 text-sm text-slate-500">Todo lo que el cliente va a confirmar antes de pagar.</p>
               </div>
               <div className="rounded-full bg-[#EFFBF4] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#1e8c4e]">
                 {view.routeCategory ? `Ruta ${view.routeCategory}` : "Ruta pendiente"}
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4 sm:p-5">
+            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-3.5 sm:p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ruta</p>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xl font-bold text-[#0B2C4A] sm:text-2xl">
+              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-lg font-bold text-[#0B2C4A] sm:text-[28px] sm:leading-tight">
                 <span>{view.origin}</span>
                 <span className="text-[#2ECC71]">→</span>
                 <span>{view.destination}</span>
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <SummaryRow
                 label="Tipo de envío"
                 value={getShipmentKindLabel(view.kind)}
@@ -393,24 +389,20 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               />
             </div>
 
-            <div className="mt-4 rounded-[24px] border border-slate-200 bg-white p-4 sm:p-5">
+            <div className="mt-3 rounded-[24px] border border-slate-200 bg-white p-3.5 sm:p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Descripción</p>
-              <p className="mt-2 text-sm leading-6 text-slate-700">{view.description}</p>
+              <p className="mt-1.5 text-sm leading-5 text-slate-700">{view.description}</p>
             </div>
           </div>
 
-          <aside className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:sticky lg:top-24">
+          <aside className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:sticky lg:top-20">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0B2C4A]/70">
                 Resumen de pago
               </p>
-              <h2 className="mt-2 text-2xl font-bold text-[#0B2C4A]">Todo listo para pagar</h2>
-              <p className="mt-2 text-sm text-slate-500">
-                Pago seguro procesado por Wompi. INTRA retiene el dinero hasta confirmar la entrega.
-              </p>
             </div>
 
-            <div className="mt-6 space-y-3 rounded-[24px] bg-slate-50 p-4">
+            <div className="mt-3 space-y-2.5 rounded-[24px] bg-slate-50 p-3.5">
               <div className="flex items-center justify-between gap-4 text-sm text-slate-600">
                 <span>Valor del transporte</span>
                 <span className="font-semibold text-[#0B2C4A]">{formatCurrency(travelerAmount)}</span>
@@ -425,13 +417,10 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               </div>
             </div>
 
-            <div className="mt-5 rounded-[24px] bg-[#0B2C4A] px-5 py-5 text-white">
+            <div className="mt-4 rounded-[24px] bg-[#0B2C4A] px-4 py-4 text-white">
               <p className="text-sm uppercase tracking-wide text-white/70">Total a pagar</p>
-              <p className="mt-2 text-4xl font-extrabold text-[#2ECC71] sm:text-5xl">
+              <p className="mt-1.5 text-4xl font-extrabold text-[#2ECC71] sm:text-[44px] sm:leading-none">
                 {formatCurrency(totalAmount)}
-              </p>
-              <p className="mt-3 text-sm leading-6 text-white/80">
-                El viajero recibe el valor del transporte cuando la entrega quede confirmada o se cumpla la auto liberación.
               </p>
             </div>
 
@@ -445,14 +434,11 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               type="button"
               onClick={handlePayment}
               disabled={loading}
-              className="mt-5 inline-flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-4 text-base font-bold text-[#08321d] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3.5 text-base font-bold text-[#08321d] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Preparando checkout..." : "Pagar con Wompi"}
             </button>
 
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-500">
-              Al continuar aceptas iniciar el cobro seguro del envío. No compartimos los datos sensibles del pago en la URL.
-            </div>
           </aside>
         </section>
       </div>
