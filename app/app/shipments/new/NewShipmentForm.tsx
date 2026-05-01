@@ -455,19 +455,19 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           <div className="mt-4 rounded-xl bg-gray-50 p-4">
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex items-center justify-between gap-4">
-                <span>Gana el viajero</span>
+                <span>Valor del transporte</span>
                 <span className="font-medium text-gray-800">
                   ${travelerRouteAmount.toLocaleString("es-CO")}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span>Comisión INTRA</span>
+                <span>Servicio de plataforma</span>
                 <span className="font-medium text-gray-800">
                   ${(paymentQuote.intra_fee ?? 0).toLocaleString("es-CO")}
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span>Fee Wompi (estimado)</span>
+                <span>Procesamiento de pago</span>
                 <span className="font-medium text-gray-800">
                   ${(paymentQuote.gateway_fee_estimated ?? 0).toLocaleString("es-CO")}
                 </span>

@@ -291,19 +291,19 @@ export default function CheckoutClient() {
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
                 <div className="space-y-2 text-sm text-gray-500">
                   <div className="flex items-center justify-between gap-4">
-                    <span>Gana el viajero</span>
+                    <span>Valor del transporte</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(travelerAmount) ? serviceAmount : travelerAmount)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
-                    <span>Comisión INTRA</span>
+                    <span>Servicio de plataforma</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(intraFee) ? 0 : intraFee)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between gap-4">
-                    <span>Fee Wompi (estimado)</span>
+                    <span>Procesamiento de pago</span>
                     <span className="font-medium text-gray-700">
                       {formatCurrency(Number.isNaN(gatewayFeeEstimated) ? 0 : gatewayFeeEstimated)}
                     </span>
