@@ -60,6 +60,7 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
     Number.isFinite(amount) &&
     amount > 0 &&
     (payment.status === "pending" || payment.status === "processing")
+  const retryHref = payment ? `/app/payments/checkout?retryPaymentId=${payment.id}` : "/app/payments/checkout"
 
   if (canStartCheckout) {
     const amountInCents = wompiAmountToCents(amount)
@@ -132,10 +133,10 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
-                href="/app/payments/checkout"
+                href={retryHref}
                 className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
-                Volver al checkout
+                Reintentar pago
               </Link>
             </div>
           </section>

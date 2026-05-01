@@ -30,6 +30,7 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
         .from("payments")
         .select("id, amount, status, external_reference")
         .eq("id", paymentId)
+        .eq("user_id", user.id)
         .maybeSingle()
     : { data: null }
 
@@ -37,6 +38,7 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
   const amount = Number(payment?.amount ?? 0)
   const paymentStatus = payment?.status ?? "failed"
   const reference = payment?.external_reference ?? "Sin referencia"
+  const retryHref = payment ? `/app/payments/checkout?retryPaymentId=${payment.id}` : "/app/payments/checkout"
 
   return (
     <>
@@ -82,10 +84,10 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
-                href="/app/payments/checkout"
+                href={retryHref}
                 className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95"
               >
-                Volver al checkout
+                Reintentar pago
               </Link>
               <Link
                 href="/app/market"
