@@ -179,6 +179,18 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     ? buildFixedRouteQuote(routeCategory)
     : null
 
+  const updateWeightKg = (rawValue: string) => {
+    const nextValue = sanitizeDecimalInput(rawValue)
+    setWeightKg(nextValue)
+    applyInlineValidation({ weightKg: nextValue })
+  }
+
+  const updateDeclaredValueCop = (rawValue: string) => {
+    const nextValue = sanitizeIntegerInput(rawValue)
+    setDeclaredValueCop(nextValue)
+    applyInlineValidation({ declaredValueCop: nextValue })
+  }
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -274,10 +286,12 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="shipment-origin-city" className="mb-2 block text-sm font-medium text-gray-700">
               Origen
             </label>
             <select
+              id="shipment-origin-city"
+              name="originCityId"
               className={`${fieldBaseClassName} ${errors.originCityId ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={originCityId}
               onChange={(e) => {
@@ -300,10 +314,12 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="shipment-destination-city" className="mb-2 block text-sm font-medium text-gray-700">
               Destino
             </label>
             <select
+              id="shipment-destination-city"
+              name="destinationCityId"
               className={`${fieldBaseClassName} ${errors.destinationCityId ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={destinationCityId}
               onChange={(e) => {
@@ -334,10 +350,12 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
         <div className="mt-4 space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="shipment-kind" className="mb-2 block text-sm font-medium text-gray-700">
               Tipo de envío
             </label>
             <select
+              id="shipment-kind"
+              name="kind"
               className={`${fieldBaseClassName} border-gray-300`}
               value={kind}
               onChange={(e) => setKind(e.target.value as ShipmentKind)}
@@ -349,10 +367,12 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="shipment-description" className="mb-2 block text-sm font-medium text-gray-700">
               Descripción
             </label>
             <textarea
+              id="shipment-description"
+              name="description"
               className={`${fieldBaseClassName} min-h-28 ${errors.description ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={description}
               onChange={(e) => {
@@ -375,19 +395,18 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       <div className="border-t border-gray-100 pt-6">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="shipment-weight-kg" className="mb-2 block text-sm font-medium text-gray-700">
               Peso (kg)
             </label>
             <input
+              id="shipment-weight-kg"
+              name="weightKg"
               className={`${fieldBaseClassName} ${errors.weightKg ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               type="text"
               inputMode="decimal"
               value={weightKg}
-              onChange={(e) => {
-                const nextValue = sanitizeDecimalInput(e.target.value)
-                setWeightKg(nextValue)
-                applyInlineValidation({ weightKg: nextValue })
-              }}
+              onChange={(e) => updateWeightKg(e.target.value)}
+              onInput={(e) => updateWeightKg(e.currentTarget.value)}
               placeholder="Ej: 1.5"
               required
             />
@@ -397,19 +416,18 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="shipment-declared-value" className="mb-2 block text-sm font-medium text-gray-700">
               Valor declarado (COP)
             </label>
             <input
+              id="shipment-declared-value"
+              name="declaredValueCop"
               className={`${fieldBaseClassName} ${errors.declaredValueCop ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               type="text"
               inputMode="numeric"
               value={declaredValueCop}
-              onChange={(e) => {
-                const nextValue = sanitizeIntegerInput(e.target.value)
-                setDeclaredValueCop(nextValue)
-                applyInlineValidation({ declaredValueCop: nextValue })
-              }}
+              onChange={(e) => updateDeclaredValueCop(e.target.value)}
+              onInput={(e) => updateDeclaredValueCop(e.currentTarget.value)}
               placeholder="Ej: 200000"
               required
             />

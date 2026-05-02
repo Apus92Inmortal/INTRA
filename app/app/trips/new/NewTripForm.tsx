@@ -83,6 +83,12 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     return nextErrors
   }
 
+  const updateCapacityKg = (rawValue: string) => {
+    const nextValue = sanitizeDecimalInput(rawValue)
+    setCapacityKg(nextValue)
+    validate({ capacityKg: nextValue })
+  }
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -139,10 +145,12 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="trip-origin-city" className="mb-2 block text-sm font-medium text-gray-700">
               Origen
             </label>
             <select
+              id="trip-origin-city"
+              name="originCityId"
               className={`${fieldBaseClassName} ${errors.originCityId ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={originCityId}
               onChange={(e) => {
@@ -164,10 +172,12 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="trip-destination-city" className="mb-2 block text-sm font-medium text-gray-700">
               Destino
             </label>
             <select
+              id="trip-destination-city"
+              name="destinationCityId"
               className={`${fieldBaseClassName} ${errors.destinationCityId ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               value={destinationCityId}
               onChange={(e) => {
@@ -200,10 +210,12 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="trip-departure-date" className="mb-2 block text-sm font-medium text-gray-700">
               Fecha de salida
             </label>
             <input
+              id="trip-departure-date"
+              name="departureDate"
               className={`${fieldBaseClassName} ${errors.departureDate ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               type="date"
               value={departureDate}
@@ -219,19 +231,18 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="trip-capacity-kg" className="mb-2 block text-sm font-medium text-gray-700">
               Capacidad (kg)
             </label>
             <input
+              id="trip-capacity-kg"
+              name="capacityKg"
               className={`${fieldBaseClassName} ${errors.capacityKg ? "border-red-300 bg-red-50" : "border-gray-300"}`}
               type="text"
               inputMode="decimal"
               value={capacityKg}
-              onChange={(e) => {
-                const nextValue = sanitizeDecimalInput(e.target.value)
-                setCapacityKg(nextValue)
-                validate({ capacityKg: nextValue })
-              }}
+              onChange={(e) => updateCapacityKg(e.target.value)}
+              onInput={(e) => updateCapacityKg(e.currentTarget.value)}
               placeholder="Ej: 5"
               required
             />
