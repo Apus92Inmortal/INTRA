@@ -40,6 +40,16 @@ export type DashboardShipmentCard = {
   hasPendingAction: boolean;
 };
 
+export type DashboardPendingPaymentShipmentCard = {
+  id: string;
+  code: string;
+  title: string;
+  routeLabel: string;
+  amountLabel: string;
+  paymentLabel: string;
+  checkoutHref: string;
+};
+
 export type DashboardTripCard = {
   id: string;
   routeShortLabel: string;
@@ -82,6 +92,7 @@ export type DashboardData = {
   user: DashboardUser;
   summary: DashboardSummary;
   activeShipments: DashboardShipmentCard[];
+  pendingPaymentShipments: DashboardPendingPaymentShipmentCard[];
   publishedTrips: DashboardTripCard[];
   recentActivity: DashboardActivityItem[];
   monthlyRevenue: DashboardRevenueSummary;

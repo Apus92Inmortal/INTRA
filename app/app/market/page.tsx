@@ -6,6 +6,11 @@ import MatchButton from "./MatchButton";
 import MarketRealtime from "./MarketRealtime";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { getShipmentKindLabel, getStatusLabel } from "@/lib/labels";
+import {
+  getPendingPaymentLabel,
+  isShipmentPaymentReady,
+  isShipmentPaymentRetryable,
+} from "@/lib/payments/shipment-payment-state";
 import { fetchRatingSummaryMap } from "@/lib/reviews";
 
 type CityRow = {
@@ -28,7 +33,10 @@ type ShipmentRow = {
   kind: string | null;
   description: string | null;
   weight_kg: number | null;
+  declared_value_cop: number | null;
   status: string;
+  origin_city_id: string | null;
+  destination_city_id: string | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
 };
@@ -38,9 +46,20 @@ type CompatibleShipmentRow = {
   kind: string | null;
   description: string | null;
   weight_kg: number | null;
+  declared_value_cop: number | null;
   owner_id: string;
+  origin_city_id: string | null;
+  destination_city_id: string | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
+};
+
+type PaymentRow = {
+  id: string;
+  shipment_id: string | null;
+  amount: number | null;
+  status: string | null;
+  created_at: string;
 };
 
 type CompatibleTripRow = {
@@ -122,7 +141,10 @@ export default async function MarketPage() {
       kind,
       description,
       weight_kg,
+      declared_value_cop,
       status,
+      origin_city_id,
+      destination_city_id,
       origin_city:cities!shipments_origin_city_id_fkey(name),
       destination_city:cities!shipments_destination_city_id_fkey(name)
     `)
@@ -152,6 +174,31 @@ export default async function MarketPage() {
 
   const userTrips = (trips ?? []) as TripRow[];
   const userShipments = (shipments ?? []) as ShipmentRow[];
+  const userShipmentIds = userShipments.map((shipment) => shipment.id);
+
+  const { data: userShipmentPayments } = userShipmentIds.length
+    ? await supabase
+        .from("payments")
+        .select("id, shipment_id, amount, status, created_at")
+        .in("shipment_id", userShipmentIds)
+        .order("created_at", { ascending: false })
+    : { data: [] as PaymentRow[] };
+
+  const latestPaymentByShipment = new Map<string, PaymentRow>();
+  for (const payment of ((userShipmentPayments ?? []) as PaymentRow[])) {
+    if (!payment.shipment_id || latestPaymentByShipment.has(payment.shipment_id)) {
+      continue;
+    }
+
+    latestPaymentByShipment.set(payment.shipment_id, payment);
+  }
+
+  const pendingPaymentShipments = userShipments.filter(
+    (shipment) => !isShipmentPaymentReady(latestPaymentByShipment.get(shipment.id)?.status)
+  );
+  const readyUserShipments = userShipments.filter((shipment) =>
+    isShipmentPaymentReady(latestPaymentByShipment.get(shipment.id)?.status)
+  );
 
   let compatibleShipments: CompatibleShipmentRow[] = [];
   let compatibleTrips: CompatibleTripRow[] = [];
@@ -174,7 +221,10 @@ export default async function MarketPage() {
           kind,
           description,
           weight_kg,
+          declared_value_cop,
           owner_id,
+          origin_city_id,
+          destination_city_id,
           origin_city:cities!shipments_origin_city_id_fkey(name),
           destination_city:cities!shipments_destination_city_id_fkey(name)
         `)
@@ -185,19 +235,40 @@ export default async function MarketPage() {
         throw new Error(`Error cargando envíos compatibles: ${error.message}`);
       }
 
+      const compatibleShipmentCandidates = (data ?? []) as CompatibleShipmentRow[];
+      const compatibleShipmentIds = compatibleShipmentCandidates.map((shipment) => shipment.id);
+      const { data: compatibleShipmentPayments } = compatibleShipmentIds.length
+        ? await supabase
+            .from("payments")
+            .select("id, shipment_id, amount, status, created_at")
+            .in("shipment_id", compatibleShipmentIds)
+            .order("created_at", { ascending: false })
+        : { data: [] as PaymentRow[] };
+
+      const latestCompatiblePaymentByShipment = new Map<string, PaymentRow>();
+      for (const payment of ((compatibleShipmentPayments ?? []) as PaymentRow[])) {
+        if (!payment.shipment_id || latestCompatiblePaymentByShipment.has(payment.shipment_id)) {
+          continue;
+        }
+
+        latestCompatiblePaymentByShipment.set(payment.shipment_id, payment);
+      }
+
       compatibleShipments =
-        ((data ?? []) as CompatibleShipmentRow[]).filter((shipment) =>
-          validTripRoutes.some(
-            (route) =>
-              getCityName(shipment.origin_city) === route.origin &&
-              getCityName(shipment.destination_city) === route.destination
-          )
+        compatibleShipmentCandidates.filter(
+          (shipment) =>
+            isShipmentPaymentReady(latestCompatiblePaymentByShipment.get(shipment.id)?.status) &&
+            validTripRoutes.some(
+              (route) =>
+                getCityName(shipment.origin_city) === route.origin &&
+                getCityName(shipment.destination_city) === route.destination
+            )
         );
     }
   }
 
-  if (userShipments.length > 0) {
-    const shipmentRoutes = userShipments.map((shipment) => ({
+  if (readyUserShipments.length > 0) {
+    const shipmentRoutes = readyUserShipments.map((shipment) => ({
       origin: getCityName(shipment.origin_city),
       destination: getCityName(shipment.destination_city),
     }));
@@ -298,6 +369,7 @@ export default async function MarketPage() {
           </div>
 
           <div className="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-gray-200 bg-white p-3 sm:hidden">
+            <Link href="#pendientes-de-pago" className="flex min-h-11 items-center justify-center rounded-xl bg-[#FFF4E5] px-3 py-2 text-center text-sm font-medium text-amber-900">Pendientes</Link>
             <Link href="#mis-envios" className="flex min-h-11 items-center justify-center rounded-xl bg-[#EEF2F7] px-3 py-2 text-center text-sm font-medium text-[#0B2C4A]">Mis envíos</Link>
             <Link href="#mis-viajes" className="flex min-h-11 items-center justify-center rounded-xl bg-[#EEF2F7] px-3 py-2 text-center text-sm font-medium text-[#0B2C4A]">Mis viajes</Link>
             <Link href="#envios-compatibles" className="flex min-h-11 items-center justify-center rounded-xl bg-[#EEF2F7] px-3 py-2 text-center text-sm font-medium text-[#0B2C4A]">Envíos compatibles</Link>
@@ -306,15 +378,76 @@ export default async function MarketPage() {
 
           <div className="grid gap-6">
             <SectionCard
+              id="pendientes-de-pago"
+              title="Pendientes de pago"
+              subtitle="Completa el checkout para que tus envíos se publiquen y aparezcan en el market."
+            >
+              {pendingPaymentShipments.length === 0 ? (
+                <EmptyState text="No tienes envíos pendientes de pago." />
+              ) : (
+                <div className="space-y-4">
+                  {pendingPaymentShipments.map((shipment) => {
+                    const latestPayment = latestPaymentByShipment.get(shipment.id) ?? null;
+                    const checkoutHref = latestPayment?.id && isShipmentPaymentRetryable(latestPayment.status)
+                      ? `/app/payments/checkout?retryPaymentId=${latestPayment.id}`
+                      : `/app/payments/checkout?shipmentId=${shipment.id}`;
+
+                    return (
+                      <div
+                        key={shipment.id}
+                        className="rounded-2xl border border-amber-200 bg-[#FFFDF7] p-4 sm:p-5"
+                      >
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                                {getPendingPaymentLabel(latestPayment?.status)}
+                              </span>
+                              <span className="text-xs text-amber-400">{getStatusLabel(shipment.status)}</span>
+                            </div>
+                            <h3 className="text-base font-semibold text-[#0B2C4A]">
+                              {getShipmentKindLabel(shipment.kind)}
+                            </h3>
+                            <p className="mt-1 text-sm text-gray-700">
+                              Ruta: {getCityName(shipment.origin_city) ?? "Origen"} →{" "}
+                              {getCityName(shipment.destination_city) ?? "Destino"}
+                            </p>
+                            {shipment.description ? (
+                              <p className="mt-2 text-sm text-gray-500">
+                                {shipment.description}
+                              </p>
+                            ) : null}
+                          </div>
+
+                          <div className="flex flex-col items-start gap-3 text-sm text-gray-500 md:items-end">
+                            <div>
+                              {shipment.weight_kg ? `${shipment.weight_kg} kg` : "Peso pendiente"}
+                            </div>
+                            <Link
+                              href={checkoutHref}
+                              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
+                            >
+                              Ir al checkout
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </SectionCard>
+
+            <SectionCard
               id="mis-envios"
               title="Mis envíos"
               subtitle="Tus publicaciones activas y su estado actual."
             >
-              {userShipments.length === 0 ? (
+              {readyUserShipments.length === 0 ? (
                 <EmptyState text="Aún no tienes envíos publicados." />
               ) : (
                 <div className="space-y-4">
-                  {userShipments.map((shipment) => (
+                  {readyUserShipments.map((shipment) => (
                     <div
                       key={shipment.id}
                       className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5"
