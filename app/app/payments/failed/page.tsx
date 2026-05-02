@@ -90,10 +90,10 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
                 Reintentar pago
               </Link>
               <Link
-                href="/app/market"
+                href="/app#pendientes-de-pago"
                 className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
-                Ir al market
+                Volver al inicio
               </Link>
             </div>
           </section>

@@ -50,6 +50,29 @@ export type DashboardPendingPaymentShipmentCard = {
   checkoutHref: string;
 };
 
+export type DashboardCompatibleShipmentCard = {
+  id: string;
+  title: string;
+  routeLabel: string;
+  description: string | null;
+  weightLabel: string;
+  customerName: string;
+  customerAvgRating: number | null;
+  customerTotalReviews: number;
+  matchingTripId: string | null;
+};
+
+export type DashboardCompatibleTripCard = {
+  id: string;
+  title: string;
+  routeLabel: string;
+  departureDateLabel: string;
+  capacityLabel: string;
+  travelerName: string;
+  travelerAvgRating: number | null;
+  travelerTotalReviews: number;
+};
+
 export type DashboardTripCard = {
   id: string;
   routeShortLabel: string;
@@ -93,6 +116,8 @@ export type DashboardData = {
   summary: DashboardSummary;
   activeShipments: DashboardShipmentCard[];
   pendingPaymentShipments: DashboardPendingPaymentShipmentCard[];
+  compatibleShipments: DashboardCompatibleShipmentCard[];
+  compatibleTrips: DashboardCompatibleTripCard[];
   publishedTrips: DashboardTripCard[];
   recentActivity: DashboardActivityItem[];
   monthlyRevenue: DashboardRevenueSummary;

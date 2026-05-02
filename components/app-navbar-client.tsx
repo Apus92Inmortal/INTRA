@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { CreditCard, Home, Menu, MessageSquareText, Package, User, X } from "lucide-react";
+import { CreditCard, Home, Menu, MessageSquareText, User, X } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications-bell";
 
 export type AppNavbarContext = {
@@ -63,7 +63,7 @@ function getQuickActions(
 
   const actions: QuickAction[] = [];
   const onMatches = pathname.startsWith("/app/matches");
-  const onMarket = pathname.startsWith("/app/market");
+  const onHome = pathname === "/app";
   const onShipmentCreate = pathname.startsWith("/app/shipments/new");
   const onTripCreate = pathname.startsWith("/app/trips/new");
 
@@ -94,10 +94,10 @@ function getQuickActions(
     });
   }
 
-  if (actions.length === 0 && context.activeShipmentsCount > 0 && !onMarket) {
+  if (actions.length === 0 && context.activeShipmentsCount > 0 && !onHome) {
     actions.push({
-      href: "/app/market",
-      label: "Ver market",
+      href: "/app",
+      label: "Volver a inicio",
       variant: "secondary",
     });
   }
@@ -162,7 +162,6 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
 
     return [
       { href: "/app", label: "Inicio", mobileLabel: "Inicio", icon: Home },
-      { href: "/app/market", label: "Market", mobileLabel: "Market", icon: Package },
       {
         href: "/app/matches",
         label: "Matches",
