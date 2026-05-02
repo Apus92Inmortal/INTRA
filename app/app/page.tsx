@@ -415,7 +415,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h2 className="text-lg font-bold text-[#0B2C4A]">Mis envíos activos</h2>
-                    <p className="mt-1 text-sm text-gray-500">Aquí ves tus envíos listos, pendientes y oportunidades de match.</p>
                   </div>
                   <SectionToggleLink href="#envios-compatibles" label="Ver oportunidades" />
                 </div>
@@ -564,7 +563,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="text-base font-bold text-[#0B2C4A]">Envíos compatibles con mis viajes</h3>
-                      <p className="mt-1 text-sm text-gray-500">Puedes solicitar varios mientras tu viaje siga disponible. Salen de aquí cuando el match se acepta o se rechaza.</p>
                     </div>
                     {dashboard.compatibleShipments.length > 3 ? (
                       <SectionToggleLink
@@ -597,7 +595,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-lg font-bold text-[#0B2C4A]">Mis viajes</h2>
-                    <p className="mt-1 text-sm text-gray-500">Tus rutas publicadas y los envíos que ya pueden hacer match.</p>
                   </div>
                   <SectionToggleLink href="#envios-compatibles" label="Ver oportunidades" />
                 </div>
@@ -649,10 +646,14 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 <h2 className="mb-3 text-lg font-bold text-[#0B2C4A]">Actividad reciente</h2>
                 {dashboard.recentActivity.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-5 text-sm text-gray-500">
-                    <p className="font-semibold text-[#0B2C4A]">Sin novedades 🎉</p>
-                    <p className="mt-1">
-                      Cuando publiques envíos, viajes o recibas mensajes, aparecerán aquí.
-                    </p>
+                    <div className="flex items-center gap-2 font-semibold text-[#0B2C4A]">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2F7] text-[#0B2C4A]">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                      </span>
+                      <p>Sin novedades</p>
+                    </div>
                     <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                       <Link
                         href="/app/shipments/new"
