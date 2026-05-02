@@ -412,11 +412,8 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-5">
             <div className="space-y-4 lg:col-span-3">
               <section id="mis-envios" className="space-y-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg font-bold text-[#0B2C4A]">Mis envíos activos</h2>
-                  </div>
-                  <SectionToggleLink href="#envios-compatibles" label="Ver oportunidades" />
+                <div>
+                  <h2 className="text-lg font-bold text-[#0B2C4A]">Mis envíos activos</h2>
                 </div>
 
                 {dashboard.pendingPaymentShipments.length > 0 ? (
@@ -592,11 +589,8 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
             <div className="space-y-4 lg:col-span-2">
               <section id="mis-viajes" className="space-y-4">
-                <div className="mb-3 flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg font-bold text-[#0B2C4A]">Mis viajes</h2>
-                  </div>
-                  <SectionToggleLink href="#envios-compatibles" label="Ver oportunidades" />
+                <div className="mb-3">
+                  <h2 className="text-lg font-bold text-[#0B2C4A]">Mis viajes</h2>
                 </div>
 
                 {dashboard.publishedTrips.length === 0 ? (
