@@ -101,6 +101,7 @@ type PaymentRow = {
   id: string;
   shipment_id: string | null;
   amount: number | null;
+  traveler_amount: number | null;
   status: string | null;
   created_at: string;
   updated_at: string;
@@ -413,7 +414,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     shipmentIds.length
       ? supabase
           .from("payments")
-          .select("id, shipment_id, amount, status, created_at, updated_at")
+          .select("id, shipment_id, amount, traveler_amount, status, created_at, updated_at")
           .in("shipment_id", shipmentIds)
           .order("created_at", { ascending: false })
       : Promise.resolve({ data: [], error: null }),
@@ -640,7 +641,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   const travelerPaymentsRes = travelerShipmentIds.length
     ? await supabase
         .from("payments")
-        .select("id, shipment_id, amount, status, created_at, updated_at")
+        .select("id, shipment_id, amount, traveler_amount, status, created_at, updated_at")
         .in("shipment_id", travelerShipmentIds)
         .eq("status", "released")
         .order("updated_at", { ascending: false })
@@ -678,8 +679,10 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     }
   }
 
-  const currentRevenueTotal = monthPayments.reduce((sum, payment) => sum + (payment.amount ?? 0), 0);
-  const previousRevenueTotal = previousMonthPayments.reduce((sum, payment) => sum + (payment.amount ?? 0), 0);
+  const getTravelerRevenue = (payment: PaymentRow) => payment.traveler_amount ?? payment.amount ?? 0;
+
+  const currentRevenueTotal = monthPayments.reduce((sum, payment) => sum + getTravelerRevenue(payment), 0);
+  const previousRevenueTotal = previousMonthPayments.reduce((sum, payment) => sum + getTravelerRevenue(payment), 0);
   const revenueDeliveriesCount = monthPayments.length;
 
   const routeRevenue = new Map<string, number>();
@@ -688,7 +691,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     const shipment = shipmentById.get(payment.shipment_id);
     if (!shipment) continue;
     const routeLabel = getRouteShortLabel(shipment.origin_city, shipment.destination_city);
-    routeRevenue.set(routeLabel, (routeRevenue.get(routeLabel) ?? 0) + (payment.amount ?? 0));
+    routeRevenue.set(routeLabel, (routeRevenue.get(routeLabel) ?? 0) + getTravelerRevenue(payment));
   }
 
   const bestRouteLabel =
