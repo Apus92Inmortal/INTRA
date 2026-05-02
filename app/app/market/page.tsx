@@ -237,33 +237,27 @@ export default async function MarketPage() {
 
       const compatibleShipmentCandidates = (data ?? []) as CompatibleShipmentRow[];
       const compatibleShipmentIds = compatibleShipmentCandidates.map((shipment) => shipment.id);
-      const { data: compatibleShipmentPayments } = compatibleShipmentIds.length
-        ? await supabase
-            .from("payments")
-            .select("id, shipment_id, amount, status, created_at")
-            .in("shipment_id", compatibleShipmentIds)
-            .order("created_at", { ascending: false })
-        : { data: [] as PaymentRow[] };
+      const { data: readyShipmentRows } = compatibleShipmentIds.length
+        ? await supabase.rpc("get_payment_ready_shipments", {
+            p_shipment_ids: compatibleShipmentIds,
+          })
+        : { data: [] as { shipment_id: string }[] };
 
-      const latestCompatiblePaymentByShipment = new Map<string, PaymentRow>();
-      for (const payment of ((compatibleShipmentPayments ?? []) as PaymentRow[])) {
-        if (!payment.shipment_id || latestCompatiblePaymentByShipment.has(payment.shipment_id)) {
-          continue;
-        }
+      const readyShipmentIds = new Set(
+        ((readyShipmentRows ?? []) as { shipment_id: string }[])
+          .map((row) => row.shipment_id)
+          .filter(Boolean)
+      );
 
-        latestCompatiblePaymentByShipment.set(payment.shipment_id, payment);
-      }
-
-      compatibleShipments =
-        compatibleShipmentCandidates.filter(
-          (shipment) =>
-            isShipmentPaymentReady(latestCompatiblePaymentByShipment.get(shipment.id)?.status) &&
-            validTripRoutes.some(
-              (route) =>
-                getCityName(shipment.origin_city) === route.origin &&
-                getCityName(shipment.destination_city) === route.destination
-            )
-        );
+      compatibleShipments = compatibleShipmentCandidates.filter(
+        (shipment) =>
+          readyShipmentIds.has(shipment.id) &&
+          validTripRoutes.some(
+            (route) =>
+              getCityName(shipment.origin_city) === route.origin &&
+              getCityName(shipment.destination_city) === route.destination
+          )
+      );
     }
   }
 
