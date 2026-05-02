@@ -332,6 +332,51 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-5">
             <div className="space-y-4 lg:col-span-3">
+              {dashboard.pendingPaymentShipments.length > 0 ? (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-bold text-amber-900">Pendientes de pago</h2>
+                      <p className="mt-1 text-sm text-amber-800/80">
+                        Completa el checkout para publicar estos envíos y habilitar matches.
+                      </p>
+                    </div>
+                    <Link href="/app/market" className="text-sm font-medium text-amber-900 hover:text-amber-950">
+                      Ver todos
+                    </Link>
+                  </div>
+
+                  <div className="space-y-3">
+                    {dashboard.pendingPaymentShipments.map((shipment) => (
+                      <div key={shipment.id} className="rounded-2xl border border-amber-200 bg-white p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0">
+                            <div className="mb-1 flex items-center gap-2">
+                              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                                {shipment.paymentLabel}
+                              </span>
+                              <span className="text-xs text-amber-300">{shipment.code}</span>
+                            </div>
+                            <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
+                            <p className="mt-0.5 text-sm text-slate-600">{shipment.routeLabel}</p>
+                          </div>
+
+                          <div className="flex flex-col items-start gap-3 sm:items-end">
+                            <span className="text-lg font-bold text-[#0B2C4A]">{shipment.amountLabel}</span>
+                            <Link
+                              href={shipment.checkoutHref}
+                              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
+                            >
+                              Ir al checkout
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-[#0B2C4A]">Mis envíos activos</h2>
                 <Link href="/app/market" className="text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]">

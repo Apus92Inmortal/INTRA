@@ -8,6 +8,7 @@ import {
   type PaymentQuote,
   type RouteCategory,
 } from "@/lib/payments/quote"
+import { parseNormalizedNumber, sanitizeDecimalInput, sanitizeIntegerInput } from "@/lib/forms/numeric"
 import { createClient } from "@/lib/supabase/client"
 
 type City = {
@@ -84,18 +85,18 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.description = "Describe mejor el envío para que el viajero lo entienda."
     }
 
-    if (nextWeightKg.trim()) {
-      const weight = Number(nextWeightKg)
-      if (Number.isNaN(weight) || weight <= 0) {
-        nextErrors.weightKg = "Ingresa un peso válido mayor a 0."
-      }
+    const weight = parseNormalizedNumber(nextWeightKg)
+    if (weight === null) {
+      nextErrors.weightKg = "El peso es obligatorio."
+    } else if (weight < 0.1) {
+      nextErrors.weightKg = "Ingresa un peso válido de al menos 0.1 kg."
     }
 
-    if (nextDeclaredValueCop.trim()) {
-      const declared = Number(nextDeclaredValueCop)
-      if (Number.isNaN(declared) || declared < 0) {
-        nextErrors.declaredValueCop = "Ingresa un valor declarado válido."
-      }
+    const declared = parseNormalizedNumber(nextDeclaredValueCop)
+    if (declared === null) {
+      nextErrors.declaredValueCop = "El valor declarado es obligatorio."
+    } else if (declared < 0) {
+      nextErrors.declaredValueCop = "Ingresa un valor declarado válido."
     }
 
     return nextErrors
@@ -199,14 +200,18 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.description = "Agrega un poco más de detalle para el viajero."
     }
 
-    const weight = weightKg.trim() ? Number(weightKg) : null
-    const declared = declaredValueCop.trim() ? Number(declaredValueCop) : null
+    const weight = parseNormalizedNumber(weightKg)
+    const declared = parseNormalizedNumber(declaredValueCop)
 
-    if (weight !== null && (Number.isNaN(weight) || weight <= 0)) {
-      nextErrors.weightKg = "Peso inválido."
+    if (weight === null) {
+      nextErrors.weightKg = "El peso es obligatorio."
+    } else if (weight < 0.1) {
+      nextErrors.weightKg = "Ingresa un peso válido de al menos 0.1 kg."
     }
 
-    if (declared !== null && (Number.isNaN(declared) || declared < 0)) {
+    if (declared === null) {
+      nextErrors.declaredValueCop = "El valor declarado es obligatorio."
+    } else if (declared < 0) {
       nextErrors.declaredValueCop = "Valor declarado inválido."
     }
 
@@ -233,8 +238,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       destinationCityId,
       kind,
       description: description.trim(),
-      weightKg,
-      declaredValueCop,
+      weightKg: String(weight ?? ""),
+      declaredValueCop: String(declared ?? ""),
       serviceAmount: String(travelerRouteAmount),
       totalAmount: String(paymentQuote?.amount ?? customerRouteAmount ?? 0),
       travelerAmount: String(paymentQuote?.traveler_amount ?? 0),
@@ -247,8 +252,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       disputeSlaHours: String(paymentQuote?.dispute_sla_hours ?? 72),
       origin: originCity?.name ?? originCityId,
       destination: destinationCity?.name ?? destinationCityId,
-      weight: weightKg,
-      declared: declaredValueCop,
+      weight: String(weight ?? ""),
+      declared: String(declared ?? ""),
     })
 
     router.push(`/app/payments/checkout?${params.toString()}`)
@@ -375,16 +380,16 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
             </label>
             <input
               className={`${fieldBaseClassName} ${errors.weightKg ? "border-red-300 bg-red-50" : "border-gray-300"}`}
-              type="number"
+              type="text"
               inputMode="decimal"
-              step="0.1"
-              min="0"
               value={weightKg}
               onChange={(e) => {
-                setWeightKg(e.target.value)
-                applyInlineValidation({ weightKg: e.target.value })
+                const nextValue = sanitizeDecimalInput(e.target.value)
+                setWeightKg(nextValue)
+                applyInlineValidation({ weightKg: nextValue })
               }}
               placeholder="Ej: 1.5"
+              required
             />
             {errors.weightKg ? (
               <p className="mt-2 text-sm text-red-600">{errors.weightKg}</p>
@@ -397,15 +402,16 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
             </label>
             <input
               className={`${fieldBaseClassName} ${errors.declaredValueCop ? "border-red-300 bg-red-50" : "border-gray-300"}`}
-              type="number"
+              type="text"
               inputMode="numeric"
-              min="0"
               value={declaredValueCop}
               onChange={(e) => {
-                setDeclaredValueCop(e.target.value)
-                applyInlineValidation({ declaredValueCop: e.target.value })
+                const nextValue = sanitizeIntegerInput(e.target.value)
+                setDeclaredValueCop(nextValue)
+                applyInlineValidation({ declaredValueCop: nextValue })
               }}
               placeholder="Ej: 200000"
+              required
             />
             {errors.declaredValueCop ? (
               <p className="mt-2 text-sm text-red-600">{errors.declaredValueCop}</p>

@@ -1,10 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 import { ROUTE_PRICING_BY_CATEGORY, isRouteCategory } from "@/lib/payments/quote";
 import { getShipmentKindLabel, getStatusLabel } from "@/lib/labels";
+import {
+  getPendingPaymentLabel,
+  isShipmentPaymentReady,
+  isShipmentPaymentRetryable,
+} from "@/lib/payments/shipment-payment-state";
 import type {
   DashboardActivityIcon,
   DashboardActivityItem,
   DashboardData,
+  DashboardPendingPaymentShipmentCard,
   DashboardRevenueSummary,
   DashboardShipmentCard,
   DashboardTripCard,
@@ -478,8 +484,38 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   }
 
   const activeShipmentStatuses = new Set(["open", "matched", "accepted", "in_transit"]);
-  const activeShipmentsRaw = shipments.filter((shipment) =>
+  const actionableShipmentsRaw = shipments.filter((shipment) =>
     activeShipmentStatuses.has(shipment.status ?? "")
+  );
+
+  const pendingPaymentShipments = actionableShipmentsRaw
+    .filter((shipment) => !isShipmentPaymentReady(latestPaymentByShipment.get(shipment.id)?.status))
+    .map((shipment): DashboardPendingPaymentShipmentCard => {
+      const latestPayment = latestPaymentByShipment.get(shipment.id) ?? null;
+      const routePriceKey = shipment.origin_city_id && shipment.destination_city_id
+        ? `${shipment.origin_city_id}:${shipment.destination_city_id}`
+        : null;
+      const routePrice = routePriceKey ? routePriceByKey.get(routePriceKey) ?? null : null;
+      const checkoutHref = latestPayment?.id && isShipmentPaymentRetryable(latestPayment.status)
+        ? `/app/payments/checkout?retryPaymentId=${latestPayment.id}`
+        : `/app/payments/checkout?shipmentId=${shipment.id}`;
+
+      return {
+        id: shipment.id,
+        code: getShipmentCode(shipment.id),
+        title:
+          shipment.description?.trim() ||
+          `${getShipmentKindLabel(shipment.kind)}${shipment.weight_kg ? ` · ${shipment.weight_kg} kg` : ""}`,
+        routeLabel: `${getRouteLabel(shipment.origin_city, shipment.destination_city)}${shipment.weight_kg ? ` · ${shipment.weight_kg} kg` : ""}`,
+        amountLabel: formatCurrency(latestPayment?.amount ?? routePrice ?? shipment.declared_value_cop ?? 0),
+        paymentLabel: getPendingPaymentLabel(latestPayment?.status),
+        checkoutHref,
+      };
+    })
+    .slice(0, 3);
+
+  const activeShipmentsRaw = actionableShipmentsRaw.filter((shipment) =>
+    isShipmentPaymentReady(latestPaymentByShipment.get(shipment.id)?.status)
   );
 
   const activeShipments = activeShipmentsRaw
@@ -697,6 +733,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
       completedDeliveriesCount: completedTravelerDeliveriesCount,
     },
     activeShipments,
+    pendingPaymentShipments,
     publishedTrips,
     recentActivity,
     monthlyRevenue,

@@ -7,6 +7,7 @@ import CheckoutClient, { type RetryCheckoutData } from "./CheckoutClient"
 type CheckoutPageProps = {
   searchParams?: Promise<{
     retryPaymentId?: string
+    shipmentId?: string
   }>
 }
 
@@ -115,8 +116,73 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
     retryPaymentId: payment.id,
     paymentStatus: retryStatus,
     shipmentId: shipment.id,
-    origin: shipment.origin_city?.name?.trim() || "No definido",
-    destination: shipment.destination_city?.name?.trim() || "No definido",
+    origin: shipment.origin_city?.name?.trim() || "No especificado",
+    destination: shipment.destination_city?.name?.trim() || "No especificado",
+    originCityId: shipment.origin_city_id,
+    destinationCityId: shipment.destination_city_id,
+    kind: shipment.kind,
+    description: shipment.description,
+    weightKg: toStringValue(shipment.weight_kg),
+    declaredValueCop: toStringValue(shipment.declared_value_cop),
+    routeCategory,
+  }
+}
+
+async function loadShipmentCheckoutData(shipmentId: string): Promise<RetryCheckoutData | null> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return null
+  }
+
+  const shipmentRes = await supabase
+    .from("shipments")
+    .select(
+      `
+        id,
+        kind,
+        description,
+        weight_kg,
+        declared_value_cop,
+        origin_city_id,
+        destination_city_id,
+        origin_city:cities!shipments_origin_city_id_fkey(name),
+        destination_city:cities!shipments_destination_city_id_fkey(name)
+      `
+    )
+    .eq("id", shipmentId)
+    .eq("owner_id", user.id)
+    .maybeSingle()
+
+  const shipment = (shipmentRes.data ?? null) as RetryShipmentRow | null
+
+  if (!shipment) {
+    return null
+  }
+
+  const routePriceRes = await supabase
+    .from("route_prices")
+    .select("route_category")
+    .eq("origin_city_id", shipment.origin_city_id)
+    .eq("destination_city_id", shipment.destination_city_id)
+    .eq("is_active", true)
+    .maybeSingle()
+
+  const routePrice = (routePriceRes.data ?? null) as { route_category: string | null } | null
+  const routeCategoryRaw = routePrice?.route_category ?? null
+  const routeCategory: RouteCategory | null = isRouteCategory(routeCategoryRaw)
+    ? routeCategoryRaw
+    : null
+
+  return {
+    retryPaymentId: "",
+    paymentStatus: null,
+    shipmentId: shipment.id,
+    origin: shipment.origin_city?.name?.trim() || "No especificado",
+    destination: shipment.destination_city?.name?.trim() || "No especificado",
     originCityId: shipment.origin_city_id,
     destinationCityId: shipment.destination_city_id,
     kind: shipment.kind,
@@ -130,9 +196,12 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
 export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
   const params = await searchParams
   const retryPaymentId = params?.retryPaymentId?.trim() ?? ""
+  const shipmentId = params?.shipmentId?.trim() ?? ""
   const retryCheckoutData = retryPaymentId
     ? await loadRetryCheckoutData(retryPaymentId)
-    : null
+    : shipmentId
+      ? await loadShipmentCheckoutData(shipmentId)
+      : null
 
   return (
     <>

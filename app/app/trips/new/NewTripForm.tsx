@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { parseNormalizedNumber, sanitizeDecimalInput } from "@/lib/forms/numeric"
 import { createClient } from "@/lib/supabase/client"
 
 type City = {
@@ -71,9 +72,11 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       nextErrors.departureDate = "Selecciona la fecha de salida."
     }
 
-    const cap = nextCapacityKg.trim() ? Number(nextCapacityKg) : null
-    if (cap !== null && (Number.isNaN(cap) || cap <= 0)) {
-      nextErrors.capacityKg = "Ingresa una capacidad válida mayor a 0."
+    const cap = parseNormalizedNumber(nextCapacityKg)
+    if (cap === null) {
+      nextErrors.capacityKg = "La capacidad es obligatoria."
+    } else if (cap < 1) {
+      nextErrors.capacityKg = "Ingresa una capacidad válida de al menos 1 kg."
     }
 
     setErrors(nextErrors)
@@ -103,7 +106,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       return
     }
 
-    const cap = capacityKg.trim() ? Number(capacityKg) : null
+    const cap = parseNormalizedNumber(capacityKg)
 
     const { error } = await supabase.from("trips").insert({
       traveler_id: user.id,
@@ -221,16 +224,16 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             </label>
             <input
               className={`${fieldBaseClassName} ${errors.capacityKg ? "border-red-300 bg-red-50" : "border-gray-300"}`}
-              type="number"
+              type="text"
               inputMode="decimal"
-              step="0.1"
-              min="0"
               value={capacityKg}
               onChange={(e) => {
-                setCapacityKg(e.target.value)
-                validate({ capacityKg: e.target.value })
+                const nextValue = sanitizeDecimalInput(e.target.value)
+                setCapacityKg(nextValue)
+                validate({ capacityKg: nextValue })
               }}
               placeholder="Ej: 5"
+              required
             />
             {errors.capacityKg ? (
               <p className="mt-2 text-sm text-red-600">{errors.capacityKg}</p>

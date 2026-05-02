@@ -56,7 +56,7 @@ type CheckoutViewModel = {
 
 function formatCurrency(value: number | null) {
   if (value === null || Number.isNaN(value)) {
-    return "No definido"
+    return "No especificado"
   }
 
   return new Intl.NumberFormat("es-CO", {
@@ -75,7 +75,7 @@ function getShipmentKindLabel(kind: string) {
     case "ecommerce":
       return "E-commerce"
     default:
-      return kind || "No definido"
+      return kind || "No especificado"
   }
 }
 
@@ -124,8 +124,8 @@ function buildCheckoutViewModel(
 ): CheckoutViewModel {
   const fromRetry = initialRetryData ?? null
 
-  const origin = fromRetry?.origin ?? searchParams.get("origin") ?? "No definido"
-  const destination = fromRetry?.destination ?? searchParams.get("destination") ?? "No definido"
+  const origin = fromRetry?.origin ?? searchParams.get("origin") ?? "No especificado"
+  const destination = fromRetry?.destination ?? searchParams.get("destination") ?? "No especificado"
   const originCityId = fromRetry?.originCityId ?? searchParams.get("originCityId") ?? ""
   const destinationCityId = fromRetry?.destinationCityId ?? searchParams.get("destinationCityId") ?? ""
   const routeCategoryParam = fromRetry?.routeCategory ?? searchParams.get("routeCategory")
@@ -188,13 +188,13 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
       return
     }
 
-    if (view.weight !== null && (Number.isNaN(view.weight) || view.weight <= 0)) {
+    if (view.weight === null || Number.isNaN(view.weight) || view.weight < 0.1) {
       setLoading(false)
       setErrorMsg("El peso recibido no es válido.")
       return
     }
 
-    if (view.declared !== null && (Number.isNaN(view.declared) || view.declared < 0)) {
+    if (view.declared === null || Number.isNaN(view.declared) || view.declared < 0) {
       setLoading(false)
       setErrorMsg("El valor declarado recibido no es válido.")
       return
@@ -325,7 +325,9 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
         {view.isRetry ? (
           <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            El pago anterior no se completó correctamente. Reintenta el pago para continuar con la confirmación del envío.
+            {view.retryPaymentId
+              ? "El pago anterior no se completó correctamente. Reintenta el pago para continuar con la confirmación del envío."
+              : "Tienes un envío pendiente de pago. Completa el checkout para publicarlo y continuar con el proceso."}
           </div>
         ) : null}
 
@@ -362,7 +364,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               />
               <SummaryRow
                 label="Peso estimado"
-                value={view.weight !== null ? `${view.weight} kg` : "No definido"}
+                value={view.weight !== null ? `${view.weight} kg` : "No especificado"}
                 icon={
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M7 6h10m-8 0V4a3 3 0 0 1 6 0v2m-8 0a4 4 0 1 0 8 0m-11 3h14l1 10H5L4 9Z" />
