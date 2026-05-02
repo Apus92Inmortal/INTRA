@@ -473,7 +473,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 {dashboard.activeShipments.length === 0 ? (
                   <EmptyCard
                     title="Aún no tienes envíos activos"
-                    description="Crea tu primer envío para empezar a recibir matches y seguimiento aquí."
+                    description="Crea tu envío para recibir matches y hacer seguimiento aquí."
                     ctaHref="/app/shipments/new"
                     ctaLabel="Crear envío"
                   />
