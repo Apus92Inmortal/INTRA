@@ -10,7 +10,6 @@ import { getDashboardData } from "./_lib/dashboard-queries";
 import type {
   DashboardActivityIcon,
   DashboardCompatibleShipmentCard,
-  DashboardCompatibleTripCard,
   DashboardShipmentCard,
 } from "./_lib/dashboard-types";
 import MatchButton from "./market/MatchButton";
@@ -251,38 +250,6 @@ function CompactCompatibleShipmentCard({
   );
 }
 
-function CompactCompatibleTripCard({
-  trip,
-}: {
-  trip: DashboardCompatibleTripCard;
-}) {
-  return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-semibold text-[#0B2C4A]">{trip.title}</p>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-            <span>Viajero: {trip.travelerName}</span>
-            <RatingSummaryBadge
-              avgRating={trip.travelerAvgRating}
-              totalReviews={trip.travelerTotalReviews}
-            />
-          </div>
-          <p className="mt-1 text-sm text-slate-600">{trip.routeLabel}</p>
-        </div>
-        <span className="shrink-0 text-xs font-medium text-gray-400">{trip.capacityLabel}</span>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-gray-500">
-        <span>Salida {trip.departureDateLabel}</span>
-        <Link href="/app/matches" className="font-medium text-[#2ECC71] hover:text-[#27ae60]">
-          Ver matches
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 export default async function AppHomePage({ searchParams }: AppHomePageProps) {
   const resolvedSearchParams = await searchParams;
   const supabase = await createClient();
@@ -315,16 +282,11 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
   const greetingName = getGreetingName(dashboard.user.fullName, dashboard.user.email);
   const activeView = resolvedSearchParams?.view ?? "";
   const showAllPendingPayments = activeView === "pending-payments";
-  const showAllCompatibleTrips = activeView === "compatible-trips";
   const showAllCompatibleShipments = activeView === "compatible-shipments";
 
   const pendingPaymentItems = getVisibleItems(
     dashboard.pendingPaymentShipments,
     showAllPendingPayments
-  );
-  const compatibleTripItems = getVisibleItems(
-    dashboard.compatibleTrips,
-    showAllCompatibleTrips
   );
   const compatibleShipmentItems = getVisibleItems(
     dashboard.compatibleShipments,
@@ -455,7 +417,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                     <h2 className="text-lg font-bold text-[#0B2C4A]">Mis envíos activos</h2>
                     <p className="mt-1 text-sm text-gray-500">Aquí ves tus envíos listos, pendientes y oportunidades de match.</p>
                   </div>
-                  <SectionToggleLink href="#viajes-compatibles" label="Ver oportunidades" />
+                  <SectionToggleLink href="#envios-compatibles" label="Ver oportunidades" />
                 </div>
 
                 {dashboard.pendingPaymentShipments.length > 0 ? (
@@ -598,31 +560,31 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   </div>
                 )}
 
-                <div id="viajes-compatibles" className="space-y-3 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4 sm:p-5">
+                <div id="envios-compatibles" className="space-y-3 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-base font-bold text-[#0B2C4A]">Viajes compatibles con mis envíos</h3>
-                      <p className="mt-1 text-sm text-gray-500">Opciones activas para mover tus paquetes más rápido.</p>
+                      <h3 className="text-base font-bold text-[#0B2C4A]">Envíos compatibles con mis viajes</h3>
+                      <p className="mt-1 text-sm text-gray-500">Puedes solicitar varios mientras tu viaje siga disponible. Salen de aquí cuando el match se acepta o se rechaza.</p>
                     </div>
-                    {dashboard.compatibleTrips.length > 3 ? (
+                    {dashboard.compatibleShipments.length > 3 ? (
                       <SectionToggleLink
-                        href={showAllCompatibleTrips ? "/app#viajes-compatibles" : "/app?view=compatible-trips#viajes-compatibles"}
-                        label={showAllCompatibleTrips ? "Ver menos" : "Ver todos"}
+                        href={showAllCompatibleShipments ? "/app#envios-compatibles" : "/app?view=compatible-shipments#envios-compatibles"}
+                        label={showAllCompatibleShipments ? "Ver menos" : "Ver todos"}
                       />
                     ) : null}
                   </div>
 
-                  {dashboard.compatibleTrips.length === 0 ? (
+                  {dashboard.compatibleShipments.length === 0 ? (
                     <EmptyCard
-                      title="Sin viajes compatibles por ahora"
-                      description="Publica otro envío o ajusta tu ruta para desbloquear más opciones."
-                      ctaHref="/app/shipments/new"
-                      ctaLabel="Crear envío"
+                      title="Sin envíos compatibles por ahora"
+                      description="Mantén tu viaje activo o publica otra ruta para recibir nuevas oportunidades."
+                      ctaHref="/app/trips/new"
+                      ctaLabel="Publicar viaje"
                     />
                   ) : (
                     <div className="space-y-3">
-                      {compatibleTripItems.map((trip) => (
-                        <CompactCompatibleTripCard key={trip.id} trip={trip} />
+                      {compatibleShipmentItems.map((shipment) => (
+                        <CompactCompatibleShipmentCard key={shipment.id} shipment={shipment} />
                       ))}
                     </div>
                   )}
@@ -681,35 +643,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   </div>
                 )}
 
-                <div id="envios-compatibles" className="space-y-3 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4 sm:p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-base font-bold text-[#0B2C4A]">Envíos compatibles con mis viajes</h3>
-                      <p className="mt-1 text-sm text-gray-500">Solicitudes listas para aprovechar tus rutas activas.</p>
-                    </div>
-                    {dashboard.compatibleShipments.length > 3 ? (
-                      <SectionToggleLink
-                        href={showAllCompatibleShipments ? "/app#envios-compatibles" : "/app?view=compatible-shipments#envios-compatibles"}
-                        label={showAllCompatibleShipments ? "Ver menos" : "Ver todos"}
-                      />
-                    ) : null}
-                  </div>
-
-                  {dashboard.compatibleShipments.length === 0 ? (
-                    <EmptyCard
-                      title="Sin envíos compatibles por ahora"
-                      description="Mantén tu viaje activo o publica otra ruta para recibir nuevas oportunidades."
-                      ctaHref="/app/trips/new"
-                      ctaLabel="Publicar viaje"
-                    />
-                  ) : (
-                    <div className="space-y-3">
-                      {compatibleShipmentItems.map((shipment) => (
-                        <CompactCompatibleShipmentCard key={shipment.id} shipment={shipment} />
-                      ))}
-                    </div>
-                  )}
-                </div>
               </section>
 
               <div>

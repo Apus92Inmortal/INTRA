@@ -62,17 +62,6 @@ export type DashboardCompatibleShipmentCard = {
   matchingTripId: string | null;
 };
 
-export type DashboardCompatibleTripCard = {
-  id: string;
-  title: string;
-  routeLabel: string;
-  departureDateLabel: string;
-  capacityLabel: string;
-  travelerName: string;
-  travelerAvgRating: number | null;
-  travelerTotalReviews: number;
-};
-
 export type DashboardTripCard = {
   id: string;
   routeShortLabel: string;
@@ -117,7 +106,6 @@ export type DashboardData = {
   activeShipments: DashboardShipmentCard[];
   pendingPaymentShipments: DashboardPendingPaymentShipmentCard[];
   compatibleShipments: DashboardCompatibleShipmentCard[];
-  compatibleTrips: DashboardCompatibleTripCard[];
   publishedTrips: DashboardTripCard[];
   recentActivity: DashboardActivityItem[];
   monthlyRevenue: DashboardRevenueSummary;

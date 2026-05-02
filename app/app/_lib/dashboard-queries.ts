@@ -11,7 +11,6 @@ import type {
   DashboardActivityIcon,
   DashboardActivityItem,
   DashboardCompatibleShipmentCard,
-  DashboardCompatibleTripCard,
   DashboardData,
   DashboardPendingPaymentShipmentCard,
   DashboardRevenueSummary,
@@ -116,17 +115,6 @@ type CompatibleShipmentRow = {
   description: string | null;
   weight_kg: number | null;
   owner_id: string;
-  origin_city_id: string | null;
-  destination_city_id: string | null;
-  origin_city: CityRelation;
-  destination_city: CityRelation;
-};
-
-type CompatibleTripRow = {
-  id: string;
-  traveler_id: string;
-  departure_date: string;
-  capacity_kg: number | null;
   origin_city_id: string | null;
   destination_city_id: string | null;
   origin_city: CityRelation;
@@ -607,58 +595,9 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     }
   }
 
-  let compatibleTripRows: CompatibleTripRow[] = [];
-  if (activeShipmentsRaw.length > 0) {
-    const validShipmentRoutes = Array.from(
-      new Set(
-        activeShipmentsRaw
-          .map((shipment) =>
-            shipment.origin_city_id && shipment.destination_city_id
-              ? `${shipment.origin_city_id}:${shipment.destination_city_id}`
-              : null
-          )
-          .filter(Boolean)
-      )
-    ) as string[];
-
-    if (validShipmentRoutes.length > 0) {
-      const { data, error } = await supabase
-        .from("trips")
-        .select(`
-          id,
-          traveler_id,
-          departure_date,
-          capacity_kg,
-          origin_city_id,
-          destination_city_id,
-          origin_city:cities!trips_origin_city_id_fkey(name, iata_code),
-          destination_city:cities!trips_destination_city_id_fkey(name, iata_code)
-        `)
-        .eq("status", "open")
-        .neq("traveler_id", user.id);
-
-      if (error) {
-        throw new Error(`Error cargando viajes compatibles: ${error.message}`);
-      }
-
-      compatibleTripRows = ((data ?? []) as CompatibleTripRow[]).filter((trip) => {
-        const routeKey = trip.origin_city_id && trip.destination_city_id
-          ? `${trip.origin_city_id}:${trip.destination_city_id}`
-          : null;
-
-        if (!routeKey) {
-          return false;
-        }
-
-        return validShipmentRoutes.includes(routeKey);
-      });
-    }
-  }
-
   const counterpartIds = Array.from(
     new Set([
       ...compatibleShipmentRows.map((shipment) => shipment.owner_id),
-      ...compatibleTripRows.map((trip) => trip.traveler_id),
     ])
   );
 
@@ -699,18 +638,6 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         matchingTripId: matchingTrip?.id ?? null,
       };
     });
-
-  const compatibleTrips: DashboardCompatibleTripCard[] = compatibleTripRows
-    .map((trip) => ({
-      id: trip.id,
-      title: "Viaje disponible",
-      routeLabel: getRouteLabel(trip.origin_city, trip.destination_city),
-      departureDateLabel: formatDateLabel(trip.departure_date),
-      capacityLabel: `${trip.capacity_kg ?? 0} kg disponibles`,
-      travelerName: counterpartNameById.get(trip.traveler_id) ?? "Usuario INTRA",
-      travelerAvgRating: counterpartRatingSummaryMap[trip.traveler_id]?.avgRating ?? null,
-      travelerTotalReviews: counterpartRatingSummaryMap[trip.traveler_id]?.totalReviews ?? 0,
-    }));
 
   const activeShipments = activeShipmentsRaw
     .map((shipment): DashboardShipmentCard => {
@@ -931,7 +858,6 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     activeShipments,
     pendingPaymentShipments,
     compatibleShipments,
-    compatibleTrips,
     publishedTrips,
     recentActivity,
     monthlyRevenue,
