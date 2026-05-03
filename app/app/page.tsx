@@ -252,12 +252,18 @@ function CompactCompatibleShipmentCard({
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
             <span>Cliente: {shipment.customerName}</span>
           </div>
-          <p className="mt-1 text-sm text-slate-600">{shipment.routeLabel}</p>
+          <p className="mt-1 text-sm text-slate-600">
+            <span className="font-medium text-[#0B2C4A]">Ruta:</span> {shipment.routeLabel}
+          </p>
           {shipment.description ? (
-            <p className="mt-2 line-clamp-2 text-sm text-gray-500">{shipment.description}</p>
+            <p className="mt-2 line-clamp-2 text-sm text-gray-500">
+              <span className="font-medium text-[#0B2C4A]">Descripción:</span> {shipment.description}
+            </p>
           ) : null}
         </div>
-        <span className="shrink-0 text-xs font-medium text-gray-400">{shipment.weightLabel}</span>
+        <span className="shrink-0 rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
+          Peso: {shipment.weightLabel}
+        </span>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
