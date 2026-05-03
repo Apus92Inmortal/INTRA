@@ -69,6 +69,23 @@ function formatDateTime(dateString: string | null | undefined) {
   }).format(new Date(dateString));
 }
 
+function formatTimeLabel(timeString: string | null | undefined) {
+  if (!timeString) return "Hora por confirmar";
+
+  const [hour = "0", minute = "0"] = timeString.split(":");
+  const value = new Date(2000, 0, 1, Number(hour), Number(minute));
+
+  return new Intl.DateTimeFormat("es-CO", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(value);
+}
+
+function formatDepartureLabel(dateString: string | null | undefined, timeString: string | null | undefined) {
+  const dateLabel = formatDate(dateString);
+  return timeString ? `${dateLabel} · ${formatTimeLabel(timeString)}` : dateLabel;
+}
+
 function getInitials(name: string) {
   return name
     .split(" ")
@@ -172,6 +189,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
         traveler_id,
         capacity_kg,
         departure_date,
+        departure_time,
         origin_city_id,
         destination_city_id
       ),
@@ -444,7 +462,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
                   <p>
                     <span className="font-medium text-slate-900">Salida:</span>{" "}
-                    {formatDate(trip?.departure_date)}
+                    {formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
                   </p>
 
                   <p>

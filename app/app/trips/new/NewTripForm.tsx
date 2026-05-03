@@ -16,6 +16,7 @@ type FormErrors = {
   originCityId?: string
   destinationCityId?: string
   departureDate?: string
+  departureTime?: string
   capacityKg?: string
 }
 
@@ -26,6 +27,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const [originCityId, setOriginCityId] = useState("")
   const [destinationCityId, setDestinationCityId] = useState("")
   const [departureDate, setDepartureDate] = useState("")
+  const [departureTime, setDepartureTime] = useState("")
   const [capacityKg, setCapacityKg] = useState("")
 
   const [loading, setLoading] = useState(false)
@@ -42,12 +44,14 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       originCityId: string
       destinationCityId: string
       departureDate: string
+      departureTime: string
       capacityKg: string
     }>
   ) => {
     const nextOriginCityId = overrides?.originCityId ?? originCityId
     const nextDestinationCityId = overrides?.destinationCityId ?? destinationCityId
     const nextDepartureDate = overrides?.departureDate ?? departureDate
+    const nextDepartureTime = overrides?.departureTime ?? departureTime
     const nextCapacityKg = overrides?.capacityKg ?? capacityKg
 
     const nextErrors: FormErrors = {}
@@ -70,6 +74,10 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
     if (!nextDepartureDate) {
       nextErrors.departureDate = "Selecciona la fecha de salida."
+    }
+
+    if (!nextDepartureTime) {
+      nextErrors.departureTime = "Selecciona la hora de salida."
     }
 
     const cap = parseNormalizedNumber(nextCapacityKg)
@@ -119,6 +127,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       origin_city_id: originCityId,
       destination_city_id: destinationCityId,
       departure_date: departureDate,
+      departure_time: departureTime,
       capacity_kg: cap,
     })
 
@@ -205,10 +214,10 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
           Detalles del viaje
         </h2>
         <p className="mt-1 text-sm text-gray-500">
-          Define cuándo sales y cuánta capacidad puedes llevar.
+          Define cuándo sales, a qué hora y cuánta capacidad puedes llevar.
         </p>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label htmlFor="trip-departure-date" className="mb-2 block text-sm font-medium text-gray-700">
               Fecha de salida
@@ -227,6 +236,27 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             />
             {errors.departureDate ? (
               <p className="mt-2 text-sm text-red-600">{errors.departureDate}</p>
+            ) : null}
+          </div>
+
+          <div>
+            <label htmlFor="trip-departure-time" className="mb-2 block text-sm font-medium text-gray-700">
+              Hora de salida
+            </label>
+            <input
+              id="trip-departure-time"
+              name="departureTime"
+              className={`${fieldBaseClassName} ${errors.departureTime ? "border-red-300 bg-red-50" : "border-gray-300"}`}
+              type="time"
+              value={departureTime}
+              onChange={(e) => {
+                setDepartureTime(e.target.value)
+                validate({ departureTime: e.target.value })
+              }}
+              required
+            />
+            {errors.departureTime ? (
+              <p className="mt-2 text-sm text-red-600">{errors.departureTime}</p>
             ) : null}
           </div>
 

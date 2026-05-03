@@ -67,6 +67,8 @@ create table if not exists public."profiles" (
     "id" uuid not null,
     "full_name" text,
     "phone" text,
+    "document_number" text,
+    "city_id" uuid,
     "created_at" timestamp without time zone default now(),
     "show_welcome_modal" boolean default true not null
 );
@@ -104,6 +106,7 @@ create table if not exists public."trips" (
     "origin_city_id" uuid not null,
     "destination_city_id" uuid not null,
     "departure_date" date not null,
+    "departure_time" time without time zone,
     "capacity_kg" numeric,
     "status" text default 'open'::text not null,
     "created_at" timestamp with time zone default now()
@@ -135,6 +138,7 @@ alter table only public."payments" add constraint "payments_status_check" CHECK 
 alter table only public."payments" add constraint "payments_user_id_fkey" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
 
 alter table only public."profiles" add constraint "profiles_id_fkey" FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+alter table only public."profiles" add constraint "profiles_city_id_fkey" FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE SET NULL;
 alter table only public."profiles" add constraint "profiles_pkey" PRIMARY KEY (id);
 
 alter table only public."route_prices" add constraint "route_prices_base_price_check" CHECK (base_price > 0);
@@ -179,6 +183,8 @@ CREATE INDEX IF NOT EXISTS payments_external_reference_idx ON public.payments US
 CREATE INDEX IF NOT EXISTS payments_shipment_id_idx ON public.payments USING btree (shipment_id);
 CREATE INDEX IF NOT EXISTS payments_status_idx ON public.payments USING btree (status);
 CREATE INDEX IF NOT EXISTS payments_user_id_idx ON public.payments USING btree (user_id);
+
+CREATE INDEX IF NOT EXISTS profiles_city_idx ON public.profiles USING btree (city_id);
 
 CREATE INDEX IF NOT EXISTS shipments_owner_idx ON public.shipments USING btree (owner_id);
 CREATE INDEX IF NOT EXISTS shipments_route_idx ON public.shipments USING btree (origin_city_id, destination_city_id);

@@ -36,6 +36,7 @@ export default function AuthGateway({
   const [loginPassword, setLoginPassword] = useState("");
 
   const [fullName, setFullName] = useState("");
+  const [registerPhone, setRegisterPhone] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
 
@@ -101,6 +102,7 @@ export default function AuthGateway({
         emailRedirectTo: getSignupEmailRedirectUrl(nextDestination),
         data: {
           full_name: fullName.trim(),
+          phone: registerPhone.trim(),
         },
       },
     });
@@ -119,6 +121,7 @@ export default function AuthGateway({
         {
           id: userId,
           full_name: fullName.trim(),
+          phone: registerPhone.trim(),
         },
         { onConflict: "id" }
       );
@@ -254,6 +257,23 @@ export default function AuthGateway({
                       onChange={(e) => setFullName(e.target.value)}
                       required
                       placeholder="Tu nombre completo"
+                    />
+                  </div>
+                ) : null}
+
+                {tab === "register" ? (
+                  <div>
+                    <label className="text-sm font-medium text-[#0B2C4A]">
+                      Teléfono
+                    </label>
+                    <input
+                      className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+                      type="tel"
+                      inputMode="tel"
+                      value={registerPhone}
+                      onChange={(e) => setRegisterPhone(e.target.value)}
+                      required
+                      placeholder="3001234567"
                     />
                   </div>
                 ) : null}
