@@ -623,7 +623,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 {dashboard.publishedTrips.length === 0 ? (
                   <EmptyCard
                     title="Aún no tienes viajes publicados"
-                    description="Publica tu próximo viaje para empezar a recibir paquetes compatibles."
+                    description="Publica tu próximo viaje para recibir paquetes compatibles con tu Ruta."
                     ctaHref="/app/trips/new"
                     ctaLabel="Publicar viaje"
                   />
