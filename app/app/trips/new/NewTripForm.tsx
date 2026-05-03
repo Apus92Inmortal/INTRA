@@ -130,7 +130,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     }
 
     setMsg("✅ Viaje publicado correctamente.")
-    router.push("/app/market")
+    router.push("/app#envios-compatibles")
   }
 
   return (
@@ -285,10 +285,10 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
           <button
             type="button"
-            onClick={() => router.push("/app/market")}
+            onClick={() => router.push("/app")}
             className="min-h-11 rounded-2xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 sm:flex-1"
           >
-            Volver a market
+            Volver a inicio
           </button>
         </div>
       </div>

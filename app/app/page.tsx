@@ -1,18 +1,27 @@
 import Link from "next/link";
 import { AppNavbar } from "@/components/app-navbar";
+import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import WelcomeModal from "@/components/WelcomeModal";
+import { formatRatingValue } from "@/lib/reviews";
 import { createClient } from "@/lib/supabase/server";
 import { isSafeInternalPath } from "@/lib/safe-next";
 import AuthGateway from "./AuthGateway";
 import DashboardPendingMatchActions from "./_components/dashboard/DashboardPendingMatchActions";
 import { getDashboardData } from "./_lib/dashboard-queries";
-import type { DashboardActivityIcon, DashboardShipmentCard } from "./_lib/dashboard-types";
+import type {
+  DashboardActivityIcon,
+  DashboardCompatibleShipmentCard,
+  DashboardShipmentCard,
+} from "./_lib/dashboard-types";
+import MatchButton from "./market/MatchButton";
+import MarketRealtime from "./market/MarketRealtime";
 
 type AppHomePageProps = {
   searchParams?: Promise<{
     tab?: string;
     error?: string;
     next?: string;
+    view?: string;
   }>;
 };
 
@@ -184,6 +193,90 @@ function EmptyCard({
   );
 }
 
+function getVisibleItems<T>(items: T[], expanded: boolean, limit = 3) {
+  return expanded ? items : items.slice(0, limit);
+}
+
+function SectionToggleLink({
+  href,
+  label,
+  tone = "green",
+}: {
+  href: string;
+  label: string;
+  tone?: "green" | "amber";
+}) {
+  const className =
+    tone === "amber"
+      ? "text-sm font-medium text-amber-900 hover:text-amber-950"
+      : "text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]";
+
+  return (
+    <Link href={href} className={className}>
+      {label}
+    </Link>
+  );
+}
+
+function CustomerRatingBadge({
+  avgRating,
+  totalReviews,
+}: {
+  avgRating: number | null;
+  totalReviews: number;
+}) {
+  const formatted = formatRatingValue(avgRating);
+
+  if (!formatted || totalReviews <= 0) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF7E8] px-3 py-1 text-xs font-semibold text-[#B7791F]">
+        <span aria-hidden="true">⭐</span>
+        <span>Sin calificaciones aún</span>
+      </span>
+    );
+  }
+
+  return <RatingSummaryBadge avgRating={avgRating} totalReviews={totalReviews} />;
+}
+
+function CompactCompatibleShipmentCard({
+  shipment,
+}: {
+  shipment: DashboardCompatibleShipmentCard;
+}) {
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-white p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <span>Cliente: {shipment.customerName}</span>
+          </div>
+          <p className="mt-1 text-sm text-slate-600">
+            <span className="font-medium text-[#0B2C4A]">Ruta:</span> {shipment.routeLabel}
+          </p>
+          {shipment.description ? (
+            <p className="mt-2 line-clamp-2 text-sm text-gray-500">
+              <span className="font-medium text-[#0B2C4A]">Descripción:</span> {shipment.description}
+            </p>
+          ) : null}
+        </div>
+        <span className="shrink-0 rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
+          Peso: {shipment.weightLabel}
+        </span>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <CustomerRatingBadge
+          avgRating={shipment.customerAvgRating}
+          totalReviews={shipment.customerTotalReviews}
+        />
+        {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
+      </div>
+    </div>
+  );
+}
+
 export default async function AppHomePage({ searchParams }: AppHomePageProps) {
   const resolvedSearchParams = await searchParams;
   const supabase = await createClient();
@@ -214,10 +307,23 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
   }
 
   const greetingName = getGreetingName(dashboard.user.fullName, dashboard.user.email);
+  const activeView = resolvedSearchParams?.view ?? "";
+  const showAllPendingPayments = activeView === "pending-payments";
+  const showAllCompatibleShipments = activeView === "compatible-shipments";
+
+  const pendingPaymentItems = getVisibleItems(
+    dashboard.pendingPaymentShipments,
+    showAllPendingPayments
+  );
+  const compatibleShipmentItems = getVisibleItems(
+    dashboard.compatibleShipments,
+    showAllCompatibleShipments
+  );
 
   return (
     <>
       <AppNavbar />
+      <MarketRealtime currentUserId={dashboard.user.id} />
 
       <WelcomeModal
         userId={dashboard.user.id}
@@ -332,130 +438,136 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-5">
             <div className="space-y-4 lg:col-span-3">
-              {dashboard.pendingPaymentShipments.length > 0 ? (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <div>
-                      <h2 className="text-lg font-bold text-amber-900">Pendientes de pago</h2>
-                      <p className="mt-1 text-sm text-amber-800/80">
-                        Completa el checkout para publicar estos envíos y habilitar matches.
-                      </p>
-                    </div>
-                    <Link href="/app/market" className="text-sm font-medium text-amber-900 hover:text-amber-950">
-                      Ver todos
-                    </Link>
-                  </div>
-
-                  <div className="space-y-3">
-                    {dashboard.pendingPaymentShipments.map((shipment) => (
-                      <div key={shipment.id} className="rounded-2xl border border-amber-200 bg-white p-4">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                          <div className="min-w-0">
-                            <div className="mb-1 flex items-center gap-2">
-                              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                                {shipment.paymentLabel}
-                              </span>
-                              <span className="text-xs text-amber-300">{shipment.code}</span>
-                            </div>
-                            <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
-                            <p className="mt-0.5 text-sm text-slate-600">{shipment.routeLabel}</p>
-                          </div>
-
-                          <div className="flex flex-col items-start gap-3 sm:items-end">
-                            <span className="text-lg font-bold text-[#0B2C4A]">{shipment.amountLabel}</span>
-                            <Link
-                              href={shipment.checkoutHref}
-                              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
-                            >
-                              Ir al checkout
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              <section id="mis-envios" className="space-y-4">
+                <div>
+                  <h2 className="text-lg font-bold text-[#0B2C4A]">Mis envíos activos</h2>
                 </div>
-              ) : null}
 
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-bold text-[#0B2C4A]">Mis envíos activos</h2>
-                <Link href="/app/market" className="text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]">
-                  Ver todos
-                </Link>
-              </div>
-
-              {dashboard.activeShipments.length === 0 ? (
-                <EmptyCard
-                  title="Aún no tienes envíos activos"
-                  description="Crea tu primer envío para empezar a recibir matches y ver actividad aquí."
-                  ctaHref="/app/shipments/new"
-                  ctaLabel="Crear envío"
-                />
-              ) : (
-                <div className="space-y-3">
-                  {dashboard.activeShipments.map((shipment) => (
-                    <div key={shipment.id} className="rounded-2xl border border-gray-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
-                      <div className="mb-3 flex items-start justify-between">
-                        <div className="min-w-0 flex-1">
-                          <div className="mb-1 flex items-center gap-2">
-                            <ShipmentBadge shipment={shipment} />
-                            <span className="text-xs text-gray-300">{shipment.code}</span>
-                          </div>
-                          <p className="truncate font-semibold text-[#0B2C4A]">{shipment.title}</p>
-                          <p className="mt-0.5 text-sm text-gray-500">{shipment.routeLabel}</p>
+                {dashboard.pendingPaymentShipments.length > 0 ? (
+                  <div id="pendientes-de-pago" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
+                    <div className="mb-4 flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base font-bold text-amber-900">Pendientes de pago</h3>
+                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                            Requiere acción
+                          </span>
                         </div>
-                        <span className="ml-3 shrink-0 text-lg font-bold text-[#0B2C4A]">
-                          {shipment.amountLabel}
-                        </span>
+                        <p className="mt-1 text-sm text-amber-800/80">
+                          Completa el checkout para activar estos envíos y empezar a recibir matches.
+                        </p>
                       </div>
+                      {dashboard.pendingPaymentShipments.length > 3 ? (
+                        <SectionToggleLink
+                          href={showAllPendingPayments ? "/app#pendientes-de-pago" : "/app?view=pending-payments#pendientes-de-pago"}
+                          label={showAllPendingPayments ? "Ver menos" : "Ver todos"}
+                          tone="amber"
+                        />
+                      ) : null}
+                    </div>
 
-                      {shipment.hasPendingAction && shipment.pendingMatchId ? (
-                        <div className="rounded-xl bg-yellow-50 p-3 sm:p-4">
-                          <div className="mb-3 flex items-start gap-3">
-                            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-yellow-100">
-                              <svg className="h-4 w-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                              </svg>
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-[#0B2C4A]">
-                                {shipment.travelerName ?? "Un viajero"} quiere transportar tu envío
-                              </p>
-                              <p className="mt-0.5 text-xs text-gray-500">
-                                {shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}
-                                {shipment.travelerRatingLabel ? ` · ${shipment.travelerRatingLabel}` : ""}
-                              </p>
-                            </div>
-                          </div>
-                          <DashboardPendingMatchActions matchId={shipment.pendingMatchId} />
-                        </div>
-                      ) : shipment.travelerName ? (
-                        <>
-                          <div className="flex items-center gap-3">
-                            <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
-                              <div
-                                className="h-full rounded-full bg-[#2ECC71]"
-                                style={{ width: `${shipment.progressPercent}%` }}
-                              />
-                            </div>
-                            <span className="whitespace-nowrap text-xs text-gray-400">
-                              {shipment.progressPercent}%
-                            </span>
-                          </div>
-                          <div className="mt-3 flex flex-col gap-3 border-t border-gray-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFFBF4] text-[10px] font-bold text-[#2ECC71]">
-                                {shipment.travelerName.slice(0, 2).toUpperCase()}
+                    <div className="space-y-3">
+                      {pendingPaymentItems.map((shipment) => (
+                        <div key={shipment.id} className="rounded-2xl border border-amber-200 bg-white p-4">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0">
+                              <div className="mb-1 flex items-center gap-2">
+                                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                                  {shipment.paymentLabel}
+                                </span>
+                                <span className="text-xs text-amber-300">{shipment.code}</span>
                               </div>
-                              <span className="text-sm text-gray-600">{shipment.travelerName}</span>
+                              <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
+                              <p className="mt-0.5 text-sm text-slate-600">{shipment.routeLabel}</p>
                             </div>
-                            <Link href="/app/matches" className="inline-flex min-h-11 items-center text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]">
-                              Ver detalles
-                            </Link>
+
+                            <div className="flex flex-col items-start gap-3 sm:items-end">
+                              <span className="text-lg font-bold text-[#0B2C4A]">{shipment.amountLabel}</span>
+                              <Link
+                                href={shipment.checkoutHref}
+                                className="inline-flex min-h-11 items-center justify-center rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
+                              >
+                                Ir al checkout
+                              </Link>
+                            </div>
                           </div>
-                        </>
-                      ) : (
-                        <>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {dashboard.activeShipments.length === 0 ? (
+                  <EmptyCard
+                    title="Aún no tienes envíos activos"
+                    description="Crea tu envío para recibir matches y hacer seguimiento aquí."
+                    ctaHref="/app/shipments/new"
+                    ctaLabel="Crear envío"
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {dashboard.activeShipments.map((shipment) => (
+                      <div key={shipment.id} className="rounded-2xl border border-gray-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                        <div className="mb-3 flex items-start justify-between">
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-1 flex items-center gap-2">
+                              <ShipmentBadge shipment={shipment} />
+                              <span className="text-xs text-gray-300">{shipment.code}</span>
+                            </div>
+                            <p className="truncate font-semibold text-[#0B2C4A]">{shipment.title}</p>
+                            <p className="mt-0.5 text-sm text-gray-500">{shipment.routeLabel}</p>
+                          </div>
+                          <span className="ml-3 shrink-0 text-lg font-bold text-[#0B2C4A]">
+                            {shipment.amountLabel}
+                          </span>
+                        </div>
+
+                        {shipment.hasPendingAction && shipment.pendingMatchId ? (
+                          <div className="rounded-xl bg-yellow-50 p-3 sm:p-4">
+                            <div className="mb-3 flex items-start gap-3">
+                              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-yellow-100">
+                                <svg className="h-4 w-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium text-[#0B2C4A]">
+                                  {shipment.travelerName ?? "Un viajero"} quiere transportar tu envío
+                                </p>
+                                <p className="mt-0.5 text-xs text-gray-500">
+                                  {shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}
+                                  {shipment.travelerRatingLabel ? ` · ${shipment.travelerRatingLabel}` : ""}
+                                </p>
+                              </div>
+                            </div>
+                            <DashboardPendingMatchActions matchId={shipment.pendingMatchId} />
+                          </div>
+                        ) : shipment.travelerName ? (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
+                                <div
+                                  className="h-full rounded-full bg-[#2ECC71]"
+                                  style={{ width: `${shipment.progressPercent}%` }}
+                                />
+                              </div>
+                              <span className="whitespace-nowrap text-xs text-gray-400">
+                                {shipment.progressPercent}%
+                              </span>
+                            </div>
+                            <div className="mt-3 flex flex-col gap-3 border-t border-gray-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFFBF4] text-[10px] font-bold text-[#2ECC71]">
+                                  {shipment.travelerName.slice(0, 2).toUpperCase()}
+                                </div>
+                                <span className="text-sm text-gray-600">{shipment.travelerName}</span>
+                              </div>
+                              <Link href="/app/matches" className="inline-flex min-h-11 items-center text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]">
+                                Ver detalles
+                              </Link>
+                            </div>
+                          </>
+                        ) : (
                           <div className="mt-2 flex items-center gap-2">
                             <div className="h-1.5 flex-1 rounded-full bg-gray-100">
                               <div
@@ -465,27 +577,53 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             </div>
                             <span className="text-xs text-gray-400">{shipment.progressLabel}</span>
                           </div>
-                        </>
-                      )}
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div id="envios-compatibles" className="space-y-3 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="text-base font-bold text-[#0B2C4A]">Envíos compatibles con mis viajes</h3>
                     </div>
-                  ))}
+                    {dashboard.compatibleShipments.length > 3 ? (
+                      <SectionToggleLink
+                        href={showAllCompatibleShipments ? "/app#envios-compatibles" : "/app?view=compatible-shipments#envios-compatibles"}
+                        label={showAllCompatibleShipments ? "Ver menos" : "Ver todos"}
+                      />
+                    ) : null}
+                  </div>
+
+                  {dashboard.compatibleShipments.length === 0 ? (
+                    <EmptyCard
+                      title="Sin envíos compatibles por ahora"
+                      description="Mantén tu viaje activo o publica otra ruta para recibir nuevas oportunidades."
+                      ctaHref="/app/trips/new"
+                      ctaLabel="Publicar viaje"
+                    />
+                  ) : (
+                    <div className="space-y-3">
+                      {compatibleShipmentItems.map((shipment) => (
+                        <CompactCompatibleShipmentCard key={shipment.id} shipment={shipment} />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+              </section>
             </div>
 
             <div className="space-y-4 lg:col-span-2">
-              <div>
-                <div className="mb-3 flex items-center justify-between">
+              <section id="mis-viajes" className="space-y-4">
+                <div className="mb-3">
                   <h2 className="text-lg font-bold text-[#0B2C4A]">Mis viajes</h2>
-                  <Link href="/app/market" className="text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]">
-                    Ver todos
-                  </Link>
                 </div>
 
                 {dashboard.publishedTrips.length === 0 ? (
                   <EmptyCard
                     title="Aún no tienes viajes publicados"
-                    description="Publica tu próximo viaje para empezar a recibir paquetes compatibles."
+                    description="Publica tu próximo viaje para recibir paquetes compatibles con tu Ruta."
                     ctaHref="/app/trips/new"
                     ctaLabel="Publicar viaje"
                   />
@@ -522,16 +660,21 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                     ))}
                   </div>
                 )}
-              </div>
+
+              </section>
 
               <div>
                 <h2 className="mb-3 text-lg font-bold text-[#0B2C4A]">Actividad reciente</h2>
                 {dashboard.recentActivity.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-5 text-sm text-gray-500">
-                    <p className="font-semibold text-[#0B2C4A]">Sin novedades 🎉</p>
-                    <p className="mt-1">
-                      Cuando publiques envíos, viajes o recibas mensajes, aparecerán aquí.
-                    </p>
+                    <div className="flex items-center gap-2 font-semibold text-[#0B2C4A]">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2F7] text-[#0B2C4A]">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                      </span>
+                      <p>Sin novedades</p>
+                    </div>
                     <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                       <Link
                         href="/app/shipments/new"

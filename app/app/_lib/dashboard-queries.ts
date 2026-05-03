@@ -6,9 +6,11 @@ import {
   isShipmentPaymentReady,
   isShipmentPaymentRetryable,
 } from "@/lib/payments/shipment-payment-state";
+import { fetchRatingSummaryMap } from "@/lib/reviews";
 import type {
   DashboardActivityIcon,
   DashboardActivityItem,
+  DashboardCompatibleShipmentCard,
   DashboardData,
   DashboardPendingPaymentShipmentCard,
   DashboardRevenueSummary,
@@ -105,6 +107,18 @@ type PaymentRow = {
   status: string | null;
   created_at: string;
   updated_at: string;
+};
+
+type CompatibleShipmentRow = {
+  id: string;
+  kind: string | null;
+  description: string | null;
+  weight_kg: number | null;
+  owner_id: string;
+  origin_city_id: string | null;
+  destination_city_id: string | null;
+  origin_city: CityRelation;
+  destination_city: CityRelation;
 };
 
 type RoutePriceRow = {
@@ -512,12 +526,118 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         paymentLabel: getPendingPaymentLabel(latestPayment?.status),
         checkoutHref,
       };
-    })
-    .slice(0, 3);
+    });
 
   const activeShipmentsRaw = actionableShipmentsRaw.filter((shipment) =>
     isShipmentPaymentReady(latestPaymentByShipment.get(shipment.id)?.status)
   );
+
+  let compatibleShipmentRows: CompatibleShipmentRow[] = [];
+  if (trips.length > 0) {
+    const validTripRoutes = Array.from(
+      new Set(
+        trips
+          .map((trip) =>
+            trip.origin_city_id && trip.destination_city_id
+              ? `${trip.origin_city_id}:${trip.destination_city_id}`
+              : null
+          )
+          .filter(Boolean)
+      )
+    ) as string[];
+
+    if (validTripRoutes.length > 0) {
+      const { data, error } = await supabase
+        .from("shipments")
+        .select(`
+          id,
+          kind,
+          description,
+          weight_kg,
+          owner_id,
+          origin_city_id,
+          destination_city_id,
+          origin_city:cities!shipments_origin_city_id_fkey(name, iata_code),
+          destination_city:cities!shipments_destination_city_id_fkey(name, iata_code)
+        `)
+        .eq("status", "open")
+        .neq("owner_id", user.id);
+
+      if (error) {
+        throw new Error(`Error cargando envíos compatibles: ${error.message}`);
+      }
+
+      const compatibleShipmentCandidates = ((data ?? []) as CompatibleShipmentRow[]).filter(Boolean);
+      const compatibleShipmentIds = compatibleShipmentCandidates.map((shipment) => shipment.id);
+      const { data: readyShipmentRows } = compatibleShipmentIds.length
+        ? await supabase.rpc("get_payment_ready_shipments", {
+            p_shipment_ids: compatibleShipmentIds,
+          })
+        : { data: [] as { shipment_id: string }[] };
+
+      const readyShipmentIds = new Set(
+        ((readyShipmentRows ?? []) as { shipment_id: string }[])
+          .map((row) => row.shipment_id)
+          .filter(Boolean)
+      );
+
+      compatibleShipmentRows = compatibleShipmentCandidates.filter((shipment) => {
+        const routeKey = shipment.origin_city_id && shipment.destination_city_id
+          ? `${shipment.origin_city_id}:${shipment.destination_city_id}`
+          : null;
+
+        if (!routeKey) {
+          return false;
+        }
+
+        return readyShipmentIds.has(shipment.id) && validTripRoutes.includes(routeKey);
+      });
+    }
+  }
+
+  const counterpartIds = Array.from(
+    new Set([
+      ...compatibleShipmentRows.map((shipment) => shipment.owner_id),
+    ])
+  );
+
+  const { data: counterpartProfiles } = counterpartIds.length
+    ? await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", counterpartIds)
+    : { data: [] as ProfileRow[] };
+
+  const counterpartNameById = new Map<string, string>(
+    (((counterpartProfiles ?? []) as ProfileRow[]) ?? []).map((profile) => [
+      profile.id,
+      profile.full_name?.trim() || "Usuario INTRA",
+    ])
+  );
+
+  const counterpartRatingSummaryMap = await fetchRatingSummaryMap(supabase, counterpartIds);
+
+  const compatibleShipments: DashboardCompatibleShipmentCard[] = compatibleShipmentRows
+    .map((shipment) => {
+      const matchingTrip = trips.find(
+        (trip) =>
+          trip.status === "open" &&
+          trip.origin_city_id === shipment.origin_city_id &&
+          trip.destination_city_id === shipment.destination_city_id
+      );
+
+      return {
+        id: shipment.id,
+        title: getShipmentKindLabel(shipment.kind),
+        routeLabel: getRouteLabel(shipment.origin_city, shipment.destination_city),
+        description: shipment.description?.trim() || null,
+        weightLabel: shipment.weight_kg ? `${shipment.weight_kg} kg` : "Peso por confirmar",
+        customerName: counterpartNameById.get(shipment.owner_id) ?? "Usuario INTRA",
+        customerAvgRating: counterpartRatingSummaryMap[shipment.owner_id]?.avgRating ?? null,
+        customerTotalReviews: counterpartRatingSummaryMap[shipment.owner_id]?.totalReviews ?? 0,
+        matchingTripId: matchingTrip?.id ?? null,
+      };
+    });
 
   const activeShipments = activeShipmentsRaw
     .map((shipment): DashboardShipmentCard => {
@@ -737,6 +857,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     },
     activeShipments,
     pendingPaymentShipments,
+    compatibleShipments,
     publishedTrips,
     recentActivity,
     monthlyRevenue,

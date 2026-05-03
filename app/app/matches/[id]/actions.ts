@@ -378,7 +378,6 @@ export async function createReviewAction(
 
     revalidatePath(`/app/matches/${matchId}`);
     revalidatePath(`/app/matches/${matchId}/chat`);
-    revalidatePath("/app/market");
     revalidatePath("/app/matches");
     revalidatePath("/app");
 
