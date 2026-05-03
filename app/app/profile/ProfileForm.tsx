@@ -148,7 +148,7 @@ export default function ProfileForm({
             htmlFor="documentNumber"
             className="mb-2 block text-sm font-medium text-gray-700"
           >
-            Documento
+            Documento de identidad
           </label>
           <input
             id="documentNumber"
