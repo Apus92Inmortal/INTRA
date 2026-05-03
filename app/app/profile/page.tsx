@@ -16,12 +16,21 @@ export default async function ProfilePage() {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, full_name, phone")
+    .select("id, full_name, phone, document_number, city_id")
     .eq("id", user.id)
     .single();
 
+  const { data: cities, error: citiesError } = await supabase
+    .from("cities")
+    .select("id, name, department")
+    .order("name", { ascending: true });
+
   if (error) {
     throw new Error(`Error cargando perfil: ${error.message}`);
+  }
+
+  if (citiesError) {
+    throw new Error(`Error cargando ciudades del perfil: ${citiesError.message}`);
   }
 
   return (
@@ -41,6 +50,11 @@ export default async function ProfilePage() {
             <ProfileForm
               initialFullName={profile?.full_name ?? ""}
               initialPhone={profile?.phone ?? ""}
+              initialDocumentNumber={profile?.document_number ?? ""}
+              initialCityId={profile?.city_id ?? ""}
+              email={user.email ?? ""}
+              isEmailVerified={Boolean(user.email_confirmed_at)}
+              cities={cities ?? []}
             />
           </section>
         </div>

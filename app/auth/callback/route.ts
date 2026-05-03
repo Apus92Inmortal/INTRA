@@ -36,13 +36,31 @@ async function syncProfileFromMetadata(
       ? user.user_metadata.full_name.trim()
       : ""
 
-  if (!fullName) return
+  const phone =
+    typeof user.user_metadata?.phone === "string"
+      ? user.user_metadata.phone.trim()
+      : ""
+
+  if (!fullName && !phone) return
+
+  const profilePayload: {
+    id: string
+    full_name?: string
+    phone?: string
+  } = {
+    id: user.id,
+  }
+
+  if (fullName) {
+    profilePayload.full_name = fullName
+  }
+
+  if (phone) {
+    profilePayload.phone = phone
+  }
 
   await supabase.from("profiles").upsert(
-    {
-      id: user.id,
-      full_name: fullName,
-    },
+    profilePayload,
     { onConflict: "id" }
   )
 }

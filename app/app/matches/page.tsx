@@ -18,6 +18,7 @@ type TripItem = {
   id: string;
   traveler_id: string;
   departure_date: string;
+  departure_time: string | null;
   capacity_kg: number | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
@@ -81,6 +82,23 @@ function formatDateTime(dateString: string) {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(dateString));
+}
+
+function formatTimeLabel(timeString: string | null | undefined) {
+  if (!timeString) return "Hora por confirmar";
+
+  const [hour = "0", minute = "0"] = timeString.split(":");
+  const value = new Date(2000, 0, 1, Number(hour), Number(minute));
+
+  return new Intl.DateTimeFormat("es-CO", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(value);
+}
+
+function formatDepartureLabel(dateString: string | null | undefined, timeString: string | null | undefined) {
+  const dateLabel = dateString ? formatDate(dateString) : "Sin fecha";
+  return timeString ? `${dateLabel} · ${formatTimeLabel(timeString)}` : dateLabel;
 }
 
 function formatCurrency(value: number | null) {
@@ -209,6 +227,7 @@ export default async function MatchesPage() {
         id,
         traveler_id,
         departure_date,
+        departure_time,
         capacity_kg,
         origin_city:cities!trips_origin_city_id_fkey(name),
         destination_city:cities!trips_destination_city_id_fkey(name)
@@ -441,9 +460,10 @@ export default async function MatchesPage() {
                             </p>
                             <p>
                               <span className="font-medium">Salida:</span>{" "}
-                              {trip?.departure_date
-                                ? formatDate(trip.departure_date)
-                                : "Sin fecha"}
+                              {formatDepartureLabel(
+                                trip?.departure_date,
+                                trip?.departure_time
+                              )}
                             </p>
                             <p>
                               <span className="font-medium">Capacidad:</span>{" "}

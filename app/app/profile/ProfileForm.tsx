@@ -7,17 +7,33 @@ import { createClient } from "@/lib/supabase/client";
 type Props = {
   initialFullName: string;
   initialPhone: string;
+  initialDocumentNumber: string;
+  initialCityId: string;
+  email: string;
+  isEmailVerified: boolean;
+  cities: Array<{
+    id: string;
+    name: string;
+    department: string;
+  }>;
 };
 
 export default function ProfileForm({
   initialFullName,
   initialPhone,
+  initialDocumentNumber,
+  initialCityId,
+  email,
+  isEmailVerified,
+  cities,
 }: Props) {
   const supabase = createClient();
   const router = useRouter();
 
   const [fullName, setFullName] = useState(initialFullName);
   const [phone, setPhone] = useState(initialPhone);
+  const [documentNumber, setDocumentNumber] = useState(initialDocumentNumber);
+  const [cityId, setCityId] = useState(initialCityId);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -46,6 +62,8 @@ export default function ProfileForm({
       .update({
         full_name: fullName.trim(),
         phone: phone.trim() || null,
+        document_number: documentNumber.trim() || null,
+        city_id: cityId || null,
       })
       .eq("id", user.id);
 
@@ -87,6 +105,29 @@ export default function ProfileForm({
       <form onSubmit={onSave} className="space-y-5">
         <div>
           <label
+            htmlFor="email"
+            className="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Correo
+          </label>
+          <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <span className="break-all">{email || "Sin correo"}</span>
+              <span
+                className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                  isEmailVerified
+                    ? "bg-green-100 text-green-700"
+                    : "bg-amber-100 text-amber-700"
+                }`}
+              >
+                {isEmailVerified ? "Correo verificado" : "Correo pendiente por verificar"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label
             htmlFor="fullName"
             className="mb-2 block text-sm font-medium text-gray-700"
           >
@@ -100,6 +141,47 @@ export default function ProfileForm({
             required
             placeholder="Escribe tu nombre completo"
           />
+        </div>
+
+        <div>
+          <label
+            htmlFor="documentNumber"
+            className="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Documento
+          </label>
+          <input
+            id="documentNumber"
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            value={documentNumber}
+            onChange={(e) => setDocumentNumber(e.target.value)}
+            placeholder="Cédula o documento de identidad"
+          />
+          <p className="mt-2 text-xs text-gray-500">
+            Lo dejaremos listo para la futura verificación de identidad externa.
+          </p>
+        </div>
+
+        <div>
+          <label
+            htmlFor="cityId"
+            className="mb-2 block text-sm font-medium text-gray-700"
+          >
+            Ciudad base
+          </label>
+          <select
+            id="cityId"
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            value={cityId}
+            onChange={(e) => setCityId(e.target.value)}
+          >
+            <option value="">Selecciona una ciudad</option>
+            {cities.map((city) => (
+              <option key={city.id} value={city.id}>
+                {city.name} ({city.department})
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -123,6 +205,11 @@ export default function ProfileForm({
         <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm leading-6 text-slate-600">
           En INTRA no te fijamos un rol permanente. Puedes publicar envíos y también
           publicar viajes según lo que necesites en cada momento.
+        </div>
+
+        <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] px-4 py-3 text-sm leading-6 text-slate-600">
+          La verificación de identidad con proveedor externo la integraremos después.
+          Por ahora ya dejamos preparados tus datos base de perfil.
         </div>
 
         {msg && (

@@ -44,6 +44,7 @@ type TripRow = {
   id: string;
   traveler_id: string;
   departure_date: string;
+  departure_time: string | null;
   capacity_kg: number | null;
   status: string | null;
   created_at: string;
@@ -57,6 +58,7 @@ type MatchTripRelation = {
   id: string;
   traveler_id: string;
   departure_date: string | null;
+  departure_time: string | null;
   capacity_kg: number | null;
 };
 
@@ -157,6 +159,27 @@ function formatDateLabel(dateString: string | null | undefined) {
     month: "short",
     year: "numeric",
   }).format(new Date(dateString));
+}
+
+function formatTimeLabel(timeString: string | null | undefined) {
+  if (!timeString) return null;
+
+  const [hour = "0", minute = "0"] = timeString.split(":");
+  const value = new Date(2000, 0, 1, Number(hour), Number(minute));
+
+  return new Intl.DateTimeFormat("es-CO", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(value);
+}
+
+function formatDepartureLabel(
+  dateString: string | null | undefined,
+  timeString: string | null | undefined
+) {
+  const dateLabel = formatDateLabel(dateString);
+  const timeLabel = formatTimeLabel(timeString);
+  return timeLabel ? `${dateLabel} · ${timeLabel}` : dateLabel;
 }
 
 function getRelativeTimeLabel(dateString: string) {
@@ -361,6 +384,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
           id,
           traveler_id,
           departure_date,
+          departure_time,
           capacity_kg,
           status,
           created_at,
@@ -402,7 +426,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
             trip_id,
             status,
             created_at,
-            trip:trips!matches_trip_id_fkey(id, traveler_id, departure_date, capacity_kg)
+            trip:trips!matches_trip_id_fkey(id, traveler_id, departure_date, departure_time, capacity_kg)
           `)
           .in("shipment_id", shipmentIds)
           .order("created_at", { ascending: false })
@@ -678,7 +702,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         progressLabel: visual.progressLabel,
         travelerName,
         travelerDepartureLabel: relevantTrip?.departure_date
-          ? `Viaja el ${formatDateLabel(relevantTrip.departure_date)}`
+          ? `Viaja el ${formatDepartureLabel(relevantTrip.departure_date, relevantTrip.departure_time)}`
           : null,
         travelerRatingLabel: null,
         pendingMatchId: pendingMatch?.id ?? null,
@@ -711,7 +735,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
       return {
         id: trip.id,
         routeShortLabel: getRouteShortLabel(trip.origin_city, trip.destination_city),
-        departureDateLabel: formatDateLabel(trip.departure_date),
+        departureDateLabel: formatDepartureLabel(trip.departure_date, trip.departure_time),
         usedCapacityKg: Math.round(usedCapacityKg * 10) / 10,
         totalCapacityKg,
         availabilityLabel: getTripAvailabilityLabel(trip.status),
