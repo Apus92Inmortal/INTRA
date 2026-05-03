@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import WelcomeModal from "@/components/WelcomeModal";
+import { formatRatingValue } from "@/lib/reviews";
 import { createClient } from "@/lib/supabase/server";
 import { isSafeInternalPath } from "@/lib/safe-next";
 import AuthGateway from "./AuthGateway";
@@ -217,6 +218,27 @@ function SectionToggleLink({
   );
 }
 
+function CustomerRatingBadge({
+  avgRating,
+  totalReviews,
+}: {
+  avgRating: number | null;
+  totalReviews: number;
+}) {
+  const formatted = formatRatingValue(avgRating);
+
+  if (!formatted || totalReviews <= 0) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF7E8] px-3 py-1 text-xs font-semibold text-[#B7791F]">
+        <span aria-hidden="true">⭐</span>
+        <span>Sin calificaciones aún</span>
+      </span>
+    );
+  }
+
+  return <RatingSummaryBadge avgRating={avgRating} totalReviews={totalReviews} />;
+}
+
 function CompactCompatibleShipmentCard({
   shipment,
 }: {
@@ -229,10 +251,6 @@ function CompactCompatibleShipmentCard({
           <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
             <span>Cliente: {shipment.customerName}</span>
-            <RatingSummaryBadge
-              avgRating={shipment.customerAvgRating}
-              totalReviews={shipment.customerTotalReviews}
-            />
           </div>
           <p className="mt-1 text-sm text-slate-600">{shipment.routeLabel}</p>
           {shipment.description ? (
@@ -243,7 +261,10 @@ function CompactCompatibleShipmentCard({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <span className="text-xs text-gray-500">Listo para hacer match</span>
+        <CustomerRatingBadge
+          avgRating={shipment.customerAvgRating}
+          totalReviews={shipment.customerTotalReviews}
+        />
         {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
       </div>
     </div>
