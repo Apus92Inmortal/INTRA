@@ -158,7 +158,7 @@ export default function ProfileForm({
             placeholder="Cédula o documento de identidad"
           />
           <p className="mt-2 text-xs text-gray-500">
-            Lo dejaremos listo para la futura verificación de identidad externa.
+            Este dato se usa como base para la verificación manual de identidad.
           </p>
         </div>
 
@@ -208,8 +208,8 @@ export default function ProfileForm({
         </div>
 
         <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] px-4 py-3 text-sm leading-6 text-slate-600">
-          La verificación de identidad con proveedor externo la integraremos después.
-          Por ahora ya dejamos preparados tus datos base de perfil.
+          Por ahora la verificación de identidad es manual. Más abajo puedes subir
+          documento y selfie para revisión del equipo.
         </div>
 
         {msg && (

@@ -1,7 +1,8 @@
-﻿import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AppNavbar } from "@/components/app-navbar";
 import ProfileForm from "./ProfileForm";
+import VerificationPanel from "./VerificationPanel";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -25,12 +26,22 @@ export default async function ProfilePage() {
     .select("id, name, department")
     .order("name", { ascending: true });
 
+  const { data: verification, error: verificationError } = await supabase
+    .from("user_verifications")
+    .select("verification_status, rejection_reason, reviewed_at, document_photo_url, selfie_url")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   if (error) {
     throw new Error(`Error cargando perfil: ${error.message}`);
   }
 
   if (citiesError) {
     throw new Error(`Error cargando ciudades del perfil: ${citiesError.message}`);
+  }
+
+  if (verificationError) {
+    throw new Error(`Error cargando verificación del perfil: ${verificationError.message}`);
   }
 
   return (
@@ -57,6 +68,16 @@ export default async function ProfilePage() {
               cities={cities ?? []}
             />
           </section>
+
+          <div className="mt-6">
+            <VerificationPanel
+              initialStatus={verification?.verification_status ?? null}
+              initialRejectionReason={verification?.rejection_reason ?? null}
+              hasDocumentPhoto={Boolean(verification?.document_photo_url)}
+              hasSelfie={Boolean(verification?.selfie_url)}
+              reviewedAt={verification?.reviewed_at ?? null}
+            />
+          </div>
         </div>
       </main>
     </>
