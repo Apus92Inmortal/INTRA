@@ -7,12 +7,26 @@ import { createClient } from "@/lib/supabase/client";
 type SuspiciousReportFormProps = {
   shipmentId: string;
   matchId: string;
+  reporterName: string;
+  recipientUserId: string;
 };
 
-export default function SuspiciousReportForm({ shipmentId, matchId }: SuspiciousReportFormProps) {
+const REPORT_TYPES = [
+  { value: "suspicious_package", label: "Paquete sospechoso" },
+  { value: "incident", label: "Incidente en la recogida" },
+  { value: "other", label: "Otro" },
+] as const;
+
+export default function SuspiciousReportForm({
+  shipmentId,
+  matchId,
+  reporterName,
+  recipientUserId,
+}: SuspiciousReportFormProps) {
   const router = useRouter();
   const supabase = createClient();
 
+  const [reportType, setReportType] = useState<(typeof REPORT_TYPES)[number]["value"]>("suspicious_package");
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -47,21 +61,35 @@ export default function SuspiciousReportForm({ shipmentId, matchId }: Suspicious
       shipment_id: shipmentId,
       match_id: matchId,
       reported_by: user.id,
-      report_type: "suspicious_package",
+      report_type: reportType,
       reason: reason.trim(),
       status: "open",
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       setMessage(error.message);
       setMessageType("error");
       return;
     }
 
+    const { error: notificationError } = await supabase.from("notifications").insert({
+      user_id: recipientUserId,
+      type: "shipment_alert",
+      title: "Tu envío fue reportado para revisión",
+      message: `${reporterName} reportó el paquete para revisión manual.`,
+      related_match_id: matchId,
+      is_read: false,
+    });
+
+    if (notificationError) {
+      console.error("Error creating shipment alert notification:", notificationError.message);
+    }
+
+    setLoading(false);
     setReason("");
-    setMessage("Reporte enviado. El paquete quedará marcado para revisión manual.");
+    setReportType("suspicious_package");
+    setMessage("Reporte enviado. El paquete quedó marcado para revisión manual.");
     setMessageType("success");
     router.refresh();
   };
@@ -71,9 +99,24 @@ export default function SuspiciousReportForm({ shipmentId, matchId }: Suspicious
       <div>
         <h3 className="text-sm font-semibold text-amber-900">Reportar paquete sospechoso</h3>
         <p className="mt-1 text-xs text-amber-800">
-          Úsalo si ves inconsistencias, contenido extraño o una situación que amerite revisión manual.
+          Si el paquete no coincide, puedes rechazarlo. Usa este reporte si ves inconsistencias, contenido extraño o una situación que amerite revisión manual.
         </p>
       </div>
+
+      <label className="block text-sm font-medium text-amber-900">
+        Tipo de reporte
+        <select
+          value={reportType}
+          onChange={(event) => setReportType(event.target.value as (typeof REPORT_TYPES)[number]["value"])}
+          className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-3 text-sm text-slate-700"
+        >
+          {REPORT_TYPES.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label className="block text-sm font-medium text-amber-900">
         Motivo del reporte

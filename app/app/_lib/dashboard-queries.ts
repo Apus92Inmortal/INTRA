@@ -33,6 +33,7 @@ type ShipmentRow = {
   weight_kg: number | null;
   declared_value_cop: number | null;
   status: string | null;
+  tracking_code?: string | null;
   created_at: string;
   origin_city_id: string | null;
   destination_city_id: string | null;
@@ -370,6 +371,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
           weight_kg,
           declared_value_cop,
           status,
+          tracking_code,
           created_at,
           origin_city_id,
           destination_city_id,
@@ -541,7 +543,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
 
       return {
         id: shipment.id,
-        code: getShipmentCode(shipment.id),
+        code: shipment.tracking_code?.trim() || getShipmentCode(shipment.id),
         title:
           shipment.description?.trim() ||
           `${getShipmentKindLabel(shipment.kind)}${shipment.weight_kg ? ` · ${shipment.weight_kg} kg` : ""}`,
@@ -689,7 +691,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
 
       return {
         id: shipment.id,
-        code: getShipmentCode(shipment.id),
+        code: shipment.tracking_code?.trim() || getShipmentCode(shipment.id),
         title:
           shipment.description?.trim() ||
           `${getShipmentKindLabel(shipment.kind)}${shipment.weight_kg ? ` · ${shipment.weight_kg} kg` : ""}`,

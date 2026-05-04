@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
+import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 type Message = {
@@ -21,6 +22,8 @@ type Props = {
   otherUserName: string;
   otherUserAvgRating: number | null;
   otherUserTotalReviews: number;
+  shipmentTrackingCode: string | null;
+  shipmentDescription: string | null;
   initialMessages: Message[];
   viewerRole: "traveler" | "owner";
   lastReadByOwner: string | null;
@@ -115,6 +118,8 @@ export default function MatchChatClient({
   otherUserName,
   otherUserAvgRating,
   otherUserTotalReviews,
+  shipmentTrackingCode,
+  shipmentDescription,
   initialMessages,
   viewerRole,
   lastReadByOwner,
@@ -633,9 +638,15 @@ export default function MatchChatClient({
                 totalReviews={otherUserTotalReviews}
               />
             </div>
-            <p className="text-xs text-gray-500">
-              {otherUserTyping ? `${otherUserName} está escribiendo...` : "Mensajes en tiempo real"}
-            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <p className="text-xs text-gray-500">
+                {otherUserTyping ? `${otherUserName} está escribiendo...` : "Mensajes en tiempo real"}
+              </p>
+              {shipmentTrackingCode ? <TrackingCodeBadge code={shipmentTrackingCode} className="bg-[#0B2C4A]" /> : null}
+            </div>
+            {shipmentDescription ? (
+              <p className="mt-1 text-xs text-slate-500">Contenido declarado: {shipmentDescription}</p>
+            ) : null}
           </div>
 
           <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-medium text-[#0B2C4A]">

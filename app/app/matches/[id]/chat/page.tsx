@@ -46,7 +46,9 @@ export default async function MatchChatPage({ params }: PageProps) {
         traveler_id
       ),
       shipment:shipments!matches_shipment_id_fkey (
-        owner_id
+        owner_id,
+        tracking_code,
+        description
       )
     `)
     .eq("id", matchId)
@@ -117,6 +119,8 @@ export default async function MatchChatPage({ params }: PageProps) {
           otherUserName={profileNameById.get(otherUserId) ?? "La otra persona"}
           otherUserAvgRating={otherUserRating.avgRating}
           otherUserTotalReviews={otherUserRating.totalReviews}
+          shipmentTrackingCode={match.shipment?.tracking_code ?? null}
+          shipmentDescription={match.shipment?.description?.trim() ?? null}
           initialMessages={(messagesData ?? []) as Message[]}
           viewerRole={viewerRole}
           lastReadByOwner={match.last_read_by_owner}

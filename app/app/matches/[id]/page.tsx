@@ -15,6 +15,7 @@ import {
   confirmDeliveryFormAction,
 } from "./actions";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
+import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 import { fetchRatingSummaryMap } from "@/lib/reviews";
 import { getEvidenceTypeLabel, getReportStatusLabel, getVerificationBadge } from "@/lib/trust";
@@ -391,7 +392,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const canUploadEvidence = isOwner || isTraveler;
   const allowedEvidenceTypes = Array.from(
     new Set([
-      ...(isTraveler ? ["pickup", "delivery"] : []),
+      ...(isTraveler ? ["pickup"] : []),
+      ...(isOwner ? ["delivery"] : []),
       "package_state",
     ])
   );
@@ -520,11 +522,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         {getShipmentTrackingLabel(shipment?.status)}
                       </span>
 
-                      {shipment?.tracking_code ? (
-                        <span className="inline-flex rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white">
-                          {shipment.tracking_code}
-                        </span>
-                      ) : null}
+                      {shipment?.tracking_code ? <TrackingCodeBadge code={shipment.tracking_code} /> : null}
                     </div>
 
                     <p className="mt-2 text-xs text-slate-500">
@@ -766,9 +764,18 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   />
                 ) : null}
 
-                {shipment?.id ? (
-                  <SuspiciousReportForm shipmentId={shipment.id} matchId={match.id} />
+                {shipment?.id && isTraveler && ownerId ? (
+                  <SuspiciousReportForm
+                    shipmentId={shipment.id}
+                    matchId={match.id}
+                    reporterName={participantNameById.get(user.id) ?? "El viajero"}
+                    recipientUserId={ownerId}
+                  />
                 ) : null}
+
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  Si el paquete no coincide con lo declarado, puedes rechazarlo y dejar evidencia aquí mismo.
+                </div>
 
                 <div className="grid gap-4 lg:grid-cols-2">
                   <div className="space-y-3">

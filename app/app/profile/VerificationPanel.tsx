@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getVerificationBadge } from "@/lib/trust";
+import { compressImageFile } from "@/lib/uploads";
 
 type VerificationPanelProps = {
   initialStatus: string | null;
@@ -91,9 +92,14 @@ export default function VerificationPanel({
     };
 
     try {
+      const [compressedDocument, compressedSelfie] = await Promise.all([
+        compressImageFile(documentPhoto),
+        compressImageFile(selfie),
+      ]);
+
       const [documentPath, selfiePath] = await Promise.all([
-        uploadFile(documentPhoto, "document"),
-        uploadFile(selfie, "selfie"),
+        uploadFile(compressedDocument, "document"),
+        uploadFile(compressedSelfie, "selfie"),
       ]);
 
       const { error } = await supabase.from("user_verifications").upsert(
@@ -192,7 +198,7 @@ export default function VerificationPanel({
         </div>
 
         <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] px-4 py-3 text-sm leading-6 text-slate-600">
-          Al enviarlos aceptas que el equipo revise manualmente estas evidencias para validar tu identidad dentro de INTRA.
+          Al enviarlos aceptas que el equipo revise manualmente estas evidencias para validar tu identidad dentro de INTRA. Si la imagen pesa demasiado, la comprimimos antes de subirla.
         </div>
 
         {message ? (

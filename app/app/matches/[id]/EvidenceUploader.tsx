@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { compressImageFile } from "@/lib/uploads";
 
 type EvidenceUploaderProps = {
   shipmentId: string;
@@ -67,10 +68,11 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
     }
 
     try {
-      const path = `${user.id}/${shipmentId}/${Date.now()}-${selectedType}.${getFileExtension(file)}`;
-      const upload = await supabase.storage.from(EVIDENCE_BUCKET).upload(path, file, {
+      const compressedFile = await compressImageFile(file);
+      const path = `${user.id}/${shipmentId}/${Date.now()}-${selectedType}.${getFileExtension(compressedFile)}`;
+      const upload = await supabase.storage.from(EVIDENCE_BUCKET).upload(path, compressedFile, {
         upsert: false,
-        contentType: file.type || undefined,
+        contentType: compressedFile.type || undefined,
       });
 
       if (upload.error) {
@@ -83,8 +85,8 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
         uploaded_by: user.id,
         evidence_type: selectedType,
         file_path: path,
-        file_name: file.name,
-        mime_type: file.type || null,
+        file_name: compressedFile.name,
+        mime_type: compressedFile.type || null,
         note: note.trim() || null,
       });
 
@@ -114,7 +116,7 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
       <div>
         <h3 className="text-sm font-semibold text-[#0B2C4A]">Subir evidencia</h3>
         <p className="mt-1 text-xs text-slate-500">
-          Sube una foto para dejar trazabilidad de recogida, estado o entrega.
+          Sube una foto para dejar trazabilidad de recogida, estado o entrega. Si pesa más de 2MB la comprimimos antes de subirla.
         </p>
       </div>
 
