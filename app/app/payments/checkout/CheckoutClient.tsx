@@ -13,6 +13,12 @@ import {
   type RouteCategory,
   type PaymentQuote,
 } from "@/lib/payments/quote"
+import {
+  getCreateShipmentDraftErrorMessage,
+  parseCreateShipmentDraftResult,
+  SHIPMENT_DECLARATION_TEXT,
+  SHIPMENT_DECLARATION_VERSION,
+} from "@/lib/shipments/security"
 import { useRouter, useSearchParams } from "next/navigation"
 
 export type RetryCheckoutData = {
@@ -165,6 +171,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [acceptedDeclaration, setAcceptedDeclaration] = useState(false)
 
   const view = useMemo(
     () => buildCheckoutViewModel(searchParams, initialRetryData),
@@ -234,32 +241,48 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
     }
 
     let shipmentId = view.shipmentId
+    let paymentId = ""
 
     if (!view.isRetry) {
-      const { data: shipment, error: shipmentError } = await supabase
-        .from("shipments")
-        .insert({
-          owner_id: user.id,
-          origin_city_id: view.originCityId,
-          destination_city_id: view.destinationCityId,
-          kind: view.kind,
-          description: view.rawDescription.trim(),
-          weight_kg: view.weight,
-          declared_value_cop: view.declared,
-        })
-        .select("id")
-        .single()
+      if (!acceptedDeclaration) {
+        setLoading(false)
+        setErrorMsg("Debes aceptar la declaración responsable para continuar.")
+        return
+      }
 
-      if (shipmentError || !shipment) {
+      const { data: createDraftData, error: createDraftError } = await supabase.rpc(
+        "create_shipment_with_payment_draft",
+        {
+          p_origin_city_id: view.originCityId,
+          p_destination_city_id: view.destinationCityId,
+          p_kind: view.kind,
+          p_description: view.rawDescription.trim(),
+          p_weight_kg: view.weight,
+          p_declared_value_cop: view.declared,
+          p_declaration_accepted: acceptedDeclaration,
+          p_declaration_version: SHIPMENT_DECLARATION_VERSION,
+        }
+      )
+
+      if (createDraftError) {
+        setLoading(false)
+        setErrorMsg("No se pudo preparar el envío: " + createDraftError.message)
+        return
+      }
+
+      const createDraftResult = parseCreateShipmentDraftResult(createDraftData)
+
+      if (!createDraftResult?.success || !createDraftResult.shipment_id || !createDraftResult.payment_id) {
         setLoading(false)
         setErrorMsg(
-          "No se pudo crear el envío: " +
-            (shipmentError?.message ?? "Error desconocido")
+          createDraftResult?.message ||
+            getCreateShipmentDraftErrorMessage(createDraftResult?.error)
         )
         return
       }
 
-      shipmentId = shipment.id
+      shipmentId = createDraftResult.shipment_id
+      paymentId = createDraftResult.payment_id
     }
 
     if (!shipmentId) {
@@ -268,43 +291,47 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
       return
     }
 
-    const externalReference = buildReference(shipmentId)
+    if (!paymentId) {
+      const externalReference = buildReference(shipmentId)
 
-    const { data: payment, error: paymentError } = await supabase
-      .from("payments")
-      .insert({
-        shipment_id: shipmentId,
-        user_id: user.id,
-        amount: quote.amount,
-        gross_amount: quote.gross_amount ?? quote.amount,
-        traveler_amount: quote.traveler_amount ?? 0,
-        intra_fee: quote.intra_fee ?? 0,
-        gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
-        net_amount_received: quote.net_amount_received ?? quote.amount,
-        currency: quote.currency ?? "COP",
-        status: "pending",
-        gateway_provider: "wompi",
-        gateway_status: "created",
-        payment_method: "wompi_widget",
-        external_reference: externalReference,
-        metadata: {
-          source: "wompi_widget",
-          sandbox: process.env.NEXT_PUBLIC_WOMPI_SANDBOX === "true",
-          auto_release_hours: quote.auto_release_hours ?? autoReleaseHours,
-          dispute_window_hours: quote.dispute_window_hours ?? disputeWindowHours,
-          retry_of_payment_id: view.retryPaymentId || null,
-        },
-      })
-      .select("id")
-      .single()
+      const { data: payment, error: paymentError } = await supabase
+        .from("payments")
+        .insert({
+          shipment_id: shipmentId,
+          user_id: user.id,
+          amount: quote.amount,
+          gross_amount: quote.gross_amount ?? quote.amount,
+          traveler_amount: quote.traveler_amount ?? 0,
+          intra_fee: quote.intra_fee ?? 0,
+          gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
+          net_amount_received: quote.net_amount_received ?? quote.amount,
+          currency: quote.currency ?? "COP",
+          status: "pending",
+          gateway_provider: "wompi",
+          gateway_status: "created",
+          payment_method: "wompi_widget",
+          external_reference: externalReference,
+          metadata: {
+            source: "wompi_widget",
+            sandbox: process.env.NEXT_PUBLIC_WOMPI_SANDBOX === "true",
+            auto_release_hours: quote.auto_release_hours ?? autoReleaseHours,
+            dispute_window_hours: quote.dispute_window_hours ?? disputeWindowHours,
+            retry_of_payment_id: view.retryPaymentId || null,
+          },
+        })
+        .select("id")
+        .single()
 
-    if (paymentError || !payment) {
-      setLoading(false)
-      setErrorMsg("No se pudo registrar el pago: " + (paymentError?.message ?? "Error desconocido"))
-      return
+      if (paymentError || !payment) {
+        setLoading(false)
+        setErrorMsg("No se pudo registrar el pago: " + (paymentError?.message ?? "Error desconocido"))
+        return
+      }
+
+      paymentId = payment.id
     }
 
-    const params = new URLSearchParams({ paymentId: payment.id })
+    const params = new URLSearchParams({ paymentId })
     router.push(`/app/payments/checkout/wompi?${params.toString()}`)
   }
 
@@ -398,6 +425,24 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Descripción</p>
               <p className="mt-1 text-sm leading-5 text-slate-700 lg:max-h-10 lg:overflow-hidden">{view.description}</p>
             </div>
+
+            {!view.isRetry ? (
+              <div className="mt-2.5 rounded-[24px] border border-emerald-200 bg-emerald-50 p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700">Declaración responsable</p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{SHIPMENT_DECLARATION_TEXT}</p>
+                <label className="mt-4 flex items-start gap-3 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    className="mt-1 h-4 w-4 rounded border-slate-300 text-[#1e8c4e] focus:ring-[#1e8c4e]"
+                    checked={acceptedDeclaration}
+                    onChange={(event) => setAcceptedDeclaration(event.target.checked)}
+                  />
+                  <span>
+                    Confirmo que leí y acepto esta declaración para crear el envío y preparar el pago seguro.
+                  </span>
+                </label>
+              </div>
+            ) : null}
           </div>
 
           <aside className="rounded-[28px] border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4 lg:sticky lg:top-16">
