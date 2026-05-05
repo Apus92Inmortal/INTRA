@@ -57,7 +57,7 @@ export default async function ProfilePage() {
             </p>
           </div>
 
-          <section className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_360px] xl:grid-cols-[minmax(0,1.5fr)_380px] xl:items-start">
+          <section className="grid gap-4 lg:grid-cols-2 lg:items-start">
             <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
               <ProfileForm
                 initialFullName={profile?.full_name ?? ""}
