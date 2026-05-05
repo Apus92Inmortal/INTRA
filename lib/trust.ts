@@ -23,7 +23,7 @@ export function getVerificationBadge(status: string | null | undefined) {
     default:
       return {
         label: "Sin verificar",
-        classes: "bg-slate-100 text-slate-700",
+        classes: "bg-amber-100 text-amber-800 border border-amber-200",
         description: "Aún no has enviado tu documento ni tu selfie para revisión manual.",
       }
   }

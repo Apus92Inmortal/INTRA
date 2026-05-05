@@ -148,7 +148,7 @@ export default function VerificationPanel({
           </p>
         </div>
 
-        <span className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${badge.classes}`}>
+        <span className={`inline-flex min-w-[118px] justify-center whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-semibold ${badge.classes}`}>
           {badge.label}
         </span>
       </div>
