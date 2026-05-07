@@ -407,20 +407,20 @@ export default function VerificationReviewClient({ verifications }: { verificati
           </section>
 
           <section className="space-y-4">
-            <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
-              <div>
+            <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+              <div className="shrink-0">
                 <h3 className="text-xl font-semibold text-[#0B2C4A]">Revisadas</h3>
               </div>
 
-              <div className="flex w-full flex-col gap-3 lg:max-w-3xl lg:items-end">
+              <div className="flex w-full flex-col gap-3 xl:max-w-4xl xl:flex-row xl:items-center xl:justify-end">
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Buscar por nombre, teléfono o documento"
-                  className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A] lg:max-w-md"
+                  className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A] xl:max-w-md"
                 />
 
-                <div className="flex w-full flex-wrap gap-2 lg:justify-end">
+                <div className="flex flex-wrap gap-2 xl:flex-nowrap xl:justify-end">
                   {([
                     ["all", `Todas (${reviewedCounts.all})`],
                     ["verified", `Aprobadas (${reviewedCounts.verified})`],
@@ -433,7 +433,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
                         key={value}
                         type="button"
                         onClick={() => setReviewedFilter(value)}
-                        className={`rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ${
+                        className={`whitespace-nowrap rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ${
                           isActive
                             ? "border-[#0B2C4A] bg-[#0B2C4A] text-white"
                             : "border-slate-200 bg-white text-slate-600 hover:border-[#0B2C4A]/20 hover:text-[#0B2C4A]"
