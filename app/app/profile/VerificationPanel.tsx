@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getVerificationBadge } from "@/lib/trust";
@@ -32,6 +32,89 @@ function formatDate(dateString: string | null) {
 function getFileExtension(file: File) {
   const parts = file.name.split(".");
   return parts.length > 1 ? parts.pop()?.toLowerCase() ?? "bin" : "bin";
+}
+
+type UploadFieldProps = {
+  label: string;
+  selectedFile: File | null;
+  hasUploaded: boolean;
+  uploadedLabel: string;
+  onChange: (file: File | null) => void;
+};
+
+function UploadField({
+  label,
+  selectedFile,
+  hasUploaded,
+  uploadedLabel,
+  onChange,
+}: UploadFieldProps) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const status = selectedFile
+    ? {
+        label: "Lista para enviar",
+        classes: "border-green-200 bg-green-100 text-green-700",
+      }
+    : hasUploaded
+      ? {
+          label: uploadedLabel,
+          classes: "border-green-200 bg-green-100 text-green-700",
+        }
+      : {
+          label: "Pendiente",
+          classes: "border-amber-200 bg-amber-100 text-amber-700",
+        };
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-slate-900">{label}</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {selectedFile
+              ? selectedFile.name
+              : hasUploaded
+                ? "Ya hay un archivo cargado. Puedes reemplazarlo si quieres."
+                : "Sube una imagen clara en JPG o PNG."}
+          </p>
+        </div>
+        <span
+          className={`inline-flex whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${status.classes}`}
+        >
+          {status.label}
+        </span>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-2xl border border-[#0B2C4A]/12 bg-white px-4 py-2 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7]">
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+          />
+          {selectedFile ? "Cambiar archivo" : "Seleccionar archivo"}
+        </label>
+
+        {selectedFile ? (
+          <button
+            type="button"
+            onClick={() => {
+              onChange(null);
+              if (inputRef.current) {
+                inputRef.current.value = "";
+              }
+            }}
+            className="text-sm font-medium text-slate-500 transition hover:text-slate-700"
+          >
+            Quitar
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
 }
 
 export default function VerificationPanel({
@@ -165,36 +248,52 @@ export default function VerificationPanel({
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          <p className="font-semibold text-slate-900">Documento</p>
-          <p className="mt-1">{hasDocumentPhoto ? "Cargado" : "Pendiente"}</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-semibold text-slate-900">Documento</p>
+            <span
+              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+                hasDocumentPhoto
+                  ? "border-green-200 bg-green-100 text-green-700"
+                  : "border-amber-200 bg-amber-100 text-amber-700"
+              }`}
+            >
+              {hasDocumentPhoto ? "Documento cargado" : "Pendiente"}
+            </span>
+          </div>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          <p className="font-semibold text-slate-900">Selfie</p>
-          <p className="mt-1">{hasSelfie ? "Cargada" : "Pendiente"}</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-semibold text-slate-900">Selfie</p>
+            <span
+              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+                hasSelfie
+                  ? "border-green-200 bg-green-100 text-green-700"
+                  : "border-amber-200 bg-amber-100 text-amber-700"
+              }`}
+            >
+              {hasSelfie ? "Selfie cargada" : "Pendiente"}
+            </span>
+          </div>
         </div>
       </div>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Foto del documento
-            <input
-              type="file"
-              accept="image/*"
-              className="mt-2 block w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-sm text-gray-700"
-              onChange={(event) => setDocumentPhoto(event.target.files?.[0] ?? null)}
-            />
-          </label>
+          <UploadField
+            label="Foto del documento"
+            selectedFile={documentPhoto}
+            hasUploaded={hasDocumentPhoto}
+            uploadedLabel="Documento cargado"
+            onChange={setDocumentPhoto}
+          />
 
-          <label className="block text-sm font-medium text-gray-700">
-            Selfie
-            <input
-              type="file"
-              accept="image/*"
-              className="mt-2 block w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-sm text-gray-700"
-              onChange={(event) => setSelfie(event.target.files?.[0] ?? null)}
-            />
-          </label>
+          <UploadField
+            label="Selfie"
+            selectedFile={selfie}
+            hasUploaded={hasSelfie}
+            uploadedLabel="Selfie cargada"
+            onChange={setSelfie}
+          />
         </div>
 
         <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] px-4 py-3 text-sm leading-6 text-slate-600">
