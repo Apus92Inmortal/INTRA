@@ -140,7 +140,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const [errors, setErrors] = useState<FormErrors>({})
 
   const fieldBaseClassName =
-    "w-full rounded-[13px] border border-[#D7E5F1] bg-white px-3 py-1.5 text-[13px] text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-4 focus:ring-[#0B2C4A]/10"
+    "w-full rounded-[13px] border border-[#D7E5F1] bg-white px-3 py-1.5 text-[13px] text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-4 focus:ring-[#0B2C4A]/10 [@media(min-width:1024px)_and_(max-height:900px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:900px)]:text-[12px] [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[11px]"
 
   const cityOptions = useMemo(() => cities, [cities])
   const citiesById = useMemo(() => new Map(cities.map((city) => [city.id, city])), [cities])
@@ -296,9 +296,9 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       : "Selecciona origen y destino"
 
   return (
-    <div className="grid gap-2.5 lg:grid-cols-[minmax(0,1.75fr)_300px] lg:items-start">
+    <div className="grid gap-2.5 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.75fr)_300px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
       <form onSubmit={onSubmit}>
-        <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-3.5 lg:p-3.5">
+        <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-3.5 lg:h-full lg:min-h-0 lg:p-3.5 [@media(min-width:1024px)_and_(max-height:900px)]:p-3 [@media(min-width:1024px)_and_(max-height:820px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:760px)]:p-2">
           <section>
             <SectionHeader
               step="1"
@@ -306,7 +306,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               description="Indica desde qué ciudad sales y hacia cuál te diriges."
             />
 
-            <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_36px_minmax(0,1fr)] lg:items-end">
+            <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_36px_minmax(0,1fr)] lg:items-end [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
               <div>
                 <label htmlFor="trip-origin-city" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                   Origen
@@ -372,7 +372,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               </div>
             </div>
 
-            <div className="mt-2">
+            <div className="mt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5">
               <AirRouteGraphic
                 originCode={originCity?.iata_code ?? "BOG"}
                 destinationCode={destinationCity?.iata_code ?? "BAQ"}
@@ -382,14 +382,14 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             </div>
           </section>
 
-          <section className="mt-2.5 border-t border-[#E9F0F6] pt-2.5">
+          <section className="mt-2.5 border-t border-[#E9F0F6] pt-2.5 [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
             <SectionHeader
               step="2"
               title="Detalles del viaje"
               description="Define cuándo sales, a qué hora y cuánta capacidad puedes llevar."
             />
 
-            <div className="grid gap-2 lg:grid-cols-[1fr_1fr_0.8fr_1.02fr]">
+            <div className="grid gap-2 lg:grid-cols-[1fr_1fr_0.8fr_1.02fr] [@media(min-width:1024px)_and_(max-height:900px)]:gap-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:gap-1">
               <div>
                 <label htmlFor="trip-departure-date" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                   Fecha de salida
@@ -451,14 +451,14 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 <label className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                   Capacidad disponible
                 </label>
-                <div className="rounded-[13px] border border-[#D7E5F1] bg-[#FBFDFF] px-2.5 py-2">
+                <div className="rounded-[13px] border border-[#D7E5F1] bg-[#FBFDFF] px-2.5 py-2 [@media(min-width:1024px)_and_(max-height:900px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:px-2 [@media(min-width:1024px)_and_(max-height:820px)]:py-1">
                   <div className="flex items-center justify-between gap-2 text-[11px] font-semibold text-slate-500">
                     <span>Disponible</span>
                     <span className="text-[#1E8C4E]">
                       {capacityValue && capacityValue > 0 ? `${capacityValue}/${visualCapacityMax} kg` : `0/${visualCapacityMax} kg`}
                     </span>
                   </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#E5EEF5]">
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#E5EEF5] [@media(min-width:1024px)_and_(max-height:820px)]:h-1">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-[#2ECC71] via-[#39D98A] to-[#7BE495] transition-all"
                       style={{ width: `${capacityProgress}%` }}
@@ -468,7 +468,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               </div>
             </div>
 
-            <div className="mt-2">
+            <div className="mt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5">
               <label htmlFor="trip-notes" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                 Notas adicionales (opcional)
               </label>
@@ -480,20 +480,20 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Ej: referencias de punto de encuentro, equipaje o coordinación adicional."
-                className={`${fieldBaseClassName} min-h-[56px] resize-none py-2`}
+                className={`${fieldBaseClassName} min-h-[56px] resize-none py-2 [@media(min-width:1024px)_and_(max-height:900px)]:min-h-[50px] [@media(min-width:1024px)_and_(max-height:820px)]:min-h-[42px]`}
               />
               <div className="mt-1 flex justify-end text-[10px] text-slate-400">{noteCount} / 260</div>
             </div>
           </section>
 
-          <section className="mt-2.5 border-t border-[#E9F0F6] pt-2.5">
+          <section className="mt-2.5 border-t border-[#E9F0F6] pt-2.5 [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
             <SectionHeader
               step="3"
               title="Información adicional"
               description="Cuéntanos más sobre tu viaje para generar confianza."
             />
 
-            <div className="grid gap-2 lg:grid-cols-3">
+            <div className="grid gap-2 lg:grid-cols-3 [@media(min-width:1024px)_and_(max-height:900px)]:gap-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:gap-1">
               <PreferenceToggle
                 label="¿Aceptas paquetes frágiles?"
                 value={acceptsFragile}
@@ -524,7 +524,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             </div>
           ) : null}
 
-          <div className="mt-2.5 flex flex-col items-center justify-center gap-2 border-t border-[#E9F0F6] pt-2.5 sm:flex-row">
+          <div className="mt-2.5 flex flex-col items-center justify-center gap-2 border-t border-[#E9F0F6] pt-2.5 sm:flex-row [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
             <button
               disabled={loading}
               className="inline-flex min-h-10 min-w-[210px] items-center justify-center rounded-[13px] bg-[#2ECC71] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_22px_rgba(46,204,113,0.20)] transition hover:bg-[#29b765] disabled:cursor-not-allowed disabled:opacity-60"
@@ -544,8 +544,8 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
         </div>
       </form>
 
-      <aside>
-        <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)]">
+      <aside className="lg:h-full lg:min-h-0">
+        <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] lg:h-full lg:min-h-0 [@media(min-width:1024px)_and_(max-height:900px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:p-2">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[14px] font-semibold text-[#0B2C4A]">Resumen del viaje</p>
@@ -564,7 +564,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             />
           </div>
 
-          <div className="mt-2 overflow-hidden rounded-[16px] border border-[#E3EDF5] bg-white">
+          <div className="mt-2 overflow-hidden rounded-[16px] border border-[#E3EDF5] bg-white [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5">
             {[
               {
                 label: "Ruta",
@@ -620,7 +620,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             ))}
           </div>
 
-          <div className="mt-2 rounded-[16px] border border-[#BEE8CD] bg-[#EFFBF4] p-2.5">
+          <div className="mt-2 rounded-[16px] border border-[#BEE8CD] bg-[#EFFBF4] p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:p-2">
             <div className="flex items-start gap-3">
               <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-white text-[#1E8C4E] shadow-sm">
                 <ShieldCheck className="h-3.5 w-3.5" />
@@ -634,7 +634,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             </div>
           </div>
 
-          <div className="mt-2 rounded-[16px] border border-[#E3EDF5] bg-[#FBFDFF] px-2.5 py-2 text-[12px] leading-4 text-slate-500">
+          <div className="mt-2 rounded-[16px] border border-[#E3EDF5] bg-[#FBFDFF] px-2.5 py-2 text-[12px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[11px]">
             <p className="font-medium text-[#0B2C4A]">Privacidad</p>
             <p className="mt-1">
               Tu información estará protegida y solo se compartirá con personas interesadas.
