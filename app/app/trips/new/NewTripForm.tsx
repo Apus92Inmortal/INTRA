@@ -41,7 +41,7 @@ function PreferenceToggle({ label, value, onChange }: PreferenceToggleProps) {
   return (
     <div className="rounded-[16px] border border-[#E3EDF5] bg-[#FCFEFF] px-2.5 py-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[12px] font-medium leading-4 text-[#0B2C4A]">{label}</p>
+        <p className="truncate whitespace-nowrap text-[11px] font-medium leading-4 text-[#0B2C4A]">{label}</p>
 
         <div className="inline-flex rounded-full border border-[#D7E5F1] bg-[#F3F7FA] p-1 shadow-[inset_0_1px_2px_rgba(11,44,74,0.06)]">
           <button
@@ -295,13 +295,13 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     router.push("/app#envios-compatibles")
   }
 
-  const routeLabel =
+  const compactRouteLabel =
     originCity && destinationCity
-      ? `${originCity.name} (${originCity.department}) · ${destinationCity.name} (${destinationCity.department})`
-      : "Selecciona origen y destino"
+      ? `${originCity.name} → ${destinationCity.name}`
+      : "Por definir"
 
   return (
-    <div className="grid gap-2.5 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.75fr)_300px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
+    <div className="grid gap-2.5 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.52fr)_360px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
       <form onSubmit={onSubmit}>
         <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-3.5 lg:h-full lg:min-h-0 lg:p-3.5 [@media(min-width:1024px)_and_(max-height:900px)]:p-3 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:760px)]:p-2">
           <section>
@@ -480,17 +480,17 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
             <div className="grid gap-2 lg:grid-cols-3 [@media(min-width:1024px)_and_(max-height:900px)]:gap-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:gap-1">
               <PreferenceToggle
-                label="¿Aceptas paquetes frágiles?"
+                label="Paquetes frágiles"
                 value={acceptsFragile}
                 onChange={setAcceptsFragile}
               />
               <PreferenceToggle
-                label="¿Aceptas múltiples paquetes?"
+                label="Múltiples paquetes"
                 value={acceptsMultiplePackages}
                 onChange={setAcceptsMultiplePackages}
               />
               <PreferenceToggle
-                label="¿Tienes paradas intermedias?"
+                label="Paradas intermedias"
                 value={hasStopovers}
                 onChange={setHasStopovers}
               />
@@ -554,7 +554,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               {
                 label: "Ruta",
                 icon: MapPinned,
-                value: routeLabel,
+                value: compactRouteLabel,
               },
               {
                 label: "Fecha y hora",
@@ -580,14 +580,15 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-[#F4F8FB] text-[#0B2C4A]">
                     <item.icon className="h-3.5 w-3.5" />
                   </div>
-                  <p className="text-[12px] text-slate-500">{item.label}</p>
+                  <p className="whitespace-nowrap text-[12px] text-slate-500">{item.label}</p>
                 </div>
                 <p
-                  className={`max-w-[52%] text-right text-[12px] font-semibold leading-4 ${
+                  className={`max-w-[56%] truncate whitespace-nowrap text-right text-[12px] font-semibold leading-4 ${
                     item.value === "Por definir" || item.value === "Selecciona origen y destino"
                       ? "text-slate-400"
                       : "text-[#0B2C4A]"
                   }`}
+                  title={item.value}
                 >
                   {item.value}
                 </p>
