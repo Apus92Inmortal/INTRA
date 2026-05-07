@@ -64,7 +64,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
       <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">Admin de retiros</h1>
+            <h2 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">Retiros</h2>
             <p className="mt-1 text-sm text-slate-500 sm:text-base">
               Revisa solicitudes pendientes y decide si se aprueban, rechazan o ya fueron pagadas.
             </p>

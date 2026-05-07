@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { CreditCard, Home, Menu, MessageSquareText, User, X } from "lucide-react";
+import { CreditCard, Home, Menu, MessageSquareText, Shield, User, X } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications-bell";
 
 export type AppNavbarContext = {
@@ -175,17 +175,17 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
         icon: CreditCard,
       },
       {
-        href: "/app/admin/payouts",
-        label: "Retiros",
-        mobileLabel: "Retiros",
-        icon: CreditCard,
+        href: "/app/admin",
+        label: "Admin",
+        mobileLabel: "Admin",
+        icon: Shield,
       },
       { href: "/app/profile", label: "Perfil", mobileLabel: "Perfil", icon: User },
     ];
   }, [context.hasSession]);
 
   const visibleLinks = useMemo(
-    () => links.filter((link) => (link.href === "/app/admin/payouts" ? context.isAdmin : true)),
+    () => links.filter((link) => (link.href === "/app/admin" ? context.isAdmin : true)),
     [context.isAdmin, links]
   );
 
