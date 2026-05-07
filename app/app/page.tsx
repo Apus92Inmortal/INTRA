@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
+import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import WelcomeModal from "@/components/WelcomeModal";
 import { formatRatingValue } from "@/lib/reviews";
 import { createClient } from "@/lib/supabase/server";
@@ -475,7 +476,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
                                   {shipment.paymentLabel}
                                 </span>
-                                <span className="text-xs text-amber-300">{shipment.code}</span>
+                                <TrackingCodeBadge code={shipment.code} className="bg-amber-700" />
                               </div>
                               <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
                               <p className="mt-0.5 text-sm text-slate-600">{shipment.routeLabel}</p>
@@ -512,7 +513,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                           <div className="min-w-0 flex-1">
                             <div className="mb-1 flex items-center gap-2">
                               <ShipmentBadge shipment={shipment} />
-                              <span className="text-xs text-gray-300">{shipment.code}</span>
+                              <TrackingCodeBadge code={shipment.code} />
                             </div>
                             <p className="truncate font-semibold text-[#0B2C4A]">{shipment.title}</p>
                             <p className="mt-0.5 text-sm text-gray-500">{shipment.routeLabel}</p>

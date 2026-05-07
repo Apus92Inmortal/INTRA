@@ -1,7 +1,8 @@
-﻿import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AppNavbar } from "@/components/app-navbar";
 import ProfileForm from "./ProfileForm";
+import VerificationPanel from "./VerificationPanel";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -25,6 +26,12 @@ export default async function ProfilePage() {
     .select("id, name, department")
     .order("name", { ascending: true });
 
+  const { data: verification, error: verificationError } = await supabase
+    .from("user_verifications")
+    .select("verification_status, rejection_reason, reviewed_at, document_photo_url, selfie_url")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
   if (error) {
     throw new Error(`Error cargando perfil: ${error.message}`);
   }
@@ -33,29 +40,45 @@ export default async function ProfilePage() {
     throw new Error(`Error cargando ciudades del perfil: ${citiesError.message}`);
   }
 
+  if (verificationError) {
+    throw new Error(`Error cargando verificación del perfil: ${verificationError.message}`);
+  }
+
   return (
     <>
       <AppNavbar />
 
-      <main className="min-h-screen bg-[#EEF2F7]">
-        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-          <div className="mb-8">
+      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2C4A]">Mi perfil</h1>
             <p className="mt-2 text-sm text-gray-600">
               Edita tu información personal y mantén tus datos actualizados en INTRA.
             </p>
           </div>
 
-          <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-            <ProfileForm
-              initialFullName={profile?.full_name ?? ""}
-              initialPhone={profile?.phone ?? ""}
-              initialDocumentNumber={profile?.document_number ?? ""}
-              initialCityId={profile?.city_id ?? ""}
-              email={user.email ?? ""}
-              isEmailVerified={Boolean(user.email_confirmed_at)}
-              cities={cities ?? []}
-            />
+          <section className="grid gap-4 lg:grid-cols-2 lg:items-start">
+            <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+              <ProfileForm
+                initialFullName={profile?.full_name ?? ""}
+                initialPhone={profile?.phone ?? ""}
+                initialDocumentNumber={profile?.document_number ?? ""}
+                initialCityId={profile?.city_id ?? ""}
+                email={user.email ?? ""}
+                isEmailVerified={Boolean(user.email_confirmed_at)}
+                cities={cities ?? []}
+              />
+            </div>
+
+            <div className="lg:sticky lg:top-24">
+              <VerificationPanel
+                initialStatus={verification?.verification_status ?? null}
+                initialRejectionReason={verification?.rejection_reason ?? null}
+                hasDocumentPhoto={Boolean(verification?.document_photo_url)}
+                hasSelfie={Boolean(verification?.selfie_url)}
+                reviewedAt={verification?.reviewed_at ?? null}
+              />
+            </div>
           </section>
         </div>
       </main>

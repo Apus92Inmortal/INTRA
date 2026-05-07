@@ -15,8 +15,12 @@ import {
   confirmDeliveryFormAction,
 } from "./actions";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
+import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 import { fetchRatingSummaryMap } from "@/lib/reviews";
+import { getEvidenceTypeLabel, getReportStatusLabel, getVerificationBadge } from "@/lib/trust";
+import EvidenceUploader from "./EvidenceUploader";
+import SuspiciousReportForm from "./SuspiciousReportForm";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -25,6 +29,26 @@ type PageProps = {
 type ProfileRow = {
   id: string;
   full_name: string | null;
+  verification_status?: string | null;
+};
+
+type EvidenceRow = {
+  id: string;
+  uploaded_by: string;
+  evidence_type: string;
+  note: string | null;
+  created_at: string;
+  file_path: string;
+  file_name: string | null;
+};
+
+type ReportEventRow = {
+  id: string;
+  reported_by: string;
+  report_type: string;
+  reason: string;
+  status: string;
+  created_at: string;
 };
 
 type MatchReviewRow = {
@@ -201,6 +225,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
         weight_kg,
         declared_value_cop,
         status,
+        tracking_code,
         origin_city_id,
         destination_city_id
       )
@@ -249,10 +274,24 @@ export default async function MatchDetailPage({ params }: PageProps) {
         .in("id", participantIds)
     : { data: [] as ProfileRow[] };
 
+  const { data: participantVerifications } = participantIds.length
+    ? await supabase
+        .from("user_verifications")
+        .select("user_id, verification_status")
+        .in("user_id", participantIds)
+    : { data: [] as Array<{ user_id: string; verification_status: string | null }> };
+
   const participantNameById = new Map<string, string>(
     ((participantProfiles ?? []) as ProfileRow[]).map((profile) => [
       profile.id,
       profile.full_name?.trim() || "Usuario INTRA",
+    ])
+  );
+
+  const participantVerificationById = new Map<string, string | null>(
+    ((participantVerifications ?? []) as Array<{ user_id: string; verification_status: string | null }>).map((verification) => [
+      verification.user_id,
+      verification.verification_status ?? null,
     ])
   );
 
@@ -276,6 +315,37 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
   const matchReviews = (reviewsData ?? []) as MatchReviewRow[];
   const currentUserReview = matchReviews.find((review) => review.reviewer_id === user.id) ?? null;
+
+  const { data: evidenceData } = shipment?.id
+    ? await supabase
+        .from("shipment_evidence")
+        .select("id, uploaded_by, evidence_type, note, created_at, file_path, file_name")
+        .eq("shipment_id", shipment.id)
+        .order("created_at", { ascending: false })
+    : { data: [] as EvidenceRow[] };
+
+  const evidenceItems = await Promise.all(
+    ((evidenceData ?? []) as EvidenceRow[]).map(async (evidence) => {
+      const { data } = await supabase.storage
+        .from("shipment-evidence")
+        .createSignedUrl(evidence.file_path, 60 * 60);
+
+      return {
+        ...evidence,
+        signedUrl: data?.signedUrl ?? null,
+      };
+    })
+  );
+
+  const { data: reportEventsData } = shipment?.id
+    ? await supabase
+        .from("shipment_report_events")
+        .select("id, reported_by, report_type, reason, status, created_at")
+        .eq("shipment_id", shipment.id)
+        .order("created_at", { ascending: false })
+    : { data: [] as ReportEventRow[] };
+
+  const reportEvents = (reportEventsData ?? []) as ReportEventRow[];
   const otherUserId = isOwner ? travelerId : ownerId;
   const otherUserName = otherUserId
     ? participantNameById.get(otherUserId) ?? "la otra persona"
@@ -318,6 +388,15 @@ export default async function MatchDetailPage({ params }: PageProps) {
     match.status === "completed" &&
     Boolean(otherUserId) &&
     !currentUserReview;
+
+  const canUploadEvidence = isOwner || isTraveler;
+  const allowedEvidenceTypes = Array.from(
+    new Set([
+      ...(isTraveler ? ["pickup"] : []),
+      ...(isOwner ? ["delivery"] : []),
+      "package_state",
+    ])
+  );
 
   const markInTransitSubmitAction =
     shipment?.id && match?.id
@@ -420,6 +499,13 @@ export default async function MatchDetailPage({ params }: PageProps) {
                           avgRating={ratingSummaryMap[ownerId]?.avgRating ?? null}
                           totalReviews={ratingSummaryMap[ownerId]?.totalReviews ?? 0}
                         />
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${getVerificationBadge(
+                            participantVerificationById.get(ownerId)
+                          ).classes}`}
+                        >
+                          {getVerificationBadge(participantVerificationById.get(ownerId)).label}
+                        </span>
                       </div>
                     </div>
                   ) : null}
@@ -427,7 +513,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   <div className="pt-2">
                     <p className="font-medium text-slate-900">Tracking:</p>
 
-                    <div className="mt-2">
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
                       <span
                         className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getShipmentTrackingClasses(
                           shipment?.status
@@ -435,6 +521,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       >
                         {getShipmentTrackingLabel(shipment?.status)}
                       </span>
+
+                      {shipment?.tracking_code ? <TrackingCodeBadge code={shipment.tracking_code} /> : null}
                     </div>
 
                     <p className="mt-2 text-xs text-slate-500">
@@ -483,6 +571,13 @@ export default async function MatchDetailPage({ params }: PageProps) {
                           avgRating={ratingSummaryMap[travelerId]?.avgRating ?? null}
                           totalReviews={ratingSummaryMap[travelerId]?.totalReviews ?? 0}
                         />
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${getVerificationBadge(
+                            participantVerificationById.get(travelerId)
+                          ).classes}`}
+                        >
+                          {getVerificationBadge(participantVerificationById.get(travelerId)).label}
+                        </span>
                       </div>
                     </div>
                   ) : null}
@@ -648,6 +743,114 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   ) : null}
                 </div>
               </div>
+
+              <section className="mt-8 space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-[#0B2C4A]">
+                      Evidencia y seguridad
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Aquí queda la trazabilidad visual del paquete y cualquier alerta manual del match.
+                    </p>
+                  </div>
+                </div>
+
+                {canUploadEvidence && shipment?.id ? (
+                  <EvidenceUploader
+                    shipmentId={shipment.id}
+                    matchId={match.id}
+                    allowedTypes={allowedEvidenceTypes}
+                  />
+                ) : null}
+
+                {shipment?.id && isTraveler && ownerId ? (
+                  <SuspiciousReportForm
+                    shipmentId={shipment.id}
+                    matchId={match.id}
+                    reporterName={participantNameById.get(user.id) ?? "El viajero"}
+                    recipientUserId={ownerId}
+                  />
+                ) : null}
+
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  Si el paquete no coincide con lo declarado, puedes rechazarlo y dejar evidencia aquí mismo.
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-[#0B2C4A]">Evidencias cargadas</h3>
+                    {evidenceItems.length > 0 ? (
+                      evidenceItems.map((evidence) => (
+                        <article
+                          key={evidence.id}
+                          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                        >
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                              {getEvidenceTypeLabel(evidence.evidence_type)}
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              por {participantNameById.get(evidence.uploaded_by) ?? "Usuario INTRA"}
+                            </span>
+                            <span className="text-xs text-slate-400">
+                              {formatDateTime(evidence.created_at)}
+                            </span>
+                          </div>
+
+                          {evidence.note ? (
+                            <p className="mt-3 text-sm text-slate-600">{evidence.note}</p>
+                          ) : null}
+
+                          {evidence.signedUrl ? (
+                            <a
+                              href={evidence.signedUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="mt-3 inline-flex text-sm font-semibold text-[#0B2C4A] hover:underline"
+                            >
+                              Ver archivo {evidence.file_name ? `(${evidence.file_name})` : ""}
+                            </a>
+                          ) : null}
+                        </article>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
+                        Todavía no hay evidencias cargadas para este envío.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-[#0B2C4A]">Reportes manuales</h3>
+                    {reportEvents.length > 0 ? (
+                      reportEvents.map((report) => (
+                        <article
+                          key={report.id}
+                          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                        >
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
+                              {report.report_type === "suspicious_package" ? "Paquete sospechoso" : "Reporte"}
+                            </span>
+                            <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                              {getReportStatusLabel(report.status)}
+                            </span>
+                          </div>
+                          <p className="mt-3 text-sm text-slate-700">{report.reason}</p>
+                          <p className="mt-3 text-xs text-slate-400">
+                            Reportado por {participantNameById.get(report.reported_by) ?? "Usuario INTRA"} · {formatDateTime(report.created_at)}
+                          </p>
+                        </article>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
+                        No hay reportes manuales para este match.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
 
               <section className="mt-8 space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
