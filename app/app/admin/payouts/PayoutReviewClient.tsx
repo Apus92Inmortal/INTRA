@@ -66,6 +66,7 @@ function ReviewedPayoutRow({
   const canApprove = payout.status === "pending"
   const canReject = payout.status === "pending" || payout.status === "approved"
   const canMarkPaid = payout.status === "approved"
+  const showActions = canApprove || canReject || canMarkPaid
 
   return (
     <details className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -142,32 +143,34 @@ function ReviewedPayoutRow({
           />
         </label>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <button
-            type="button"
-            disabled={isPending || !canApprove}
-            onClick={() => onStatusChange(payout.id, "approved")}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
-          >
-            Aprobar
-          </button>
-          <button
-            type="button"
-            disabled={isPending || !canReject}
-            onClick={() => onStatusChange(payout.id, "rejected")}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
-          >
-            Rechazar
-          </button>
-          <button
-            type="button"
-            disabled={isPending || !canMarkPaid}
-            onClick={() => onStatusChange(payout.id, "paid")}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#A3E4BF] px-4 py-2.5 text-sm font-semibold text-[#1e8c4e] transition hover:bg-[#EFFBF4] disabled:opacity-50"
-          >
-            Marcar pagado
-          </button>
-        </div>
+        {showActions ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <button
+              type="button"
+              disabled={isPending || !canApprove}
+              onClick={() => onStatusChange(payout.id, "approved")}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+            >
+              Aprobar
+            </button>
+            <button
+              type="button"
+              disabled={isPending || !canReject}
+              onClick={() => onStatusChange(payout.id, "rejected")}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+            >
+              Rechazar
+            </button>
+            <button
+              type="button"
+              disabled={isPending || !canMarkPaid}
+              onClick={() => onStatusChange(payout.id, "paid")}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#A3E4BF] px-4 py-2.5 text-sm font-semibold text-[#1e8c4e] transition hover:bg-[#EFFBF4] disabled:opacity-50"
+            >
+              Marcar pagado
+            </button>
+          </div>
+        ) : null}
       </div>
     </details>
   )
