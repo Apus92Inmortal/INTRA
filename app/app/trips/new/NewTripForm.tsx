@@ -132,7 +132,6 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const [departureDate, setDepartureDate] = useState("")
   const [departureTime, setDepartureTime] = useState("")
   const [capacityKg, setCapacityKg] = useState("")
-  const [notes, setNotes] = useState("")
   const [acceptsFragile, setAcceptsFragile] = useState(false)
   const [acceptsMultiplePackages, setAcceptsMultiplePackages] = useState(false)
   const [hasStopovers, setHasStopovers] = useState(false)
@@ -241,8 +240,6 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       }).format(new Date(`1970-01-01T${departureTime}`))
     : "Por definir"
 
-  const noteCount = notes.trim().length
-
   const summaryChips = [
     { label: "Frágiles", value: acceptsFragile ? "Sí" : "No", icon: PackageCheck },
     { label: "Múltiples", value: acceptsMultiplePackages ? "Sí" : "No", icon: Route },
@@ -281,7 +278,6 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       departure_date: departureDate,
       departure_time: departureTime,
       capacity_kg: cap,
-      notes: notes.trim() || null,
       accepts_fragile: acceptsFragile,
       accepts_multiple_packages: acceptsMultiplePackages,
       has_stopovers: hasStopovers,
@@ -476,22 +472,6 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               </div>
             </div>
 
-            <div className="mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1">
-              <label htmlFor="trip-notes" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
-                Notas adicionales (opcional)
-              </label>
-              <textarea
-                id="trip-notes"
-                name="notes"
-                rows={2}
-                maxLength={260}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Ej: referencias de punto de encuentro, equipaje o coordinación adicional."
-                className={`${fieldBaseClassName} min-h-[56px] resize-none py-2 [@media(min-width:1024px)_and_(max-height:900px)]:min-h-[50px] [@media(min-width:1024px)_and_(max-height:820px)]:min-h-[42px]`}
-              />
-              <div className="mt-1 flex justify-end text-[10px] text-slate-400 [@media(min-width:1024px)_and_(max-height:820px)]:hidden">{noteCount} / 260</div>
-            </div>
           </section>
 
           <section className="mt-2.5 border-t border-[#E9F0F6] pt-2.5 [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
