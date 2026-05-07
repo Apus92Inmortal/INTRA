@@ -30,6 +30,11 @@ type WalletHistoryEntry = {
   payout_id: string | null
 }
 
+type PayoutCodeRow = {
+  id: string
+  payout_code: string | null
+}
+
 export default async function WalletHistoryPage({ searchParams }: WalletHistoryPageProps) {
   const resolvedSearchParams = await searchParams
   const currentPage = Math.max(Number(resolvedSearchParams?.page ?? "1") || 1, 1)
@@ -56,6 +61,16 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
   const history = (historyRes.data ?? []) as WalletHistoryEntry[]
   const totalCount = historyRes.count ?? 0
   const totalPages = Math.max(Math.ceil(totalCount / PAGE_SIZE), 1)
+
+  const payoutIds = Array.from(new Set(history.map((entry) => entry.payout_id).filter(Boolean))) as string[]
+
+  const payoutCodesRes = user && payoutIds.length
+    ? await supabase.from("payouts").select("id, payout_code").in("id", payoutIds)
+    : { data: [] as PayoutCodeRow[] }
+
+  const payoutCodes = new Map(
+    ((payoutCodesRes.data ?? []) as PayoutCodeRow[]).map((payout) => [payout.id, payout.payout_code])
+  )
 
   return (
     <>
@@ -134,7 +149,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                           <div className="mt-1 flex flex-wrap gap-2 text-xs text-slate-400">
                             {entry.payment_id ? <span>Pago vinculado</span> : null}
                             {entry.match_id ? <span>Match asociado</span> : null}
-                            {entry.payout_id ? <span>Retiro asociado</span> : null}
+                            {entry.payout_id ? <span>Retiro asociado · {payoutCodes.get(entry.payout_id) || entry.payout_id}</span> : null}
                           </div>
                         </td>
                         <td className="px-6 py-4 align-top text-sm text-slate-600">

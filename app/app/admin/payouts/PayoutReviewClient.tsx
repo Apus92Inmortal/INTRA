@@ -12,6 +12,7 @@ import {
 
 type AdminPayout = {
   id: string
+  payoutCode: string | null
   amount: number | null
   status: string | null
   requested_at: string | null
@@ -37,6 +38,7 @@ function matchesSearch(payout: AdminPayout, search: string) {
     payout.accountLabel,
     payout.accountMask,
     payout.brebKey ?? "",
+    payout.payoutCode ?? "",
     payout.paid_reference ?? "",
     formatCop(payout.amount ?? 0),
   ]
@@ -86,6 +88,7 @@ function ReviewedPayoutRow({
             </div>
 
             <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-500">
+              <span>Ref: {payout.payoutCode || "Sin código"}</span>
               <span>Monto: {formatCop(payout.amount ?? 0)}</span>
               <span>Cuenta: {payout.accountLabel}</span>
               <span>Revisión: {formatDateTime(payout.reviewed_at)}</span>
@@ -97,7 +100,11 @@ function ReviewedPayoutRow({
       </summary>
 
       <div className="mt-5 space-y-4 border-t border-slate-100 pt-5">
-        <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Referencia</p>
+            <p className="mt-1 break-all text-[#0B2C4A]">{payout.payoutCode || "Sin código"}</p>
+          </div>
           <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Cuenta</p>
             <p className="mt-1 font-medium text-[#0B2C4A]">{payout.accountLabel}</p>
@@ -323,6 +330,10 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                         </div>
 
                         <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Referencia</p>
+                            <p className="mt-1 font-medium text-[#0B2C4A]">{payout.payoutCode || "Sin código"}</p>
+                          </div>
                           <div>
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Viajero</p>
                             <p className="mt-1 font-medium text-[#0B2C4A]">{payout.travelerName}</p>

@@ -5,6 +5,7 @@ import PayoutReviewClient from "./PayoutReviewClient"
 
 type PayoutRow = {
   id: string
+  payout_code: string | null
   traveler_user_id: string
   payout_account_id: string | null
   amount: number | null
@@ -34,6 +35,7 @@ export default async function AdminPayoutsPage() {
   let hasAccess = false
   let enrichedPayouts: Array<{
     id: string
+    payoutCode: string | null
     amount: number | null
     status: string | null
     requested_at: string | null
@@ -55,7 +57,7 @@ export default async function AdminPayoutsPage() {
     const { data: payoutRows, error: payoutsError } = await admin
       .from("payouts")
       .select(
-        "id, traveler_user_id, payout_account_id, amount, status, requested_at, reviewed_at, paid_at, review_notes, paid_reference"
+        "id, payout_code, traveler_user_id, payout_account_id, amount, status, requested_at, reviewed_at, paid_at, review_notes, paid_reference"
       )
       .order("status", { ascending: true })
       .order("requested_at", { ascending: false })
@@ -103,6 +105,7 @@ export default async function AdminPayoutsPage() {
 
         return {
           ...payout,
+          payoutCode: payout.payout_code,
           travelerName: traveler?.full_name || "Viajero sin nombre",
           accountLabel: account ? getPayoutAccountDisplayName(account) : "Cuenta no disponible",
           accountMask: account ? maskAccountNumber(account.account_number) : "Sin cuenta",

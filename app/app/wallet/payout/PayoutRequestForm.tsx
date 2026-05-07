@@ -24,6 +24,7 @@ type PayoutAccount = {
 
 type Payout = {
   id: string
+  payout_code: string | null
   amount: number | null
   status: string | null
   requested_at: string | null
@@ -223,6 +224,9 @@ export default function PayoutRequestForm({
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="font-semibold text-[#0B2C4A]">{formatCop(payout.amount)}</p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      {payout.payout_code || "Sin referencia"}
+                    </p>
                     <p className="mt-1 text-sm text-slate-500">
                       Solicitado el {payout.requested_at ? new Date(payout.requested_at).toLocaleDateString("es-CO") : "sin fecha"}
                     </p>

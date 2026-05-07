@@ -31,7 +31,7 @@ export default async function WalletPayoutPage() {
           .order("created_at", { ascending: true }),
         supabase
           .from("payouts")
-          .select("id, amount, status, requested_at, reviewed_at, review_notes")
+          .select("id, payout_code, amount, status, requested_at, reviewed_at, review_notes")
           .eq("traveler_user_id", user.id)
           .order("requested_at", { ascending: false })
           .limit(12),
