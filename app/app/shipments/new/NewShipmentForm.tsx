@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   ArrowRightLeft,
   CircleDollarSign,
+  Clock3,
   CreditCard,
   House,
   MapPinned,
@@ -60,6 +61,13 @@ type SectionHeaderProps = {
   description: string
 }
 
+type PreferenceToggleProps = {
+  label: string
+  value: boolean
+  onChange: (value: boolean) => void
+  icon: typeof PackageCheck
+}
+
 function SectionHeader({ step, title, description }: SectionHeaderProps) {
   return (
     <div className="mb-3 flex items-start gap-2.5">
@@ -69,6 +77,38 @@ function SectionHeader({ step, title, description }: SectionHeaderProps) {
       <div>
         <h2 className="text-[15px] font-semibold text-[#0B2C4A]">{title}</h2>
         <p className="mt-0.5 text-[12px] leading-4 text-slate-500">{description}</p>
+      </div>
+    </div>
+  )
+}
+
+function PreferenceToggle({ label, value, onChange, icon: Icon }: PreferenceToggleProps) {
+  return (
+    <div className="rounded-[16px] border border-[#E3EDF5] bg-[#FCFEFF] px-2.5 py-2">
+      <div className="mb-2 flex items-center gap-2 text-[12px] font-medium text-[#0B2C4A]">
+        <Icon className="h-3.5 w-3.5 text-[#0B2C4A]" />
+        <span>{label}</span>
+      </div>
+
+      <div className="inline-flex rounded-full border border-[#D7E5F1] bg-[#F3F7FA] p-1 shadow-[inset_0_1px_2px_rgba(11,44,74,0.06)]">
+        <button
+          type="button"
+          onClick={() => onChange(true)}
+          className={`min-w-[56px] rounded-full px-3 py-0.5 text-[11px] font-semibold transition ${
+            value ? "bg-[#2ECC71] text-white shadow-sm" : "text-slate-500"
+          }`}
+        >
+          Sí
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange(false)}
+          className={`min-w-[56px] rounded-full px-3 py-0.5 text-[11px] font-semibold transition ${
+            !value ? "bg-white text-[#0B2C4A] shadow-sm" : "text-slate-500"
+          }`}
+        >
+          No
+        </button>
       </div>
     </div>
   )
@@ -133,6 +173,9 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   const [description, setDescription] = useState("")
   const [weightKg, setWeightKg] = useState("")
   const [declaredValueCop, setDeclaredValueCop] = useState("")
+  const [isFragile, setIsFragile] = useState(false)
+  const [isUrgent, setIsUrgent] = useState(false)
+  const [isHighValue, setIsHighValue] = useState(false)
 
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -391,6 +434,12 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       : "Por definir"
   const kindSummary = shipmentKindMeta[kind]
   const KindSummaryIcon = kindSummary.icon
+  const summaryChips = [
+    { label: "Frágil", value: isFragile ? "Sí" : "No", icon: PackageCheck },
+    { label: "Urgente", value: isUrgent ? "Sí" : "No", icon: Clock3 },
+    { label: "Valor alto", value: isHighValue ? "Sí" : "No", icon: CircleDollarSign },
+  ]
+
   const isReadyToContinue =
     Boolean(originCityId) &&
     Boolean(destinationCityId) &&
@@ -500,57 +549,109 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
             <SectionHeader
               step="2"
               title="Información del envío"
-              description="Define qué vas a enviar y descríbelo con claridad para el viajero."
+              description="Cuéntanos qué vas a enviar y sus características."
             />
 
-            <div className="space-y-3">
-              <div>
-                <label
-                  htmlFor="shipment-kind"
-                  className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500"
-                >
-                  Tipo de envío
-                </label>
-                <select
-                  id="shipment-kind"
-                  name="kind"
-                  className={fieldBaseClassName}
-                  value={kind}
-                  onChange={(e) => setKind(e.target.value as ShipmentKind)}
-                >
-                  <option value="document">Documento</option>
-                  <option value="package">Paquete</option>
-                  <option value="ecommerce">Ecommerce</option>
-                </select>
+            <div className="grid gap-3">
+              <div className="grid gap-3 md:grid-cols-[0.9fr_1.35fr]">
+                <div>
+                  <label
+                    htmlFor="shipment-kind"
+                    className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500"
+                  >
+                    Tipo de envío
+                  </label>
+                  <select
+                    id="shipment-kind"
+                    name="kind"
+                    className={fieldBaseClassName}
+                    value={kind}
+                    onChange={(e) => setKind(e.target.value as ShipmentKind)}
+                  >
+                    <option value="document">Documento</option>
+                    <option value="package">Paquete</option>
+                    <option value="ecommerce">Ecommerce</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="shipment-description"
+                    className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500"
+                  >
+                    Descripción
+                  </label>
+                  <textarea
+                    id="shipment-description"
+                    name="description"
+                    className={`${fieldBaseClassName} min-h-[92px] ${errors.description ? "border-red-300 bg-red-50" : ""}`}
+                    value={description}
+                    onChange={(e) => {
+                      setDescription(e.target.value)
+                      applyInlineValidation({ description: e.target.value })
+                    }}
+                    required
+                    rows={3}
+                    placeholder="Ej: Sobre con documentos, caja pequeña, accesorios, etc."
+                  />
+                  {errors.description ? (
+                    <p className="mt-1 text-[10px] text-red-600">{errors.description}</p>
+                  ) : (
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      Entre más clara sea la descripción, mejor para el viajero.
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <div>
-                <label
-                  htmlFor="shipment-description"
-                  className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500"
-                >
-                  Descripción
-                </label>
-                <textarea
-                  id="shipment-description"
-                  name="description"
-                  className={`${fieldBaseClassName} min-h-28 ${errors.description ? "border-red-300 bg-red-50" : ""}`}
-                  value={description}
-                  onChange={(e) => {
-                    setDescription(e.target.value)
-                    applyInlineValidation({ description: e.target.value })
-                  }}
-                  required
-                  rows={4}
-                  placeholder="Ej: Sobre con documentos, caja pequeña, accesorios, etc."
-                />
-                {errors.description ? (
-                  <p className="mt-1 text-[10px] text-red-600">{errors.description}</p>
-                ) : (
-                  <p className="mt-1 text-[11px] text-slate-500">
-                    Entre más clara sea la descripción, mejor para el viajero.
-                  </p>
-                )}
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="min-w-0">
+                  <label
+                    htmlFor="shipment-weight-kg"
+                    className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500"
+                  >
+                    Peso (kg)
+                  </label>
+                  <input
+                    id="shipment-weight-kg"
+                    name="weightKg"
+                    className={`${fieldBaseClassName} ${errors.weightKg ? "border-red-300 bg-red-50" : ""}`}
+                    type="text"
+                    inputMode="decimal"
+                    value={weightKg}
+                    onChange={(e) => updateWeightKg(e.target.value)}
+                    onInput={(e) => updateWeightKg(e.currentTarget.value)}
+                    placeholder="Ej: 1.5"
+                    required
+                  />
+                  {errors.weightKg ? (
+                    <p className="mt-1 text-[10px] text-red-600">{errors.weightKg}</p>
+                  ) : null}
+                </div>
+
+                <div className="min-w-0">
+                  <label
+                    htmlFor="shipment-declared-value"
+                    className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500"
+                  >
+                    Valor declarado (COP)
+                  </label>
+                  <input
+                    id="shipment-declared-value"
+                    name="declaredValueCop"
+                    className={`${fieldBaseClassName} ${errors.declaredValueCop ? "border-red-300 bg-red-50" : ""}`}
+                    type="text"
+                    inputMode="numeric"
+                    value={declaredValueCop}
+                    onChange={(e) => updateDeclaredValueCop(e.target.value)}
+                    onInput={(e) => updateDeclaredValueCop(e.currentTarget.value)}
+                    placeholder="Ej: 200000"
+                    required
+                  />
+                  {errors.declaredValueCop ? (
+                    <p className="mt-1 text-[10px] text-red-600">{errors.declaredValueCop}</p>
+                  ) : null}
+                </div>
               </div>
             </div>
           </section>
@@ -558,58 +659,29 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           <section className="mt-3 border-t border-[#E9F0F6] pt-3">
             <SectionHeader
               step="3"
-              title="Peso y valor"
-              description="Completa los datos necesarios para calcular la tarifa y el pago seguro."
+              title="Detalles adicionales"
+              description="Indícanos preferencias especiales para tu envío."
             />
 
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="min-w-0">
-                <label
-                  htmlFor="shipment-weight-kg"
-                  className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500"
-                >
-                  Peso (kg)
-                </label>
-                <input
-                  id="shipment-weight-kg"
-                  name="weightKg"
-                  className={`${fieldBaseClassName} ${errors.weightKg ? "border-red-300 bg-red-50" : ""}`}
-                  type="text"
-                  inputMode="decimal"
-                  value={weightKg}
-                  onChange={(e) => updateWeightKg(e.target.value)}
-                  onInput={(e) => updateWeightKg(e.currentTarget.value)}
-                  placeholder="Ej: 1.5"
-                  required
-                />
-                {errors.weightKg ? (
-                  <p className="mt-1 text-[10px] text-red-600">{errors.weightKg}</p>
-                ) : null}
-              </div>
-
-              <div className="min-w-0">
-                <label
-                  htmlFor="shipment-declared-value"
-                  className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500"
-                >
-                  Valor declarado (COP)
-                </label>
-                <input
-                  id="shipment-declared-value"
-                  name="declaredValueCop"
-                  className={`${fieldBaseClassName} ${errors.declaredValueCop ? "border-red-300 bg-red-50" : ""}`}
-                  type="text"
-                  inputMode="numeric"
-                  value={declaredValueCop}
-                  onChange={(e) => updateDeclaredValueCop(e.target.value)}
-                  onInput={(e) => updateDeclaredValueCop(e.currentTarget.value)}
-                  placeholder="Ej: 200000"
-                  required
-                />
-                {errors.declaredValueCop ? (
-                  <p className="mt-1 text-[10px] text-red-600">{errors.declaredValueCop}</p>
-                ) : null}
-              </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <PreferenceToggle
+                label="Frágil"
+                value={isFragile}
+                onChange={setIsFragile}
+                icon={PackageCheck}
+              />
+              <PreferenceToggle
+                label="Urgente"
+                value={isUrgent}
+                onChange={setIsUrgent}
+                icon={Clock3}
+              />
+              <PreferenceToggle
+                label="Valor alto"
+                value={isHighValue}
+                onChange={setIsHighValue}
+                icon={CircleDollarSign}
+              />
             </div>
           </section>
 
@@ -738,6 +810,19 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               {errors.route}
             </div>
           ) : null}
+
+          <div className="mt-2 grid grid-cols-3 gap-1.5">
+            {summaryChips.map((chip) => (
+              <div
+                key={chip.label}
+                className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-[#D7E5F1] bg-[#FBFDFF] px-1.5 py-1 text-[10px] whitespace-nowrap text-slate-600"
+              >
+                <chip.icon className="h-2.5 w-2.5 shrink-0 text-[#0B2C4A]" />
+                <span className="truncate">{chip.label}</span>
+                <span className="font-semibold text-[#0B2C4A]">{chip.value}</span>
+              </div>
+            ))}
+          </div>
 
           {travelerRouteAmount &&
           customerRouteAmount &&
