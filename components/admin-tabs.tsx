@@ -2,17 +2,18 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { BadgeCheck, CircleDollarSign } from "lucide-react"
 
 const ADMIN_LINKS = [
   {
     href: "/app/admin/payouts",
     label: "Retiros",
-    description: "Solicitudes y pagos",
+    icon: CircleDollarSign,
   },
   {
     href: "/app/admin/verifications",
     label: "Verificaciones",
-    description: "Documento y selfie",
+    icon: BadgeCheck,
   },
 ]
 
@@ -23,21 +24,20 @@ export function AdminTabs() {
     <nav className="flex flex-wrap gap-3" aria-label="Módulos administrativos">
       {ADMIN_LINKS.map((link) => {
         const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
+        const Icon = link.icon
 
         return (
           <Link
             key={link.href}
             href={link.href}
-            className={`rounded-2xl border px-4 py-3 text-sm transition ${
+            className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
               isActive
                 ? "border-[#0B2C4A] bg-[#0B2C4A] text-white"
                 : "border-slate-200 bg-white text-slate-600 hover:border-[#0B2C4A]/20 hover:text-[#0B2C4A]"
             }`}
           >
-            <p className="font-semibold">{link.label}</p>
-            <p className={`mt-1 text-xs ${isActive ? "text-white/75" : "text-slate-400"}`}>
-              {link.description}
-            </p>
+            <Icon className="h-4 w-4 shrink-0" />
+            <span>{link.label}</span>
           </Link>
         )
       })}
