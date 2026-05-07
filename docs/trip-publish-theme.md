@@ -1,5 +1,7 @@
 # INTRA — Theme base desde la pantalla "Publicar viaje"
 
+> Estado: **theme oficial de INTRA** aprobado por Aldo el 2026-05-07 como base visual para migrar pantallas una por una.
+
 ## Objetivo del estilo
 Construir una UI premium, limpia y confiable que mezcle:
 - sensación de producto moderno
