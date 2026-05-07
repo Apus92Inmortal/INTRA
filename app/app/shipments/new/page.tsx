@@ -1,4 +1,4 @@
-﻿import { AppNavbar } from "@/components/app-navbar"
+import { AppNavbar } from "@/components/app-navbar"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import NewShipmentForm from "./NewShipmentForm"
@@ -23,14 +23,12 @@ export default async function NewShipmentPage() {
     return (
       <>
         <AppNavbar />
-        <main className="min-h-screen bg-[#EEF2F7] px-4 py-8">
+        <main className="min-h-screen bg-[#EEF4F8] px-4 py-8 sm:px-6">
           <div className="mx-auto max-w-3xl rounded-3xl border border-red-200 bg-white p-8 shadow-sm">
             <h1 className="text-2xl font-bold text-[#0B2C4A]">
               Error cargando ciudades
             </h1>
-            <p className="mt-2 text-sm text-gray-600">
-              {error.message}
-            </p>
+            <p className="mt-2 text-sm text-gray-600">{error.message}</p>
           </div>
         </main>
       </>
@@ -41,24 +39,20 @@ export default async function NewShipmentPage() {
     <>
       <AppNavbar />
 
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 sm:py-8">
-        <div className="mx-auto max-w-3xl">
-          
-          {/* Encabezado */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold tracking-tight text-[#0B2C4A]">
+      <main className="min-h-screen bg-[#EEF4F8] px-4 py-3 sm:px-6 sm:py-4 lg:py-5">
+        <div className="mx-auto max-w-7xl">
+          <section className="mb-3">
+            <h1 className="text-[clamp(1.45rem,1.8vw,1.95rem)] font-bold leading-none tracking-tight text-[#0B2C4A]">
               Crear envío
             </h1>
-
-            <p className="mt-2 max-w-2xl text-sm text-gray-600 sm:text-base">
+            <p className="mt-1 text-[13px] leading-5 text-slate-500 sm:text-sm">
               Publica un envío para conectar con viajeros en la misma ruta.
             </p>
-          </div>
+          </section>
 
-          {/* Card */}
-          <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
+          <section>
             <NewShipmentForm cities={cities ?? []} />
-          </div>
+          </section>
         </div>
       </main>
     </>
