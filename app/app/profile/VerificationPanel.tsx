@@ -38,7 +38,7 @@ type UploadFieldProps = {
   label: string;
   selectedFile: File | null;
   hasUploaded: boolean;
-  uploadedLabel: string;
+  disabled?: boolean;
   onChange: (file: File | null) => void;
 };
 
@@ -46,59 +46,44 @@ function UploadField({
   label,
   selectedFile,
   hasUploaded,
-  uploadedLabel,
+  disabled = false,
   onChange,
 }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const status = selectedFile
-    ? {
-        label: "Lista para enviar",
-        classes: "border-green-200 bg-green-100 text-green-700",
-      }
-    : hasUploaded
-      ? {
-          label: uploadedLabel,
-          classes: "border-green-200 bg-green-100 text-green-700",
-        }
-      : {
-          label: "Pendiente",
-          classes: "border-amber-200 bg-amber-100 text-amber-700",
-        };
-
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-slate-900">{label}</p>
-          <p className="mt-1 text-sm text-slate-500">
-            {selectedFile
-              ? selectedFile.name
-              : hasUploaded
-                ? "Ya hay un archivo cargado. Puedes reemplazarlo si quieres."
-                : "Sube una imagen clara en JPG o PNG."}
-          </p>
-        </div>
-        <span
-          className={`inline-flex whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${status.classes}`}
-        >
-          {status.label}
-        </span>
+    <div className={`rounded-2xl border border-slate-200 bg-slate-50 p-4 ${disabled ? "opacity-75" : ""}`}>
+      <div>
+        <p className="text-sm font-semibold text-slate-900">{label}</p>
+        <p className="mt-1 text-sm text-slate-500">
+          {selectedFile
+            ? selectedFile.name
+            : hasUploaded
+              ? "Ya hay un archivo cargado."
+              : "Sube una imagen clara en JPG o PNG."}
+        </p>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <label className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-2xl border border-[#0B2C4A]/12 bg-white px-4 py-2 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7]">
+        <label
+          className={`inline-flex min-h-11 items-center justify-center rounded-2xl border px-4 py-2 text-sm font-semibold transition ${
+            disabled
+              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+              : "cursor-pointer border-[#0B2C4A]/12 bg-white text-[#0B2C4A] hover:bg-[#EEF2F7]"
+          }`}
+        >
           <input
             ref={inputRef}
             type="file"
             accept="image/*"
             className="sr-only"
+            disabled={disabled}
             onChange={(event) => onChange(event.target.files?.[0] ?? null)}
           />
           {selectedFile ? "Cambiar archivo" : "Seleccionar archivo"}
         </label>
 
-        {selectedFile ? (
+        {selectedFile && !disabled ? (
           <button
             type="button"
             onClick={() => {
@@ -131,9 +116,13 @@ export default function VerificationPanel({
 
   const [documentPhoto, setDocumentPhoto] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
+  const [acceptConsent, setAcceptConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
+
+  const isLocked = initialStatus === "pending" || initialStatus === "verified";
+  const canSubmit = !loading && !isLocked && Boolean(documentPhoto) && Boolean(selfie) && acceptConsent;
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -153,9 +142,23 @@ export default function VerificationPanel({
       return;
     }
 
+    if (isLocked) {
+      setLoading(false);
+      setMessage("Tu verificación ya fue enviada y los archivos están bloqueados mientras el equipo la revisa.");
+      setMessageType("error");
+      return;
+    }
+
     if (!documentPhoto || !selfie) {
       setLoading(false);
       setMessage("Debes adjuntar documento y selfie para enviar la verificación.");
+      setMessageType("error");
+      return;
+    }
+
+    if (!acceptConsent) {
+      setLoading(false);
+      setMessage("Debes aceptar la autorización para enviar la verificación.");
       setMessageType("error");
       return;
     }
@@ -212,6 +215,7 @@ export default function VerificationPanel({
       setMessageType("success");
       setDocumentPhoto(null);
       setSelfie(null);
+      setAcceptConsent(false);
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "No se pudo enviar la verificación.");
@@ -283,7 +287,7 @@ export default function VerificationPanel({
             label="Foto del documento"
             selectedFile={documentPhoto}
             hasUploaded={hasDocumentPhoto}
-            uploadedLabel="Documento cargado"
+            disabled={isLocked}
             onChange={setDocumentPhoto}
           />
 
@@ -291,14 +295,38 @@ export default function VerificationPanel({
             label="Selfie"
             selectedFile={selfie}
             hasUploaded={hasSelfie}
-            uploadedLabel="Selfie cargada"
+            disabled={isLocked}
             onChange={setSelfie}
           />
         </div>
 
-        <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] px-4 py-3 text-sm leading-6 text-slate-600">
-          Al enviarlos aceptas que el equipo revise manualmente estas evidencias para validar tu identidad dentro de INTRA. Si la imagen pesa demasiado, la comprimimos antes de subirla.
-        </div>
+        <details className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC]" open={!isLocked}>
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[#0B2C4A] [&::-webkit-details-marker]:hidden">
+            Autorización para revisión manual
+          </summary>
+          <div className="border-t border-[#D9E7F2] px-4 py-3">
+            <label className={`flex items-start gap-3 text-sm leading-6 text-slate-600 ${isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}>
+              <input
+                type="checkbox"
+                checked={acceptConsent || isLocked}
+                disabled={isLocked}
+                onChange={(event) => setAcceptConsent(event.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-[#0B2C4A] focus:ring-[#0B2C4A]/20"
+              />
+              <span>
+                Acepto que el equipo revise manualmente estas evidencias para validar mi identidad dentro de INTRA. Si la imagen pesa demasiado, la comprimimos antes de subirla.
+              </span>
+            </label>
+          </div>
+        </details>
+
+        {isLocked ? (
+          <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] px-4 py-3 text-sm text-slate-600">
+            {initialStatus === "verified"
+              ? "Tu identidad ya fue verificada. Los archivos quedaron bloqueados y no necesitas volver a enviarlos."
+              : "Tu verificación está en revisión. Mientras el equipo responde, los archivos y el envío quedan bloqueados para evitar duplicados."}
+          </div>
+        ) : null}
 
         {message ? (
           <div
@@ -314,10 +342,14 @@ export default function VerificationPanel({
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={!canSubmit}
           className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? "Enviando verificación..." : "Enviar verificación"}
+          {loading
+            ? "Enviando verificación..."
+            : isLocked
+              ? "Verificación bloqueada"
+              : "Enviar verificación"}
         </button>
       </form>
     </section>
