@@ -137,18 +137,20 @@ function ReviewedPayoutRow({
           />
         </label>
 
-        <label className="block space-y-2">
-          <span className="text-sm font-semibold text-[#0B2C4A]">Referencia de pago</span>
-          <input
-            value={reference}
-            readOnly={isReadOnly}
-            onChange={(event) => onReferenceChange(event.target.value)}
-            className={`min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition ${
-              isReadOnly ? "bg-slate-50 text-slate-500" : "focus:border-[#0B2C4A]"
-            }`}
-            placeholder="Transferencia 123456"
-          />
-        </label>
+        {!isReadOnly ? (
+          <label className="block space-y-2">
+            <span className="text-sm font-semibold text-[#0B2C4A]">Referencia de pago</span>
+            <input
+              value={reference}
+              readOnly={isReadOnly}
+              onChange={(event) => onReferenceChange(event.target.value)}
+              className={`min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition ${
+                isReadOnly ? "bg-slate-50 text-slate-500" : "focus:border-[#0B2C4A]"
+              }`}
+              placeholder="Transferencia 123456"
+            />
+          </label>
+        ) : null}
 
         {showActions ? (
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
