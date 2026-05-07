@@ -30,6 +30,7 @@ type LedgerRow = {
 
 type PayoutRow = {
   id: string
+  payout_code: string | null
   amount: number | null
   status: string | null
   requested_at: string | null
@@ -56,7 +57,7 @@ export default async function WalletPage() {
           .limit(6),
         supabase
           .from("payouts")
-          .select("id, amount, status, requested_at")
+          .select("id, payout_code, amount, status, requested_at")
           .eq("traveler_user_id", user.id)
           .order("requested_at", { ascending: false })
           .limit(4),
@@ -247,6 +248,9 @@ export default async function WalletPage() {
                         <div className="flex items-center justify-between gap-3">
                           <div>
                             <p className="font-semibold text-[#0B2C4A]">{formatCop(payout.amount ?? 0)}</p>
+                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                              {payout.payout_code || "Sin referencia"}
+                            </p>
                             <p className="mt-1 text-xs text-slate-500">{formatDateTime(payout.requested_at)}</p>
                           </div>
                           <span

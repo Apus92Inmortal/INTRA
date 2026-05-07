@@ -1,4 +1,3 @@
-import { AppNavbar } from "@/components/app-navbar"
 import { requireAdminUser } from "@/lib/auth/admin"
 import { getPayoutAccountDisplayName, maskAccountNumber } from "@/lib/payments/wallet"
 import { createAdminClient } from "@/lib/supabase/admin"
@@ -6,6 +5,7 @@ import PayoutReviewClient from "./PayoutReviewClient"
 
 type PayoutRow = {
   id: string
+  payout_code: string | null
   traveler_user_id: string
   payout_account_id: string | null
   amount: number | null
@@ -35,6 +35,7 @@ export default async function AdminPayoutsPage() {
   let hasAccess = false
   let enrichedPayouts: Array<{
     id: string
+    payoutCode: string | null
     amount: number | null
     status: string | null
     requested_at: string | null
@@ -56,7 +57,7 @@ export default async function AdminPayoutsPage() {
     const { data: payoutRows, error: payoutsError } = await admin
       .from("payouts")
       .select(
-        "id, traveler_user_id, payout_account_id, amount, status, requested_at, reviewed_at, paid_at, review_notes, paid_reference"
+        "id, payout_code, traveler_user_id, payout_account_id, amount, status, requested_at, reviewed_at, paid_at, review_notes, paid_reference"
       )
       .order("status", { ascending: true })
       .order("requested_at", { ascending: false })
@@ -104,6 +105,7 @@ export default async function AdminPayoutsPage() {
 
         return {
           ...payout,
+          payoutCode: payout.payout_code,
           travelerName: traveler?.full_name || "Viajero sin nombre",
           accountLabel: account ? getPayoutAccountDisplayName(account) : "Cuenta no disponible",
           accountMask: account ? maskAccountNumber(account.account_number) : "Sin cuenta",
@@ -123,28 +125,19 @@ export default async function AdminPayoutsPage() {
     loadError = error instanceof Error ? error.message : "No pudimos cargar el panel admin."
   }
 
-  return (
-    <>
-      <AppNavbar />
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6">
-        <div className="mx-auto max-w-6xl">
-          {loadError || !hasAccess ? (
-            <div className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
-              <h1 className="text-2xl font-bold text-[#0B2C4A]">Admin de retiros</h1>
-              <p className="mt-2 text-sm text-slate-500 sm:text-base">
-                No pudimos cargar el panel administrativo en este entorno.
-              </p>
-              {loadError ? (
-                <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {loadError}
-                </div>
-              ) : null}
-            </div>
-          ) : (
-            <PayoutReviewClient payouts={enrichedPayouts} />
-          )}
+  return loadError || !hasAccess ? (
+    <section className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
+      <h2 className="text-2xl font-bold text-[#0B2C4A]">Retiros</h2>
+      <p className="mt-2 text-sm text-slate-500 sm:text-base">
+        No pudimos cargar este módulo administrativo en este entorno.
+      </p>
+      {loadError ? (
+        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {loadError}
         </div>
-      </main>
-    </>
+      ) : null}
+    </section>
+  ) : (
+    <PayoutReviewClient payouts={enrichedPayouts} />
   )
 }
