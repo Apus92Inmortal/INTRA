@@ -75,7 +75,9 @@ function SectionHeader({ step, title, description }: { step: string; title: stri
       </div>
       <div>
         <h2 className="text-[14px] font-semibold text-[#0B2C4A] sm:text-[15px]">{title}</h2>
-        <p className="mt-0.5 text-[12px] leading-4 text-slate-500">{description}</p>
+        <p className="mt-0.5 text-[12px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:820px)]:hidden">
+          {description}
+        </p>
       </div>
     </div>
   )
@@ -93,7 +95,7 @@ function AirRouteGraphic({
   destinationName: string
 }) {
   return (
-    <div className="rounded-[16px] border border-[#E3EDF5] bg-[linear-gradient(180deg,#F9FCFE_0%,#F3F8FC_100%)] px-3 py-2">
+    <div className="rounded-[16px] border border-[#E3EDF5] bg-[linear-gradient(180deg,#F9FCFE_0%,#F3F8FC_100%)] px-3 py-2 [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5">
       <div className="flex items-center gap-3">
         <div className="flex min-w-[54px] flex-col items-center text-center">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#2ECC71] shadow-sm">
@@ -241,6 +243,12 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
   const noteCount = notes.trim().length
 
+  const summaryChips = [
+    { label: "Frágiles", value: acceptsFragile ? "Sí" : "No", icon: PackageCheck },
+    { label: "Múltiples", value: acceptsMultiplePackages ? "Sí" : "No", icon: Route },
+    { label: "Paradas", value: hasStopovers ? "Sí" : "No", icon: Clock3 },
+  ]
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -372,7 +380,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               </div>
             </div>
 
-            <div className="mt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5">
+            <div className="mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1">
               <AirRouteGraphic
                 originCode={originCity?.iata_code ?? "BOG"}
                 destinationCode={destinationCity?.iata_code ?? "BAQ"}
@@ -468,7 +476,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               </div>
             </div>
 
-            <div className="mt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5">
+            <div className="mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1">
               <label htmlFor="trip-notes" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                 Notas adicionales (opcional)
               </label>
@@ -581,21 +589,6 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 icon: Luggage,
                 value: capacityValue && capacityValue > 0 ? `${capacityValue} kg` : "Por definir",
               },
-              {
-                label: "Acepta frágiles",
-                icon: PackageCheck,
-                value: acceptsFragile ? "Sí" : "No",
-              },
-              {
-                label: "Acepta múltiples paquetes",
-                icon: Route,
-                value: acceptsMultiplePackages ? "Sí" : "No",
-              },
-              {
-                label: "Paradas intermedias",
-                icon: Clock3,
-                value: hasStopovers ? "Sí" : "No",
-              },
             ].map((item, index) => (
               <div
                 key={item.label}
@@ -620,23 +613,36 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             ))}
           </div>
 
-          <div className="mt-2 rounded-[16px] border border-[#BEE8CD] bg-[#EFFBF4] p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:p-2">
+          <div className="mt-2 flex flex-wrap gap-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:gap-1">
+            {summaryChips.map((chip) => (
+              <div
+                key={chip.label}
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#D7E5F1] bg-[#FBFDFF] px-2 py-1 text-[11px] text-slate-600 [@media(min-width:1024px)_and_(max-height:760px)]:px-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[10px]"
+              >
+                <chip.icon className="h-3 w-3 text-[#0B2C4A]" />
+                <span>{chip.label}</span>
+                <span className="font-semibold text-[#0B2C4A]">{chip.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-1.5 rounded-[16px] border border-[#BEE8CD] bg-[#EFFBF4] p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:p-2">
             <div className="flex items-start gap-3">
               <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-white text-[#1E8C4E] shadow-sm">
                 <ShieldCheck className="h-3.5 w-3.5" />
               </div>
               <div>
                 <p className="text-[12px] font-semibold text-[#0B2C4A]">Todo listo para publicar</p>
-                <p className="mt-0.5 text-[12px] leading-4 text-[#3B5B4B]">
+                <p className="mt-0.5 text-[11px] leading-4 text-[#3B5B4B]">
                   Tu viaje se verá en la ruta y podrá recibir solicitudes compatibles.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-2 rounded-[16px] border border-[#E3EDF5] bg-[#FBFDFF] px-2.5 py-2 text-[12px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[11px]">
+          <div className="mt-1.5 rounded-[16px] border border-[#E3EDF5] bg-[#FBFDFF] px-2.5 py-2 text-[11px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[10px]">
             <p className="font-medium text-[#0B2C4A]">Privacidad</p>
-            <p className="mt-1">
+            <p className="mt-0.5">
               Tu información estará protegida y solo se compartirá con personas interesadas.
             </p>
           </div>
