@@ -452,7 +452,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     Boolean(paymentQuote?.success)
 
   return (
-    <div className="grid gap-3 lg:grid-cols-[minmax(0,1.58fr)_340px] lg:items-start">
+    <div className="grid gap-3 pb-32 sm:pb-0 lg:grid-cols-[minmax(0,1.58fr)_340px] lg:items-start">
       <form onSubmit={onSubmit} className="min-w-0">
         <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-4 lg:p-4">
           <section>
