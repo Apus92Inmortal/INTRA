@@ -180,6 +180,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false)
 
   const [routePricing, setRoutePricing] = useState<RoutePricing | null>(null)
   const [routeLoading, setRouteLoading] = useState(false)
@@ -233,7 +234,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     return nextErrors
   }
 
-  const applyInlineValidation = (
+  const syncErrorsIfNeeded = (
     overrides?: Partial<{
       originCityId: string
       destinationCityId: string
@@ -242,6 +243,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       declaredValueCop: string
     }>
   ) => {
+    if (!hasAttemptedSubmit) return
+
     const nextInlineErrors = getInlineErrors(overrides)
 
     setErrors((prev) => ({
@@ -319,19 +322,19 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   const updateWeightKg = (rawValue: string) => {
     const nextValue = sanitizeDecimalInput(rawValue)
     setWeightKg(nextValue)
-    applyInlineValidation({ weightKg: nextValue })
+    syncErrorsIfNeeded({ weightKg: nextValue })
   }
 
   const updateDeclaredValueCop = (rawValue: string) => {
     const nextValue = sanitizeIntegerInput(rawValue)
     setDeclaredValueCop(nextValue)
-    applyInlineValidation({ declaredValueCop: nextValue })
+    syncErrorsIfNeeded({ declaredValueCop: nextValue })
   }
 
   const swapRoute = () => {
     setOriginCityId(destinationCityId)
     setDestinationCityId(originCityId)
-    applyInlineValidation({
+    syncErrorsIfNeeded({
       originCityId: destinationCityId,
       destinationCityId: originCityId,
     })
@@ -341,6 +344,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     e.preventDefault()
     setLoading(true)
     setMsg(null)
+    setHasAttemptedSubmit(true)
 
     const nextErrors: FormErrors = getInlineErrors()
 
@@ -477,7 +481,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   value={originCityId}
                   onChange={(e) => {
                     setOriginCityId(e.target.value)
-                    applyInlineValidation({ originCityId: e.target.value })
+                    syncErrorsIfNeeded({ originCityId: e.target.value })
                   }}
                   required
                 >
@@ -517,7 +521,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   value={destinationCityId}
                   onChange={(e) => {
                     setDestinationCityId(e.target.value)
-                    applyInlineValidation({ destinationCityId: e.target.value })
+                    syncErrorsIfNeeded({ destinationCityId: e.target.value })
                   }}
                   required
                 >
@@ -588,7 +592,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                     value={description}
                     onChange={(e) => {
                       setDescription(e.target.value)
-                      applyInlineValidation({ description: e.target.value })
+                      syncErrorsIfNeeded({ description: e.target.value })
                     }}
                     required
                     rows={3}
