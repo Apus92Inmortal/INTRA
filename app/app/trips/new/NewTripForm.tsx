@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import {
   CalendarDays,
   Clock3,
+  Hash,
   Luggage,
   MapPinned,
   PackageCheck,
@@ -132,6 +133,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const [departureDate, setDepartureDate] = useState("")
   const [departureTime, setDepartureTime] = useState("")
   const [capacityKg, setCapacityKg] = useState("")
+  const [flightNumber, setFlightNumber] = useState("")
   const [acceptsFragile, setAcceptsFragile] = useState(false)
   const [acceptsMultiplePackages, setAcceptsMultiplePackages] = useState(false)
   const [hasStopovers, setHasStopovers] = useState(false)
@@ -149,8 +151,6 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const originCity = originCityId ? citiesById.get(originCityId) ?? null : null
   const destinationCity = destinationCityId ? citiesById.get(destinationCityId) ?? null : null
   const capacityValue = parseNormalizedNumber(capacityKg)
-  const visualCapacityMax = capacityValue && capacityValue > 0 ? Math.max(10, Math.ceil(capacityValue / 5) * 5) : 10
-  const capacityProgress = capacityValue && capacityValue > 0 ? Math.min(100, Math.round((capacityValue / visualCapacityMax) * 100)) : 0
 
   const validate = (
     overrides?: Partial<{
@@ -278,6 +278,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       departure_date: departureDate,
       departure_time: departureTime,
       capacity_kg: cap,
+      flight_number: flightNumber.trim().toUpperCase() || null,
       accepts_fragile: acceptsFragile,
       accepts_multiple_packages: acceptsMultiplePackages,
       has_stopovers: hasStopovers,
@@ -452,23 +453,19 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               </div>
 
               <div>
-                <label className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
-                  Capacidad disponible
+                <label htmlFor="trip-flight-number" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                  Número de vuelo
                 </label>
-                <div className="rounded-[13px] border border-[#D7E5F1] bg-[#FBFDFF] px-2.5 py-2 [@media(min-width:1024px)_and_(max-height:900px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:px-2 [@media(min-width:1024px)_and_(max-height:820px)]:py-1">
-                  <div className="flex items-center justify-between gap-2 text-[11px] font-semibold text-slate-500">
-                    <span>Disponible</span>
-                    <span className="text-[#1E8C4E]">
-                      {capacityValue && capacityValue > 0 ? `${capacityValue}/${visualCapacityMax} kg` : `0/${visualCapacityMax} kg`}
-                    </span>
-                  </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#E5EEF5] [@media(min-width:1024px)_and_(max-height:820px)]:h-1">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#2ECC71] via-[#39D98A] to-[#7BE495] transition-all"
-                      style={{ width: `${capacityProgress}%` }}
-                    />
-                  </div>
-                </div>
+                <input
+                  id="trip-flight-number"
+                  name="flightNumber"
+                  className={fieldBaseClassName}
+                  type="text"
+                  value={flightNumber}
+                  onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
+                  placeholder="AV9687"
+                  maxLength={12}
+                />
               </div>
             </div>
 
@@ -569,6 +566,11 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 icon: Luggage,
                 value: capacityValue && capacityValue > 0 ? `${capacityValue} kg` : "Por definir",
               },
+              {
+                label: "Vuelo",
+                icon: Hash,
+                value: flightNumber.trim() || "Por definir",
+              },
             ].map((item, index) => (
               <div
                 key={item.label}
@@ -593,14 +595,14 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             ))}
           </div>
 
-          <div className="mt-2 flex flex-wrap gap-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:gap-1">
+          <div className="mt-2 grid grid-cols-3 gap-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:gap-1">
             {summaryChips.map((chip) => (
               <div
                 key={chip.label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#D7E5F1] bg-[#FBFDFF] px-2 py-1 text-[11px] text-slate-600 [@media(min-width:1024px)_and_(max-height:760px)]:px-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[10px]"
+                className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-[#D7E5F1] bg-[#FBFDFF] px-1.5 py-1 text-[10px] text-slate-600 whitespace-nowrap [@media(min-width:1024px)_and_(max-height:760px)]:px-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[9px]"
               >
-                <chip.icon className="h-3 w-3 text-[#0B2C4A]" />
-                <span>{chip.label}</span>
+                <chip.icon className="h-2.5 w-2.5 shrink-0 text-[#0B2C4A]" />
+                <span className="truncate">{chip.label}</span>
                 <span className="font-semibold text-[#0B2C4A]">{chip.value}</span>
               </div>
             ))}
