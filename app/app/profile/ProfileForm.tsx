@@ -202,16 +202,6 @@ export default function ProfileForm({
           />
         </div>
 
-        <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm leading-6 text-slate-600">
-          En INTRA no te fijamos un rol permanente. Puedes publicar envíos y también
-          publicar viajes según lo que necesites en cada momento.
-        </div>
-
-        <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] px-4 py-3 text-sm leading-6 text-slate-600">
-          Por ahora la verificación de identidad es manual. Más abajo puedes subir
-          documento y selfie para revisión del equipo.
-        </div>
-
         {msg && (
           <div
             className={`rounded-2xl border px-4 py-3 text-sm ${
