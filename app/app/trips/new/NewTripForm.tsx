@@ -146,7 +146,10 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false)
 
   const fieldBaseClassName =
-    "w-full rounded-[13px] border border-[#D7E5F1] bg-white px-3 py-1.5 text-[13px] text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-4 focus:ring-[#0B2C4A]/10 [@media(min-width:1024px)_and_(max-height:900px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:900px)]:text-[12px] [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[11px]"
+    "block w-full min-w-0 max-w-full rounded-[13px] border border-[#D7E5F1] bg-white px-3 py-1.5 text-[13px] text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-4 focus:ring-[#0B2C4A]/10 [@media(min-width:1024px)_and_(max-height:900px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:900px)]:text-[12px] [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[11px]";
+
+  const nativeDateTimeFieldClassName =
+    `${fieldBaseClassName} appearance-none overflow-hidden pr-3 [color-scheme:light] [&::-webkit-date-and-time-value]:text-left [&::-webkit-calendar-picker-indicator]:shrink-0`
 
   const cityOptions = useMemo(() => cities, [cities])
   const citiesById = useMemo(() => new Map(cities.map((city) => [city.id, city])), [cities])
@@ -327,6 +330,8 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const displayDestinationCode = destinationCity?.iata_code ?? "N/A"
 
   const compactRouteLabel = `${displayOriginName} → ${displayDestinationName}`
+  const summaryRouteLabel =
+    originCity && destinationCity ? compactRouteLabel : "Por definir"
 
   return (
     <div className="grid gap-2.5 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.52fr)_360px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
@@ -423,14 +428,14 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             />
 
             <div className="grid gap-2 lg:grid-cols-[1fr_1fr_0.8fr_1.02fr] [@media(min-width:1024px)_and_(max-height:900px)]:gap-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:gap-1">
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="trip-departure-date" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                   Fecha de salida
                 </label>
                 <input
                   id="trip-departure-date"
                   name="departureDate"
-                  className={`${fieldBaseClassName} ${errors.departureDate ? "border-red-300 bg-red-50" : ""}`}
+                  className={`${nativeDateTimeFieldClassName} ${errors.departureDate ? "border-red-300 bg-red-50" : ""}`}
                   type="date"
                   value={departureDate}
                   onChange={(e) => {
@@ -442,14 +447,14 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 {errors.departureDate ? <p className="mt-1 text-[10px] text-red-600">{errors.departureDate}</p> : null}
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="trip-departure-time" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                   Hora de salida
                 </label>
                 <input
                   id="trip-departure-time"
                   name="departureTime"
-                  className={`${fieldBaseClassName} ${errors.departureTime ? "border-red-300 bg-red-50" : ""}`}
+                  className={`${nativeDateTimeFieldClassName} ${errors.departureTime ? "border-red-300 bg-red-50" : ""}`}
                   type="time"
                   value={departureTime}
                   onChange={(e) => {
@@ -461,7 +466,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 {errors.departureTime ? <p className="mt-1 text-[10px] text-red-600">{errors.departureTime}</p> : null}
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="trip-capacity-kg" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                   Capacidad (kg)
                 </label>
@@ -480,7 +485,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 {errors.capacityKg ? <p className="mt-1 text-[10px] text-red-600">{errors.capacityKg}</p> : null}
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="trip-flight-number" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
                   Número de vuelo
                 </label>
@@ -590,7 +595,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               {
                 label: "Ruta",
                 icon: MapPinned,
-                value: compactRouteLabel,
+                value: summaryRouteLabel,
               },
               {
                 label: "Fecha y hora",
