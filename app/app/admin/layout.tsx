@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-[#0B2C4A]">Panel de Administración</h1>
-                <p className="mt-2 max-w-2xl text-sm text-slate-500 sm:text-base">
+                <p className="mt-2 text-sm text-slate-500 sm:text-base lg:max-w-none lg:whitespace-nowrap">
                   Administra retiros, verificaciones, usuarios y operaciones internas desde un solo panel de control.
                 </p>
               </div>
