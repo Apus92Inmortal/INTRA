@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Clock3,
   Hash,
+  House,
   Luggage,
   MapPinned,
   PackageCheck,
@@ -29,6 +30,7 @@ type FormErrors = {
   departureDate?: string
   departureTime?: string
   capacityKg?: string
+  flightNumber?: string
 }
 
 type PreferenceToggleProps = {
@@ -141,6 +143,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false)
 
   const fieldBaseClassName =
     "w-full rounded-[13px] border border-[#D7E5F1] bg-white px-3 py-1.5 text-[13px] text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-4 focus:ring-[#0B2C4A]/10 [@media(min-width:1024px)_and_(max-height:900px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:900px)]:text-[12px] [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[11px]"
@@ -152,13 +155,14 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const destinationCity = destinationCityId ? citiesById.get(destinationCityId) ?? null : null
   const capacityValue = parseNormalizedNumber(capacityKg)
 
-  const validate = (
+  const getValidationErrors = (
     overrides?: Partial<{
       originCityId: string
       destinationCityId: string
       departureDate: string
       departureTime: string
       capacityKg: string
+      flightNumber: string
     }>
   ) => {
     const nextOriginCityId = overrides?.originCityId ?? originCityId
@@ -166,6 +170,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     const nextDepartureDate = overrides?.departureDate ?? departureDate
     const nextDepartureTime = overrides?.departureTime ?? departureTime
     const nextCapacityKg = overrides?.capacityKg ?? capacityKg
+    const nextFlightNumber = overrides?.flightNumber ?? flightNumber
 
     const nextErrors: FormErrors = {}
 
@@ -189,6 +194,10 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       nextErrors.departureTime = "Selecciona la hora de salida."
     }
 
+    if (!nextFlightNumber.trim()) {
+      nextErrors.flightNumber = "Ingresa el número de vuelo."
+    }
+
     const cap = parseNormalizedNumber(nextCapacityKg)
     if (cap === null) {
       nextErrors.capacityKg = "La capacidad es obligatoria."
@@ -198,20 +207,33 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       nextErrors.capacityKg = "La capacidad máxima permitida es 50 kg."
     }
 
-    setErrors(nextErrors)
     return nextErrors
+  }
+
+  const syncErrorsIfNeeded = (
+    overrides?: Partial<{
+      originCityId: string
+      destinationCityId: string
+      departureDate: string
+      departureTime: string
+      capacityKg: string
+      flightNumber: string
+    }>
+  ) => {
+    if (!hasAttemptedSubmit) return
+    setErrors(getValidationErrors(overrides))
   }
 
   const updateCapacityKg = (rawValue: string) => {
     const nextValue = sanitizeDecimalInput(rawValue)
     setCapacityKg(nextValue)
-    validate({ capacityKg: nextValue })
+    syncErrorsIfNeeded({ capacityKg: nextValue })
   }
 
   const swapRoute = () => {
     setOriginCityId(destinationCityId)
     setDestinationCityId(originCityId)
-    validate({ originCityId: destinationCityId, destinationCityId: originCityId })
+    syncErrorsIfNeeded({ originCityId: destinationCityId, destinationCityId: originCityId })
   }
 
   const isReadyToPublish =
@@ -222,7 +244,8 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     Boolean(departureTime) &&
     capacityValue !== null &&
     capacityValue >= 1 &&
-    capacityValue <= 50
+    capacityValue <= 50 &&
+    Boolean(flightNumber.trim())
 
   const summaryDate = departureDate
     ? new Intl.DateTimeFormat("es-CO", {
@@ -251,7 +274,10 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     setLoading(true)
     setMsg(null)
 
-    const nextErrors = validate()
+    setHasAttemptedSubmit(true)
+
+    const nextErrors = getValidationErrors()
+    setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) {
       setLoading(false)
       setMsg("❌ Revisa los campos marcados antes de publicar el viaje.")
@@ -295,14 +321,16 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     router.push("/app#envios-compatibles")
   }
 
-  const compactRouteLabel =
-    originCity && destinationCity
-      ? `${originCity.name} → ${destinationCity.name}`
-      : "Por definir"
+  const displayOriginName = originCity?.name ?? "N/A"
+  const displayDestinationName = destinationCity?.name ?? "N/A"
+  const displayOriginCode = originCity?.iata_code ?? "N/A"
+  const displayDestinationCode = destinationCity?.iata_code ?? "N/A"
+
+  const compactRouteLabel = `${displayOriginName} → ${displayDestinationName}`
 
   return (
     <div className="grid gap-2.5 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.52fr)_360px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} noValidate>
         <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-3.5 lg:h-full lg:min-h-0 lg:p-3.5 [@media(min-width:1024px)_and_(max-height:900px)]:p-3 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:760px)]:p-2">
           <section>
             <SectionHeader
@@ -323,7 +351,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   value={originCityId}
                   onChange={(e) => {
                     setOriginCityId(e.target.value)
-                    validate({ originCityId: e.target.value })
+                    syncErrorsIfNeeded({ originCityId: e.target.value })
                   }}
                   required
                 >
@@ -362,7 +390,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   value={destinationCityId}
                   onChange={(e) => {
                     setDestinationCityId(e.target.value)
-                    validate({ destinationCityId: e.target.value })
+                    syncErrorsIfNeeded({ destinationCityId: e.target.value })
                   }}
                   required
                 >
@@ -379,10 +407,10 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
             <div className="mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1">
               <AirRouteGraphic
-                originCode={originCity?.iata_code ?? "BOG"}
-                destinationCode={destinationCity?.iata_code ?? "BAQ"}
-                originName={originCity?.name ?? "Origen"}
-                destinationName={destinationCity?.name ?? "Destino"}
+                originCode={displayOriginCode}
+                destinationCode={displayDestinationCode}
+                originName={displayOriginName}
+                destinationName={displayDestinationName}
               />
             </div>
           </section>
@@ -407,7 +435,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   value={departureDate}
                   onChange={(e) => {
                     setDepartureDate(e.target.value)
-                    validate({ departureDate: e.target.value })
+                    syncErrorsIfNeeded({ departureDate: e.target.value })
                   }}
                   required
                 />
@@ -426,7 +454,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   value={departureTime}
                   onChange={(e) => {
                     setDepartureTime(e.target.value)
-                    validate({ departureTime: e.target.value })
+                    syncErrorsIfNeeded({ departureTime: e.target.value })
                   }}
                   required
                 />
@@ -459,13 +487,19 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 <input
                   id="trip-flight-number"
                   name="flightNumber"
-                  className={fieldBaseClassName}
+                  className={`${fieldBaseClassName} ${errors.flightNumber ? "border-red-300 bg-red-50" : ""}`}
                   type="text"
                   value={flightNumber}
-                  onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
+                  onChange={(e) => {
+                    const nextFlightNumber = e.target.value.toUpperCase()
+                    setFlightNumber(nextFlightNumber)
+                    syncErrorsIfNeeded({ flightNumber: nextFlightNumber })
+                  }}
                   placeholder="AV9687"
                   maxLength={12}
+                  required
                 />
+                {errors.flightNumber ? <p className="mt-1 text-[10px] text-red-600">{errors.flightNumber}</p> : null}
               </div>
             </div>
 
@@ -515,6 +549,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               className="inline-flex min-h-10 min-w-[210px] items-center justify-center rounded-[13px] bg-[#2ECC71] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_22px_rgba(46,204,113,0.20)] transition hover:bg-[#29b765] disabled:cursor-not-allowed disabled:opacity-60"
               type="submit"
             >
+              <PlaneTakeoff className="mr-2 h-4 w-4" />
               {loading ? "Publicando..." : "Publicar viaje"}
             </button>
 
@@ -523,6 +558,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               onClick={() => router.push("/app")}
               className="inline-flex min-h-10 min-w-[210px] items-center justify-center rounded-[13px] border border-[#D7E5F1] bg-white px-5 py-2.5 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F8FBFD]"
             >
+              <House className="mr-2 h-4 w-4" />
               Volver a inicio
             </button>
           </div>
@@ -535,17 +571,17 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             <div>
               <p className="text-[14px] font-semibold text-[#0B2C4A]">Resumen del viaje</p>
             </div>
-            <div className="rounded-full bg-[#EAFBF1] px-2.5 py-1 text-[11px] font-semibold text-[#1E8C4E]">
-              {isReadyToPublish ? "Listo" : "Borrador"}
+            <div className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${isReadyToPublish ? "bg-[#EAFBF1] text-[#1E8C4E]" : "bg-amber-100 text-amber-700"}`}>
+              {isReadyToPublish ? "Listo" : "Pendiente"}
             </div>
           </div>
 
           <div className="mt-3">
             <AirRouteGraphic
-              originCode={originCity?.iata_code ?? "BOG"}
-              destinationCode={destinationCity?.iata_code ?? "BAQ"}
-              originName={originCity?.name ?? "Origen"}
-              destinationName={destinationCity?.name ?? "Destino"}
+              originCode={displayOriginCode}
+              destinationCode={displayDestinationCode}
+              originName={displayOriginName}
+              destinationName={displayDestinationName}
             />
           </div>
 
@@ -609,14 +645,16 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             ))}
           </div>
 
-          <div className="mt-1.5 rounded-[16px] border border-[#BEE8CD] bg-[#EFFBF4] p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:p-2">
+          <div className={`mt-1.5 rounded-[16px] border p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:p-2 ${isReadyToPublish ? "border-[#BEE8CD] bg-[#EFFBF4]" : "border-amber-200 bg-amber-50"}`}>
             <div className="flex items-start gap-3">
-              <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-white text-[#1E8C4E] shadow-sm">
+              <div className={`flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ${isReadyToPublish ? "text-[#1E8C4E]" : "text-amber-700"}`}>
                 <ShieldCheck className="h-3.5 w-3.5" />
               </div>
               <div>
-                <p className="text-[12px] font-semibold text-[#0B2C4A]">Todo listo para publicar</p>
-                <p className="mt-0.5 text-[11px] leading-4 text-[#3B5B4B] [@media(min-width:1024px)_and_(max-height:900px)]:hidden">
+                <p className="text-[12px] font-semibold text-[#0B2C4A]">
+                  {isReadyToPublish ? "Todo listo para publicar" : "Completa los datos obligatorios"}
+                </p>
+                <p className={`mt-0.5 text-[11px] leading-4 ${isReadyToPublish ? "text-[#3B5B4B]" : "text-amber-800"}`}>
                   Tu viaje se verá en la ruta y podrá recibir solicitudes compatibles.
                 </p>
               </div>
@@ -625,7 +663,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
           <div className="mt-1.5 rounded-[16px] border border-[#E3EDF5] bg-[#FBFDFF] px-2.5 py-2 text-[11px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[10px]">
             <p className="font-medium text-[#0B2C4A]">Privacidad</p>
-            <p className="mt-0.5 [@media(min-width:1024px)_and_(max-height:900px)]:hidden">
+            <p className="mt-0.5">
               Tu información estará protegida y solo se compartirá con personas interesadas.
             </p>
           </div>
