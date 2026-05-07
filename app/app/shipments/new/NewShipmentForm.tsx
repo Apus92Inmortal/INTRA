@@ -588,21 +588,21 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   <textarea
                     id="shipment-description"
                     name="description"
-                    className={`${fieldBaseClassName} min-h-[92px] ${errors.description ? "border-red-300 bg-red-50" : ""}`}
+                    className={`${fieldBaseClassName} min-h-[52px] resize-none ${errors.description ? "border-red-300 bg-red-50" : ""}`}
                     value={description}
                     onChange={(e) => {
                       setDescription(e.target.value)
                       syncErrorsIfNeeded({ description: e.target.value })
                     }}
                     required
-                    rows={3}
-                    placeholder="Ej: Sobre con documentos, caja pequeña, accesorios, etc."
+                    rows={2}
+                    placeholder="Ej: sobre con documentos o caja pequeña."
                   />
                   {errors.description ? (
                     <p className="mt-1 text-[10px] text-red-600">{errors.description}</p>
                   ) : (
                     <p className="mt-1 text-[11px] text-slate-500">
-                      Entre más clara sea la descripción, mejor para el viajero.
+                      Entre más simple y concreta, mejor.
                     </p>
                   )}
                 </div>
