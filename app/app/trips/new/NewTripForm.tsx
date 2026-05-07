@@ -75,7 +75,7 @@ function SectionHeader({ step, title, description }: { step: string; title: stri
       </div>
       <div>
         <h2 className="text-[14px] font-semibold text-[#0B2C4A] sm:text-[15px]">{title}</h2>
-        <p className="mt-0.5 text-[12px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:820px)]:hidden">
+        <p className="mt-0.5 text-[12px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:900px)]:hidden">
           {description}
         </p>
       </div>
@@ -304,9 +304,9 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       : "Selecciona origen y destino"
 
   return (
-    <div className="grid gap-2.5 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.75fr)_300px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
+    <div className="grid gap-2.5 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.75fr)_300px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
       <form onSubmit={onSubmit}>
-        <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-3.5 lg:h-full lg:min-h-0 lg:p-3.5 [@media(min-width:1024px)_and_(max-height:900px)]:p-3 [@media(min-width:1024px)_and_(max-height:820px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:760px)]:p-2">
+        <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-3.5 lg:h-full lg:min-h-0 lg:p-3.5 [@media(min-width:1024px)_and_(max-height:900px)]:p-3 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:760px)]:p-2">
           <section>
             <SectionHeader
               step="1"
@@ -490,7 +490,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                 placeholder="Ej: referencias de punto de encuentro, equipaje o coordinación adicional."
                 className={`${fieldBaseClassName} min-h-[56px] resize-none py-2 [@media(min-width:1024px)_and_(max-height:900px)]:min-h-[50px] [@media(min-width:1024px)_and_(max-height:820px)]:min-h-[42px]`}
               />
-              <div className="mt-1 flex justify-end text-[10px] text-slate-400">{noteCount} / 260</div>
+              <div className="mt-1 flex justify-end text-[10px] text-slate-400 [@media(min-width:1024px)_and_(max-height:820px)]:hidden">{noteCount} / 260</div>
             </div>
           </section>
 
@@ -633,7 +633,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               </div>
               <div>
                 <p className="text-[12px] font-semibold text-[#0B2C4A]">Todo listo para publicar</p>
-                <p className="mt-0.5 text-[11px] leading-4 text-[#3B5B4B]">
+                <p className="mt-0.5 text-[11px] leading-4 text-[#3B5B4B] [@media(min-width:1024px)_and_(max-height:900px)]:hidden">
                   Tu viaje se verá en la ruta y podrá recibir solicitudes compatibles.
                 </p>
               </div>
@@ -642,7 +642,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
           <div className="mt-1.5 rounded-[16px] border border-[#E3EDF5] bg-[#FBFDFF] px-2.5 py-2 text-[11px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[10px]">
             <p className="font-medium text-[#0B2C4A]">Privacidad</p>
-            <p className="mt-0.5">
+            <p className="mt-0.5 [@media(min-width:1024px)_and_(max-height:900px)]:hidden">
               Tu información estará protegida y solo se compartirá con personas interesadas.
             </p>
           </div>
