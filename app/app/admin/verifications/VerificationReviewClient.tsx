@@ -82,6 +82,28 @@ function VerificationImage({ title, url }: { title: string; url: string | null }
   )
 }
 
+function VerificationLinkCard({ title, url }: { title: string; url: string | null }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <p className="text-sm font-semibold text-[#0B2C4A]">{title}</p>
+      <p className="mt-1 text-sm text-slate-500">
+        {url ? "Abre el archivo completo solo cuando lo necesites revisar." : "Archivo no disponible."}
+      </p>
+
+      {url ? (
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#0B2C4A]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7]"
+        >
+          Abrir {title.toLowerCase()}
+        </a>
+      ) : null}
+    </div>
+  )
+}
+
 function ReviewedVerificationRow({
   verification,
   isPending,
@@ -123,8 +145,8 @@ function ReviewedVerificationRow({
 
       <div className="mt-5 space-y-4 border-t border-slate-100 pt-5">
         <div className="grid gap-4 lg:grid-cols-2">
-          <VerificationImage title="Documento" url={verification.documentPhotoUrl} />
-          <VerificationImage title="Selfie" url={verification.selfieUrl} />
+          <VerificationLinkCard title="Documento" url={verification.documentPhotoUrl} />
+          <VerificationLinkCard title="Selfie" url={verification.selfieUrl} />
         </div>
 
         <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
@@ -251,9 +273,6 @@ export default function VerificationReviewClient({ verifications }: { verificati
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">Verificaciones</h2>
-            <p className="mt-1 text-sm text-slate-500 sm:text-base">
-              Las pendientes quedan arriba para revisión rápida. Lo aprobado o rechazado pasa al historial resumido.
-            </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
@@ -295,9 +314,6 @@ export default function VerificationReviewClient({ verifications }: { verificati
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-[#0B2C4A]">Pendientes</h3>
-                <p className="text-sm text-slate-500">
-                  Aquí solo quedan las cuentas que todavía necesitan decisión manual.
-                </p>
               </div>
             </div>
 
@@ -394,20 +410,17 @@ export default function VerificationReviewClient({ verifications }: { verificati
             <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-[#0B2C4A]">Revisadas</h3>
-                <p className="mt-1 text-sm text-slate-500">
-                  Historial resumido para buscar rápido sin llenar la pantalla con cards gigantes.
-                </p>
               </div>
 
-              <div className="flex w-full flex-col gap-3 lg:max-w-3xl lg:flex-row lg:items-center lg:justify-end">
+              <div className="flex w-full flex-col gap-3 lg:max-w-3xl lg:items-end">
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Buscar por nombre, teléfono o documento"
-                  className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A] lg:max-w-sm"
+                  className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A] lg:max-w-md"
                 />
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex w-full flex-wrap gap-2 lg:justify-end">
                   {([
                     ["all", `Todas (${reviewedCounts.all})`],
                     ["verified", `Aprobadas (${reviewedCounts.verified})`],
