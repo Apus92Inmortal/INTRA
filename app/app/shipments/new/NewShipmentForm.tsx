@@ -39,6 +39,7 @@ type City = {
 }
 
 type ShipmentKind = "document" | "package" | "ecommerce"
+type ShipmentKindValue = ShipmentKind | ""
 
 type RoutePricing = {
   routeCategory: RouteCategory
@@ -49,6 +50,7 @@ type RoutePricing = {
 type FormErrors = {
   originCityId?: string
   destinationCityId?: string
+  kind?: string
   description?: string
   weightKg?: string
   declaredValueCop?: string
@@ -169,7 +171,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
   const [originCityId, setOriginCityId] = useState("")
   const [destinationCityId, setDestinationCityId] = useState("")
-  const [kind, setKind] = useState<ShipmentKind>("document")
+  const [kind, setKind] = useState<ShipmentKindValue>("")
   const [description, setDescription] = useState("")
   const [weightKg, setWeightKg] = useState("")
   const [declaredValueCop, setDeclaredValueCop] = useState("")
@@ -196,6 +198,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     overrides?: Partial<{
       originCityId: string
       destinationCityId: string
+      kind: ShipmentKindValue
       description: string
       weightKg: string
       declaredValueCop: string
@@ -203,6 +206,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   ) => {
     const nextOriginCityId = overrides?.originCityId ?? originCityId
     const nextDestinationCityId = overrides?.destinationCityId ?? destinationCityId
+    const nextKind = overrides?.kind ?? kind
     const nextDescription = overrides?.description ?? description
     const nextWeightKg = overrides?.weightKg ?? weightKg
     const nextDeclaredValueCop = overrides?.declaredValueCop ?? declaredValueCop
@@ -211,6 +215,10 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
     if (nextOriginCityId && nextDestinationCityId && nextOriginCityId === nextDestinationCityId) {
       nextErrors.destinationCityId = "Origen y destino no pueden ser iguales."
+    }
+
+    if (!nextKind) {
+      nextErrors.kind = "Selecciona el tipo de envío."
     }
 
     if (nextDescription.trim().length > 0 && nextDescription.trim().length < 8) {
@@ -238,6 +246,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     overrides?: Partial<{
       originCityId: string
       destinationCityId: string
+      kind: ShipmentKindValue
       description: string
       weightKg: string
       declaredValueCop: string
@@ -250,6 +259,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     setErrors((prev) => ({
       ...prev,
       destinationCityId: nextInlineErrors.destinationCityId,
+      kind: nextInlineErrors.kind,
       description: nextInlineErrors.description,
       weightKg: nextInlineErrors.weightKg,
       declaredValueCop: nextInlineErrors.declaredValueCop,
@@ -356,6 +366,10 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.destinationCityId = "Selecciona la ciudad de destino."
     }
 
+    if (!kind) {
+      nextErrors.kind = "Selecciona el tipo de envío."
+    }
+
     if (!description.trim()) {
       nextErrors.description = "La descripción es obligatoria."
     } else if (description.trim().length < 8) {
@@ -436,8 +450,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     originCity && destinationCity
       ? `${originCity.name} → ${destinationCity.name}`
       : "Por definir"
-  const kindSummary = shipmentKindMeta[kind]
-  const KindSummaryIcon = kindSummary.icon
+  const kindSummary = kind ? shipmentKindMeta[kind] : null
+  const KindSummaryIcon = kindSummary?.icon ?? Package
   const summaryChips = [
     { label: "Frágil", value: isFragile ? "Sí" : "No", icon: PackageCheck },
     { label: "Urgente", value: isUrgent ? "Sí" : "No", icon: Clock3 },
@@ -448,6 +462,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     Boolean(originCityId) &&
     Boolean(destinationCityId) &&
     originCityId !== destinationCityId &&
+    Boolean(kind) &&
     Boolean(description.trim()) &&
     parseNormalizedNumber(weightKg) !== null &&
     parseNormalizedNumber(weightKg)! >= 0.1 &&
@@ -568,14 +583,21 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   <select
                     id="shipment-kind"
                     name="kind"
-                    className={fieldBaseClassName}
+                    className={`${fieldBaseClassName} ${errors.kind ? "border-red-300 bg-red-50" : ""}`}
                     value={kind}
-                    onChange={(e) => setKind(e.target.value as ShipmentKind)}
+                    onChange={(e) => {
+                      setKind(e.target.value as ShipmentKindValue)
+                      syncErrorsIfNeeded({ kind: e.target.value as ShipmentKindValue })
+                    }}
                   >
+                    <option value="">Selecciona tipo</option>
                     <option value="document">Documento</option>
                     <option value="package">Paquete</option>
                     <option value="ecommerce">Ecommerce</option>
                   </select>
+                  {errors.kind ? (
+                    <p className="mt-1 text-[10px] text-red-600">{errors.kind}</p>
+                  ) : null}
                 </div>
 
                 <div>
@@ -588,23 +610,19 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   <textarea
                     id="shipment-description"
                     name="description"
-                    className={`${fieldBaseClassName} min-h-[52px] resize-none ${errors.description ? "border-red-300 bg-red-50" : ""}`}
+                    className={`${fieldBaseClassName} h-[42px] resize-none ${errors.description ? "border-red-300 bg-red-50" : ""}`}
                     value={description}
                     onChange={(e) => {
                       setDescription(e.target.value)
                       syncErrorsIfNeeded({ description: e.target.value })
                     }}
                     required
-                    rows={2}
+                    rows={1}
                     placeholder="Ej: sobre con documentos o caja pequeña."
                   />
                   {errors.description ? (
                     <p className="mt-1 text-[10px] text-red-600">{errors.description}</p>
-                  ) : (
-                    <p className="mt-1 text-[11px] text-slate-500">
-                      Entre más simple y concreta, mejor.
-                    </p>
-                  )}
+                  ) : null}
                 </div>
               </div>
 
@@ -760,7 +778,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               {
                 label: "Tipo",
                 icon: KindSummaryIcon,
-                value: kindSummary.label,
+                value: kindSummary?.label ?? "Por definir",
               },
               {
                 label: "Peso",
