@@ -235,7 +235,7 @@ export default function VerificationPanel({
           </p>
         </div>
 
-        <span className={`inline-flex min-w-[118px] justify-center whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-semibold ${badge.classes}`}>
+        <span className={`inline-flex min-w-[170px] justify-center whitespace-nowrap rounded-full px-5 py-1.5 text-xs font-semibold ${badge.classes}`}>
           {badge.label}
         </span>
       </div>
@@ -255,13 +255,13 @@ export default function VerificationPanel({
           <div className="flex items-center justify-between gap-3">
             <p className="font-semibold text-slate-900">Documento</p>
             <span
-              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+              className={`inline-flex min-w-[92px] justify-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${
                 hasDocumentPhoto
                   ? "border-green-200 bg-green-100 text-green-700"
                   : "border-amber-200 bg-amber-100 text-amber-700"
               }`}
             >
-              {hasDocumentPhoto ? "Documento cargado" : "Pendiente"}
+              {hasDocumentPhoto ? "Cargado" : "Pendiente"}
             </span>
           </div>
         </div>
@@ -269,13 +269,13 @@ export default function VerificationPanel({
           <div className="flex items-center justify-between gap-3">
             <p className="font-semibold text-slate-900">Selfie</p>
             <span
-              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+              className={`inline-flex min-w-[92px] justify-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${
                 hasSelfie
                   ? "border-green-200 bg-green-100 text-green-700"
                   : "border-amber-200 bg-amber-100 text-amber-700"
               }`}
             >
-              {hasSelfie ? "Selfie cargada" : "Pendiente"}
+              {hasSelfie ? "Cargado" : "Pendiente"}
             </span>
           </div>
         </div>
