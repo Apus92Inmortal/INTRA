@@ -66,6 +66,7 @@ function ReviewedPayoutRow({
   const canApprove = payout.status === "pending"
   const canReject = payout.status === "pending" || payout.status === "approved"
   const canMarkPaid = payout.status === "approved"
+  const isReadOnly = payout.status === "paid"
   const showActions = canApprove || canReject || canMarkPaid
 
   return (
@@ -127,8 +128,11 @@ function ReviewedPayoutRow({
           <textarea
             rows={3}
             value={notes}
+            readOnly={isReadOnly}
             onChange={(event) => onNotesChange(event.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+            className={`w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition ${
+              isReadOnly ? "bg-slate-50 text-slate-500" : "focus:border-[#0B2C4A]"
+            }`}
             placeholder="Ej: validar cuenta antes de pagar"
           />
         </label>
@@ -137,8 +141,11 @@ function ReviewedPayoutRow({
           <span className="text-sm font-semibold text-[#0B2C4A]">Referencia de pago</span>
           <input
             value={reference}
+            readOnly={isReadOnly}
             onChange={(event) => onReferenceChange(event.target.value)}
-            className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+            className={`min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition ${
+              isReadOnly ? "bg-slate-50 text-slate-500" : "focus:border-[#0B2C4A]"
+            }`}
             placeholder="Transferencia 123456"
           />
         </label>
