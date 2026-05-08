@@ -746,9 +746,6 @@ export default async function MatchesPage() {
                                   )}
                                 </div>
                                 <div>
-                                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                    Lo clave del match
-                                  </p>
                                   <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
                                 </div>
                               </div>
@@ -756,12 +753,16 @@ export default async function MatchesPage() {
                               {isTraveler ? (
                                 <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
                                   <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
-                                  <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
                                   <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
                                   <DetailRow
                                     className="sm:col-span-2"
                                     label="Descripción"
                                     value={shipment?.description?.trim() || "Sin descripción"}
+                                  />
+                                  <DetailRow
+                                    className="sm:col-span-2"
+                                    label="Peso"
+                                    value={`${shipment?.weight_kg ?? 0} kg`}
                                   />
                                 </div>
                               ) : (
@@ -777,10 +778,10 @@ export default async function MatchesPage() {
 
                             <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
                               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                Compatibilidad
+                                Condiciones
                               </p>
                               <p className="mt-1 text-[12px] leading-5 text-slate-500">
-                                {isTraveler ? "Preferencias del envío" : "Preferencias del viaje"}
+                                {isTraveler ? "Este envío requiere" : "Este viaje permite"}
                               </p>
                               <div className="mt-3">
                                 <PreferenceToggleColumn items={primaryPreferenceItems} />
