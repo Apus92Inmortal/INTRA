@@ -196,10 +196,67 @@ function normalizeShipment(
   return Array.isArray(shipment) ? (shipment[0] ?? null) : shipment;
 }
 
+function getNextStepCopy({
+  matchStatus,
+  shipmentStatus,
+  isOwner,
+  hasUnread,
+}: {
+  matchStatus: string;
+  shipmentStatus: string | null;
+  isOwner: boolean;
+  hasUnread: boolean;
+}) {
+  if (hasUnread && matchStatus === "accepted") {
+    return "Tienes mensajes nuevos por revisar en este match.";
+  }
+
+  if (matchStatus === "pending") {
+    return isOwner
+      ? "Revisa la solicitud y decide si aceptas este viajero."
+      : "Tu solicitud fue enviada. Espera la respuesta del cliente.";
+  }
+
+  if (shipmentStatus === "matched") {
+    return "Ya hay match activo. El siguiente paso es aceptar para habilitar coordinación.";
+  }
+
+  if (shipmentStatus === "accepted") {
+    return "El match está aceptado. Coordinen recogida y confirma cuando el paquete cambie de manos.";
+  }
+
+  if (shipmentStatus === "in_transit") {
+    return isOwner
+      ? "El paquete va en camino. Mantente pendiente del chat para coordinar entrega y confirmación."
+      : "El paquete ya está en tránsito. Cuando lo entregues, repórtalo para continuar el flujo.";
+  }
+
+  if (shipmentStatus === "delivered") {
+    return "La entrega ya quedó registrada. Puedes revisar el detalle o el estado del pago.";
+  }
+
+  return "Revisa el detalle para continuar con el siguiente paso del flujo.";
+}
+
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-500">
-      {text}
+    <div className="rounded-3xl border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-500 shadow-sm sm:p-8">
+      <h2 className="text-lg font-semibold text-[#0B2C4A]">Todavía no tienes matches</h2>
+      <p className="mt-2 max-w-2xl leading-6">{text}</p>
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <Link
+          href="/app/shipments/new"
+          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27ae60]"
+        >
+          Crear envío
+        </Link>
+        <Link
+          href="/app/trips/new"
+          className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+        >
+          Publicar viaje
+        </Link>
+      </div>
     </div>
   );
 }
@@ -350,6 +407,36 @@ export default async function MatchesPage() {
     paymentsMap = latestPayments;
   }
 
+  const pendingMatchesCount = allMatches.filter((match) => match.status === "pending").length;
+  const acceptedMatchesCount = allMatches.filter((match) => match.status === "accepted").length;
+  const unreadMatchesCount = allMatches.filter((match) => {
+    const trip = normalizeTrip(match.trips);
+    const shipment = normalizeShipment(match.shipments);
+    const lastMessage = messagesMap.get(match.id);
+
+    if (!lastMessage || lastMessage.sender_id === user.id || match.status !== "accepted") {
+      return false;
+    }
+
+    const isTraveler = trip?.traveler_id === user.id;
+    const isOwner = shipment?.owner_id === user.id;
+
+    if (isTraveler) {
+      return !match.last_read_by_traveler || new Date(lastMessage.created_at) > new Date(match.last_read_by_traveler);
+    }
+
+    if (isOwner) {
+      return !match.last_read_by_owner || new Date(lastMessage.created_at) > new Date(match.last_read_by_owner);
+    }
+
+    return false;
+  }).length;
+
+  const inTransitCount = allMatches.filter((match) => {
+    const shipment = normalizeShipment(match.shipments);
+    return shipment?.status === "in_transit";
+  }).length;
+
   return (
     <>
       <AppNavbar />
@@ -365,6 +452,29 @@ export default async function MatchesPage() {
               cuando el match esté aceptado.
             </p>
           </div>
+
+          <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Pendientes</p>
+              <p className="mt-2 text-2xl font-bold text-[#0B2C4A]">{pendingMatchesCount}</p>
+              <p className="mt-1 text-xs text-amber-800/80">Solicitudes esperando decisión.</p>
+            </article>
+            <article className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Activos</p>
+              <p className="mt-2 text-2xl font-bold text-[#0B2C4A]">{acceptedMatchesCount}</p>
+              <p className="mt-1 text-xs text-emerald-800/80">Matches aceptados listos para coordinar.</p>
+            </article>
+            <article className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">En tránsito</p>
+              <p className="mt-2 text-2xl font-bold text-[#0B2C4A]">{inTransitCount}</p>
+              <p className="mt-1 text-xs text-blue-800/80">Paquetes que ya están en movimiento.</p>
+            </article>
+            <article className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Mensajes nuevos</p>
+              <p className="mt-2 text-2xl font-bold text-[#0B2C4A]">{unreadMatchesCount}</p>
+              <p className="mt-1 text-xs text-slate-500">Chats que requieren revisión.</p>
+            </article>
+          </section>
 
           {allMatches.length === 0 ? (
             <EmptyState text="Aún no tienes matches disponibles." />
@@ -405,6 +515,15 @@ export default async function MatchesPage() {
                     : !match.last_read_by_owner ||
                       new Date(lastMessage.created_at) >
                         new Date(match.last_read_by_owner));
+                const nextStepCopy = getNextStepCopy({
+                  matchStatus: match.status,
+                  shipmentStatus: shipment?.status ?? null,
+                  isOwner,
+                  hasUnread: Boolean(unread),
+                });
+                const routeLabel = `${getCityName(shipment?.origin_city ?? null) ?? "Origen"} → ${getCityName(
+                  shipment?.destination_city ?? null
+                ) ?? "Destino"}`;
 
                 return (
                   <section
@@ -413,7 +532,20 @@ export default async function MatchesPage() {
                   >
                     <div className="border-b border-gray-100 px-4 py-4 sm:px-6">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
+                              {routeLabel}
+                            </span>
+                            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-[#0B2C4A]">
+                              {otherUserLabel}: {otherUserName}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              Creado: {formatDate(match.created_at)}
+                            </span>
+                          </div>
+
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(
                               match.status
@@ -422,13 +554,14 @@ export default async function MatchesPage() {
                             {getStatusLabel(match.status)}
                           </span>
 
-                          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-[#0B2C4A]">
-                            {otherUserLabel}: {otherUserName}
-                          </span>
-
-                          <span className="text-xs text-gray-500">
-                            Creado: {formatDate(match.created_at)}
-                          </span>
+                            <span
+                              className={`rounded-full border px-3 py-1 text-xs font-semibold ${getShipmentTrackingClasses(
+                                shipment?.status ?? null
+                              )}`}
+                            >
+                              {getShipmentTrackingLabel(shipment?.status ?? null)}
+                            </span>
+                          </div>
                         </div>
 
                         <div>
@@ -442,6 +575,10 @@ export default async function MatchesPage() {
                             </span>
                           )}
                         </div>
+                      </div>
+
+                      <div className="mt-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                        {nextStepCopy}
                       </div>
                     </div>
 
@@ -480,8 +617,7 @@ export default async function MatchesPage() {
                           <div className="space-y-2 text-sm text-gray-700">
                             <p>
                               <span className="font-medium">Ruta:</span>{" "}
-                              {getCityName(shipment?.origin_city ?? null) ?? "Origen"} →{" "}
-                              {getCityName(shipment?.destination_city ?? null) ?? "Destino"}
+                              {routeLabel}
                             </p>
                             <p>
                               <span className="font-medium">Tipo:</span>{" "}

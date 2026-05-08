@@ -23,6 +23,14 @@ type ProfileNameRow = {
   full_name: string | null;
 };
 
+type CityRelation = { name: string | null } | { name: string | null }[] | null;
+
+function getCityName(city: CityRelation) {
+  if (!city) return null;
+  if (Array.isArray(city)) return city[0]?.name ?? null;
+  return city.name ?? null;
+}
+
 export default async function MatchChatPage({ params }: PageProps) {
   const { id: matchId } = await params;
   const supabase = await createClient();
@@ -48,7 +56,9 @@ export default async function MatchChatPage({ params }: PageProps) {
       shipment:shipments!matches_shipment_id_fkey (
         owner_id,
         tracking_code,
-        description
+        description,
+        origin_city:cities!shipments_origin_city_id_fkey(name),
+        destination_city:cities!shipments_destination_city_id_fkey(name)
       )
     `)
     .eq("id", matchId)
@@ -106,6 +116,9 @@ export default async function MatchChatPage({ params }: PageProps) {
     avgRating: null,
     totalReviews: 0,
   };
+  const shipmentRouteLabel = `${getCityName(match.shipment?.origin_city ?? null) ?? "Origen"} → ${getCityName(
+    match.shipment?.destination_city ?? null
+  ) ?? "Destino"}`;
 
   return (
     <>
@@ -120,6 +133,7 @@ export default async function MatchChatPage({ params }: PageProps) {
           otherUserAvgRating={otherUserRating.avgRating}
           otherUserTotalReviews={otherUserRating.totalReviews}
           shipmentTrackingCode={match.shipment?.tracking_code ?? null}
+          shipmentRouteLabel={shipmentRouteLabel}
           shipmentDescription={match.shipment?.description?.trim() ?? null}
           initialMessages={(messagesData ?? []) as Message[]}
           viewerRole={viewerRole}
