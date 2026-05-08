@@ -751,19 +751,14 @@ export default async function MatchesPage() {
                               </div>
 
                               {isTraveler ? (
-                                <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
+                                <div className="flex flex-col gap-2.5">
                                   <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
                                   <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
                                   <DetailRow
-                                    className="sm:col-span-2"
                                     label="Descripción"
                                     value={shipment?.description?.trim() || "Sin descripción"}
                                   />
-                                  <DetailRow
-                                    className="sm:col-span-2"
-                                    label="Peso"
-                                    value={`${shipment?.weight_kg ?? 0} kg`}
-                                  />
+                                  <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
                                 </div>
                               ) : (
                                 <div className="flex h-full flex-col justify-center space-y-2.5 lg:pr-2">
