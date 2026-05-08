@@ -310,9 +310,17 @@ function SummaryMetricCard({
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function DetailRow({
+  label,
+  value,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
   return (
-    <div className="flex items-start gap-2 text-[13px] leading-5 text-slate-600">
+    <div className={`flex items-start gap-2 text-[13px] leading-5 text-slate-600 ${className}`}>
       <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[#2ECC71]" />
       <p>
         <span className="font-semibold text-[#0B2C4A]">{label}:</span> {value}
@@ -733,10 +741,10 @@ export default async function MatchesPage() {
                       ) : null}
                     </div>
 
-                    <div className="p-4 sm:p-6">
-                      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
-                        <div className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-4 shadow-sm">
-                          <div className="mb-4 flex items-center gap-3">
+                    <div className="p-4 sm:p-5">
+                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_210px]">
+                        <div className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4">
+                          <div className="mb-3 flex items-center gap-3">
                             <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
                               {isTraveler ? (
                                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -751,14 +759,15 @@ export default async function MatchesPage() {
                             <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
                           </div>
 
-                          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-stretch">
-                            <div className="space-y-3">
+                          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_200px] lg:items-stretch">
+                            <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
                               {isTraveler ? (
                                 <>
                                   <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
                                   <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
                                   <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
                                   <DetailRow
+                                    className="sm:col-span-2"
                                     label="Descripción"
                                     value={shipment?.description?.trim() || "Sin descripción"}
                                   />
@@ -766,6 +775,7 @@ export default async function MatchesPage() {
                               ) : (
                                 <>
                                   <DetailRow
+                                    className="sm:col-span-2"
                                     label="Salida"
                                     value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
                                   />
@@ -774,7 +784,7 @@ export default async function MatchesPage() {
                               )}
                             </div>
 
-                            <div className="flex h-full lg:justify-self-end lg:w-full lg:max-w-[220px] lg:self-stretch">
+                            <div className="flex h-full lg:justify-self-end lg:w-full lg:max-w-[200px] lg:self-stretch">
                               <PreferenceToggleColumn items={primaryPreferenceItems} />
                             </div>
                           </div>
@@ -783,12 +793,12 @@ export default async function MatchesPage() {
                         <div className="flex flex-col gap-3">
                           {match.status === "accepted" ? (
                             <>
-                              <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
+                              <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-3.5 sm:p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                                   Acciones
                                 </p>
 
-                                <div className="mt-3 grid gap-3">
+                                <div className="mt-3 grid gap-2.5">
                                   <Link
                                     href={`/app/matches/${match.id}`}
                                     className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
@@ -860,12 +870,12 @@ export default async function MatchesPage() {
                               </div>
                             </>
                           ) : (
-                            <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
+                            <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-3.5 sm:p-4">
                               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                                 Acciones
                               </p>
 
-                              <div className="mt-3 grid gap-3">
+                              <div className="mt-3 grid gap-2.5">
                                 <Link
                                   href={`/app/matches/${match.id}`}
                                   className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
