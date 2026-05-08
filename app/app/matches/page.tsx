@@ -751,7 +751,7 @@ export default async function MatchesPage() {
                             <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
                           </div>
 
-                          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
+                          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
                             <div className="space-y-3">
                               {isTraveler ? (
                                 <>
@@ -774,7 +774,7 @@ export default async function MatchesPage() {
                               )}
                             </div>
 
-                            <div className="lg:justify-self-end lg:w-full lg:max-w-[220px]">
+                            <div className="flex h-full items-center lg:justify-self-end lg:w-full lg:max-w-[220px]">
                               <PreferenceToggleColumn items={primaryPreferenceItems} />
                             </div>
                           </div>
