@@ -241,7 +241,7 @@ function getNextStepCopy({
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-[28px] border border-dashed border-[#D9E4F0] bg-white p-6 text-sm text-gray-500 shadow-[0_18px_50px_rgba(11,44,74,0.08)] sm:p-8">
+    <div className="rounded-2xl border border-dashed border-[#D9E4F0] bg-white p-5 text-sm text-gray-500 shadow-sm sm:p-6">
       <h2 className="text-lg font-semibold text-[#0B2C4A]">Todavía no tienes matches</h2>
       <p className="mt-2 max-w-2xl leading-6">{text}</p>
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
@@ -302,16 +302,16 @@ function SummaryMetricCard({
 
   return (
     <article
-      className={`rounded-[24px] border p-4 shadow-[0_14px_35px_rgba(11,44,74,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(11,44,74,0.10)] ${currentTone.card}`}
+      className={`rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${currentTone.card}`}
     >
       <div className="flex items-start gap-3">
-        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${currentTone.bubble}`}>
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${currentTone.bubble}`}>
           {icon}
         </div>
 
         <div className="min-w-0">
-          <p className={`text-xs font-semibold uppercase tracking-[0.12em] ${currentTone.title}`}>{title}</p>
-          <p className="mt-1 text-3xl font-bold tracking-tight text-[#0B2C4A]">{value}</p>
+          <p className={`text-xs font-semibold uppercase tracking-wide ${currentTone.title}`}>{title}</p>
+          <p className="mt-1 text-2xl font-bold tracking-tight text-[#0B2C4A]">{value}</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
         </div>
       </div>
@@ -514,15 +514,15 @@ export default async function MatchesPage() {
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <MatchesRealtime currentUserId={user.id} />
 
-          <div className="mb-7">
-            <h1 className="text-[2rem] font-bold tracking-tight text-[#0B2C4A] sm:text-[2.35rem]">Mis matches</h1>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold tracking-tight text-[#0B2C4A] sm:text-3xl">Mis matches</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
               Revisa tus coincidencias, administra solicitudes y entra al chat
               cuando el match esté aceptado.
             </p>
           </div>
 
-          <section className="mb-7 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <SummaryMetricCard
               title="Pendientes"
               value={pendingMatchesCount}
@@ -621,7 +621,7 @@ export default async function MatchesPage() {
                 return (
                   <section
                     key={match.id}
-                    className="overflow-hidden rounded-[30px] border border-[#D9E4F0] bg-white shadow-[0_18px_55px_rgba(11,44,74,0.08)]"
+                    className="overflow-hidden rounded-2xl border border-[#D9E4F0] bg-white shadow-sm"
                   >
                     <div className="border-b border-[#E6EDF5] px-4 py-4 sm:px-6">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -670,16 +670,16 @@ export default async function MatchesPage() {
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded-2xl border border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] px-4 py-3 text-sm font-medium text-[#285B41]">
+                      <div className="mt-3 rounded-xl border border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] px-4 py-3 text-sm font-medium text-[#285B41]">
                         {nextStepCopy}
                       </div>
                     </div>
 
                     <div className="p-4 sm:p-6">
                       <div className="grid gap-4 xl:grid-cols-[1fr_1fr_220px]">
-                        <div className="rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-4 sm:p-5">
+                        <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
                           <div className="mb-4 flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EEF4FB] text-[#0B5CAD]">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF4FB] text-[#0B5CAD]">
                               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
                               </svg>
@@ -702,9 +702,9 @@ export default async function MatchesPage() {
                           </div>
                         </div>
 
-                        <div className="rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-4 sm:p-5">
+                        <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
                           <div className="mb-4 flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FFF7E8] text-[#C98012]">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFF7E8] text-[#C98012]">
                               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
                               </svg>
@@ -737,8 +737,8 @@ export default async function MatchesPage() {
                                 Abrir chat
                               </Link>
 
-                              <div className="rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-4">
-                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                              <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                                   Estado del envío
                                 </p>
 
@@ -814,7 +814,7 @@ export default async function MatchesPage() {
                               </div>
                             </>
                           ) : (
-                            <div className="rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-3">
+                            <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-3">
                               <MatchActions
                                 matchId={match.id}
                                 matchStatus={match.status}
@@ -827,9 +827,9 @@ export default async function MatchesPage() {
                         </div>
                       </div>
 
-                      <div className="mt-5 rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-4">
+                      <div className="mt-5 rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
                         <div className="mb-3 flex items-center justify-between gap-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                             Último mensaje
                           </p>
 
@@ -840,7 +840,7 @@ export default async function MatchesPage() {
                           ) : null}
                         </div>
 
-                        <div className="rounded-2xl border border-[#E6EDF5] bg-white px-4 py-3 text-sm text-slate-700 break-words shadow-[0_8px_24px_rgba(11,44,74,0.04)]">
+                        <div className="rounded-xl border border-[#E6EDF5] bg-white px-4 py-3 text-sm text-slate-700 break-words shadow-sm">
                           {lastMessage?.message?.trim()
                             ? lastMessage.message
                             : "Aún no hay mensajes en este match."}
