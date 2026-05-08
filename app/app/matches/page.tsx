@@ -310,9 +310,9 @@ function SummaryMetricCard({
         </div>
 
         <div className="min-w-0">
-          <p className={`text-xs font-semibold uppercase tracking-wide ${currentTone.title}`}>{title}</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-[#0B2C4A]">{value}</p>
-          <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
+          <p className={`text-[11px] font-semibold uppercase tracking-wide ${currentTone.title}`}>{title}</p>
+          <p className="mt-1 text-[1.65rem] font-bold leading-none tracking-tight text-[#0B2C4A]">{value}</p>
+          <p className="mt-1 text-[12px] leading-4 text-slate-500">{description}</p>
         </div>
       </div>
     </article>
@@ -321,7 +321,7 @@ function SummaryMetricCard({
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start gap-2 text-sm text-slate-600">
+    <div className="flex items-start gap-2 text-[13px] leading-5 text-slate-600">
       <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[#2ECC71]" />
       <p>
         <span className="font-semibold text-[#0B2C4A]">{label}:</span> {value}
@@ -515,8 +515,10 @@ export default async function MatchesPage() {
           <MatchesRealtime currentUserId={user.id} />
 
           <div className="mb-6">
-            <h1 className="text-2xl font-bold tracking-tight text-[#0B2C4A] sm:text-3xl">Mis matches</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+            <h1 className="text-[clamp(1.45rem,1.8vw,1.95rem)] font-bold leading-none tracking-tight text-[#0B2C4A]">
+              Mis matches
+            </h1>
+            <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-500 sm:text-sm">
               Revisa tus coincidencias, administra solicitudes y entra al chat
               cuando el match esté aceptado.
             </p>
@@ -627,20 +629,20 @@ export default async function MatchesPage() {
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full border border-[#D7E5F4] bg-[#F7FAFD] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
+                            <span className="rounded-full border border-[#D7E5F4] bg-[#F7FAFD] px-3 py-1 text-[11px] font-semibold text-[#0B2C4A]">
                               {routeLabel}
                             </span>
-                            <span className="rounded-full border border-[#D7E5F4] bg-[#F7FAFD] px-3 py-1 text-xs font-medium text-[#0B2C4A]">
+                            <span className="rounded-full border border-[#D7E5F4] bg-[#F7FAFD] px-3 py-1 text-[11px] font-medium text-[#0B2C4A]">
                               {otherUserLabel}: {otherUserName}
                             </span>
-                            <span className="rounded-full border border-[#E6EDF5] bg-white px-3 py-1 text-xs text-slate-500">
+                            <span className="rounded-full border border-[#E6EDF5] bg-white px-3 py-1 text-[11px] text-slate-500">
                               Creado: {formatDate(match.created_at)}
                             </span>
                           </div>
 
                           <div className="mt-3 flex flex-wrap items-center gap-2">
                           <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(
+                            className={`rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusClasses(
                               match.status
                             )}`}
                           >
@@ -648,7 +650,7 @@ export default async function MatchesPage() {
                           </span>
 
                             <span
-                              className={`rounded-full border px-3 py-1 text-xs font-semibold ${getShipmentTrackingClasses(
+                              className={`rounded-full border px-3 py-1 text-[11px] font-semibold ${getShipmentTrackingClasses(
                                 shipment?.status ?? null
                               )}`}
                             >
@@ -659,18 +661,18 @@ export default async function MatchesPage() {
 
                         <div>
                           {unread ? (
-                            <span className="rounded-full border border-[#CDEFD9] bg-[#EFFBF4] px-3 py-1 text-xs font-semibold text-[#1F8B4C]">
+                            <span className="rounded-full border border-[#CDEFD9] bg-[#EFFBF4] px-3 py-1 text-[11px] font-semibold text-[#1F8B4C]">
                               Nuevo mensaje
                             </span>
                           ) : (
-                            <span className="rounded-full border border-[#E6EDF5] bg-[#F8FAFC] px-3 py-1 text-xs text-slate-500">
+                            <span className="rounded-full border border-[#E6EDF5] bg-[#F8FAFC] px-3 py-1 text-[11px] text-slate-500">
                               Al día
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded-xl border border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] px-4 py-3 text-sm font-medium text-[#285B41]">
+                      <div className="mt-3 rounded-xl border border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] px-4 py-3 text-[13px] font-medium leading-5 text-[#285B41]">
                         {nextStepCopy}
                       </div>
                     </div>
@@ -684,7 +686,7 @@ export default async function MatchesPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
                               </svg>
                             </div>
-                            <h3 className="text-base font-semibold text-[#0B2C4A]">Viaje</h3>
+                            <h3 className="text-[15px] font-semibold text-[#0B2C4A]">Viaje</h3>
                           </div>
 
                           <div className="space-y-3">
@@ -709,7 +711,7 @@ export default async function MatchesPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
                               </svg>
                             </div>
-                            <h3 className="text-base font-semibold text-[#0B2C4A]">Envío</h3>
+                            <h3 className="text-[15px] font-semibold text-[#0B2C4A]">Envío</h3>
                           </div>
 
                           <div className="space-y-3">
@@ -725,20 +727,20 @@ export default async function MatchesPage() {
                             <>
                               <Link
                                 href={`/app/matches/${match.id}`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
                               >
                                 Ver detalle
                               </Link>
 
                               <Link
                                 href={`/app/matches/${match.id}/chat`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-sm font-semibold text-white transition hover:opacity-95"
+                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-[13px] font-semibold text-white transition hover:opacity-95"
                               >
                                 Abrir chat
                               </Link>
 
                               <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                                   Estado del envío
                                 </p>
 
@@ -752,7 +754,7 @@ export default async function MatchesPage() {
                                   </span>
                                 </div>
 
-                                <p className="mt-3 text-xs leading-5 text-slate-500">
+                                <p className="mt-3 text-[12px] leading-4 text-slate-500">
                                   {getShipmentTrackingDescription(
                                     shipment?.status ?? null
                                   )}
@@ -829,18 +831,18 @@ export default async function MatchesPage() {
 
                       <div className="mt-5 rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
                         <div className="mb-3 flex items-center justify-between gap-3">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                             Último mensaje
                           </p>
 
                           {lastMessage ? (
-                            <span className="text-xs text-slate-400">
+                            <span className="text-[11px] text-slate-400">
                               {formatDateTime(lastMessage.created_at)}
                             </span>
                           ) : null}
                         </div>
 
-                        <div className="rounded-xl border border-[#E6EDF5] bg-white px-4 py-3 text-sm text-slate-700 break-words shadow-sm">
+                        <div className="rounded-xl border border-[#E6EDF5] bg-white px-4 py-3 text-[13px] leading-5 text-slate-700 break-words shadow-sm">
                           {lastMessage?.message?.trim()
                             ? lastMessage.message
                             : "Aún no hay mensajes en este match."}
