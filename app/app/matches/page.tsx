@@ -22,6 +22,9 @@ type TripItem = {
   departure_date: string;
   departure_time: string | null;
   capacity_kg: number | null;
+  accepts_fragile: boolean | null;
+  accepts_multiple_packages: boolean | null;
+  has_stopovers: boolean | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
 };
@@ -33,6 +36,9 @@ type ShipmentItem = {
   description: string | null;
   weight_kg: number | null;
   declared_value_cop: number | null;
+  is_fragile: boolean | null;
+  is_urgent: boolean | null;
+  is_high_value: boolean | null;
   status: string | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
@@ -338,6 +344,36 @@ function ReputationInline({
   );
 }
 
+function PreferenceChips({
+  items,
+}: {
+  items: Array<{ label: string; value: boolean | null | undefined }>;
+}) {
+  return (
+    <div className="mt-3 flex flex-wrap gap-1.5">
+      {items.map((item) => {
+        const enabled = item.value === true;
+
+        return (
+          <span
+            key={item.label}
+            className={`inline-flex min-w-0 items-center gap-1 rounded-full border px-2 py-1 text-[10px] whitespace-nowrap ${
+              enabled
+                ? "border-[#BEE8CD] bg-[#EFFBF4] text-[#1E8C4E]"
+                : "border-[#D7E5F1] bg-[#FBFDFF] text-slate-500"
+            }`}
+          >
+            <span className="truncate">{item.label}</span>
+            <span className={`font-semibold ${enabled ? "text-[#1E8C4E]" : "text-[#0B2C4A]"}`}>
+              {enabled ? "Sí" : "No"}
+            </span>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 export default async function MatchesPage() {
   const supabase = await createClient();
 
@@ -363,6 +399,9 @@ export default async function MatchesPage() {
         departure_date,
         departure_time,
         capacity_kg,
+        accepts_fragile,
+        accepts_multiple_packages,
+        has_stopovers,
         origin_city:cities!trips_origin_city_id_fkey(name),
         destination_city:cities!trips_destination_city_id_fkey(name)
       ),
@@ -373,6 +412,9 @@ export default async function MatchesPage() {
         description,
         weight_kg,
         declared_value_cop,
+        is_fragile,
+        is_urgent,
+        is_high_value,
         status,
         origin_city:cities!shipments_origin_city_id_fkey(name),
         destination_city:cities!shipments_destination_city_id_fkey(name)
@@ -632,6 +674,28 @@ export default async function MatchesPage() {
                 ) ?? "Destino"}`;
                 const primaryPanelTitle = isTraveler ? "Envío solicitado" : "Viaje disponible";
                 const secondaryPanelTitle = isTraveler ? "Tu viaje" : "Tu envío";
+                const primaryPreferenceItems = isTraveler
+                  ? [
+                      { label: "Frágil", value: shipment?.is_fragile },
+                      { label: "Urgente", value: shipment?.is_urgent },
+                      { label: "Valor alto", value: shipment?.is_high_value },
+                    ]
+                  : [
+                      { label: "Frágiles", value: trip?.accepts_fragile },
+                      { label: "Múltiples", value: trip?.accepts_multiple_packages },
+                      { label: "Paradas", value: trip?.has_stopovers },
+                    ];
+                const secondaryPreferenceItems = isTraveler
+                  ? [
+                      { label: "Frágiles", value: trip?.accepts_fragile },
+                      { label: "Múltiples", value: trip?.accepts_multiple_packages },
+                      { label: "Paradas", value: trip?.has_stopovers },
+                    ]
+                  : [
+                      { label: "Frágil", value: shipment?.is_fragile },
+                      { label: "Urgente", value: shipment?.is_urgent },
+                      { label: "Valor alto", value: shipment?.is_high_value },
+                    ];
 
                 return (
                   <section
@@ -703,6 +767,7 @@ export default async function MatchesPage() {
                                   label="Descripción"
                                   value={shipment?.description?.trim() || "Sin descripción"}
                                 />
+                                <PreferenceChips items={primaryPreferenceItems} />
                               </>
                             ) : (
                               <>
@@ -711,6 +776,7 @@ export default async function MatchesPage() {
                                   value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
                                 />
                                 <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                                <PreferenceChips items={primaryPreferenceItems} />
                               </>
                             )}
                           </div>
@@ -740,12 +806,14 @@ export default async function MatchesPage() {
                                   value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
                                 />
                                 <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                                <PreferenceChips items={secondaryPreferenceItems} />
                               </>
                             ) : (
                               <>
                                 <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
                                 <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
                                 <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
+                                <PreferenceChips items={secondaryPreferenceItems} />
                               </>
                             )}
                           </div>
