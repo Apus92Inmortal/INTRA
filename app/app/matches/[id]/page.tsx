@@ -17,7 +17,7 @@ import {
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
-import { fetchRatingSummaryMap } from "@/lib/reviews";
+import { fetchRatingSummaryMap, formatRatingValue } from "@/lib/reviews";
 import { getVerificationBadge } from "@/lib/trust";
 import SuspiciousReportForm from "./SuspiciousReportForm";
 
@@ -99,23 +99,14 @@ function renderStars(rating: number) {
   ));
 }
 
-function getShipmentTrackingLabel(status: string | null | undefined) {
-  switch (status) {
-    case "open":
-      return "Solicitud creada";
-    case "matched":
-      return "Match realizado";
-    case "accepted":
-      return "Match aceptado";
-    case "in_transit":
-      return "En tránsito";
-    case "delivered":
-      return "Entregado";
-    case "cancelled":
-      return "Cancelado";
-    default:
-      return "Sin estado";
+function getRatingSummaryText(avgRating: number | null | undefined, totalReviews: number) {
+  const formatted = formatRatingValue(avgRating);
+
+  if (!formatted || totalReviews <= 0) {
+    return "Nuevo usuario";
   }
+
+  return `⭐ ${formatted} · ${totalReviews} valoraciones`;
 }
 
 function getNextStepContent({
@@ -196,6 +187,25 @@ function getNextStepContent({
     title: "Revisa el siguiente paso",
     description: "Aquí verás solo lo necesario para continuar este match sin ruido adicional.",
   };
+}
+
+function getProgressStepIndex({
+  matchStatus,
+  shipmentStatus,
+  travelerDeliveredAt,
+  deliveredAt,
+}: {
+  matchStatus: string;
+  shipmentStatus: string | null | undefined;
+  travelerDeliveredAt: string | null | undefined;
+  deliveredAt: string | null | undefined;
+}) {
+  if (matchStatus === "pending") return -1;
+  if (deliveredAt || shipmentStatus === "delivered" || matchStatus === "completed") return 3;
+  if (travelerDeliveredAt) return 3;
+  if (shipmentStatus === "in_transit") return 2;
+  if (shipmentStatus === "matched" || matchStatus === "accepted") return 0;
+  return -1;
 }
 
 export default async function MatchDetailPage({ params }: PageProps) {
@@ -348,12 +358,31 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const otherUserVerification = getVerificationBadge(
     otherUserId ? participantVerificationById.get(otherUserId) : null
   );
+  const otherUserRatingText = otherUserId
+    ? getRatingSummaryText(
+        ratingSummaryMap[otherUserId]?.avgRating ?? null,
+        ratingSummaryMap[otherUserId]?.totalReviews ?? 0
+      )
+    : "Nuevo usuario";
   const nextStep = getNextStepContent({
     matchStatus: match.status,
     shipmentStatus: shipment?.status,
     isOwner,
     travelerDeliveredAt: payment?.traveler_delivered_at,
   });
+  const progressIndex = getProgressStepIndex({
+    matchStatus: match.status,
+    shipmentStatus: shipment?.status,
+    travelerDeliveredAt: payment?.traveler_delivered_at,
+    deliveredAt: payment?.delivered_at,
+  });
+  const matchCode = shipment?.tracking_code || `MATCH-${match.id.slice(0, 8).toUpperCase()}`;
+  const progressSteps = [
+    "Match aceptado",
+    "Recogida",
+    "En tránsito",
+    "Entrega",
+  ];
 
   const canAccept = isOwner && match.status === "pending";
   const canCancel =
@@ -440,76 +469,48 @@ export default async function MatchDetailPage({ params }: PageProps) {
           <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${isTraveler ? "bg-[#EAF8EF] text-[#2C9B57]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
+                      <span className="text-xl">{isTraveler ? "📦" : "✈️"}</span>
+                    </div>
                     <h1 className="text-[clamp(1.65rem,2.5vw,2.35rem)] font-bold tracking-tight text-[#0B2C4A]">
                       {shipmentRouteLabel}
                     </h1>
-                    {shipment?.tracking_code ? <TrackingCodeBadge code={shipment.tracking_code} /> : null}
+                    <span
+                      className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
+                        match.status === "pending"
+                          ? "bg-amber-100 text-amber-700"
+                          : match.status === "accepted"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : match.status === "rejected"
+                              ? "bg-rose-100 text-rose-700"
+                            : "bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      {getStatusLabel(match.status)}
+                    </span>
                   </div>
                   <p className="mt-2 max-w-2xl text-sm text-slate-600">
-                    Todo lo necesario para coordinar este match con claridad y tomar la siguiente acción sin ruido.
+                    Coordina la recogida y revisa los datos clave del match.
                   </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
-                    <span className="rounded-full bg-slate-100 px-3 py-1">
-                      {otherUserRoleLabel}: {otherUserName}
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600">
+                    <span>
+                      <span className="font-medium text-slate-500">{otherUserRoleLabel}:</span>{" "}
+                      <span className="font-semibold text-[#0B2C4A]">{otherUserName}</span>
                     </span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1">Creado: {formatDate(match.created_at)}</span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1">{getShipmentTrackingLabel(shipment?.status)}</span>
+                    <span>{otherUserRatingText}</span>
+                    <span>Creado: {formatDate(match.created_at)}</span>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
-                      match.status === "pending"
-                        ? "bg-amber-100 text-amber-700"
-                        : match.status === "accepted"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : match.status === "rejected"
-                            ? "bg-rose-100 text-rose-700"
-                          : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {getStatusLabel(match.status)}
-                  </span>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  <TrackingCodeBadge code={matchCode} className="bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 [&>span:last-child]:text-slate-400" />
                 </div>
               </div>
             </div>
 
             <div className="px-4 py-5 sm:px-8 sm:py-6">
-              <section className="mb-5 grid gap-3 md:grid-cols-3">
-                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ruta principal</p>
-                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{shipmentRouteLabel}</p>
-                  <p className="mt-1 text-sm text-slate-500">{getShipmentKindLabel(shipment?.kind)} · {shipment?.weight_kg ?? 0} kg</p>
-                </article>
-
-                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Con quién coordinas</p>
-                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{otherUserName}</p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    {otherUserId ? (
-                      <RatingSummaryBadge
-                        avgRating={ratingSummaryMap[otherUserId]?.avgRating ?? null}
-                        totalReviews={ratingSummaryMap[otherUserId]?.totalReviews ?? 0}
-                      />
-                    ) : null}
-                    <span
-                      className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${otherUserVerification.classes}`}
-                    >
-                      {otherUserVerification.label}
-                    </span>
-                  </div>
-                </article>
-
-                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Siguiente paso</p>
-                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{nextStep.title}</p>
-                  <p className="mt-1 text-sm text-slate-500">{nextStep.description}</p>
-                </article>
-              </section>
-
               <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="space-y-5">
                   <section className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-5 shadow-sm">
@@ -518,7 +519,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         <span className="text-lg">{isTraveler ? "📦" : "✈️"}</span>
                       </div>
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Resumen principal</p>
                         <h2 className="text-lg font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h2>
                       </div>
                     </div>
@@ -543,11 +543,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
                   <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Contexto relacionado</p>
-                        <h2 className="text-lg font-semibold text-[#0B2C4A]">{secondaryPanelTitle}</h2>
-                      </div>
-                      {shipment?.tracking_code ? <TrackingCodeBadge code={shipment.tracking_code} /> : null}
+                      <h2 className="text-lg font-semibold text-[#0B2C4A]">{secondaryPanelTitle}</h2>
                     </div>
 
                     <div className="mt-4 grid gap-3 text-sm text-slate-700 sm:grid-cols-2">
@@ -572,11 +568,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Reputación del usuario</p>
-                        <h2 className="text-lg font-semibold text-[#0B2C4A]">{otherUserName}</h2>
-                        <p className="mt-1 text-sm text-slate-500">
-                          La reputación pertenece al usuario, no al match. Aquí solo ves lo justo para decidir con quién coordinas.
-                        </p>
+                        <h2 className="text-lg font-semibold text-[#0B2C4A]">{otherUserRoleLabel}</h2>
+                        <p className="mt-1 text-sm text-slate-500">{otherUserName}</p>
                       </div>
 
                       {otherUserId ? (
@@ -593,6 +586,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       </span>
                       <span className={`rounded-full px-3 py-1 text-xs font-semibold ${otherUserVerification.classes}`}>
                         {otherUserVerification.label}
+                      </span>
+                      <span className="rounded-full bg-[#FFF7E8] px-3 py-1 text-xs font-semibold text-[#9A6B00]">
+                        {otherUserRatingText}
                       </span>
                     </div>
 
@@ -626,21 +622,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
                 <div className="space-y-5">
                   <section className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-5 shadow-sm">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-[#0B5CAD]">{nextStep.label}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-[#0B5CAD]">Próximo paso</p>
                     <h2 className="mt-2 text-lg font-semibold text-[#0B2C4A]">{nextStep.title}</h2>
                     <p className="mt-2 text-sm leading-6 text-slate-500">{nextStep.description}</p>
 
                     <div className="mt-5 space-y-3">
-                      <MatchDetailActions
-                        matchId={match.id}
-                        status={match.status}
-                        canAccept={canAccept}
-                        canCancel={canCancel}
-                        onAccept={acceptMatchAction}
-                        onReject={rejectMatchAction}
-                        onCancel={cancelMatchAction}
-                      />
-
                       {canMarkInTransit && markInTransitSubmitAction ? (
                         <form action={markInTransitSubmitAction}>
                           <button
@@ -672,7 +658,24 @@ export default async function MatchDetailPage({ params }: PageProps) {
                             Confirmar recepción
                           </button>
                         </form>
-                      ) : null}
+                      ) : canOpenChat ? (
+                        <Link
+                          href={`/app/matches/${match.id}/chat`}
+                          className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
+                        >
+                          Abrir chat
+                        </Link>
+                      ) : (
+                        <MatchDetailActions
+                          matchId={match.id}
+                          status={match.status}
+                          canAccept={canAccept}
+                          canCancel={canCancel}
+                          onAccept={acceptMatchAction}
+                          onReject={rejectMatchAction}
+                          onCancel={cancelMatchAction}
+                        />
+                      )}
 
                       {canOpenDispute && openDisputeSubmitAction ? (
                         <form action={openDisputeSubmitAction}>
@@ -687,26 +690,69 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     </div>
                   </section>
 
-                  {shipment?.id && isTraveler && ownerId ? (
-                    <section className="rounded-2xl border border-amber-200 bg-[linear-gradient(180deg,#FFFDF8_0%,#FFF7E8_100%)] p-5 shadow-sm">
+                  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <h2 className="text-lg font-semibold text-[#0B2C4A]">Progreso del envío</h2>
+
+                    <div className="mt-5 grid grid-cols-4 gap-2">
+                      {progressSteps.map((step, index) => {
+                        const isDone = index <= progressIndex;
+                        const isCurrent = index === progressIndex;
+
+                        return (
+                          <div key={step} className="text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <div
+                                className={`h-8 w-8 rounded-full border text-xs font-semibold flex items-center justify-center ${
+                                  isDone
+                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                    : "border-slate-200 bg-slate-50 text-slate-400"
+                                }`}
+                              >
+                                {isDone ? "✓" : index + 1}
+                              </div>
+                            </div>
+                            <p className={`mt-2 text-[11px] font-semibold leading-4 ${isCurrent ? "text-[#0B2C4A]" : "text-slate-500"}`}>
+                              {step}
+                            </p>
+                            {isCurrent ? (
+                              <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-emerald-600">Actual</p>
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl border border-amber-200 bg-[linear-gradient(180deg,#FFFDF8_0%,#FFF7E8_100%)] p-5 shadow-sm">
+                    {shipment?.id && isTraveler && ownerId ? (
+                      <>
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">Protección del envío</p>
+                          <h2 className="mt-2 text-lg font-semibold text-[#0B2C4A]">Activa una alerta si algo no cuadra</h2>
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            Si el paquete no coincide con lo acordado o detectas algo irregular, activa una alerta.
+                          </p>
+                        </div>
+
+                        <div className="mt-4">
+                          <SuspiciousReportForm
+                            shipmentId={shipment.id}
+                            matchId={match.id}
+                            reporterName={participantNameById.get(user.id) ?? "El viajero"}
+                            recipientUserId={ownerId}
+                          />
+                        </div>
+                      </>
+                    ) : (
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">Emergencia</p>
-                        <h2 className="mt-2 text-lg font-semibold text-[#0B2C4A]">Alerta con el paquete</h2>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">Protección del envío</p>
+                        <h2 className="mt-2 text-lg font-semibold text-[#0B2C4A]">Seguimiento protegido</h2>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
-                          Si el paquete no coincide con lo acordado o ves algo delicado, activa la alerta. Luego podremos conectarlo a protocolos más fuertes.
+                          Si surge una irregularidad durante la coordinación o la entrega, el flujo de protección se activa desde el lado operativo correspondiente.
                         </p>
                       </div>
-
-                      <div className="mt-4">
-                        <SuspiciousReportForm
-                          shipmentId={shipment.id}
-                          matchId={match.id}
-                          reporterName={participantNameById.get(user.id) ?? "El viajero"}
-                          recipientUserId={ownerId}
-                        />
-                      </div>
-                    </section>
-                  ) : null}
+                    )}
+                  </section>
                 </div>
               </div>
 

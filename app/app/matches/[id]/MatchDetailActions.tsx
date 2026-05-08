@@ -113,10 +113,14 @@ export default function MatchDetailActions({
           <button
             onClick={isOwnerPending ? handleReject : handleCancel}
             disabled={isPending}
-            className={`min-h-11 w-full rounded-2xl px-5 py-2.5 text-sm font-semibold transition disabled:opacity-50 sm:w-auto ${
+            className={`min-h-11 w-full rounded-2xl px-5 py-2.5 text-sm font-semibold transition disabled:opacity-50 ${
+              canAccept && status === "pending" ? "sm:w-auto" : ""
+            } ${
               status === "accepted"
-                ? "border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
-                : "border border-[#D9E4F0] bg-white text-slate-700 hover:bg-[#F7FAFD]"
+                ? "border border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
+                : canAccept && status === "pending"
+                  ? "border border-[#D9E4F0] bg-white text-slate-700 hover:bg-[#F7FAFD]"
+                  : "border border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
             }`}
           >
             {isPending &&
