@@ -696,15 +696,6 @@ export default async function MatchesPage() {
                           <div className="space-y-3">
                             {isTraveler ? (
                               <>
-                                <DetailRow label="Cliente" value={otherUserName} />
-                                <DetailRow
-                                  label="Calificación"
-                                  value={
-                                    otherUserRating.avgRating != null && otherUserRating.totalReviews > 0
-                                      ? `⭐ ${formatRatingValue(otherUserRating.avgRating)} / 5`
-                                      : "Sin calificaciones aún"
-                                  }
-                                />
                                 <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
                                 <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
                                 <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
@@ -715,15 +706,6 @@ export default async function MatchesPage() {
                               </>
                             ) : (
                               <>
-                                <DetailRow label="Viajero" value={otherUserName} />
-                                <DetailRow
-                                  label="Calificación"
-                                  value={
-                                    otherUserRating.avgRating != null && otherUserRating.totalReviews > 0
-                                      ? `⭐ ${formatRatingValue(otherUserRating.avgRating)} / 5`
-                                      : "Sin calificaciones aún"
-                                  }
-                                />
                                 <DetailRow
                                   label="Salida"
                                   value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
