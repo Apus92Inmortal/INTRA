@@ -344,27 +344,27 @@ function ReputationInline({
   );
 }
 
-function PreferenceChips({
+function PreferenceToggleColumn({
   items,
 }: {
   items: Array<{ label: string; value: boolean | null | undefined }>;
 }) {
   return (
-    <div className="mt-3 flex flex-wrap gap-1.5">
+    <div className="space-y-2">
       {items.map((item) => {
         const enabled = item.value === true;
 
         return (
           <span
             key={item.label}
-            className={`inline-flex min-w-0 items-center gap-1 rounded-full border px-2 py-1 text-[10px] whitespace-nowrap ${
+            className={`flex w-full min-w-0 items-center justify-between gap-3 rounded-full border px-3 py-1.5 text-[13px] leading-5 ${
               enabled
                 ? "border-[#BEE8CD] bg-[#EFFBF4] text-[#1E8C4E]"
                 : "border-[#D7E5F1] bg-[#FBFDFF] text-slate-500"
             }`}
           >
-            <span className="truncate">{item.label}</span>
-            <span className={`font-semibold ${enabled ? "text-[#1E8C4E]" : "text-[#0B2C4A]"}`}>
+            <span className="truncate font-semibold text-[#0B2C4A]">{item.label}</span>
+            <span className={`shrink-0 font-medium ${enabled ? "text-[#1E8C4E]" : "text-slate-500"}`}>
               {enabled ? "Sí" : "No"}
             </span>
           </span>
@@ -745,28 +745,32 @@ export default async function MatchesPage() {
                             <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
                           </div>
 
-                          <div className="space-y-3">
-                            {isTraveler ? (
-                              <>
-                                <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
-                                <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
-                                <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
-                                <DetailRow
-                                  label="Descripción"
-                                  value={shipment?.description?.trim() || "Sin descripción"}
-                                />
-                                <PreferenceChips items={primaryPreferenceItems} />
-                              </>
-                            ) : (
-                              <>
-                                <DetailRow
-                                  label="Salida"
-                                  value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
-                                />
-                                <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
-                                <PreferenceChips items={primaryPreferenceItems} />
-                              </>
-                            )}
+                          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start">
+                            <div className="space-y-3">
+                              {isTraveler ? (
+                                <>
+                                  <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
+                                  <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
+                                  <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
+                                  <DetailRow
+                                    label="Descripción"
+                                    value={shipment?.description?.trim() || "Sin descripción"}
+                                  />
+                                </>
+                              ) : (
+                                <>
+                                  <DetailRow
+                                    label="Salida"
+                                    value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
+                                  />
+                                  <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                                </>
+                              )}
+                            </div>
+
+                            <div className="lg:justify-self-end lg:w-full lg:max-w-[220px]">
+                              <PreferenceToggleColumn items={primaryPreferenceItems} />
+                            </div>
                           </div>
                         </div>
 
