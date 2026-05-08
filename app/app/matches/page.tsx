@@ -602,27 +602,27 @@ export default async function MatchesPage() {
                 return (
                   <section
                     key={match.id}
-                    className="overflow-hidden rounded-2xl border border-[#D9E4F0] bg-white shadow-sm"
+                    className="relative overflow-hidden rounded-2xl border border-[#D9E4F0] bg-white shadow-sm"
                   >
-                    <div className="border-b border-[#E6EDF5] px-4 py-4 sm:px-6">
+                    <span
+                      className={`absolute right-4 top-4 inline-flex w-fit shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold shadow-sm sm:right-6 ${primaryStatus.classes}`}
+                    >
+                      {primaryStatus.label}
+                    </span>
+
+                    <div className="border-b border-[#E6EDF5] px-4 py-4 pr-24 sm:px-6 sm:pr-28">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
-                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="min-w-0">
-                              <h2 className="text-[15px] font-semibold tracking-tight text-[#0B2C4A] sm:text-base">
-                                {routeLabel}
-                              </h2>
-                              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-slate-500 sm:text-[13px]">
-                                <span>
-                                  <span className="font-medium text-[#0B2C4A]">{otherUserRoleLabel}:</span> {otherUserName}
-                                </span>
-                                <span>Creado: {formatDate(match.created_at)}</span>
-                              </div>
+                          <div className="min-w-0">
+                            <h2 className="text-[15px] font-semibold tracking-tight text-[#0B2C4A] sm:text-base">
+                              {routeLabel}
+                            </h2>
+                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-slate-500 sm:text-[13px]">
+                              <span>
+                                <span className="font-medium text-[#0B2C4A]">{otherUserRoleLabel}:</span> {otherUserName}
+                              </span>
+                              <span>Creado: {formatDate(match.created_at)}</span>
                             </div>
-
-                            <span className={`inline-flex w-fit shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold shadow-sm ${primaryStatus.classes}`}>
-                              {primaryStatus.label}
-                            </span>
                           </div>
                         </div>
                       </div>
