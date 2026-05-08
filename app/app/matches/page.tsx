@@ -759,32 +759,39 @@ export default async function MatchesPage() {
                             <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
                           </div>
 
-                          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_200px] lg:items-stretch">
-                            <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
-                              {isTraveler ? (
-                                <>
-                                  <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
-                                  <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
-                                  <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
-                                  <DetailRow
-                                    className="sm:col-span-2"
-                                    label="Descripción"
-                                    value={shipment?.description?.trim() || "Sin descripción"}
-                                  />
-                                </>
-                              ) : (
-                                <>
-                                  <DetailRow
-                                    className="sm:col-span-2"
-                                    label="Salida"
-                                    value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
-                                  />
-                                  <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
-                                </>
-                              )}
-                            </div>
+                          <div
+                            className={
+                              isTraveler
+                                ? "grid gap-3 lg:grid-cols-[minmax(0,1fr)_200px] lg:items-stretch"
+                                : "grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center"
+                            }
+                          >
+                            {isTraveler ? (
+                              <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
+                                <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
+                                <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
+                                <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
+                                <DetailRow
+                                  className="sm:col-span-2"
+                                  label="Descripción"
+                                  value={shipment?.description?.trim() || "Sin descripción"}
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex h-full flex-col justify-center space-y-2.5 lg:pr-2">
+                                <DetailRow
+                                  label="Salida"
+                                  value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
+                                />
+                                <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                              </div>
+                            )}
 
-                            <div className="flex h-full lg:justify-self-end lg:w-full lg:max-w-[200px] lg:self-stretch">
+                            <div
+                              className={`flex h-full lg:justify-self-end lg:w-full ${
+                                isTraveler ? "lg:max-w-[200px] lg:self-stretch" : "lg:max-w-[190px] lg:items-center"
+                              }`}
+                            >
                               <PreferenceToggleColumn items={primaryPreferenceItems} />
                             </div>
                           </div>
