@@ -1,12 +1,15 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { CircleDollarSign, Clock3, PackageCheck, Route } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 import { cancelMatchAction, confirmDeliveryAction, markDeliveredAction } from "./[id]/actions";
+import { fetchRatingSummaryMap, formatRatingValue } from "@/lib/reviews";
 
 type CityRow = {
   name: string;
@@ -20,6 +23,9 @@ type TripItem = {
   departure_date: string;
   departure_time: string | null;
   capacity_kg: number | null;
+  accepts_fragile: boolean | null;
+  accepts_multiple_packages: boolean | null;
+  has_stopovers: boolean | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
 };
@@ -28,8 +34,12 @@ type ShipmentItem = {
   id: string;
   owner_id: string;
   kind: string | null;
+  description: string | null;
   weight_kg: number | null;
   declared_value_cop: number | null;
+  is_fragile: boolean | null;
+  is_urgent: boolean | null;
+  is_high_value: boolean | null;
   status: string | null;
   origin_city: CityRelation;
   destination_city: CityRelation;
@@ -74,16 +84,6 @@ function formatDate(dateString: string) {
   }).format(new Date(dateString));
 }
 
-function formatDateTime(dateString: string) {
-  return new Intl.DateTimeFormat("es-CO", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(dateString));
-}
-
 function formatTimeLabel(timeString: string | null | undefined) {
   if (!timeString) return "Hora por confirmar";
 
@@ -125,57 +125,32 @@ function getStatusClasses(status: string) {
   }
 }
 
-function getShipmentTrackingLabel(status: string | null) {
-  switch (status) {
-    case "open":
-      return "Solicitud creada";
-    case "matched":
-      return "Match realizado";
-    case "accepted":
-      return "Match aceptado";
-    case "in_transit":
-      return "En tránsito";
-    case "delivered":
-      return "Entregado";
-    case "cancelled":
-      return "Cancelado";
-    default:
-      return "Sin estado";
+function getPrimaryStatusInfo(matchStatus: string, shipmentStatus: string | null) {
+  if (shipmentStatus === "in_transit") {
+    return {
+      label: "En tránsito",
+      classes: "bg-blue-50 text-[#0B2C4A] border border-blue-200",
+    };
   }
-}
 
-function getShipmentTrackingClasses(status: string | null) {
-  switch (status) {
-    case "accepted":
-      return "border-green-200 bg-green-50 text-green-700";
-    case "in_transit":
-      return "border-blue-200 bg-blue-50 text-[#0B2C4A]";
-    case "delivered":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
-    case "cancelled":
-      return "border-gray-300 bg-gray-100 text-gray-600";
-    case "matched":
-      return "border-blue-200 bg-blue-50 text-[#0B2C4A]";
-    default:
-      return "border-gray-200 bg-gray-50 text-gray-600";
+  if (shipmentStatus === "delivered") {
+    return {
+      label: "Entregado",
+      classes: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    };
   }
-}
 
-function getShipmentTrackingDescription(status: string | null) {
-  switch (status) {
-    case "accepted":
-      return "El match fue aceptado. El siguiente paso es recoger el paquete.";
-    case "in_transit":
-      return "El viajero ya recogió el paquete. Cuando lo entregue, debe reportarlo aquí.";
-    case "delivered":
-      return "La entrega fue confirmada correctamente.";
-    case "cancelled":
-      return "Este envío fue cancelado.";
-    case "matched":
-      return "Ya existe una coincidencia creada para este envío.";
-    default:
-      return "Próximamente podrás seguir aquí el avance del paquete.";
+  if (shipmentStatus === "cancelled" || matchStatus === "cancelled") {
+    return {
+      label: "Cancelado",
+      classes: "bg-gray-100 text-gray-600 border border-gray-200",
+    };
   }
+
+  return {
+    label: getStatusLabel(matchStatus),
+    classes: getStatusClasses(matchStatus),
+  };
 }
 
 function getCityName(city: CityRelation) {
@@ -196,10 +171,199 @@ function normalizeShipment(
   return Array.isArray(shipment) ? (shipment[0] ?? null) : shipment;
 }
 
+function getNextStepCopy({
+  matchStatus,
+  shipmentStatus,
+  isOwner,
+  hasUnread,
+}: {
+  matchStatus: string;
+  shipmentStatus: string | null;
+  isOwner: boolean;
+  hasUnread: boolean;
+}) {
+  if (hasUnread && matchStatus === "accepted") {
+    return "Tienes mensajes nuevos por revisar en este match.";
+  }
+
+  if (matchStatus === "pending") {
+    return isOwner
+      ? "Revisa la solicitud y decide si aceptas este viajero."
+      : "Tu solicitud fue enviada. Espera la respuesta del cliente.";
+  }
+
+  if (shipmentStatus === "matched") {
+    return null;
+  }
+
+  if (shipmentStatus === "accepted") {
+    return "El match está aceptado. Coordinen recogida y confirma cuando el paquete cambie de manos.";
+  }
+
+  if (shipmentStatus === "in_transit") {
+    return isOwner
+      ? "El paquete va en camino. Mantente pendiente del chat para coordinar entrega y confirmación."
+      : "El paquete ya está en tránsito. Cuando lo entregues, repórtalo para continuar el flujo.";
+  }
+
+  if (shipmentStatus === "delivered") {
+    return "La entrega ya quedó registrada. Puedes revisar el detalle o el estado del pago.";
+  }
+
+  return "Revisa el detalle para continuar con el siguiente paso del flujo.";
+}
+
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-500">
-      {text}
+    <div className="rounded-2xl border border-dashed border-[#D9E4F0] bg-white p-5 text-sm text-gray-500 shadow-sm sm:p-6">
+      <h2 className="text-lg font-semibold text-[#0B2C4A]">Todavía no tienes matches</h2>
+      <p className="mt-2 max-w-2xl leading-6">{text}</p>
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <Link
+          href="/app/shipments/new"
+          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27ae60]"
+        >
+          Crear envío
+        </Link>
+        <Link
+          href="/app/trips/new"
+          className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+        >
+          Publicar viaje
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function SummaryMetricCard({
+  title,
+  value,
+  tone,
+  icon,
+}: {
+  title: string;
+  value: number;
+  tone: "amber" | "green" | "blue" | "slate";
+  icon: ReactNode;
+}) {
+  const tones = {
+    amber: {
+      card: "border-[#F6D9A6] bg-white",
+      bubble: "bg-[#FFF7E8] text-[#F39C12]",
+      title: "text-[#A56A00]",
+    },
+    green: {
+      card: "border-[#CDEFD9] bg-white",
+      bubble: "bg-[#EFFBF4] text-[#2ECC71]",
+      title: "text-[#1F8B4C]",
+    },
+    blue: {
+      card: "border-[#D7E5F4] bg-white",
+      bubble: "bg-[#EEF4FB] text-[#0B5CAD]",
+      title: "text-[#0B5CAD]",
+    },
+    slate: {
+      card: "border-[#D9E4F0] bg-white",
+      bubble: "bg-[#EEF2F7] text-[#0B2C4A]",
+      title: "text-[#3B526B]",
+    },
+  } as const;
+
+  const currentTone = tones[tone];
+
+  return (
+    <article
+      className={`rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${currentTone.card}`}
+    >
+      <div className="flex items-start gap-3">
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${currentTone.bubble}`}>
+          {icon}
+        </div>
+
+        <div className="min-w-0">
+          <p className={`text-[11px] font-semibold uppercase tracking-wide ${currentTone.title}`}>{title}</p>
+          <p className="mt-1 text-[1.65rem] font-bold leading-none tracking-tight text-[#0B2C4A]">{value}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function DetailRow({
+  label,
+  value,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-start gap-2 text-[13px] leading-5 text-slate-600 ${className}`}>
+      <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[#2ECC71]" />
+      <p>
+        <span className="font-semibold text-[#0B2C4A]">{label}:</span> {value}
+      </p>
+    </div>
+  );
+}
+
+function ReputationInline({
+  avgRating,
+  totalReviews,
+}: {
+  avgRating: number | null;
+  totalReviews: number;
+}) {
+  const formatted = formatRatingValue(avgRating);
+
+  if (!formatted || totalReviews <= 0) {
+    return (
+      <span className="inline-flex items-center rounded-full border border-[#D9E4F0] bg-[#F8FBFF] px-2.5 py-1 text-[11px] font-medium text-slate-500">
+        Nuevo usuario
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center rounded-full border border-[#F6D9A6] bg-[#FFF7E8] px-2.5 py-1 text-[11px] font-semibold text-[#8A5B00]">
+      ⭐ {formatted} / 5
+    </span>
+  );
+}
+
+function PreferenceToggleColumn({
+  items,
+}: {
+  items: Array<{ label: string; value: boolean | null | undefined; icon: ReactNode }>;
+}) {
+  return (
+    <div className="space-y-2 lg:flex lg:h-full lg:flex-col lg:justify-between lg:space-y-0 lg:gap-2">
+      {items.map((item) => {
+        const enabled = item.value === true;
+
+        return (
+          <span
+            key={item.label}
+            className={`flex w-full min-w-0 items-center justify-between gap-3 rounded-full border px-3 py-1.5 text-[13px] leading-5 ${
+              enabled
+                ? "border-[#BEE8CD] bg-[linear-gradient(180deg,#F7FFF9_0%,#EFFBF4_100%)] text-[#1E8C4E]"
+                : "border-[#D7E5F1] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] text-slate-500"
+            }`}
+          >
+            <span className="flex min-w-0 items-center gap-2.5">
+              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${enabled ? "bg-white/70 text-[#1E8C4E]" : "bg-[#F4F7FB] text-slate-500"}`}>
+                {item.icon}
+              </span>
+              <span className="truncate font-semibold text-[#0B2C4A]">{item.label}</span>
+            </span>
+            <span className={`shrink-0 font-medium ${enabled ? "text-[#1E8C4E]" : "text-slate-500"}`}>
+              {enabled ? "Sí" : "No"}
+            </span>
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -229,6 +393,9 @@ export default async function MatchesPage() {
         departure_date,
         departure_time,
         capacity_kg,
+        accepts_fragile,
+        accepts_multiple_packages,
+        has_stopovers,
         origin_city:cities!trips_origin_city_id_fkey(name),
         destination_city:cities!trips_destination_city_id_fkey(name)
       ),
@@ -236,8 +403,12 @@ export default async function MatchesPage() {
         id,
         owner_id,
         kind,
+        description,
         weight_kg,
         declared_value_cop,
+        is_fragile,
+        is_urgent,
+        is_high_value,
         status,
         origin_city:cities!shipments_origin_city_id_fkey(name),
         destination_city:cities!shipments_destination_city_id_fkey(name)
@@ -291,6 +462,8 @@ export default async function MatchesPage() {
       profile.full_name,
     ])
   );
+
+  const ratingSummaryMap = await fetchRatingSummaryMap(supabase, relatedUserIds);
 
   const matchIds = allMatches.map((match) => match.id);
   const shipmentIds = Array.from(
@@ -350,21 +523,96 @@ export default async function MatchesPage() {
     paymentsMap = latestPayments;
   }
 
+  const pendingMatchesCount = allMatches.filter((match) => match.status === "pending").length;
+  const acceptedMatchesCount = allMatches.filter((match) => match.status === "accepted").length;
+  const unreadMatchesCount = allMatches.filter((match) => {
+    const trip = normalizeTrip(match.trips);
+    const shipment = normalizeShipment(match.shipments);
+    const lastMessage = messagesMap.get(match.id);
+
+    if (!lastMessage || lastMessage.sender_id === user.id || match.status !== "accepted") {
+      return false;
+    }
+
+    const isTraveler = trip?.traveler_id === user.id;
+    const isOwner = shipment?.owner_id === user.id;
+
+    if (isTraveler) {
+      return !match.last_read_by_traveler || new Date(lastMessage.created_at) > new Date(match.last_read_by_traveler);
+    }
+
+    if (isOwner) {
+      return !match.last_read_by_owner || new Date(lastMessage.created_at) > new Date(match.last_read_by_owner);
+    }
+
+    return false;
+  }).length;
+
+  const inTransitCount = allMatches.filter((match) => {
+    const shipment = normalizeShipment(match.shipments);
+    return shipment?.status === "in_transit";
+  }).length;
+
   return (
     <>
       <AppNavbar />
 
-      <main className="min-h-screen bg-[#EEF2F7]">
+      <main className="min-h-screen bg-[#F5F8FB]">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <MatchesRealtime currentUserId={user.id} />
 
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2C4A]">Mis matches</h1>
-            <p className="mt-2 text-sm text-gray-600">
+            <h1 className="text-[clamp(1.45rem,1.8vw,1.95rem)] font-bold leading-none tracking-tight text-[#0B2C4A]">
+              Mis matches
+            </h1>
+            <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-500 sm:text-sm">
               Revisa tus coincidencias, administra solicitudes y entra al chat
               cuando el match esté aceptado.
             </p>
           </div>
+
+          <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <SummaryMetricCard
+              title="Pendientes"
+              value={pendingMatchesCount}
+              tone="amber"
+              icon={
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 3h8M8 21h8M9 3v5l3 4-3 4v5m6-18v5l-3 4 3 4v5" />
+                </svg>
+              }
+            />
+            <SummaryMetricCard
+              title="Activos"
+              value={acceptedMatchesCount}
+              tone="green"
+              icon={
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+            />
+            <SummaryMetricCard
+              title="En tránsito"
+              value={inTransitCount}
+              tone="blue"
+              icon={
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17H6a2 2 0 01-2-2V7a2 2 0 012-2h9a2 2 0 012 2v3m-1 7h2m0 0a2 2 0 100-4 2 2 0 000 4zm-8 0a2 2 0 100-4 2 2 0 000 4zm8 0H9m8-6h2l2 3v3h-2" />
+                </svg>
+              }
+            />
+            <SummaryMetricCard
+              title="Mensajes nuevos"
+              value={unreadMatchesCount}
+              tone="slate"
+              icon={
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h8m-8 4h5m8-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+            />
+          </section>
 
           {allMatches.length === 0 ? (
             <EmptyState text="Aún no tienes matches disponibles." />
@@ -392,8 +640,11 @@ export default async function MatchesPage() {
                     ? rawOtherUserName
                     : "Usuario";
 
-                const otherUserLabel = isTraveler ? "Cliente" : "Viajero";
-
+                const otherUserRoleLabel = isTraveler ? "Cliente" : "Viajero";
+                const otherUserRating = otherUserId
+                  ? ratingSummaryMap[otherUserId] ?? { avgRating: null, totalReviews: 0 }
+                  : { avgRating: null, totalReviews: 0 };
+                
                 const unread =
                   match.status === "accepted" &&
                   lastMessage &&
@@ -405,136 +656,159 @@ export default async function MatchesPage() {
                     : !match.last_read_by_owner ||
                       new Date(lastMessage.created_at) >
                         new Date(match.last_read_by_owner));
+                const nextStepCopy = getNextStepCopy({
+                  matchStatus: match.status,
+                  shipmentStatus: shipment?.status ?? null,
+                  isOwner,
+                  hasUnread: Boolean(unread),
+                });
+                const primaryStatus = getPrimaryStatusInfo(match.status, shipment?.status ?? null);
+                const routeLabel = `${getCityName(shipment?.origin_city ?? null) ?? "Origen"} → ${getCityName(
+                  shipment?.destination_city ?? null
+                ) ?? "Destino"}`;
+                const primaryPanelTitle = isTraveler ? "Envío solicitado" : "Viaje disponible";
+                const primaryPreferenceItems = isTraveler
+                  ? [
+                      { label: "Frágil", value: shipment?.is_fragile, icon: <PackageCheck className="h-4 w-4" /> },
+                      { label: "Urgente", value: shipment?.is_urgent, icon: <Clock3 className="h-4 w-4" /> },
+                      { label: "Valor alto", value: shipment?.is_high_value, icon: <CircleDollarSign className="h-4 w-4" /> },
+                    ]
+                  : [
+                      { label: "Frágiles", value: trip?.accepts_fragile, icon: <PackageCheck className="h-4 w-4" /> },
+                      { label: "Múltiples", value: trip?.accepts_multiple_packages, icon: <Route className="h-4 w-4" /> },
+                      { label: "Paradas", value: trip?.has_stopovers, icon: <Clock3 className="h-4 w-4" /> },
+                    ];
+                const actionTitle =
+                  match.status === "pending"
+                    ? isOwner
+                      ? "Decide este match"
+                      : "Estado de tu solicitud"
+                    : unread
+                      ? "Responde este match"
+                      : "Siguiente paso";
+                const actionLead =
+                  nextStepCopy ??
+                  (match.status === "accepted"
+                    ? "Abre el chat para coordinar este match."
+                    : "Revisa el detalle para continuar.");
 
                 return (
                   <section
                     key={match.id}
-                    className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
+                    className="relative overflow-hidden rounded-2xl border border-[#D9E4F0] bg-white shadow-sm"
                   >
-                    <div className="border-b border-gray-100 px-4 py-4 sm:px-6">
-                      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(
-                              match.status
-                            )}`}
-                          >
-                            {getStatusLabel(match.status)}
-                          </span>
+                    <span
+                      className={`absolute right-4 top-4 inline-flex w-fit shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold shadow-sm sm:right-6 ${primaryStatus.classes}`}
+                    >
+                      {primaryStatus.label}
+                    </span>
 
-                          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-[#0B2C4A]">
-                            {otherUserLabel}: {otherUserName}
-                          </span>
-
-                          <span className="text-xs text-gray-500">
-                            Creado: {formatDate(match.created_at)}
-                          </span>
-                        </div>
-
-                        <div>
-                          {unread ? (
-                            <span className="rounded-full border border-red-200 bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                              Nuevo mensaje
-                            </span>
-                          ) : (
-                            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-500">
-                              Sin novedades
-                            </span>
-                          )}
+                    <div className="border-b border-[#E6EDF5] px-4 py-4 pr-24 sm:px-6 sm:pr-28">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                          <div className="min-w-0">
+                            <h2 className="text-[15px] font-semibold tracking-tight text-[#0B2C4A] sm:text-base">
+                              {routeLabel}
+                            </h2>
+                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-slate-500 sm:text-[13px]">
+                              <span>
+                                <span className="font-medium text-[#0B2C4A]">{otherUserRoleLabel}:</span> {otherUserName}
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <span className="font-medium text-[#0B2C4A]">Calificación:</span>
+                                <ReputationInline
+                                  avgRating={otherUserRating.avgRating}
+                                  totalReviews={otherUserRating.totalReviews}
+                                />
+                              </span>
+                              <span>Creado: {formatDate(match.created_at)}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-4 sm:p-6">
-                      <div className="grid gap-4 xl:grid-cols-[1fr_1fr_220px]">
-                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
-                          <h3 className="mb-4 text-base font-semibold text-[#0B2C4A]">
-                            ✈️ Viaje
-                          </h3>
+                    <div className="p-4 sm:p-5">
+                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_240px]">
+                        <div className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4">
+                          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center">
+                            <div>
+                              <div className="mb-3 flex items-center gap-3">
+                                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
+                                  {isTraveler ? (
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
+                                    </svg>
+                                  )}
+                                </div>
+                                <div>
+                                  <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
+                                </div>
+                              </div>
 
-                          <div className="space-y-2 text-sm text-gray-700">
-                            <p>
-                              <span className="font-medium">Ruta:</span>{" "}
-                              {getCityName(trip?.origin_city ?? null) ?? "Origen"} →{" "}
-                              {getCityName(trip?.destination_city ?? null) ?? "Destino"}
-                            </p>
-                            <p>
-                              <span className="font-medium">Salida:</span>{" "}
-                              {formatDepartureLabel(
-                                trip?.departure_date,
-                                trip?.departure_time
+                              {isTraveler ? (
+                                <div className="flex flex-col gap-2.5">
+                                  <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
+                                  <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
+                                  <DetailRow
+                                    label="Descripción"
+                                    value={shipment?.description?.trim() || "Sin descripción"}
+                                  />
+                                  <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
+                                </div>
+                              ) : (
+                                <div className="flex h-full flex-col justify-center space-y-2.5 lg:pr-2">
+                                  <DetailRow
+                                    label="Salida"
+                                    value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
+                                  />
+                                  <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                                </div>
                               )}
-                            </p>
-                            <p>
-                              <span className="font-medium">Capacidad:</span>{" "}
-                              {trip?.capacity_kg ?? 0} kg
-                            </p>
+                            </div>
+
+                            <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
+                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                Condiciones
+                              </p>
+                              <p className="mt-1 text-[12px] leading-5 text-slate-500">
+                                {isTraveler ? "Este envío requiere" : "Este viaje permite"}
+                              </p>
+                              <div className="mt-3">
+                                <PreferenceToggleColumn items={primaryPreferenceItems} />
+                              </div>
+                            </div>
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
-                          <h3 className="mb-4 text-base font-semibold text-[#0B2C4A]">
-                            📦 Envío
-                          </h3>
+                        <div className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-3.5 shadow-sm sm:p-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#0B5CAD]">
+                            {actionTitle}
+                          </p>
+                          <p className="mt-2 text-[14px] font-semibold leading-5 text-[#0B2C4A]">
+                            {actionLead}
+                          </p>
 
-                          <div className="space-y-2 text-sm text-gray-700">
-                            <p>
-                              <span className="font-medium">Ruta:</span>{" "}
-                              {getCityName(shipment?.origin_city ?? null) ?? "Origen"} →{" "}
-                              {getCityName(shipment?.destination_city ?? null) ?? "Destino"}
-                            </p>
-                            <p>
-                              <span className="font-medium">Tipo:</span>{" "}
-                              {getShipmentKindLabel(shipment?.kind ?? null)}
-                            </p>
-                            <p>
-                              <span className="font-medium">Peso:</span>{" "}
-                              {shipment?.weight_kg ?? 0} kg
-                            </p>
-                            <p>
-                              <span className="font-medium">Valor:</span>{" "}
-                              {formatCurrency(shipment?.declared_value_cop ?? 0)}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col gap-3">
+                          <div className="mt-4 grid gap-2.5">
                           {match.status === "accepted" ? (
                             <>
                               <Link
-                                href={`/app/matches/${match.id}`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
-                              >
-                                Ver detalle
-                              </Link>
-
-                              <Link
                                 href={`/app/matches/${match.id}/chat`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-sm font-semibold text-white transition hover:opacity-95"
+                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-[13px] font-semibold text-white transition hover:opacity-95"
                               >
                                 Abrir chat
                               </Link>
 
-                              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                  Estado del envío
-                                </p>
-
-                                <div className="mt-3">
-                                  <span
-                                    className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${getShipmentTrackingClasses(
-                                      shipment?.status ?? null
-                                    )}`}
-                                  >
-                                    {getShipmentTrackingLabel(shipment?.status ?? null)}
-                                  </span>
-                                </div>
-
-                                <p className="mt-3 text-xs text-gray-500">
-                                  {getShipmentTrackingDescription(
-                                    shipment?.status ?? null
-                                  )}
-                                </p>
+                              <Link
+                                href={`/app/matches/${match.id}`}
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                              >
+                                Ver detalle
+                              </Link>
 
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
@@ -562,7 +836,7 @@ export default async function MatchesPage() {
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
                                   payment?.traveler_delivered_at && (
-                                    <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-700">
+                                    <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] font-medium leading-4 text-emerald-700">
                                       Entrega reportada. Esperando confirmación del cliente.
                                     </p>
                                   )}
@@ -589,41 +863,31 @@ export default async function MatchesPage() {
                                       </button>
                                     </form>
                                   )}
-                              </div>
                             </>
                           ) : (
-                            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                            <>
+                              <Link
+                                href={`/app/matches/${match.id}`}
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                              >
+                                Ver detalle
+                              </Link>
+
                               <MatchActions
                                 matchId={match.id}
                                 matchStatus={match.status}
                                 currentUserId={user.id}
                                 shipmentOwnerId={shipment?.owner_id ?? null}
                                 onCancel={cancelMatchAction}
+                                showDetail={false}
+                                showStatusMessage={false}
                               />
-                            </div>
+                            </>
                           )}
                         </div>
-                      </div>
-
-                      <div className="mt-5 rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                        <div className="mb-3 flex items-center justify-between gap-3">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                            Último mensaje
-                          </p>
-
-                          {lastMessage ? (
-                            <span className="text-xs text-gray-400">
-                              {formatDateTime(lastMessage.created_at)}
-                            </span>
-                          ) : null}
-                        </div>
-
-                        <div className="rounded-2xl bg-white px-4 py-3 text-sm text-gray-700 break-words">
-                          {lastMessage?.message?.trim()
-                            ? lastMessage.message
-                            : "Aún no hay mensajes en este match."}
                         </div>
                       </div>
+
                     </div>
                   </section>
                 );

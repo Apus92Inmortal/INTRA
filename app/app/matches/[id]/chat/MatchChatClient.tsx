@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
@@ -23,6 +24,7 @@ type Props = {
   otherUserAvgRating: number | null;
   otherUserTotalReviews: number;
   shipmentTrackingCode: string | null;
+  shipmentRouteLabel: string;
   shipmentDescription: string | null;
   initialMessages: Message[];
   viewerRole: "traveler" | "owner";
@@ -119,6 +121,7 @@ export default function MatchChatClient({
   otherUserAvgRating,
   otherUserTotalReviews,
   shipmentTrackingCode,
+  shipmentRouteLabel,
   shipmentDescription,
   initialMessages,
   viewerRole,
@@ -630,7 +633,7 @@ export default function MatchChatClient({
     <div className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col overflow-hidden rounded-none bg-[#EEF2F7] sm:min-h-[calc(100dvh-7rem)] sm:rounded-3xl sm:border sm:border-gray-200 sm:bg-white sm:shadow-sm">
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-5">
         <div className="flex items-center justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-base font-semibold text-[#0B2C4A]">Chat con {otherUserName}</p>
               <RatingSummaryBadge
@@ -644,6 +647,7 @@ export default function MatchChatClient({
               </p>
               {shipmentTrackingCode ? <TrackingCodeBadge code={shipmentTrackingCode} className="bg-[#0B2C4A]" /> : null}
             </div>
+            <p className="mt-1 text-xs font-medium text-slate-500">Ruta: {shipmentRouteLabel}</p>
             {shipmentDescription ? (
               <p className="mt-1 text-xs text-slate-500">Contenido declarado: {shipmentDescription}</p>
             ) : null}
@@ -651,6 +655,18 @@ export default function MatchChatClient({
 
           <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-medium text-[#0B2C4A]">
             {viewerRole === "owner" ? "Cliente" : "Viajero"}
+          </span>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Link
+            href={`/app/matches/${matchId}`}
+            className="inline-flex min-h-9 items-center justify-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+          >
+            ← Ver detalle del match
+          </Link>
+          <span className="inline-flex rounded-full bg-[#EEF2F7] px-3 py-1.5 text-xs text-slate-600">
+            Usa este chat para coordinar entrega, recogida y confirmaciones.
           </span>
         </div>
       </div>
@@ -663,7 +679,7 @@ export default function MatchChatClient({
         {messages.length === 0 ? (
           <div className="flex h-full min-h-60 items-center justify-center">
             <div className="max-w-sm rounded-3xl border border-dashed border-gray-300 bg-white px-5 py-6 text-center text-sm text-slate-500">
-              Aún no hay mensajes. Inicia la conversación.
+              Aún no hay mensajes. Rompe el hielo confirmando punto de entrega, horario o dudas del paquete.
             </div>
           </div>
         ) : (

@@ -32,6 +32,12 @@ type ProfileRow = {
   verification_status?: string | null;
 };
 
+type CityRow = {
+  name: string | null;
+};
+
+type CityRelation = CityRow | CityRow[] | null;
+
 type EvidenceRow = {
   id: string;
   uploaded_by: string;
@@ -108,6 +114,12 @@ function formatTimeLabel(timeString: string | null | undefined) {
 function formatDepartureLabel(dateString: string | null | undefined, timeString: string | null | undefined) {
   const dateLabel = formatDate(dateString);
   return timeString ? `${dateLabel} · ${formatTimeLabel(timeString)}` : dateLabel;
+}
+
+function getCityName(city: CityRelation) {
+  if (!city) return null;
+  if (Array.isArray(city)) return city[0]?.name ?? null;
+  return city.name ?? null;
 }
 
 function getInitials(name: string) {
@@ -215,7 +227,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
         departure_date,
         departure_time,
         origin_city_id,
-        destination_city_id
+        destination_city_id,
+        origin_city:cities!trips_origin_city_id_fkey(name),
+        destination_city:cities!trips_destination_city_id_fkey(name)
       ),
       shipments (
         id,
@@ -227,7 +241,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
         status,
         tracking_code,
         origin_city_id,
-        destination_city_id
+        destination_city_id,
+        origin_city:cities!shipments_origin_city_id_fkey(name),
+        destination_city:cities!shipments_destination_city_id_fkey(name)
       )
     `)
     .eq("id", id)
@@ -350,6 +366,26 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const otherUserName = otherUserId
     ? participantNameById.get(otherUserId) ?? "la otra persona"
     : "la otra persona";
+  const ownerName = ownerId
+    ? participantNameById.get(ownerId) ?? "Usuario INTRA"
+    : "Usuario INTRA";
+  const travelerName = travelerId
+    ? participantNameById.get(travelerId) ?? "Usuario INTRA"
+    : "Usuario INTRA";
+  const shipmentRouteLabel = `${getCityName(shipment?.origin_city as CityRelation) ?? "Origen"} → ${getCityName(
+    shipment?.destination_city as CityRelation
+  ) ?? "Destino"}`;
+  const tripRouteLabel = `${getCityName(trip?.origin_city as CityRelation) ?? "Origen"} → ${getCityName(
+    trip?.destination_city as CityRelation
+  ) ?? "Destino"}`;
+  const paymentStatusTone =
+    payment?.status === "held"
+      ? "bg-amber-100 text-amber-700"
+      : payment?.status === "released"
+        ? "bg-emerald-100 text-emerald-700"
+        : payment?.status === "refunded"
+          ? "bg-rose-100 text-rose-700"
+          : "bg-slate-100 text-slate-700";
 
   const canAccept = isOwner && match.status === "pending";
   const canCancel =
@@ -424,36 +460,89 @@ export default async function MatchDetailPage({ params }: PageProps) {
         <MatchDetailRealtime matchId={match.id} />
 
         <div className="mx-auto max-w-4xl">
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight text-[#0B2C4A]">
-                  Detalle del match
-                </h1>
-                <p className="mt-2 max-w-2xl text-sm text-slate-600">
-                  Revisa la información del envío y del viaje, y administra este
-                  match desde aquí.
-                </p>
-              </div>
+          <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
+            <Link
+              href="/app/matches"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              ← Volver a matches
+            </Link>
 
-              <span
-                className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
-                  match.status === "pending"
-                    ? "bg-amber-100 text-amber-700"
-                    : match.status === "accepted"
-                    ? "bg-emerald-100 text-emerald-700"
-                    : match.status === "rejected"
-                    ? "bg-rose-100 text-rose-700"
-                    : "bg-slate-100 text-slate-700"
-                }`}
+            {canOpenChat ? (
+              <Link
+                href={`/app/matches/${match.id}/chat`}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 font-semibold text-white transition hover:opacity-95"
               >
-                {getStatusLabel(match.status)}
-              </span>
-            </div>
+                💬 Abrir chat
+              </Link>
+            ) : null}
           </div>
 
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-3xl font-bold tracking-tight text-[#0B2C4A]">
+                      Detalle del match
+                    </h1>
+                    {shipment?.tracking_code ? <TrackingCodeBadge code={shipment.tracking_code} /> : null}
+                  </div>
+                  <p className="mt-2 max-w-2xl text-sm text-slate-600">
+                    Revisa la ruta, el estado del pago y las acciones pendientes de este envío.
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
+                    <span className="rounded-full bg-slate-100 px-3 py-1">Cliente: {ownerName}</span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1">Viajero: {travelerName}</span>
+                    <span className="rounded-full bg-slate-100 px-3 py-1">Ruta: {shipmentRouteLabel}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
+                      match.status === "pending"
+                        ? "bg-amber-100 text-amber-700"
+                        : match.status === "accepted"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : match.status === "rejected"
+                            ? "bg-rose-100 text-rose-700"
+                            : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    {getStatusLabel(match.status)}
+                  </span>
+
+                  {payment?.status ? (
+                    <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${paymentStatusTone}`}>
+                      Pago: {getStatusLabel(payment.status)}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
             <div className="px-4 py-5 sm:px-8 sm:py-6">
+              <section className="mb-5 grid gap-3 md:grid-cols-3">
+                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ruta del envío</p>
+                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{shipmentRouteLabel}</p>
+                  <p className="mt-1 text-sm text-slate-500">Tipo {getShipmentKindLabel(shipment?.kind)} · {shipment?.weight_kg ?? 0} kg</p>
+                </article>
+
+                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Viaje asociado</p>
+                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{tripRouteLabel}</p>
+                  <p className="mt-1 text-sm text-slate-500">Salida {formatDepartureLabel(trip?.departure_date, trip?.departure_time)}</p>
+                </article>
+
+                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Siguiente paso</p>
+                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{getShipmentTrackingLabel(shipment?.status)}</p>
+                  <p className="mt-1 text-sm text-slate-500">{getShipmentTrackingDescription(shipment?.status)}</p>
+                </article>
+              </section>
+
               <div className="grid gap-5 md:grid-cols-2">
               <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
                 <div className="flex items-center gap-2">
@@ -464,6 +553,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 </div>
 
                 <div className="mt-4 space-y-3 text-sm text-slate-700">
+                  <p>
+                    <span className="font-medium text-slate-900">Ruta:</span>{" "}
+                    {shipmentRouteLabel}
+                  </p>
+
                   <p>
                     <span className="font-medium text-slate-900">Tipo:</span>{" "}
                     {getShipmentKindLabel(shipment?.kind)}
@@ -541,6 +635,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 </div>
 
                 <div className="mt-4 space-y-3 text-sm text-slate-700">
+                  <p>
+                    <span className="font-medium text-slate-900">Ruta:</span>{" "}
+                    {tripRouteLabel}
+                  </p>
+
                   <p>
                     <span className="font-medium text-slate-900">
                       Capacidad:
@@ -686,6 +785,10 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 <h2 className="text-lg font-semibold text-[#0B2C4A]">
                   Acciones del match
                 </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Ejecuta solo la acción que corresponde al punto actual del flujo.
+                </p>
 
                 <div className="mt-4 space-y-3">
                   <MatchDetailActions
@@ -920,27 +1023,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 )}
               </section>
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                {canOpenChat ? (
-                  <Link
-                    href={`/app/matches/${match.id}/chat`}
-                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
-                  >
-                    💬 Abrir chat
-                  </Link>
-                ) : (
-                  <div className="rounded-2xl bg-slate-100 px-4 py-2.5 text-sm text-slate-500">
-                    El chat se activará automáticamente cuando el match sea aceptado.
-                  </div>
-                )}
-
-                <Link
-                  href="/app/matches"
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                >
-                  ← Volver a matches
-                </Link>
-              </div>
+              {!canOpenChat ? (
+                <div className="mt-6 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-500">
+                  El chat se activará automáticamente cuando el match sea aceptado.
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
