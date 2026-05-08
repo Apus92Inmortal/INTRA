@@ -75,16 +75,6 @@ function formatDate(dateString: string) {
   }).format(new Date(dateString));
 }
 
-function formatDateTime(dateString: string) {
-  return new Intl.DateTimeFormat("es-CO", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(dateString));
-}
-
 function formatTimeLabel(timeString: string | null | undefined) {
   if (!timeString) return "Hora por confirmar";
 
@@ -214,7 +204,7 @@ function getNextStepCopy({
   }
 
   if (shipmentStatus === "matched") {
-    return "Ya hay match activo. El siguiente paso es aceptar para habilitar coordinación.";
+    return null;
   }
 
   if (shipmentStatus === "accepted") {
@@ -615,7 +605,7 @@ export default async function MatchesPage() {
                     className="overflow-hidden rounded-2xl border border-[#D9E4F0] bg-white shadow-sm"
                   >
                     <div className="border-b border-[#E6EDF5] px-4 py-4 sm:px-6">
-                      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
@@ -630,16 +620,18 @@ export default async function MatchesPage() {
                               </div>
                             </div>
 
-                            <span className={`inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold ${primaryStatus.classes}`}>
+                            <span className={`inline-flex w-fit shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold shadow-sm ${primaryStatus.classes}`}>
                               {primaryStatus.label}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      <div className={`mt-3 rounded-xl border px-4 py-3 text-[13px] font-medium leading-5 ${getStatusStripeTone(match.status, shipment?.status ?? null)}`}>
-                        {nextStepCopy}
-                      </div>
+                      {nextStepCopy ? (
+                        <div className={`mt-3 rounded-xl border px-4 py-3 text-[13px] font-medium leading-5 ${getStatusStripeTone(match.status, shipment?.status ?? null)}`}>
+                          {nextStepCopy}
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="p-4 sm:p-6">
@@ -786,25 +778,6 @@ export default async function MatchesPage() {
                         </div>
                       </div>
 
-                      <div className="mt-5 rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-3 sm:p-4">
-                        <div className="mb-2 flex items-center justify-between gap-3">
-                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            Último mensaje
-                          </p>
-
-                          {lastMessage ? (
-                            <span className="text-[11px] text-slate-400">
-                              {formatDateTime(lastMessage.created_at)}
-                            </span>
-                          ) : null}
-                        </div>
-
-                        <div className="rounded-xl border border-[#E6EDF5] bg-white px-3 py-2.5 text-[12px] leading-5 text-slate-700 break-words shadow-sm sm:px-4 sm:py-3 sm:text-[13px]">
-                          {lastMessage?.message?.trim()
-                            ? lastMessage.message
-                            : "Aún no hay mensajes en este match."}
-                        </div>
-                      </div>
                     </div>
                   </section>
                 );
