@@ -96,6 +96,9 @@ create table if not exists public."shipments" (
     "description" text not null,
     "weight_kg" numeric not null,
     "declared_value_cop" numeric,
+    "is_fragile" boolean default false not null,
+    "is_urgent" boolean default false not null,
+    "is_high_value" boolean default false not null,
     "status" text default 'open'::text not null,
     "created_at" timestamp with time zone default now()
 );

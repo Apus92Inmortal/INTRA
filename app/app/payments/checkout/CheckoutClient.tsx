@@ -33,6 +33,9 @@ export type RetryCheckoutData = {
   description: string
   weightKg: string
   declaredValueCop: string
+  isFragile: boolean
+  isUrgent: boolean
+  isHighValue: boolean
   routeCategory: RouteCategory | null
 }
 
@@ -54,6 +57,9 @@ type CheckoutViewModel = {
   rawDescription: string
   weightKgRaw: string
   declaredValueRaw: string
+  isFragile: boolean
+  isUrgent: boolean
+  isHighValue: boolean
   weight: number | null
   declared: number | null
   routeCategory: RouteCategory | null
@@ -139,6 +145,9 @@ function buildCheckoutViewModel(
   const rawDescription = fromRetry?.description ?? searchParams.get("description") ?? ""
   const weightKgRaw = fromRetry?.weightKg ?? searchParams.get("weightKg") ?? searchParams.get("weight") ?? ""
   const declaredValueRaw = fromRetry?.declaredValueCop ?? searchParams.get("declaredValueCop") ?? searchParams.get("declared") ?? ""
+  const isFragile = fromRetry?.isFragile ?? searchParams.get("isFragile") === "true"
+  const isUrgent = fromRetry?.isUrgent ?? searchParams.get("isUrgent") === "true"
+  const isHighValue = fromRetry?.isHighValue ?? searchParams.get("isHighValue") === "true"
   const weight = weightKgRaw.trim() ? Number(weightKgRaw) : null
   const declared = declaredValueRaw.trim() ? Number(declaredValueRaw) : null
   const routeCategory = isRouteCategory(routeCategoryParam) ? routeCategoryParam : null
@@ -158,6 +167,9 @@ function buildCheckoutViewModel(
     rawDescription,
     weightKgRaw,
     declaredValueRaw,
+    isFragile,
+    isUrgent,
+    isHighValue,
     weight,
     declared,
     routeCategory,
@@ -261,6 +273,9 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
           p_declared_value_cop: view.declared,
           p_declaration_accepted: acceptedDeclaration,
           p_declaration_version: SHIPMENT_DECLARATION_VERSION,
+          p_is_fragile: view.isFragile,
+          p_is_urgent: view.isUrgent,
+          p_is_high_value: view.isHighValue,
         }
       )
 
@@ -424,6 +439,25 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             <div className="mt-2.5 rounded-[24px] border border-slate-200 bg-white p-3 sm:p-3.5">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Descripción</p>
               <p className="mt-1 text-sm leading-5 text-slate-700 lg:max-h-10 lg:overflow-hidden">{view.description}</p>
+            </div>
+
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              {[
+                { label: "Frágil", active: view.isFragile },
+                { label: "Urgente", active: view.isUrgent },
+                { label: "Valor alto", active: view.isHighValue },
+              ].map((item) => (
+                <span
+                  key={item.label}
+                  className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${
+                    item.active
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border-slate-200 bg-slate-50 text-slate-500"
+                  }`}
+                >
+                  {item.label}: {item.active ? "Sí" : "No"}
+                </span>
+              ))}
             </div>
 
             {!view.isRetry ? (
