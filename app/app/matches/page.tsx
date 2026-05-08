@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { CircleDollarSign, Clock3, PackageCheck, Route } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
@@ -347,7 +348,7 @@ function ReputationInline({
 function PreferenceToggleColumn({
   items,
 }: {
-  items: Array<{ label: string; value: boolean | null | undefined }>;
+  items: Array<{ label: string; value: boolean | null | undefined; icon: ReactNode }>;
 }) {
   return (
     <div className="space-y-2">
@@ -359,11 +360,16 @@ function PreferenceToggleColumn({
             key={item.label}
             className={`flex w-full min-w-0 items-center justify-between gap-3 rounded-full border px-3 py-1.5 text-[13px] leading-5 ${
               enabled
-                ? "border-[#BEE8CD] bg-[#EFFBF4] text-[#1E8C4E]"
-                : "border-[#D7E5F1] bg-[#FBFDFF] text-slate-500"
+                ? "border-[#BEE8CD] bg-[linear-gradient(180deg,#F7FFF9_0%,#EFFBF4_100%)] text-[#1E8C4E]"
+                : "border-[#D7E5F1] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] text-slate-500"
             }`}
           >
-            <span className="truncate font-semibold text-[#0B2C4A]">{item.label}</span>
+            <span className="flex min-w-0 items-center gap-2.5">
+              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${enabled ? "bg-white/70 text-[#1E8C4E]" : "bg-[#F4F7FB] text-slate-500"}`}>
+                {item.icon}
+              </span>
+              <span className="truncate font-semibold text-[#0B2C4A]">{item.label}</span>
+            </span>
             <span className={`shrink-0 font-medium ${enabled ? "text-[#1E8C4E]" : "text-slate-500"}`}>
               {enabled ? "Sí" : "No"}
             </span>
@@ -675,14 +681,14 @@ export default async function MatchesPage() {
                 const primaryPanelTitle = isTraveler ? "Envío solicitado" : "Viaje disponible";
                 const primaryPreferenceItems = isTraveler
                   ? [
-                      { label: "Frágil", value: shipment?.is_fragile },
-                      { label: "Urgente", value: shipment?.is_urgent },
-                      { label: "Valor alto", value: shipment?.is_high_value },
+                      { label: "Frágil", value: shipment?.is_fragile, icon: <PackageCheck className="h-4 w-4" /> },
+                      { label: "Urgente", value: shipment?.is_urgent, icon: <Clock3 className="h-4 w-4" /> },
+                      { label: "Valor alto", value: shipment?.is_high_value, icon: <CircleDollarSign className="h-4 w-4" /> },
                     ]
                   : [
-                      { label: "Frágiles", value: trip?.accepts_fragile },
-                      { label: "Múltiples", value: trip?.accepts_multiple_packages },
-                      { label: "Paradas", value: trip?.has_stopovers },
+                      { label: "Frágiles", value: trip?.accepts_fragile, icon: <PackageCheck className="h-4 w-4" /> },
+                      { label: "Múltiples", value: trip?.accepts_multiple_packages, icon: <Route className="h-4 w-4" /> },
+                      { label: "Paradas", value: trip?.has_stopovers, icon: <Clock3 className="h-4 w-4" /> },
                     ];
 
                 return (
