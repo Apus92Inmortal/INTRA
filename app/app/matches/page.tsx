@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -240,7 +241,7 @@ function getNextStepCopy({
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-3xl border border-dashed border-gray-300 bg-white p-6 text-sm text-gray-500 shadow-sm sm:p-8">
+    <div className="rounded-[28px] border border-dashed border-[#D9E4F0] bg-white p-6 text-sm text-gray-500 shadow-[0_18px_50px_rgba(11,44,74,0.08)] sm:p-8">
       <h2 className="text-lg font-semibold text-[#0B2C4A]">Todavía no tienes matches</h2>
       <p className="mt-2 max-w-2xl leading-6">{text}</p>
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
@@ -257,6 +258,74 @@ function EmptyState({ text }: { text: string }) {
           Publicar viaje
         </Link>
       </div>
+    </div>
+  );
+}
+
+function SummaryMetricCard({
+  title,
+  value,
+  description,
+  tone,
+  icon,
+}: {
+  title: string;
+  value: number;
+  description: string;
+  tone: "amber" | "green" | "blue" | "slate";
+  icon: ReactNode;
+}) {
+  const tones = {
+    amber: {
+      card: "border-[#F6D9A6] bg-white",
+      bubble: "bg-[#FFF7E8] text-[#F39C12]",
+      title: "text-[#A56A00]",
+    },
+    green: {
+      card: "border-[#CDEFD9] bg-white",
+      bubble: "bg-[#EFFBF4] text-[#2ECC71]",
+      title: "text-[#1F8B4C]",
+    },
+    blue: {
+      card: "border-[#D7E5F4] bg-white",
+      bubble: "bg-[#EEF4FB] text-[#0B5CAD]",
+      title: "text-[#0B5CAD]",
+    },
+    slate: {
+      card: "border-[#D9E4F0] bg-white",
+      bubble: "bg-[#EEF2F7] text-[#0B2C4A]",
+      title: "text-[#3B526B]",
+    },
+  } as const;
+
+  const currentTone = tones[tone];
+
+  return (
+    <article
+      className={`rounded-[24px] border p-4 shadow-[0_14px_35px_rgba(11,44,74,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(11,44,74,0.10)] ${currentTone.card}`}
+    >
+      <div className="flex items-start gap-3">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${currentTone.bubble}`}>
+          {icon}
+        </div>
+
+        <div className="min-w-0">
+          <p className={`text-xs font-semibold uppercase tracking-[0.12em] ${currentTone.title}`}>{title}</p>
+          <p className="mt-1 text-3xl font-bold tracking-tight text-[#0B2C4A]">{value}</p>
+          <p className="mt-1 text-xs leading-5 text-slate-500">{description}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start gap-2 text-sm text-slate-600">
+      <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[#2ECC71]" />
+      <p>
+        <span className="font-semibold text-[#0B2C4A]">{label}:</span> {value}
+      </p>
     </div>
   );
 }
@@ -441,39 +510,63 @@ export default async function MatchesPage() {
     <>
       <AppNavbar />
 
-      <main className="min-h-screen bg-[#EEF2F7]">
+      <main className="min-h-screen bg-[#F5F8FB]">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <MatchesRealtime currentUserId={user.id} />
 
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2C4A]">Mis matches</h1>
-            <p className="mt-2 text-sm text-gray-600">
+          <div className="mb-7">
+            <h1 className="text-[2rem] font-bold tracking-tight text-[#0B2C4A] sm:text-[2.35rem]">Mis matches</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
               Revisa tus coincidencias, administra solicitudes y entra al chat
               cuando el match esté aceptado.
             </p>
           </div>
 
-          <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Pendientes</p>
-              <p className="mt-2 text-2xl font-bold text-[#0B2C4A]">{pendingMatchesCount}</p>
-              <p className="mt-1 text-xs text-amber-800/80">Solicitudes esperando decisión.</p>
-            </article>
-            <article className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Activos</p>
-              <p className="mt-2 text-2xl font-bold text-[#0B2C4A]">{acceptedMatchesCount}</p>
-              <p className="mt-1 text-xs text-emerald-800/80">Matches aceptados listos para coordinar.</p>
-            </article>
-            <article className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">En tránsito</p>
-              <p className="mt-2 text-2xl font-bold text-[#0B2C4A]">{inTransitCount}</p>
-              <p className="mt-1 text-xs text-blue-800/80">Paquetes que ya están en movimiento.</p>
-            </article>
-            <article className="rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Mensajes nuevos</p>
-              <p className="mt-2 text-2xl font-bold text-[#0B2C4A]">{unreadMatchesCount}</p>
-              <p className="mt-1 text-xs text-slate-500">Chats que requieren revisión.</p>
-            </article>
+          <section className="mb-7 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <SummaryMetricCard
+              title="Pendientes"
+              value={pendingMatchesCount}
+              description="Solicitudes esperando decisión."
+              tone="amber"
+              icon={
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 3h8M8 21h8M9 3v5l3 4-3 4v5m6-18v5l-3 4 3 4v5" />
+                </svg>
+              }
+            />
+            <SummaryMetricCard
+              title="Activos"
+              value={acceptedMatchesCount}
+              description="Matches aceptados listos para coordinar."
+              tone="green"
+              icon={
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+            />
+            <SummaryMetricCard
+              title="En tránsito"
+              value={inTransitCount}
+              description="Paquetes que ya están en movimiento."
+              tone="blue"
+              icon={
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17H6a2 2 0 01-2-2V7a2 2 0 012-2h9a2 2 0 012 2v3m-1 7h2m0 0a2 2 0 100-4 2 2 0 000 4zm-8 0a2 2 0 100-4 2 2 0 000 4zm8 0H9m8-6h2l2 3v3h-2" />
+                </svg>
+              }
+            />
+            <SummaryMetricCard
+              title="Mensajes nuevos"
+              value={unreadMatchesCount}
+              description="Chats que requieren revisión."
+              tone="slate"
+              icon={
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h8m-8 4h5m8-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
+            />
           </section>
 
           {allMatches.length === 0 ? (
@@ -528,19 +621,19 @@ export default async function MatchesPage() {
                 return (
                   <section
                     key={match.id}
-                    className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
+                    className="overflow-hidden rounded-[30px] border border-[#D9E4F0] bg-white shadow-[0_18px_55px_rgba(11,44,74,0.08)]"
                   >
-                    <div className="border-b border-gray-100 px-4 py-4 sm:px-6">
+                    <div className="border-b border-[#E6EDF5] px-4 py-4 sm:px-6">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
+                            <span className="rounded-full border border-[#D7E5F4] bg-[#F7FAFD] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
                               {routeLabel}
                             </span>
-                            <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-[#0B2C4A]">
+                            <span className="rounded-full border border-[#D7E5F4] bg-[#F7FAFD] px-3 py-1 text-xs font-medium text-[#0B2C4A]">
                               {otherUserLabel}: {otherUserName}
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span className="rounded-full border border-[#E6EDF5] bg-white px-3 py-1 text-xs text-slate-500">
                               Creado: {formatDate(match.created_at)}
                             </span>
                           </div>
@@ -566,71 +659,64 @@ export default async function MatchesPage() {
 
                         <div>
                           {unread ? (
-                            <span className="rounded-full border border-red-200 bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                            <span className="rounded-full border border-[#CDEFD9] bg-[#EFFBF4] px-3 py-1 text-xs font-semibold text-[#1F8B4C]">
                               Nuevo mensaje
                             </span>
                           ) : (
-                            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-500">
-                              Sin novedades
+                            <span className="rounded-full border border-[#E6EDF5] bg-[#F8FAFC] px-3 py-1 text-xs text-slate-500">
+                              Al día
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                      <div className="mt-3 rounded-2xl border border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] px-4 py-3 text-sm font-medium text-[#285B41]">
                         {nextStepCopy}
                       </div>
                     </div>
 
                     <div className="p-4 sm:p-6">
                       <div className="grid gap-4 xl:grid-cols-[1fr_1fr_220px]">
-                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
-                          <h3 className="mb-4 text-base font-semibold text-[#0B2C4A]">
-                            ✈️ Viaje
-                          </h3>
+                        <div className="rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-4 sm:p-5">
+                          <div className="mb-4 flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EEF4FB] text-[#0B5CAD]">
+                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
+                              </svg>
+                            </div>
+                            <h3 className="text-base font-semibold text-[#0B2C4A]">Viaje</h3>
+                          </div>
 
-                          <div className="space-y-2 text-sm text-gray-700">
-                            <p>
-                              <span className="font-medium">Ruta:</span>{" "}
-                              {getCityName(trip?.origin_city ?? null) ?? "Origen"} →{" "}
-                              {getCityName(trip?.destination_city ?? null) ?? "Destino"}
-                            </p>
-                            <p>
-                              <span className="font-medium">Salida:</span>{" "}
-                              {formatDepartureLabel(
-                                trip?.departure_date,
-                                trip?.departure_time
-                              )}
-                            </p>
-                            <p>
-                              <span className="font-medium">Capacidad:</span>{" "}
-                              {trip?.capacity_kg ?? 0} kg
-                            </p>
+                          <div className="space-y-3">
+                            <DetailRow
+                              label="Ruta"
+                              value={`${getCityName(trip?.origin_city ?? null) ?? "Origen"} → ${getCityName(
+                                trip?.destination_city ?? null
+                              ) ?? "Destino"}`}
+                            />
+                            <DetailRow
+                              label="Salida"
+                              value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
+                            />
+                            <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
-                          <h3 className="mb-4 text-base font-semibold text-[#0B2C4A]">
-                            📦 Envío
-                          </h3>
+                        <div className="rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-4 sm:p-5">
+                          <div className="mb-4 flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FFF7E8] text-[#C98012]">
+                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                              </svg>
+                            </div>
+                            <h3 className="text-base font-semibold text-[#0B2C4A]">Envío</h3>
+                          </div>
 
-                          <div className="space-y-2 text-sm text-gray-700">
-                            <p>
-                              <span className="font-medium">Ruta:</span>{" "}
-                              {routeLabel}
-                            </p>
-                            <p>
-                              <span className="font-medium">Tipo:</span>{" "}
-                              {getShipmentKindLabel(shipment?.kind ?? null)}
-                            </p>
-                            <p>
-                              <span className="font-medium">Peso:</span>{" "}
-                              {shipment?.weight_kg ?? 0} kg
-                            </p>
-                            <p>
-                              <span className="font-medium">Valor:</span>{" "}
-                              {formatCurrency(shipment?.declared_value_cop ?? 0)}
-                            </p>
+                          <div className="space-y-3">
+                            <DetailRow label="Ruta" value={routeLabel} />
+                            <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
+                            <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
+                            <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
                           </div>
                         </div>
 
@@ -639,7 +725,7 @@ export default async function MatchesPage() {
                             <>
                               <Link
                                 href={`/app/matches/${match.id}`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
                               >
                                 Ver detalle
                               </Link>
@@ -651,8 +737,8 @@ export default async function MatchesPage() {
                                 Abrir chat
                               </Link>
 
-                              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                              <div className="rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-4">
+                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                                   Estado del envío
                                 </p>
 
@@ -666,7 +752,7 @@ export default async function MatchesPage() {
                                   </span>
                                 </div>
 
-                                <p className="mt-3 text-xs text-gray-500">
+                                <p className="mt-3 text-xs leading-5 text-slate-500">
                                   {getShipmentTrackingDescription(
                                     shipment?.status ?? null
                                   )}
@@ -728,7 +814,7 @@ export default async function MatchesPage() {
                               </div>
                             </>
                           ) : (
-                            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                            <div className="rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-3">
                               <MatchActions
                                 matchId={match.id}
                                 matchStatus={match.status}
@@ -741,20 +827,20 @@ export default async function MatchesPage() {
                         </div>
                       </div>
 
-                      <div className="mt-5 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                      <div className="mt-5 rounded-[24px] border border-[#D9E4F0] bg-[#FBFDFF] p-4">
                         <div className="mb-3 flex items-center justify-between gap-3">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                             Último mensaje
                           </p>
 
                           {lastMessage ? (
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-slate-400">
                               {formatDateTime(lastMessage.created_at)}
                             </span>
                           ) : null}
                         </div>
 
-                        <div className="rounded-2xl bg-white px-4 py-3 text-sm text-gray-700 break-words">
+                        <div className="rounded-2xl border border-[#E6EDF5] bg-white px-4 py-3 text-sm text-slate-700 break-words shadow-[0_8px_24px_rgba(11,44,74,0.04)]">
                           {lastMessage?.message?.trim()
                             ? lastMessage.message
                             : "Aún no hay mensajes en este match."}
