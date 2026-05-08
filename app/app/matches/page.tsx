@@ -673,7 +673,6 @@ export default async function MatchesPage() {
                   shipment?.destination_city ?? null
                 ) ?? "Destino"}`;
                 const primaryPanelTitle = isTraveler ? "Envío solicitado" : "Viaje disponible";
-                const secondaryPanelTitle = isTraveler ? "Tu viaje" : "Tu envío";
                 const primaryPreferenceItems = isTraveler
                   ? [
                       { label: "Frágil", value: shipment?.is_fragile },
@@ -684,17 +683,6 @@ export default async function MatchesPage() {
                       { label: "Frágiles", value: trip?.accepts_fragile },
                       { label: "Múltiples", value: trip?.accepts_multiple_packages },
                       { label: "Paradas", value: trip?.has_stopovers },
-                    ];
-                const secondaryPreferenceItems = isTraveler
-                  ? [
-                      { label: "Frágiles", value: trip?.accepts_fragile },
-                      { label: "Múltiples", value: trip?.accepts_multiple_packages },
-                      { label: "Paradas", value: trip?.has_stopovers },
-                    ]
-                  : [
-                      { label: "Frágil", value: shipment?.is_fragile },
-                      { label: "Urgente", value: shipment?.is_urgent },
-                      { label: "Valor alto", value: shipment?.is_high_value },
                     ];
 
                 return (
@@ -740,7 +728,7 @@ export default async function MatchesPage() {
                     </div>
 
                     <div className="p-4 sm:p-6">
-                      <div className="grid gap-4 xl:grid-cols-[1fr_1fr_220px]">
+                      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
                         <div className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-4 shadow-sm">
                           <div className="mb-4 flex items-center gap-3">
                             <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
@@ -777,43 +765,6 @@ export default async function MatchesPage() {
                                 />
                                 <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
                                 <PreferenceChips items={primaryPreferenceItems} />
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
-                          <div className="mb-4 flex items-center gap-3">
-                            <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#EEF4FB] text-[#0B5CAD]" : "bg-[#FFF7E8] text-[#C98012]"}`}>
-                              {isTraveler ? (
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
-                                </svg>
-                              ) : (
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-                                </svg>
-                              )}
-                            </div>
-                            <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{secondaryPanelTitle}</h3>
-                          </div>
-
-                          <div className="space-y-3">
-                            {isTraveler ? (
-                              <>
-                                <DetailRow
-                                  label="Salida"
-                                  value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
-                                />
-                                <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
-                                <PreferenceChips items={secondaryPreferenceItems} />
-                              </>
-                            ) : (
-                              <>
-                                <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
-                                <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
-                                <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
-                                <PreferenceChips items={secondaryPreferenceItems} />
                               </>
                             )}
                           </div>
