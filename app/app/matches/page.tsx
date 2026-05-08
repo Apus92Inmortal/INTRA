@@ -126,57 +126,52 @@ function getStatusClasses(status: string) {
   }
 }
 
-function getShipmentTrackingLabel(status: string | null) {
-  switch (status) {
-    case "open":
-      return "Solicitud creada";
-    case "matched":
-      return "Match realizado";
-    case "accepted":
-      return "Match aceptado";
-    case "in_transit":
-      return "En tránsito";
-    case "delivered":
-      return "Entregado";
-    case "cancelled":
-      return "Cancelado";
-    default:
-      return "Sin estado";
+function getPrimaryStatusInfo(matchStatus: string, shipmentStatus: string | null) {
+  if (shipmentStatus === "in_transit") {
+    return {
+      label: "En tránsito",
+      classes: "bg-blue-50 text-[#0B2C4A] border border-blue-200",
+    };
   }
+
+  if (shipmentStatus === "delivered") {
+    return {
+      label: "Entregado",
+      classes: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    };
+  }
+
+  if (shipmentStatus === "cancelled" || matchStatus === "cancelled") {
+    return {
+      label: "Cancelado",
+      classes: "bg-gray-100 text-gray-600 border border-gray-200",
+    };
+  }
+
+  return {
+    label: getStatusLabel(matchStatus),
+    classes: getStatusClasses(matchStatus),
+  };
 }
 
-function getShipmentTrackingClasses(status: string | null) {
-  switch (status) {
-    case "accepted":
-      return "border-green-200 bg-green-50 text-green-700";
-    case "in_transit":
-      return "border-blue-200 bg-blue-50 text-[#0B2C4A]";
-    case "delivered":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700";
-    case "cancelled":
-      return "border-gray-300 bg-gray-100 text-gray-600";
-    case "matched":
-      return "border-blue-200 bg-blue-50 text-[#0B2C4A]";
-    default:
-      return "border-gray-200 bg-gray-50 text-gray-600";
+function getStatusStripeTone(matchStatus: string, shipmentStatus: string | null) {
+  if (shipmentStatus === "in_transit") {
+    return "border-[#D7E5F4] bg-[linear-gradient(90deg,rgba(11,92,173,0.12)_0%,rgba(238,244,251,0.78)_100%)] text-[#0B4A7A]";
   }
-}
 
-function getShipmentTrackingDescription(status: string | null) {
-  switch (status) {
-    case "accepted":
-      return "El match fue aceptado. El siguiente paso es recoger el paquete.";
-    case "in_transit":
-      return "El viajero ya recogió el paquete. Cuando lo entregue, debe reportarlo aquí.";
-    case "delivered":
-      return "La entrega fue confirmada correctamente.";
-    case "cancelled":
-      return "Este envío fue cancelado.";
-    case "matched":
-      return "Ya existe una coincidencia creada para este envío.";
-    default:
-      return "Próximamente podrás seguir aquí el avance del paquete.";
+  if (shipmentStatus === "delivered") {
+    return "border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] text-[#285B41]";
   }
+
+  if (matchStatus === "pending") {
+    return "border-[#F6D9A6] bg-[linear-gradient(90deg,rgba(243,156,18,0.14)_0%,rgba(255,247,232,0.82)_100%)] text-[#8A5B00]";
+  }
+
+  if (matchStatus === "accepted") {
+    return "border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] text-[#285B41]";
+  }
+
+  return "border-[#D9E4F0] bg-[linear-gradient(90deg,rgba(148,163,184,0.10)_0%,rgba(248,250,252,0.86)_100%)] text-slate-600";
 }
 
 function getCityName(city: CityRelation) {
@@ -265,13 +260,11 @@ function EmptyState({ text }: { text: string }) {
 function SummaryMetricCard({
   title,
   value,
-  description,
   tone,
   icon,
 }: {
   title: string;
   value: number;
-  description: string;
   tone: "amber" | "green" | "blue" | "slate";
   icon: ReactNode;
 }) {
@@ -312,7 +305,6 @@ function SummaryMetricCard({
         <div className="min-w-0">
           <p className={`text-[11px] font-semibold uppercase tracking-wide ${currentTone.title}`}>{title}</p>
           <p className="mt-1 text-[1.65rem] font-bold leading-none tracking-tight text-[#0B2C4A]">{value}</p>
-          <p className="mt-1 text-[12px] leading-4 text-slate-500">{description}</p>
         </div>
       </div>
     </article>
@@ -528,7 +520,6 @@ export default async function MatchesPage() {
             <SummaryMetricCard
               title="Pendientes"
               value={pendingMatchesCount}
-              description="Solicitudes esperando decisión."
               tone="amber"
               icon={
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -539,7 +530,6 @@ export default async function MatchesPage() {
             <SummaryMetricCard
               title="Activos"
               value={acceptedMatchesCount}
-              description="Matches aceptados listos para coordinar."
               tone="green"
               icon={
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -550,7 +540,6 @@ export default async function MatchesPage() {
             <SummaryMetricCard
               title="En tránsito"
               value={inTransitCount}
-              description="Paquetes que ya están en movimiento."
               tone="blue"
               icon={
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -561,7 +550,6 @@ export default async function MatchesPage() {
             <SummaryMetricCard
               title="Mensajes nuevos"
               value={unreadMatchesCount}
-              description="Chats que requieren revisión."
               tone="slate"
               icon={
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -597,7 +585,7 @@ export default async function MatchesPage() {
                     ? rawOtherUserName
                     : "Usuario";
 
-                const otherUserLabel = isTraveler ? "Cliente" : "Viajero";
+                const otherUserRoleLabel = isTraveler ? "Cliente" : "Viajero";
 
                 const unread =
                   match.status === "accepted" &&
@@ -616,6 +604,7 @@ export default async function MatchesPage() {
                   isOwner,
                   hasUnread: Boolean(unread),
                 });
+                const primaryStatus = getPrimaryStatusInfo(match.status, shipment?.status ?? null);
                 const routeLabel = `${getCityName(shipment?.origin_city ?? null) ?? "Origen"} → ${getCityName(
                   shipment?.destination_city ?? null
                 ) ?? "Destino"}`;
@@ -627,52 +616,28 @@ export default async function MatchesPage() {
                   >
                     <div className="border-b border-[#E6EDF5] px-4 py-4 sm:px-6">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full border border-[#D7E5F4] bg-[#F7FAFD] px-3 py-1 text-[11px] font-semibold text-[#0B2C4A]">
-                              {routeLabel}
-                            </span>
-                            <span className="rounded-full border border-[#D7E5F4] bg-[#F7FAFD] px-3 py-1 text-[11px] font-medium text-[#0B2C4A]">
-                              {otherUserLabel}: {otherUserName}
-                            </span>
-                            <span className="rounded-full border border-[#E6EDF5] bg-white px-3 py-1 text-[11px] text-slate-500">
-                              Creado: {formatDate(match.created_at)}
+                        <div className="min-w-0">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0">
+                              <h2 className="text-[15px] font-semibold tracking-tight text-[#0B2C4A] sm:text-base">
+                                {routeLabel}
+                              </h2>
+                              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-slate-500 sm:text-[13px]">
+                                <span>
+                                  <span className="font-medium text-[#0B2C4A]">{otherUserRoleLabel}:</span> {otherUserName}
+                                </span>
+                                <span>Creado: {formatDate(match.created_at)}</span>
+                              </div>
+                            </div>
+
+                            <span className={`inline-flex w-fit rounded-full px-3 py-1 text-[11px] font-semibold ${primaryStatus.classes}`}>
+                              {primaryStatus.label}
                             </span>
                           </div>
-
-                          <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span
-                            className={`rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusClasses(
-                              match.status
-                            )}`}
-                          >
-                            {getStatusLabel(match.status)}
-                          </span>
-
-                            <span
-                              className={`rounded-full border px-3 py-1 text-[11px] font-semibold ${getShipmentTrackingClasses(
-                                shipment?.status ?? null
-                              )}`}
-                            >
-                              {getShipmentTrackingLabel(shipment?.status ?? null)}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div>
-                          {unread ? (
-                            <span className="rounded-full border border-[#CDEFD9] bg-[#EFFBF4] px-3 py-1 text-[11px] font-semibold text-[#1F8B4C]">
-                              Nuevo mensaje
-                            </span>
-                          ) : (
-                            <span className="rounded-full border border-[#E6EDF5] bg-[#F8FAFC] px-3 py-1 text-[11px] text-slate-500">
-                              Al día
-                            </span>
-                          )}
                         </div>
                       </div>
 
-                      <div className="mt-3 rounded-xl border border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] px-4 py-3 text-[13px] font-medium leading-5 text-[#285B41]">
+                      <div className={`mt-3 rounded-xl border px-4 py-3 text-[13px] font-medium leading-5 ${getStatusStripeTone(match.status, shipment?.status ?? null)}`}>
                         {nextStepCopy}
                       </div>
                     </div>
@@ -690,12 +655,6 @@ export default async function MatchesPage() {
                           </div>
 
                           <div className="space-y-3">
-                            <DetailRow
-                              label="Ruta"
-                              value={`${getCityName(trip?.origin_city ?? null) ?? "Origen"} → ${getCityName(
-                                trip?.destination_city ?? null
-                              ) ?? "Destino"}`}
-                            />
                             <DetailRow
                               label="Salida"
                               value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
@@ -715,7 +674,6 @@ export default async function MatchesPage() {
                           </div>
 
                           <div className="space-y-3">
-                            <DetailRow label="Ruta" value={routeLabel} />
                             <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
                             <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
                             <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
@@ -725,40 +683,26 @@ export default async function MatchesPage() {
                         <div className="flex flex-col gap-3">
                           {match.status === "accepted" ? (
                             <>
-                              <Link
-                                href={`/app/matches/${match.id}`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
-                              >
-                                Ver detalle
-                              </Link>
-
-                              <Link
-                                href={`/app/matches/${match.id}/chat`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-[13px] font-semibold text-white transition hover:opacity-95"
-                              >
-                                Abrir chat
-                              </Link>
-
                               <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
                                 <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                  Estado del envío
+                                  Acciones
                                 </p>
 
-                                <div className="mt-3">
-                                  <span
-                                    className={`inline-flex rounded-full border px-3 py-1 text-sm font-semibold ${getShipmentTrackingClasses(
-                                      shipment?.status ?? null
-                                    )}`}
+                                <div className="mt-3 grid gap-3">
+                                  <Link
+                                    href={`/app/matches/${match.id}`}
+                                    className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
                                   >
-                                    {getShipmentTrackingLabel(shipment?.status ?? null)}
-                                  </span>
-                                </div>
+                                    Ver detalle
+                                  </Link>
 
-                                <p className="mt-3 text-[12px] leading-4 text-slate-500">
-                                  {getShipmentTrackingDescription(
-                                    shipment?.status ?? null
-                                  )}
-                                </p>
+                                  <Link
+                                    href={`/app/matches/${match.id}/chat`}
+                                    className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-[13px] font-semibold text-white transition hover:opacity-95"
+                                  >
+                                    Abrir chat
+                                  </Link>
+                                </div>
 
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
@@ -786,7 +730,7 @@ export default async function MatchesPage() {
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
                                   payment?.traveler_delivered_at && (
-                                    <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-700">
+                                    <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] font-medium leading-4 text-emerald-700">
                                       Entrega reportada. Esperando confirmación del cliente.
                                     </p>
                                   )}
@@ -816,21 +760,34 @@ export default async function MatchesPage() {
                               </div>
                             </>
                           ) : (
-                            <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-3">
-                              <MatchActions
-                                matchId={match.id}
-                                matchStatus={match.status}
-                                currentUserId={user.id}
-                                shipmentOwnerId={shipment?.owner_id ?? null}
-                                onCancel={cancelMatchAction}
-                              />
+                            <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
+                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                Acciones
+                              </p>
+
+                              <div className="mt-3 grid gap-3">
+                                <Link
+                                  href={`/app/matches/${match.id}`}
+                                  className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                                >
+                                  Ver detalle
+                                </Link>
+
+                                <MatchActions
+                                  matchId={match.id}
+                                  matchStatus={match.status}
+                                  currentUserId={user.id}
+                                  shipmentOwnerId={shipment?.owner_id ?? null}
+                                  onCancel={cancelMatchAction}
+                                />
+                              </div>
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="mt-5 rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
-                        <div className="mb-3 flex items-center justify-between gap-3">
+                      <div className="mt-5 rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-3 sm:p-4">
+                        <div className="mb-2 flex items-center justify-between gap-3">
                           <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                             Último mensaje
                           </p>
@@ -842,7 +799,7 @@ export default async function MatchesPage() {
                           ) : null}
                         </div>
 
-                        <div className="rounded-xl border border-[#E6EDF5] bg-white px-4 py-3 text-[13px] leading-5 text-slate-700 break-words shadow-sm">
+                        <div className="rounded-xl border border-[#E6EDF5] bg-white px-3 py-2.5 text-[12px] leading-5 text-slate-700 break-words shadow-sm sm:px-4 sm:py-3 sm:text-[13px]">
                           {lastMessage?.message?.trim()
                             ? lastMessage.message
                             : "Aún no hay mensajes en este match."}
