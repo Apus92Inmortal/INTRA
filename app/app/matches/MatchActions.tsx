@@ -14,12 +14,16 @@ export default function MatchActions({
   currentUserId,
   shipmentOwnerId,
   onCancel,
+  showDetail = true,
+  showStatusMessage = true,
 }: {
   matchId: string;
   matchStatus: string;
   currentUserId: string;
   shipmentOwnerId: string | null;
   onCancel: (matchId: string) => ActionResult;
+  showDetail?: boolean;
+  showStatusMessage?: boolean;
 }) {
   const supabase = createClient();
   const router = useRouter();
@@ -72,12 +76,14 @@ export default function MatchActions({
   if (isAccepted) {
     return (
       <div className="flex flex-col gap-3">
-        <Link
-          href={`/app/matches/${matchId}`}
-          className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
-        >
-          Ver detalle
-        </Link>
+        {showDetail ? (
+          <Link
+            href={`/app/matches/${matchId}`}
+            className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+          >
+            Ver detalle
+          </Link>
+        ) : null}
 
         <Link
           href={`/app/matches/${matchId}/chat`}
@@ -98,16 +104,20 @@ export default function MatchActions({
   if (!isPending) {
     return (
       <div className="flex flex-col gap-3">
-        <Link
-          href={`/app/matches/${matchId}`}
-          className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
-        >
-          Ver detalle
-        </Link>
+        {showDetail ? (
+          <Link
+            href={`/app/matches/${matchId}`}
+            className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+          >
+            Ver detalle
+          </Link>
+        ) : null}
 
-        <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600">
-          Estado: <span className="font-semibold">{getStatusLabel(matchStatus)}</span>
-        </div>
+        {showStatusMessage ? (
+          <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600">
+            Estado: <span className="font-semibold">{getStatusLabel(matchStatus)}</span>
+          </div>
+        ) : null}
 
         {msg ? (
           <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600">
@@ -120,18 +130,22 @@ export default function MatchActions({
 
   return (
     <div className="flex flex-col gap-3">
-      <Link
-        href={`/app/matches/${matchId}`}
-        className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
-      >
-        Ver detalle
-      </Link>
+      {showDetail ? (
+        <Link
+          href={`/app/matches/${matchId}`}
+          className="flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-4 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+        >
+          Ver detalle
+        </Link>
+      ) : null}
 
       {isClient ? (
         <>
-          <div className="rounded-2xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-            El viajero solicitó transportar tu envío.
-          </div>
+          {showStatusMessage ? (
+            <div className="rounded-2xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+              El viajero solicitó transportar tu envío.
+            </div>
+          ) : null}
 
           <button
             disabled={loading || done}
@@ -151,9 +165,11 @@ export default function MatchActions({
         </>
       ) : (
         <>
-          <div className="rounded-2xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-            Solicitud enviada. Esperando respuesta del cliente.
-          </div>
+          {showStatusMessage ? (
+            <div className="rounded-2xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+              Solicitud enviada. Esperando respuesta del cliente.
+            </div>
+          ) : null}
 
           <button
             disabled={loading || done}

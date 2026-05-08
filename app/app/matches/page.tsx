@@ -153,26 +153,6 @@ function getPrimaryStatusInfo(matchStatus: string, shipmentStatus: string | null
   };
 }
 
-function getStatusStripeTone(matchStatus: string, shipmentStatus: string | null) {
-  if (shipmentStatus === "in_transit") {
-    return "border-[#D7E5F4] bg-[linear-gradient(90deg,rgba(11,92,173,0.12)_0%,rgba(238,244,251,0.78)_100%)] text-[#0B4A7A]";
-  }
-
-  if (shipmentStatus === "delivered") {
-    return "border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] text-[#285B41]";
-  }
-
-  if (matchStatus === "pending") {
-    return "border-[#F6D9A6] bg-[linear-gradient(90deg,rgba(243,156,18,0.14)_0%,rgba(255,247,232,0.82)_100%)] text-[#8A5B00]";
-  }
-
-  if (matchStatus === "accepted") {
-    return "border-[#CDEFD9] bg-[linear-gradient(90deg,rgba(46,204,113,0.12)_0%,rgba(239,251,244,0.75)_100%)] text-[#285B41]";
-  }
-
-  return "border-[#D9E4F0] bg-[linear-gradient(90deg,rgba(148,163,184,0.10)_0%,rgba(248,250,252,0.86)_100%)] text-slate-600";
-}
-
 function getCityName(city: CityRelation) {
   if (!city) return null;
   if (Array.isArray(city)) return city[0]?.name ?? null;
@@ -698,6 +678,19 @@ export default async function MatchesPage() {
                       { label: "Múltiples", value: trip?.accepts_multiple_packages, icon: <Route className="h-4 w-4" /> },
                       { label: "Paradas", value: trip?.has_stopovers, icon: <Clock3 className="h-4 w-4" /> },
                     ];
+                const actionTitle =
+                  match.status === "pending"
+                    ? isOwner
+                      ? "Decide este match"
+                      : "Estado de tu solicitud"
+                    : unread
+                      ? "Responde este match"
+                      : "Siguiente paso";
+                const actionLead =
+                  nextStepCopy ??
+                  (match.status === "accepted"
+                    ? "Abre el chat para coordinar este match."
+                    : "Revisa el detalle para continuar.");
 
                 return (
                   <section
@@ -733,93 +726,93 @@ export default async function MatchesPage() {
                           </div>
                         </div>
                       </div>
-
-                      {nextStepCopy ? (
-                        <div className={`mt-3 rounded-xl border px-4 py-3 text-[13px] font-medium leading-5 ${getStatusStripeTone(match.status, shipment?.status ?? null)}`}>
-                          {nextStepCopy}
-                        </div>
-                      ) : null}
                     </div>
 
                     <div className="p-4 sm:p-5">
-                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_210px]">
+                      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_240px]">
                         <div className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4">
-                          <div className="mb-3 flex items-center gap-3">
-                            <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
+                          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center">
+                            <div>
+                              <div className="mb-3 flex items-center gap-3">
+                                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
+                                  {isTraveler ? (
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
+                                    </svg>
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                    Lo clave del match
+                                  </p>
+                                  <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
+                                </div>
+                              </div>
+
                               {isTraveler ? (
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-                                </svg>
+                                <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
+                                  <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
+                                  <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
+                                  <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
+                                  <DetailRow
+                                    className="sm:col-span-2"
+                                    label="Descripción"
+                                    value={shipment?.description?.trim() || "Sin descripción"}
+                                  />
+                                </div>
                               ) : (
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
-                                </svg>
+                                <div className="flex h-full flex-col justify-center space-y-2.5 lg:pr-2">
+                                  <DetailRow
+                                    label="Salida"
+                                    value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
+                                  />
+                                  <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                                </div>
                               )}
                             </div>
-                            <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
-                          </div>
 
-                          <div
-                            className={
-                              isTraveler
-                                ? "grid gap-3 lg:grid-cols-[minmax(0,1fr)_200px] lg:items-stretch"
-                                : "grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center"
-                            }
-                          >
-                            {isTraveler ? (
-                              <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2">
-                                <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
-                                <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
-                                <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
-                                <DetailRow
-                                  className="sm:col-span-2"
-                                  label="Descripción"
-                                  value={shipment?.description?.trim() || "Sin descripción"}
-                                />
+                            <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
+                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                Compatibilidad
+                              </p>
+                              <p className="mt-1 text-[12px] leading-5 text-slate-500">
+                                {isTraveler ? "Preferencias del envío" : "Preferencias del viaje"}
+                              </p>
+                              <div className="mt-3">
+                                <PreferenceToggleColumn items={primaryPreferenceItems} />
                               </div>
-                            ) : (
-                              <div className="flex h-full flex-col justify-center space-y-2.5 lg:pr-2">
-                                <DetailRow
-                                  label="Salida"
-                                  value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
-                                />
-                                <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
-                              </div>
-                            )}
-
-                            <div
-                              className={`flex h-full lg:justify-self-end lg:w-full ${
-                                isTraveler ? "lg:max-w-[200px] lg:self-stretch" : "lg:max-w-[190px] lg:items-center"
-                              }`}
-                            >
-                              <PreferenceToggleColumn items={primaryPreferenceItems} />
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex flex-col gap-3">
+                        <div className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-3.5 shadow-sm sm:p-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#0B5CAD]">
+                            {actionTitle}
+                          </p>
+                          <p className="mt-2 text-[14px] font-semibold leading-5 text-[#0B2C4A]">
+                            {actionLead}
+                          </p>
+
+                          <div className="mt-4 grid gap-2.5">
                           {match.status === "accepted" ? (
                             <>
-                              <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-3.5 sm:p-4">
-                                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                  Acciones
-                                </p>
+                              <Link
+                                href={`/app/matches/${match.id}/chat`}
+                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-[13px] font-semibold text-white transition hover:opacity-95"
+                              >
+                                Abrir chat
+                              </Link>
 
-                                <div className="mt-3 grid gap-2.5">
-                                  <Link
-                                    href={`/app/matches/${match.id}`}
-                                    className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
-                                  >
-                                    Ver detalle
-                                  </Link>
-
-                                  <Link
-                                    href={`/app/matches/${match.id}/chat`}
-                                    className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-[13px] font-semibold text-white transition hover:opacity-95"
-                                  >
-                                    Abrir chat
-                                  </Link>
-                                </div>
+                              <Link
+                                href={`/app/matches/${match.id}`}
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                              >
+                                Ver detalle
+                              </Link>
 
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
@@ -874,32 +867,28 @@ export default async function MatchesPage() {
                                       </button>
                                     </form>
                                   )}
-                              </div>
                             </>
                           ) : (
-                            <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-3.5 sm:p-4">
-                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                Acciones
-                              </p>
+                            <>
+                              <Link
+                                href={`/app/matches/${match.id}`}
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                              >
+                                Ver detalle
+                              </Link>
 
-                              <div className="mt-3 grid gap-2.5">
-                                <Link
-                                  href={`/app/matches/${match.id}`}
-                                  className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
-                                >
-                                  Ver detalle
-                                </Link>
-
-                                <MatchActions
-                                  matchId={match.id}
-                                  matchStatus={match.status}
-                                  currentUserId={user.id}
-                                  shipmentOwnerId={shipment?.owner_id ?? null}
-                                  onCancel={cancelMatchAction}
-                                />
-                              </div>
-                            </div>
+                              <MatchActions
+                                matchId={match.id}
+                                matchStatus={match.status}
+                                currentUserId={user.id}
+                                shipmentOwnerId={shipment?.owner_id ?? null}
+                                onCancel={cancelMatchAction}
+                                showDetail={false}
+                                showStatusMessage={false}
+                              />
+                            </>
                           )}
+                        </div>
                         </div>
                       </div>
 
