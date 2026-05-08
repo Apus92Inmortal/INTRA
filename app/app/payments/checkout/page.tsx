@@ -31,6 +31,9 @@ type RetryShipmentRow = {
   description: string
   weight_kg: number | string | null
   declared_value_cop: number | string | null
+  is_fragile: boolean | null
+  is_urgent: boolean | null
+  is_high_value: boolean | null
   origin_city_id: string
   destination_city_id: string
   origin_city: { name: string | null } | null
@@ -82,6 +85,9 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
         description,
         weight_kg,
         declared_value_cop,
+        is_fragile,
+        is_urgent,
+        is_high_value,
         origin_city_id,
         destination_city_id,
         origin_city:cities!shipments_origin_city_id_fkey(name),
@@ -124,6 +130,9 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
     description: shipment.description,
     weightKg: toStringValue(shipment.weight_kg),
     declaredValueCop: toStringValue(shipment.declared_value_cop),
+    isFragile: shipment.is_fragile === true,
+    isUrgent: shipment.is_urgent === true,
+    isHighValue: shipment.is_high_value === true,
     routeCategory,
   }
 }
@@ -147,6 +156,9 @@ async function loadShipmentCheckoutData(shipmentId: string): Promise<RetryChecko
         description,
         weight_kg,
         declared_value_cop,
+        is_fragile,
+        is_urgent,
+        is_high_value,
         origin_city_id,
         destination_city_id,
         origin_city:cities!shipments_origin_city_id_fkey(name),
@@ -189,6 +201,9 @@ async function loadShipmentCheckoutData(shipmentId: string): Promise<RetryChecko
     description: shipment.description,
     weightKg: toStringValue(shipment.weight_kg),
     declaredValueCop: toStringValue(shipment.declared_value_cop),
+    isFragile: shipment.is_fragile === true,
+    isUrgent: shipment.is_urgent === true,
+    isHighValue: shipment.is_high_value === true,
     routeCategory,
   }
 }
