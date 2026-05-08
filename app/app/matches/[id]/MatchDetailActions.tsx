@@ -101,7 +101,7 @@ export default function MatchDetailActions({
           <button
             onClick={handleAccept}
             disabled={isPending}
-            className="min-h-11 w-full rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50 sm:w-auto"
+            className="min-h-11 w-full rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50 sm:w-auto"
           >
             {isPending && activeAction === "accept"
               ? "Procesando..."
@@ -113,7 +113,11 @@ export default function MatchDetailActions({
           <button
             onClick={isOwnerPending ? handleReject : handleCancel}
             disabled={isPending}
-            className="min-h-11 w-full rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50 sm:w-auto"
+            className={`min-h-11 w-full rounded-2xl px-5 py-2.5 text-sm font-semibold transition disabled:opacity-50 sm:w-auto ${
+              status === "accepted"
+                ? "border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                : "border border-[#D9E4F0] bg-white text-slate-700 hover:bg-[#F7FAFD]"
+            }`}
           >
             {isPending &&
             (activeAction === "reject" || activeAction === "cancel")

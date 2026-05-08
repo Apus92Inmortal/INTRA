@@ -28,6 +28,7 @@ export default function SuspiciousReportForm({
 
   const [reportType, setReportType] = useState<(typeof REPORT_TYPES)[number]["value"]>("suspicious_package");
   const [reason, setReason] = useState("");
+  const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
@@ -89,45 +90,60 @@ export default function SuspiciousReportForm({
     setLoading(false);
     setReason("");
     setReportType("suspicious_package");
+    setExpanded(false);
     setMessage("Reporte enviado. El paquete quedó marcado para revisión manual.");
     setMessageType("success");
     router.refresh();
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-      <div>
-        <h3 className="text-sm font-semibold text-amber-900">Reportar paquete sospechoso</h3>
-        <p className="mt-1 text-xs text-amber-800">
-          Si el paquete no coincide, puedes rechazarlo. Usa este reporte si ves inconsistencias, contenido extraño o una situación que amerite revisión manual.
-        </p>
+    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-amber-200 bg-white/80 p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-amber-900">Botón de alerta</h3>
+          <p className="mt-1 text-xs leading-5 text-amber-800">
+            Úsalo solo si el paquete no coincide con lo acordado o aparece una situación delicada.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700"
+        >
+          {expanded ? "Cerrar alerta" : "Activar alerta"}
+        </button>
       </div>
 
-      <label className="block text-sm font-medium text-amber-900">
-        Tipo de reporte
-        <select
-          value={reportType}
-          onChange={(event) => setReportType(event.target.value as (typeof REPORT_TYPES)[number]["value"])}
-          className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-3 text-sm text-slate-700"
-        >
-          {REPORT_TYPES.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      {expanded ? (
+        <>
+          <label className="block text-sm font-medium text-amber-900">
+            Tipo de alerta
+            <select
+              value={reportType}
+              onChange={(event) => setReportType(event.target.value as (typeof REPORT_TYPES)[number]["value"])}
+              className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-3 text-sm text-slate-700"
+            >
+              {REPORT_TYPES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-      <label className="block text-sm font-medium text-amber-900">
-        Motivo del reporte
-        <textarea
-          rows={4}
-          value={reason}
-          onChange={(event) => setReason(event.target.value)}
-          className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-3 text-sm text-slate-700"
-          placeholder="Ej. el paquete no coincide con la descripción, presenta sellos alterados, olor extraño..."
-        />
-      </label>
+          <label className="block text-sm font-medium text-amber-900">
+            Qué pasó
+            <textarea
+              rows={4}
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-3 text-sm text-slate-700"
+              placeholder="Ej. el paquete no coincide con la descripción, presenta sellos alterados, olor extraño..."
+            />
+          </label>
+        </>
+      ) : null}
 
       {message ? (
         <div
@@ -141,13 +157,15 @@ export default function SuspiciousReportForm({
         </div>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-amber-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {loading ? "Enviando reporte..." : "Reportar ahora"}
-      </button>
+      {expanded ? (
+        <button
+          type="submit"
+          disabled={loading}
+          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-amber-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? "Enviando alerta..." : "Enviar alerta"}
+        </button>
+      ) : null}
     </form>
   );
 }
