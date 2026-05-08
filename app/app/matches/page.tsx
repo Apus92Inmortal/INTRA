@@ -351,7 +351,7 @@ function PreferenceToggleColumn({
   items: Array<{ label: string; value: boolean | null | undefined; icon: ReactNode }>;
 }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 lg:flex lg:h-full lg:flex-col lg:justify-between lg:space-y-0 lg:gap-2">
       {items.map((item) => {
         const enabled = item.value === true;
 
@@ -751,7 +751,7 @@ export default async function MatchesPage() {
                             <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
                           </div>
 
-                          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center">
+                          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-stretch">
                             <div className="space-y-3">
                               {isTraveler ? (
                                 <>
@@ -774,7 +774,7 @@ export default async function MatchesPage() {
                               )}
                             </div>
 
-                            <div className="flex h-full items-center lg:justify-self-end lg:w-full lg:max-w-[220px]">
+                            <div className="flex h-full lg:justify-self-end lg:w-full lg:max-w-[220px] lg:self-stretch">
                               <PreferenceToggleColumn items={primaryPreferenceItems} />
                             </div>
                           </div>
