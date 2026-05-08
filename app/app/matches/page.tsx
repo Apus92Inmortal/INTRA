@@ -8,6 +8,7 @@ import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 import { cancelMatchAction, confirmDeliveryAction, markDeliveredAction } from "./[id]/actions";
+import { fetchRatingSummaryMap, formatRatingValue } from "@/lib/reviews";
 
 type CityRow = {
   name: string;
@@ -29,6 +30,7 @@ type ShipmentItem = {
   id: string;
   owner_id: string;
   kind: string | null;
+  description: string | null;
   weight_kg: number | null;
   declared_value_cop: number | null;
   status: string | null;
@@ -312,6 +314,30 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function ReputationInline({
+  avgRating,
+  totalReviews,
+}: {
+  avgRating: number | null;
+  totalReviews: number;
+}) {
+  const formatted = formatRatingValue(avgRating);
+
+  if (!formatted || totalReviews <= 0) {
+    return (
+      <span className="inline-flex items-center rounded-full border border-[#D9E4F0] bg-[#F8FBFF] px-2.5 py-1 text-[11px] font-medium text-slate-500">
+        Nuevo usuario
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center rounded-full border border-[#F6D9A6] bg-[#FFF7E8] px-2.5 py-1 text-[11px] font-semibold text-[#8A5B00]">
+      ⭐ {formatted} / 5
+    </span>
+  );
+}
+
 export default async function MatchesPage() {
   const supabase = await createClient();
 
@@ -344,6 +370,7 @@ export default async function MatchesPage() {
         id,
         owner_id,
         kind,
+        description,
         weight_kg,
         declared_value_cop,
         status,
@@ -399,6 +426,8 @@ export default async function MatchesPage() {
       profile.full_name,
     ])
   );
+
+  const ratingSummaryMap = await fetchRatingSummaryMap(supabase, relatedUserIds);
 
   const matchIds = allMatches.map((match) => match.id);
   const shipmentIds = Array.from(
@@ -576,7 +605,10 @@ export default async function MatchesPage() {
                     : "Usuario";
 
                 const otherUserRoleLabel = isTraveler ? "Cliente" : "Viajero";
-
+                const otherUserRating = otherUserId
+                  ? ratingSummaryMap[otherUserId] ?? { avgRating: null, totalReviews: 0 }
+                  : { avgRating: null, totalReviews: 0 };
+                
                 const unread =
                   match.status === "accepted" &&
                   lastMessage &&
@@ -598,6 +630,8 @@ export default async function MatchesPage() {
                 const routeLabel = `${getCityName(shipment?.origin_city ?? null) ?? "Origen"} → ${getCityName(
                   shipment?.destination_city ?? null
                 ) ?? "Destino"}`;
+                const primaryPanelTitle = isTraveler ? "Envío solicitado" : "Viaje disponible";
+                const secondaryPanelTitle = isTraveler ? "Tu viaje" : "Tu envío";
 
                 return (
                   <section
@@ -617,9 +651,16 @@ export default async function MatchesPage() {
                             <h2 className="text-[15px] font-semibold tracking-tight text-[#0B2C4A] sm:text-base">
                               {routeLabel}
                             </h2>
-                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-slate-500 sm:text-[13px]">
+                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-slate-500 sm:text-[13px]">
                               <span>
                                 <span className="font-medium text-[#0B2C4A]">{otherUserRoleLabel}:</span> {otherUserName}
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <span className="font-medium text-[#0B2C4A]">Calificación:</span>
+                                <ReputationInline
+                                  avgRating={otherUserRating.avgRating}
+                                  totalReviews={otherUserRating.totalReviews}
+                                />
                               </span>
                               <span>Creado: {formatDate(match.created_at)}</span>
                             </div>
@@ -636,39 +677,95 @@ export default async function MatchesPage() {
 
                     <div className="p-4 sm:p-6">
                       <div className="grid gap-4 xl:grid-cols-[1fr_1fr_220px]">
-                        <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
+                        <div className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-4 shadow-sm">
                           <div className="mb-4 flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#EEF4FB] text-[#0B5CAD]">
-                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
-                              </svg>
+                            <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
+                              {isTraveler ? (
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                                </svg>
+                              ) : (
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
+                                </svg>
+                              )}
                             </div>
-                            <h3 className="text-[15px] font-semibold text-[#0B2C4A]">Viaje</h3>
+                            <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
                           </div>
 
                           <div className="space-y-3">
-                            <DetailRow
-                              label="Salida"
-                              value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
-                            />
-                            <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                            {isTraveler ? (
+                              <>
+                                <DetailRow label="Cliente" value={otherUserName} />
+                                <DetailRow
+                                  label="Calificación"
+                                  value={
+                                    otherUserRating.avgRating != null && otherUserRating.totalReviews > 0
+                                      ? `⭐ ${formatRatingValue(otherUserRating.avgRating)} / 5`
+                                      : "Sin calificaciones aún"
+                                  }
+                                />
+                                <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
+                                <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
+                                <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
+                                <DetailRow
+                                  label="Descripción"
+                                  value={shipment?.description?.trim() || "Sin descripción"}
+                                />
+                              </>
+                            ) : (
+                              <>
+                                <DetailRow label="Viajero" value={otherUserName} />
+                                <DetailRow
+                                  label="Calificación"
+                                  value={
+                                    otherUserRating.avgRating != null && otherUserRating.totalReviews > 0
+                                      ? `⭐ ${formatRatingValue(otherUserRating.avgRating)} / 5`
+                                      : "Sin calificaciones aún"
+                                  }
+                                />
+                                <DetailRow
+                                  label="Salida"
+                                  value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
+                                />
+                                <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                              </>
+                            )}
                           </div>
                         </div>
 
                         <div className="rounded-2xl border border-[#D9E4F0] bg-[#FBFDFF] p-4">
                           <div className="mb-4 flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFF7E8] text-[#C98012]">
-                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-                              </svg>
+                            <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#EEF4FB] text-[#0B5CAD]" : "bg-[#FFF7E8] text-[#C98012]"}`}>
+                              {isTraveler ? (
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
+                                </svg>
+                              ) : (
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+                                </svg>
+                              )}
                             </div>
-                            <h3 className="text-[15px] font-semibold text-[#0B2C4A]">Envío</h3>
+                            <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{secondaryPanelTitle}</h3>
                           </div>
 
                           <div className="space-y-3">
-                            <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
-                            <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
-                            <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
+                            {isTraveler ? (
+                              <>
+                                <DetailRow
+                                  label="Salida"
+                                  value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
+                                />
+                                <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                              </>
+                            ) : (
+                              <>
+                                <DetailRow label="Tipo" value={getShipmentKindLabel(shipment?.kind ?? null)} />
+                                <DetailRow label="Peso" value={`${shipment?.weight_kg ?? 0} kg`} />
+                                <DetailRow label="Valor" value={formatCurrency(shipment?.declared_value_cop ?? 0)} />
+                              </>
+                            )}
                           </div>
                         </div>
 
