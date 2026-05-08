@@ -334,7 +334,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     originCity && destinationCity ? compactRouteLabel : "Por definir"
 
   return (
-    <div className="grid gap-2.5 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.52fr)_360px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
+    <div className="grid gap-2.5 pb-32 sm:pb-0 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.52fr)_360px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
       <form onSubmit={onSubmit} noValidate>
         <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-3.5 lg:h-full lg:min-h-0 lg:p-3.5 [@media(min-width:1024px)_and_(max-height:900px)]:p-3 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:760px)]:p-2">
           <section>
@@ -548,24 +548,26 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             </div>
           ) : null}
 
-          <div className="mt-2.5 flex flex-col items-center justify-center gap-2 border-t border-[#E9F0F6] pt-2.5 sm:flex-row [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
-            <button
-              disabled={loading}
-              className="inline-flex min-h-10 min-w-[210px] items-center justify-center rounded-[13px] bg-[#2ECC71] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_22px_rgba(46,204,113,0.20)] transition hover:bg-[#29b765] disabled:cursor-not-allowed disabled:opacity-60"
-              type="submit"
-            >
-              <PlaneTakeoff className="mr-2 h-4 w-4" />
-              {loading ? "Publicando..." : "Publicar viaje"}
-            </button>
+          <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#D7E5F1] bg-white/95 p-4 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:mt-2.5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none [@media(min-width:1024px)_and_(max-height:900px)]:sm:mt-2">
+            <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row">
+              <button
+                disabled={loading}
+                className="inline-flex min-h-11 items-center justify-center rounded-[13px] bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_22px_rgba(46,204,113,0.20)] transition hover:bg-[#29b765] disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                type="submit"
+              >
+                <PlaneTakeoff className="mr-2 h-4 w-4" />
+                {loading ? "Publicando..." : "Publicar viaje"}
+              </button>
 
-            <button
-              type="button"
-              onClick={() => router.push("/app")}
-              className="inline-flex min-h-10 min-w-[210px] items-center justify-center rounded-[13px] border border-[#D7E5F1] bg-white px-5 py-2.5 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F8FBFD]"
-            >
-              <House className="mr-2 h-4 w-4" />
-              Volver a inicio
-            </button>
+              <button
+                type="button"
+                onClick={() => router.push("/app")}
+                className="inline-flex min-h-11 items-center justify-center rounded-[13px] border border-[#D7E5F1] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F8FBFD] sm:flex-1"
+              >
+                <House className="mr-2 h-4 w-4" />
+                Volver a inicio
+              </button>
+            </div>
           </div>
         </div>
       </form>
