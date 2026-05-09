@@ -5,9 +5,10 @@ import { useState } from "react";
 type TrackingCodeBadgeProps = {
   code: string;
   className?: string;
+  variant?: "dark" | "light";
 };
 
-export function TrackingCodeBadge({ code, className = "" }: TrackingCodeBadgeProps) {
+export function TrackingCodeBadge({ code, className = "", variant = "dark" }: TrackingCodeBadgeProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -20,15 +21,19 @@ export function TrackingCodeBadge({ code, className = "" }: TrackingCodeBadgePro
     }
   };
 
+  const toneClasses =
+    variant === "light"
+      ? "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
+      : "bg-slate-900 text-white hover:bg-slate-800";
+
   return (
     <button
       type="button"
       onClick={() => void handleCopy()}
-      className={`inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white transition hover:bg-slate-800 ${className}`.trim()}
+      className={`inline-flex min-w-[108px] items-center justify-center rounded-full px-3 py-1 text-center text-xs font-semibold transition ${toneClasses} ${className}`.trim()}
       title="Copiar tracking"
     >
-      <span>{code}</span>
-      <span className="text-[10px] font-medium text-slate-300">{copied ? "Copiado" : "Copiar"}</span>
+      <span>{copied ? "Copiado" : code}</span>
     </button>
   );
 }

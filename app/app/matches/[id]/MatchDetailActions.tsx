@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CheckCircle2, CircleX, XCircle } from "lucide-react";
 
 type ActionResult = Promise<{ success: boolean; error?: string }>;
 
@@ -101,8 +102,9 @@ export default function MatchDetailActions({
           <button
             onClick={handleAccept}
             disabled={isPending}
-            className="min-h-11 w-full rounded-xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50 sm:w-auto"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50 sm:w-auto"
           >
+            <CheckCircle2 className="h-4 w-4" strokeWidth={2.1} />
             {isPending && activeAction === "accept"
               ? "Procesando..."
               : "Aceptar match"}
@@ -113,8 +115,21 @@ export default function MatchDetailActions({
           <button
             onClick={isOwnerPending ? handleReject : handleCancel}
             disabled={isPending}
-            className="min-h-11 w-full rounded-xl bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50 sm:w-auto"
+            className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold transition disabled:opacity-50 ${
+              canAccept && status === "pending" ? "sm:w-auto" : ""
+            } ${
+              status === "accepted"
+                ? "border border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
+                : canAccept && status === "pending"
+                ? "border border-[#D9E4F0] bg-white text-slate-700 hover:bg-[#F7FAFD]"
+                  : "border border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
+            }`}
           >
+            {status === "accepted" || !(canAccept && status === "pending") ? (
+              <XCircle className="h-4 w-4" strokeWidth={2.1} />
+            ) : (
+              <CircleX className="h-4 w-4" strokeWidth={2.1} />
+            )}
             {isPending &&
             (activeAction === "reject" || activeAction === "cancel")
               ? "Procesando..."

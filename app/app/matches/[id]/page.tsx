@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchDetailActions from "./MatchDetailActions";
 import MatchDetailRealtime from "./MatchDetailRealtime";
-import ReviewComposer from "./ReviewComposer";
 import {
   acceptMatchAction,
   rejectMatchAction,
@@ -14,13 +13,11 @@ import {
   openDisputeFormAction,
   confirmDeliveryFormAction,
 } from "./actions";
-import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
-import { fetchRatingSummaryMap } from "@/lib/reviews";
-import { getEvidenceTypeLabel, getReportStatusLabel, getVerificationBadge } from "@/lib/trust";
-import EvidenceUploader from "./EvidenceUploader";
+import { fetchRatingSummaryMap, formatRatingValue } from "@/lib/reviews";
 import SuspiciousReportForm from "./SuspiciousReportForm";
+import { CheckCircle2, MessageCircle, PackageCheck, Route, ShieldAlert, Star, Truck } from "lucide-react";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -37,38 +34,6 @@ type CityRow = {
 };
 
 type CityRelation = CityRow | CityRow[] | null;
-
-type EvidenceRow = {
-  id: string;
-  uploaded_by: string;
-  evidence_type: string;
-  note: string | null;
-  created_at: string;
-  file_path: string;
-  file_name: string | null;
-};
-
-type ReportEventRow = {
-  id: string;
-  reported_by: string;
-  report_type: string;
-  reason: string;
-  status: string;
-  created_at: string;
-};
-
-type MatchReviewRow = {
-  id: string;
-  reviewer_id: string;
-  reviewed_user_id: string;
-  rating: number;
-  comment: string | null;
-  created_at: string;
-  reviewer_profile:
-    | { full_name: string | null }
-    | { full_name: string | null }[]
-    | null;
-};
 
 function formatDate(dateString: string | null | undefined) {
   if (!dateString) return "Sin fecha";
@@ -88,17 +53,6 @@ function formatCurrency(value: number | null | undefined) {
   }).format(value);
 }
 
-function formatDateTime(dateString: string | null | undefined) {
-  if (!dateString) return "Sin fecha";
-  return new Intl.DateTimeFormat("es-CO", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(dateString));
-}
-
 function formatTimeLabel(timeString: string | null | undefined) {
   if (!timeString) return "Hora por confirmar";
 
@@ -111,93 +65,35 @@ function formatTimeLabel(timeString: string | null | undefined) {
   }).format(value);
 }
 
-function formatDepartureLabel(dateString: string | null | undefined, timeString: string | null | undefined) {
-  const dateLabel = formatDate(dateString);
-  return timeString ? `${dateLabel} · ${formatTimeLabel(timeString)}` : dateLabel;
-}
-
 function getCityName(city: CityRelation) {
   if (!city) return null;
   if (Array.isArray(city)) return city[0]?.name ?? null;
   return city.name ?? null;
 }
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("") || "IN";
+function getCompactRatingText(avgRating: number | null | undefined, totalReviews: number) {
+  const formatted = formatRatingValue(avgRating) ?? "0.0";
+
+  return `${formatted}/${Math.max(totalReviews, 0)}`;
 }
 
-function getReviewerName(review: MatchReviewRow) {
-  const reviewerProfile = Array.isArray(review.reviewer_profile)
-    ? review.reviewer_profile[0]
-    : review.reviewer_profile;
-
-  return reviewerProfile?.full_name?.trim() || "Usuario INTRA";
-}
-
-function renderStars(rating: number) {
-  return Array.from({ length: 5 }, (_, index) => (
-    <span key={`${rating}-${index}`} className={index < rating ? "text-amber-400" : "text-slate-200"}>
-      ★
-    </span>
-  ));
-}
-
-function getShipmentTrackingLabel(status: string | null | undefined) {
-  switch (status) {
-    case "open":
-      return "Solicitud creada";
-    case "matched":
-      return "Match realizado";
-    case "accepted":
-      return "Match aceptado";
-    case "in_transit":
-      return "En tránsito";
-    case "delivered":
-      return "Entregado";
-    case "cancelled":
-      return "Cancelado";
-    default:
-      return "Sin estado";
-  }
-}
-
-function getShipmentTrackingClasses(status: string | null | undefined) {
-  switch (status) {
-    case "accepted":
-      return "bg-emerald-100 text-emerald-700";
-    case "in_transit":
-      return "bg-blue-100 text-blue-700";
-    case "delivered":
-      return "bg-green-100 text-green-700";
-    case "cancelled":
-      return "bg-slate-100 text-slate-700";
-    case "matched":
-      return "bg-indigo-100 text-indigo-700";
-    default:
-      return "bg-slate-100 text-slate-700";
-  }
-}
-
-function getShipmentTrackingDescription(status: string | null | undefined) {
-  switch (status) {
-    case "accepted":
-      return "El match fue aceptado. El siguiente paso es recoger el paquete.";
-    case "in_transit":
-      return "El viajero ya recogió el paquete y está en camino.";
-    case "delivered":
-      return "La entrega fue confirmada correctamente.";
-    case "cancelled":
-      return "Este envío fue cancelado.";
-    case "matched":
-      return "Ya existe una coincidencia creada para este envío.";
-    default:
-      return "Próximamente podrás seguir aquí el avance del paquete.";
-  }
+function getProgressStepIndex({
+  matchStatus,
+  shipmentStatus,
+  travelerDeliveredAt,
+  deliveredAt,
+}: {
+  matchStatus: string;
+  shipmentStatus: string | null | undefined;
+  travelerDeliveredAt: string | null | undefined;
+  deliveredAt: string | null | undefined;
+}) {
+  if (matchStatus === "pending") return -1;
+  if (deliveredAt || shipmentStatus === "delivered" || matchStatus === "completed") return 3;
+  if (travelerDeliveredAt) return 3;
+  if (shipmentStatus === "in_transit") return 2;
+  if (shipmentStatus === "matched" || matchStatus === "accepted") return 0;
+  return -1;
 }
 
 export default async function MatchDetailPage({ params }: PageProps) {
@@ -290,13 +186,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
         .in("id", participantIds)
     : { data: [] as ProfileRow[] };
 
-  const { data: participantVerifications } = participantIds.length
-    ? await supabase
-        .from("user_verifications")
-        .select("user_id, verification_status")
-        .in("user_id", participantIds)
-    : { data: [] as Array<{ user_id: string; verification_status: string | null }> };
-
   const participantNameById = new Map<string, string>(
     ((participantProfiles ?? []) as ProfileRow[]).map((profile) => [
       profile.id,
@@ -304,88 +193,36 @@ export default async function MatchDetailPage({ params }: PageProps) {
     ])
   );
 
-  const participantVerificationById = new Map<string, string | null>(
-    ((participantVerifications ?? []) as Array<{ user_id: string; verification_status: string | null }>).map((verification) => [
-      verification.user_id,
-      verification.verification_status ?? null,
-    ])
-  );
-
   const ratingSummaryMap = await fetchRatingSummaryMap(supabase, participantIds);
-
-  const { data: reviewsData } = await supabase
-    .from("reviews")
-    .select(
-      `
-        id,
-        reviewer_id,
-        reviewed_user_id,
-        rating,
-        comment,
-        created_at,
-        reviewer_profile:profiles!reviews_reviewer_id_fkey(full_name)
-      `
-    )
-    .eq("match_id", match.id)
-    .order("created_at", { ascending: false });
-
-  const matchReviews = (reviewsData ?? []) as MatchReviewRow[];
-  const currentUserReview = matchReviews.find((review) => review.reviewer_id === user.id) ?? null;
-
-  const { data: evidenceData } = shipment?.id
-    ? await supabase
-        .from("shipment_evidence")
-        .select("id, uploaded_by, evidence_type, note, created_at, file_path, file_name")
-        .eq("shipment_id", shipment.id)
-        .order("created_at", { ascending: false })
-    : { data: [] as EvidenceRow[] };
-
-  const evidenceItems = await Promise.all(
-    ((evidenceData ?? []) as EvidenceRow[]).map(async (evidence) => {
-      const { data } = await supabase.storage
-        .from("shipment-evidence")
-        .createSignedUrl(evidence.file_path, 60 * 60);
-
-      return {
-        ...evidence,
-        signedUrl: data?.signedUrl ?? null,
-      };
-    })
-  );
-
-  const { data: reportEventsData } = shipment?.id
-    ? await supabase
-        .from("shipment_report_events")
-        .select("id, reported_by, report_type, reason, status, created_at")
-        .eq("shipment_id", shipment.id)
-        .order("created_at", { ascending: false })
-    : { data: [] as ReportEventRow[] };
-
-  const reportEvents = (reportEventsData ?? []) as ReportEventRow[];
   const otherUserId = isOwner ? travelerId : ownerId;
   const otherUserName = otherUserId
     ? participantNameById.get(otherUserId) ?? "la otra persona"
     : "la otra persona";
-  const ownerName = ownerId
-    ? participantNameById.get(ownerId) ?? "Usuario INTRA"
-    : "Usuario INTRA";
-  const travelerName = travelerId
-    ? participantNameById.get(travelerId) ?? "Usuario INTRA"
-    : "Usuario INTRA";
+  const otherUserRoleLabel = isOwner ? "Viajero" : "Cliente";
   const shipmentRouteLabel = `${getCityName(shipment?.origin_city as CityRelation) ?? "Origen"} → ${getCityName(
     shipment?.destination_city as CityRelation
   ) ?? "Destino"}`;
   const tripRouteLabel = `${getCityName(trip?.origin_city as CityRelation) ?? "Origen"} → ${getCityName(
     trip?.destination_city as CityRelation
   ) ?? "Destino"}`;
-  const paymentStatusTone =
-    payment?.status === "held"
-      ? "bg-amber-100 text-amber-700"
-      : payment?.status === "released"
-        ? "bg-emerald-100 text-emerald-700"
-        : payment?.status === "refunded"
-          ? "bg-rose-100 text-rose-700"
-          : "bg-slate-100 text-slate-700";
+  const primaryPanelTitle = isTraveler ? "Envío solicitado" : "Viaje disponible";
+  const headerRatingText = getCompactRatingText(
+    otherUserId ? ratingSummaryMap[otherUserId]?.avgRating ?? null : null,
+    otherUserId ? ratingSummaryMap[otherUserId]?.totalReviews ?? 0 : 0
+  );
+  const progressIndex = getProgressStepIndex({
+    matchStatus: match.status,
+    shipmentStatus: shipment?.status,
+    travelerDeliveredAt: payment?.traveler_delivered_at,
+    deliveredAt: payment?.delivered_at,
+  });
+  const matchCode = shipment?.tracking_code || `MATCH-${match.id.slice(0, 8).toUpperCase()}`;
+  const progressSteps = [
+    "Match aceptado",
+    "Recogida",
+    "En tránsito",
+    "Entrega",
+  ];
 
   const canAccept = isOwner && match.status === "pending";
   const canCancel =
@@ -420,20 +257,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
     payment?.status === "held" &&
     payment?.dispute_status !== "open";
 
-  const canLeaveReview =
-    match.status === "completed" &&
-    Boolean(otherUserId) &&
-    !currentUserReview;
-
-  const canUploadEvidence = isOwner || isTraveler;
-  const allowedEvidenceTypes = Array.from(
-    new Set([
-      ...(isTraveler ? ["pickup"] : []),
-      ...(isOwner ? ["delivery"] : []),
-      "package_state",
-    ])
-  );
-
   const markInTransitSubmitAction =
     shipment?.id && match?.id
       ? markInTransitFormAction.bind(null, shipment.id, match.id)
@@ -459,569 +282,208 @@ export default async function MatchDetailPage({ params }: PageProps) {
       <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 sm:py-8">
         <MatchDetailRealtime matchId={match.id} />
 
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-4 flex flex-wrap items-center gap-3 text-sm">
-            <Link
-              href="/app/matches"
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-2.5 font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              ← Volver a matches
-            </Link>
-
-            {canOpenChat ? (
-              <Link
-                href={`/app/matches/${match.id}/chat`}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 font-semibold text-white transition hover:opacity-95"
-              >
-                💬 Abrir chat
-              </Link>
-            ) : null}
-          </div>
-
+        <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-3xl font-bold tracking-tight text-[#0B2C4A]">
-                      Detalle del match
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EEF4FB] text-[#0B5CAD]">
+                      <Route className="h-5 w-5" strokeWidth={2.1} />
+                    </div>
+                    <h1 className="text-[clamp(1.65rem,2.5vw,2.35rem)] font-bold tracking-tight text-[#0B2C4A]">
+                      {shipmentRouteLabel}
                     </h1>
-                    {shipment?.tracking_code ? <TrackingCodeBadge code={shipment.tracking_code} /> : null}
+                    <span
+                      className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
+                        match.status === "pending"
+                          ? "bg-amber-100 text-amber-700"
+                          : match.status === "accepted"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : match.status === "rejected"
+                              ? "bg-rose-100 text-rose-700"
+                            : "bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      {getStatusLabel(match.status)}
+                    </span>
                   </div>
-                  <p className="mt-2 max-w-2xl text-sm text-slate-600">
-                    Revisa la ruta, el estado del pago y las acciones pendientes de este envío.
-                  </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-500">
-                    <span className="rounded-full bg-slate-100 px-3 py-1">Cliente: {ownerName}</span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1">Viajero: {travelerName}</span>
-                    <span className="rounded-full bg-slate-100 px-3 py-1">Ruta: {shipmentRouteLabel}</span>
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600">
+                    <span>
+                      <span className="font-medium text-slate-500">{otherUserRoleLabel}:</span>{" "}
+                      <span className="font-semibold text-[#0B2C4A]">{otherUserName}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4D6] px-3 py-1 text-sm font-semibold text-[#8A5A00]">
+                      <Star className="h-3.5 w-3.5 fill-[#D4A017] text-[#D4A017]" strokeWidth={1.8} />
+                      <span>{headerRatingText}</span>
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
-                      match.status === "pending"
-                        ? "bg-amber-100 text-amber-700"
-                        : match.status === "accepted"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : match.status === "rejected"
-                            ? "bg-rose-100 text-rose-700"
-                            : "bg-slate-100 text-slate-700"
-                    }`}
-                  >
-                    {getStatusLabel(match.status)}
-                  </span>
+                <div className="flex shrink-0 flex-col items-center gap-2 text-center">
+                  <TrackingCodeBadge code={matchCode} className="bg-[#0B2C4A] hover:bg-[#12385C]" />
+                  <span className="text-sm text-slate-500">Creado: {formatDate(match.created_at)}</span>
+                </div>
+              </div>
 
-                  {payment?.status ? (
-                    <span className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${paymentStatusTone}`}>
-                      Pago: {getStatusLabel(payment.status)}
-                    </span>
-                  ) : null}
+              <div className="mt-5">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Progreso del envío</p>
+                <div className="mt-3 grid grid-cols-4 gap-2 sm:gap-3">
+                  {progressSteps.map((step, index) => {
+                    const isDone = index <= progressIndex;
+                    const isCurrent = index === progressIndex;
+
+                    return (
+                      <div key={step} className="min-w-0">
+                        <div
+                          className={`h-2.5 rounded-full transition ${
+                            isDone ? "bg-[#2C9B57]" : "bg-slate-200"
+                          }`}
+                        />
+                        <p
+                          className={`mt-2 text-center text-[10px] font-semibold leading-3.5 sm:text-[11px] sm:leading-4 ${
+                            isCurrent ? "text-[#0B2C4A]" : isDone ? "text-slate-700" : "text-slate-400"
+                          }`}
+                        >
+                          {step}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
             <div className="px-4 py-5 sm:px-8 sm:py-6">
-              <section className="mb-5 grid gap-3 md:grid-cols-3">
-                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Ruta del envío</p>
-                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{shipmentRouteLabel}</p>
-                  <p className="mt-1 text-sm text-slate-500">Tipo {getShipmentKindLabel(shipment?.kind)} · {shipment?.weight_kg ?? 0} kg</p>
-                </article>
-
-                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Viaje asociado</p>
-                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{tripRouteLabel}</p>
-                  <p className="mt-1 text-sm text-slate-500">Salida {formatDepartureLabel(trip?.departure_date, trip?.departure_time)}</p>
-                </article>
-
-                <article className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Siguiente paso</p>
-                  <p className="mt-2 text-base font-semibold text-[#0B2C4A]">{getShipmentTrackingLabel(shipment?.status)}</p>
-                  <p className="mt-1 text-sm text-slate-500">{getShipmentTrackingDescription(shipment?.status)}</p>
-                </article>
-              </section>
-
-              <div className="grid gap-5 md:grid-cols-2">
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">📦</span>
-                  <h2 className="text-lg font-semibold text-[#0B2C4A]">
-                    Envío
-                  </h2>
-                </div>
-
-                <div className="mt-4 space-y-3 text-sm text-slate-700">
-                  <p>
-                    <span className="font-medium text-slate-900">Ruta:</span>{" "}
-                    {shipmentRouteLabel}
-                  </p>
-
-                  <p>
-                    <span className="font-medium text-slate-900">Tipo:</span>{" "}
-                    {getShipmentKindLabel(shipment?.kind)}
-                  </p>
-
-                  <p>
-                    <span className="font-medium text-slate-900">
-                      Descripción:
-                    </span>{" "}
-                    {shipment?.description?.trim() || "Sin descripción"}
-                  </p>
-
-                  <p>
-                    <span className="font-medium text-slate-900">Peso:</span>{" "}
-                    {shipment?.weight_kg ?? 0} kg
-                  </p>
-
-                  <p>
-                    <span className="font-medium text-slate-900">Valor:</span>{" "}
-                    {formatCurrency(shipment?.declared_value_cop)}
-                  </p>
-
-                  {ownerId ? (
-                    <div className="rounded-2xl bg-slate-50 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Cliente
-                      </p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-slate-900">
-                          {participantNameById.get(ownerId) ?? "Usuario INTRA"}
-                        </p>
-                        <RatingSummaryBadge
-                          avgRating={ratingSummaryMap[ownerId]?.avgRating ?? null}
-                          totalReviews={ratingSummaryMap[ownerId]?.totalReviews ?? 0}
-                        />
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${getVerificationBadge(
-                            participantVerificationById.get(ownerId)
-                          ).classes}`}
-                        >
-                          {getVerificationBadge(participantVerificationById.get(ownerId)).label}
-                        </span>
+              <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+                <div className="space-y-5">
+                  <section className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-5 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
+                        <span className="text-lg">{isTraveler ? "📦" : "✈️"}</span>
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h2>
                       </div>
                     </div>
-                  ) : null}
 
-                  <div className="pt-2">
-                    <p className="font-medium text-slate-900">Tracking:</p>
+                    {isTraveler ? (
+                      <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-center">
+                        <div className="space-y-3 text-sm text-slate-700">
+                          <p><span className="font-medium text-slate-900">Tipo:</span> {getShipmentKindLabel(shipment?.kind)}</p>
+                          <p><span className="font-medium text-slate-900">Valor:</span> {formatCurrency(shipment?.declared_value_cop)}</p>
+                          <p><span className="font-medium text-slate-900">Descripción:</span> {shipment?.description?.trim() || "Sin descripción"}</p>
+                          <p><span className="font-medium text-slate-900">Peso:</span> {shipment?.weight_kg ?? 0} kg</p>
+                        </div>
 
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getShipmentTrackingClasses(
-                          shipment?.status
-                        )}`}
-                      >
-                        {getShipmentTrackingLabel(shipment?.status)}
-                      </span>
+                        {shipment?.id && ownerId ? (
+                          <div className="flex flex-col justify-center rounded-2xl border border-amber-200 bg-[linear-gradient(180deg,#FFFDF8_0%,#FFF7E8_100%)] p-4 shadow-sm">
+                            <div className="flex items-center gap-2 text-amber-700">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100">
+                                <ShieldAlert className="h-4 w-4" strokeWidth={2} />
+                              </div>
+                              <p className="text-[11px] font-semibold uppercase tracking-wide">Protección del envío</p>
+                            </div>
 
-                      {shipment?.tracking_code ? <TrackingCodeBadge code={shipment.tracking_code} /> : null}
-                    </div>
-
-                    <p className="mt-2 text-xs text-slate-500">
-                      {getShipmentTrackingDescription(shipment?.status)}
-                    </p>
-                  </div>
-                </div>
-              </section>
-
-              <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">✈️</span>
-                  <h2 className="text-lg font-semibold text-[#0B2C4A]">
-                    Viaje
-                  </h2>
-                </div>
-
-                <div className="mt-4 space-y-3 text-sm text-slate-700">
-                  <p>
-                    <span className="font-medium text-slate-900">Ruta:</span>{" "}
-                    {tripRouteLabel}
-                  </p>
-
-                  <p>
-                    <span className="font-medium text-slate-900">
-                      Capacidad:
-                    </span>{" "}
-                    {trip?.capacity_kg ?? 0} kg
-                  </p>
-
-                  <p>
-                    <span className="font-medium text-slate-900">Salida:</span>{" "}
-                    {formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
-                  </p>
-
-                  <p>
-                    <span className="font-medium text-slate-900">Estado:</span>{" "}
-                    {getStatusLabel(match.status)}
-                  </p>
-
-                  {travelerId ? (
-                    <div className="rounded-2xl bg-slate-50 p-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Viajero
-                      </p>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-slate-900">
-                          {participantNameById.get(travelerId) ?? "Usuario INTRA"}
-                        </p>
-                        <RatingSummaryBadge
-                          avgRating={ratingSummaryMap[travelerId]?.avgRating ?? null}
-                          totalReviews={ratingSummaryMap[travelerId]?.totalReviews ?? 0}
-                        />
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold ${getVerificationBadge(
-                            participantVerificationById.get(travelerId)
-                          ).classes}`}
-                        >
-                          {getVerificationBadge(participantVerificationById.get(travelerId)).label}
-                        </span>
+                            <div className="mt-3">
+                              <SuspiciousReportForm
+                                shipmentId={shipment.id}
+                                matchId={match.id}
+                                reporterName={participantNameById.get(user.id) ?? "El viajero"}
+                                recipientUserId={ownerId}
+                                embedded
+                              />
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
-                    </div>
-                  ) : null}
+                    ) : (
+                      <div className="mt-4 space-y-3 text-sm text-slate-700">
+                        <p><span className="font-medium text-slate-900">Salida:</span> {formatDate(trip?.departure_date)}</p>
+                        <p><span className="font-medium text-slate-900">Hora:</span> {formatTimeLabel(trip?.departure_time)}</p>
+                        <p><span className="font-medium text-slate-900">Capacidad:</span> {trip?.capacity_kg ?? 0} kg</p>
+                        <p><span className="font-medium text-slate-900">Ruta del viaje:</span> {tripRouteLabel}</p>
+                      </div>
+                    )}
+                  </section>
+
                 </div>
-              </section>
-            </div>
 
-              {payment ? (
-                <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold text-[#0B2C4A]">
-                        💳 Pago seguro
-                      </h2>
-                      <p className="mt-1 text-sm text-slate-500">
-                        Retención temporal del dinero hasta que la entrega quede validada.
-                      </p>
+                <div className="space-y-5">
+                  <section className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-5 shadow-sm">
+                    <h2 className="text-lg font-semibold text-[#0B2C4A]">Acciones del match</h2>
+
+                    <div className="mt-5 space-y-3">
+                      {canMarkInTransit && markInTransitSubmitAction ? (
+                        <form action={markInTransitSubmitAction}>
+                          <button
+                            type="submit"
+                            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#2C9B57] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#247C47]"
+                          >
+                            <PackageCheck className="h-4 w-4" strokeWidth={2.1} />
+                            Confirmar recogida
+                          </button>
+                        </form>
+                      ) : null}
+
+                      {canMarkDelivered && markDeliveredSubmitAction ? (
+                        <form action={markDeliveredSubmitAction}>
+                          <button
+                            type="submit"
+                            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#2C9B57] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#247C47]"
+                          >
+                            <Truck className="h-4 w-4" strokeWidth={2.1} />
+                            Confirmar entrega
+                          </button>
+                        </form>
+                      ) : null}
+
+                      {canConfirmDelivery && confirmDeliverySubmitAction ? (
+                        <form action={confirmDeliverySubmitAction}>
+                          <button
+                            type="submit"
+                            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#2C9B57] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#247C47]"
+                          >
+                            <CheckCircle2 className="h-4 w-4" strokeWidth={2.1} />
+                            Confirmar recepción
+                          </button>
+                        </form>
+                      ) : canOpenChat ? (
+                        <Link
+                          href={`/app/matches/${match.id}/chat`}
+                          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#0B5CAD] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#094B8C]"
+                        >
+                          <MessageCircle className="h-4 w-4" strokeWidth={2.1} />
+                          Abrir chat
+                        </Link>
+                      ) : (
+                        <MatchDetailActions
+                          matchId={match.id}
+                          status={match.status}
+                          canAccept={canAccept}
+                          canCancel={canCancel}
+                          onAccept={acceptMatchAction}
+                          onReject={rejectMatchAction}
+                          onCancel={cancelMatchAction}
+                        />
+                      )}
+
+                      {canOpenDispute && openDisputeSubmitAction ? (
+                        <form action={openDisputeSubmitAction}>
+                          <button
+                            type="submit"
+                            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-2.5 text-sm font-semibold text-amber-800 transition hover:bg-amber-100"
+                          >
+                            <ShieldAlert className="h-4 w-4" strokeWidth={2.1} />
+                            Solicitar revisión
+                          </button>
+                        </form>
+                      ) : null}
                     </div>
+                  </section>
 
-                    <span
-                      className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${
-                        payment.status === "held"
-                          ? "bg-amber-100 text-amber-700"
-                          : payment.status === "released"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : payment.status === "refunded"
-                          ? "bg-rose-100 text-rose-700"
-                          : "bg-slate-100 text-slate-700"
-                      }`}
-                    >
-                      {getStatusLabel(payment.status)}
-                    </span>
-                  </div>
-
-                  <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Total pagado
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-slate-900">
-                        {formatCurrency(payment.gross_amount ?? payment.amount)}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Valor para viajero
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-slate-900">
-                        {formatCurrency(payment.traveler_amount)}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Comisión INTRA
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-slate-900">
-                        {formatCurrency(payment.intra_fee)}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                        Fee de pasarela
-                      </p>
-                      <p className="mt-2 text-lg font-semibold text-slate-900">
-                        {formatCurrency(payment.gateway_fee_estimated)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 space-y-2 text-sm text-slate-600">
-                    {payment.traveler_delivered_at ? (
-                      <p>
-                        Viajero reportó entrega: <span className="font-medium text-slate-900">{formatDateTime(payment.traveler_delivered_at)}</span>
-                      </p>
-                    ) : null}
-                    {payment.delivered_at ? (
-                      <p>
-                        Cliente confirmó recepción: <span className="font-medium text-slate-900">{formatDateTime(payment.delivered_at)}</span>
-                      </p>
-                    ) : null}
-                    {payment.dispute_status === "open" && payment.dispute_deadline_at ? (
-                      <p>
-                        Ventana de disputa: <span className="font-medium text-slate-900">hasta {formatDateTime(payment.dispute_deadline_at)}</span>
-                      </p>
-                    ) : null}
-                    {payment.auto_release_at ? (
-                      <p>
-                        Auto liberación programada: <span className="font-medium text-slate-900">{formatDateTime(payment.auto_release_at)}</span>
-                      </p>
-                    ) : null}
-                    {payment.released_at ? (
-                      <p>
-                        Liberado al viajero: <span className="font-medium text-slate-900">{formatDateTime(payment.released_at)}</span>
-                      </p>
-                    ) : null}
-                    {payment.dispute_status === "open" ? (
-                      <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-amber-800">
-                        Hay una disputa abierta. El dinero seguirá retenido hasta revisión manual.
-                      </p>
-                    ) : null}
-                  </div>
-                </section>
-              ) : null}
-
-              <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <h2 className="text-lg font-semibold text-[#0B2C4A]">
-                  Acciones del match
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  Ejecuta solo la acción que corresponde al punto actual del flujo.
-                </p>
-
-                <div className="mt-4 space-y-3">
-                  <MatchDetailActions
-                    matchId={match.id}
-                    status={match.status}
-                    canAccept={canAccept}
-                    canCancel={canCancel}
-                    onAccept={acceptMatchAction}
-                    onReject={rejectMatchAction}
-                    onCancel={cancelMatchAction}
-                  />
-
-                  {canMarkInTransit && markInTransitSubmitAction ? (
-                    <form action={markInTransitSubmitAction}>
-                      <button
-                        type="submit"
-                        className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
-                      >
-                        Recogí el paquete
-                      </button>
-                    </form>
-                  ) : null}
-
-                  {canMarkDelivered && markDeliveredSubmitAction ? (
-                    <form action={markDeliveredSubmitAction}>
-                      <button
-                        type="submit"
-                        className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:w-auto"
-                      >
-                        Paquete entregado
-                      </button>
-                    </form>
-                  ) : null}
-
-                  {canConfirmDelivery && confirmDeliverySubmitAction ? (
-                    <form action={confirmDeliverySubmitAction}>
-                      <button
-                        type="submit"
-                        className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 sm:w-auto"
-                      >
-                        Paquete recibido
-                      </button>
-                    </form>
-                  ) : null}
-
-                  {canOpenDispute && openDisputeSubmitAction ? (
-                    <form action={openDisputeSubmitAction}>
-                      <button
-                        type="submit"
-                        className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700 sm:w-auto"
-                      >
-                        Abrir disputa
-                      </button>
-                    </form>
-                  ) : null}
                 </div>
               </div>
-
-              <section className="mt-8 space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-[#0B2C4A]">
-                      Evidencia y seguridad
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Aquí queda la trazabilidad visual del paquete y cualquier alerta manual del match.
-                    </p>
-                  </div>
-                </div>
-
-                {canUploadEvidence && shipment?.id ? (
-                  <EvidenceUploader
-                    shipmentId={shipment.id}
-                    matchId={match.id}
-                    allowedTypes={allowedEvidenceTypes}
-                  />
-                ) : null}
-
-                {shipment?.id && isTraveler && ownerId ? (
-                  <SuspiciousReportForm
-                    shipmentId={shipment.id}
-                    matchId={match.id}
-                    reporterName={participantNameById.get(user.id) ?? "El viajero"}
-                    recipientUserId={ownerId}
-                  />
-                ) : null}
-
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                  Si el paquete no coincide con lo declarado, puedes rechazarlo y dejar evidencia aquí mismo.
-                </div>
-
-                <div className="grid gap-4 lg:grid-cols-2">
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-[#0B2C4A]">Evidencias cargadas</h3>
-                    {evidenceItems.length > 0 ? (
-                      evidenceItems.map((evidence) => (
-                        <article
-                          key={evidence.id}
-                          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                        >
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                              {getEvidenceTypeLabel(evidence.evidence_type)}
-                            </span>
-                            <span className="text-xs text-slate-500">
-                              por {participantNameById.get(evidence.uploaded_by) ?? "Usuario INTRA"}
-                            </span>
-                            <span className="text-xs text-slate-400">
-                              {formatDateTime(evidence.created_at)}
-                            </span>
-                          </div>
-
-                          {evidence.note ? (
-                            <p className="mt-3 text-sm text-slate-600">{evidence.note}</p>
-                          ) : null}
-
-                          {evidence.signedUrl ? (
-                            <a
-                              href={evidence.signedUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="mt-3 inline-flex text-sm font-semibold text-[#0B2C4A] hover:underline"
-                            >
-                              Ver archivo {evidence.file_name ? `(${evidence.file_name})` : ""}
-                            </a>
-                          ) : null}
-                        </article>
-                      ))
-                    ) : (
-                      <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
-                        Todavía no hay evidencias cargadas para este envío.
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-semibold text-[#0B2C4A]">Reportes manuales</h3>
-                    {reportEvents.length > 0 ? (
-                      reportEvents.map((report) => (
-                        <article
-                          key={report.id}
-                          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                        >
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
-                              {report.report_type === "suspicious_package" ? "Paquete sospechoso" : "Reporte"}
-                            </span>
-                            <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                              {getReportStatusLabel(report.status)}
-                            </span>
-                          </div>
-                          <p className="mt-3 text-sm text-slate-700">{report.reason}</p>
-                          <p className="mt-3 text-xs text-slate-400">
-                            Reportado por {participantNameById.get(report.reported_by) ?? "Usuario INTRA"} · {formatDateTime(report.created_at)}
-                          </p>
-                        </article>
-                      ))
-                    ) : (
-                      <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
-                        No hay reportes manuales para este match.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </section>
-
-              <section className="mt-8 space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold text-[#0B2C4A]">
-                      Reviews de este match
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Aquí se refleja la experiencia entre cliente y viajero después de una entrega completada.
-                    </p>
-                  </div>
-
-                  {otherUserId ? (
-                    <RatingSummaryBadge
-                      avgRating={ratingSummaryMap[otherUserId]?.avgRating ?? null}
-                      totalReviews={ratingSummaryMap[otherUserId]?.totalReviews ?? 0}
-                    />
-                  ) : null}
-                </div>
-
-                {canLeaveReview ? (
-                  <ReviewComposer matchId={match.id} otherUserName={otherUserName} />
-                ) : null}
-
-                {matchReviews.length > 0 ? (
-                  <div className="space-y-3">
-                    {matchReviews.map((review) => {
-                      const reviewerName = getReviewerName(review);
-
-                      return (
-                        <article
-                          key={review.id}
-                          className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0B2C4A] text-sm font-semibold text-white">
-                              {getInitials(reviewerName)}
-                            </div>
-
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                  <p className="font-semibold text-[#0B2C4A]">{reviewerName}</p>
-                                  <div className="mt-1 flex items-center gap-1 text-lg leading-none">
-                                    {renderStars(review.rating)}
-                                  </div>
-                                </div>
-
-                                <p className="text-xs text-slate-400">
-                                  {formatDate(review.created_at)}
-                                </p>
-                              </div>
-
-                              <p className="mt-3 text-sm leading-6 text-slate-600">
-                                {review.comment?.trim() || "Sin comentario adicional."}
-                              </p>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
-                    Aún no hay reviews para este match.
-                  </div>
-                )}
-              </section>
 
               {!canOpenChat ? (
                 <div className="mt-6 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-500">
