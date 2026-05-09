@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { CircleDollarSign, Clock3, PackageCheck, Route } from "lucide-react";
+import { CircleDollarSign, Clock3, PackageCheck, Route, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
@@ -316,19 +316,12 @@ function ReputationInline({
   avgRating: number | null;
   totalReviews: number;
 }) {
-  const formatted = formatRatingValue(avgRating);
-
-  if (!formatted || totalReviews <= 0) {
-    return (
-      <span className="inline-flex items-center rounded-full border border-[#D9E4F0] bg-[#F8FBFF] px-2.5 py-1 text-[11px] font-medium text-slate-500">
-        Nuevo usuario
-      </span>
-    );
-  }
+  const formatted = formatRatingValue(avgRating) ?? "0.0";
 
   return (
-    <span className="inline-flex items-center rounded-full border border-[#F6D9A6] bg-[#FFF7E8] px-2.5 py-1 text-[11px] font-semibold text-[#8A5B00]">
-      ⭐ {formatted} / 5
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4D6] px-3 py-1 text-[11px] font-semibold text-[#8A5A00] sm:text-sm">
+      <Star className="h-3.5 w-3.5 fill-[#D4A017] text-[#D4A017]" strokeWidth={1.8} />
+      <span>{formatted}/{Math.max(totalReviews, 0)}</span>
     </span>
   );
 }
