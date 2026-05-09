@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { CircleDollarSign, Clock3, PackageCheck, Route } from "lucide-react";
+import { ArrowRight, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
@@ -96,11 +96,6 @@ function formatTimeLabel(timeString: string | null | undefined) {
   }).format(value);
 }
 
-function formatDepartureLabel(dateString: string | null | undefined, timeString: string | null | undefined) {
-  const dateLabel = dateString ? formatDate(dateString) : "Sin fecha";
-  return timeString ? `${dateLabel} · ${formatTimeLabel(timeString)}` : dateLabel;
-}
-
 function formatCurrency(value: number | null) {
   if (!value) return "$ 0";
   return new Intl.NumberFormat("es-CO", {
@@ -171,48 +166,6 @@ function normalizeShipment(
   return Array.isArray(shipment) ? (shipment[0] ?? null) : shipment;
 }
 
-function getNextStepCopy({
-  matchStatus,
-  shipmentStatus,
-  isOwner,
-  hasUnread,
-}: {
-  matchStatus: string;
-  shipmentStatus: string | null;
-  isOwner: boolean;
-  hasUnread: boolean;
-}) {
-  if (hasUnread && matchStatus === "accepted") {
-    return "Tienes mensajes nuevos por revisar en este match.";
-  }
-
-  if (matchStatus === "pending") {
-    return isOwner
-      ? "Revisa la solicitud y decide si aceptas este viajero."
-      : "Tu solicitud fue enviada. Espera la respuesta del cliente.";
-  }
-
-  if (shipmentStatus === "matched") {
-    return null;
-  }
-
-  if (shipmentStatus === "accepted") {
-    return "El match está aceptado. Coordinen recogida y confirma cuando el paquete cambie de manos.";
-  }
-
-  if (shipmentStatus === "in_transit") {
-    return isOwner
-      ? "El paquete va en camino. Mantente pendiente del chat para coordinar entrega y confirmación."
-      : "El paquete ya está en tránsito. Cuando lo entregues, repórtalo para continuar el flujo.";
-  }
-
-  if (shipmentStatus === "delivered") {
-    return "La entrega ya quedó registrada. Puedes revisar el detalle o el estado del pago.";
-  }
-
-  return "Revisa el detalle para continuar con el siguiente paso del flujo.";
-}
-
 function EmptyState({ text }: { text: string }) {
   return (
     <div className="rounded-2xl border border-dashed border-[#D9E4F0] bg-white p-5 text-sm text-gray-500 shadow-sm sm:p-6">
@@ -274,16 +227,16 @@ function SummaryMetricCard({
 
   return (
     <article
-      className={`rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${currentTone.card}`}
+      className={`min-w-0 rounded-2xl border p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4 ${currentTone.card}`}
     >
-      <div className="flex items-start gap-3">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${currentTone.bubble}`}>
+      <div className="flex items-center gap-3">
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 ${currentTone.bubble}`}>
           {icon}
         </div>
 
-        <div className="min-w-0">
-          <p className={`text-[11px] font-semibold uppercase tracking-wide ${currentTone.title}`}>{title}</p>
-          <p className="mt-1 text-[1.65rem] font-bold leading-none tracking-tight text-[#0B2C4A]">{value}</p>
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+          <p className={`max-w-[9rem] text-[10px] font-semibold uppercase leading-4 tracking-[0.08em] ${currentTone.title} sm:max-w-none sm:text-[11px] sm:tracking-wide`}>{title}</p>
+          <p className="shrink-0 text-[1.5rem] font-bold leading-none tracking-tight text-[#0B2C4A] sm:text-[1.65rem]">{value}</p>
         </div>
       </div>
     </article>
@@ -316,19 +269,12 @@ function ReputationInline({
   avgRating: number | null;
   totalReviews: number;
 }) {
-  const formatted = formatRatingValue(avgRating);
-
-  if (!formatted || totalReviews <= 0) {
-    return (
-      <span className="inline-flex items-center rounded-full border border-[#D9E4F0] bg-[#F8FBFF] px-2.5 py-1 text-[11px] font-medium text-slate-500">
-        Nuevo usuario
-      </span>
-    );
-  }
+  const formatted = formatRatingValue(avgRating) ?? "0.0";
 
   return (
-    <span className="inline-flex items-center rounded-full border border-[#F6D9A6] bg-[#FFF7E8] px-2.5 py-1 text-[11px] font-semibold text-[#8A5B00]">
-      ⭐ {formatted} / 5
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4D6] px-3 py-1 text-[11px] font-semibold text-[#8A5A00] sm:text-sm">
+      <Star className="h-3.5 w-3.5 fill-[#D4A017] text-[#D4A017]" strokeWidth={1.8} />
+      <span>{formatted}/{Math.max(totalReviews, 0)}</span>
     </span>
   );
 }
@@ -566,12 +512,12 @@ export default async function MatchesPage() {
               Mis matches
             </h1>
             <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-500 sm:text-sm">
-              Revisa tus coincidencias, administra solicitudes y entra al chat
-              cuando el match esté aceptado.
+              Administra tus conexiones activas, conversa en el chat y mantén
+              cada envío bajo control.
             </p>
           </div>
 
-          <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-3 xl:grid-cols-4">
             <SummaryMetricCard
               title="Pendientes"
               value={pendingMatchesCount}
@@ -656,12 +602,6 @@ export default async function MatchesPage() {
                     : !match.last_read_by_owner ||
                       new Date(lastMessage.created_at) >
                         new Date(match.last_read_by_owner));
-                const nextStepCopy = getNextStepCopy({
-                  matchStatus: match.status,
-                  shipmentStatus: shipment?.status ?? null,
-                  isOwner,
-                  hasUnread: Boolean(unread),
-                });
                 const primaryStatus = getPrimaryStatusInfo(match.status, shipment?.status ?? null);
                 const routeLabel = `${getCityName(shipment?.origin_city ?? null) ?? "Origen"} → ${getCityName(
                   shipment?.destination_city ?? null
@@ -678,20 +618,6 @@ export default async function MatchesPage() {
                       { label: "Múltiples", value: trip?.accepts_multiple_packages, icon: <Route className="h-4 w-4" /> },
                       { label: "Paradas", value: trip?.has_stopovers, icon: <Clock3 className="h-4 w-4" /> },
                     ];
-                const actionTitle =
-                  match.status === "pending"
-                    ? isOwner
-                      ? "Decide este match"
-                      : "Estado de tu solicitud"
-                    : unread
-                      ? "Responde este match"
-                      : "Siguiente paso";
-                const actionLead =
-                  nextStepCopy ??
-                  (match.status === "accepted"
-                    ? "Abre el chat para coordinar este match."
-                    : "Revisa el detalle para continuar.");
-
                 return (
                   <section
                     key={match.id}
@@ -730,7 +656,7 @@ export default async function MatchesPage() {
 
                     <div className="p-4 sm:p-5">
                       <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_240px]">
-                        <div className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4">
+                        <div className={`rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4 ${!isTraveler ? "pb-[40px] sm:pb-4" : ""}`}>
                           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center">
                             <div>
                               <div className="mb-3 flex items-center gap-3">
@@ -762,16 +688,29 @@ export default async function MatchesPage() {
                                 </div>
                               ) : (
                                 <div className="flex h-full flex-col justify-center space-y-2.5 lg:pr-2">
-                                  <DetailRow
-                                    label="Salida"
-                                    value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
-                                  />
+                                  <DetailRow label="Salida" value={trip?.departure_date ? formatDate(trip.departure_date) : "Sin fecha"} />
+                                  <DetailRow label="Hora" value={formatTimeLabel(trip?.departure_time)} />
                                   <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                                  <DetailRow label="Ruta" value={routeLabel} />
+
+                                  <div className="mt-4 lg:hidden">
+                                    <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
+                                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                        Condiciones
+                                      </p>
+                                      <p className="mt-1 text-[12px] leading-5 text-slate-500">
+                                        Este viaje permite
+                                      </p>
+                                      <div className="mt-3">
+                                        <PreferenceToggleColumn items={primaryPreferenceItems} />
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               )}
                             </div>
 
-                            <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
+                            <div className={`rounded-2xl border border-[#E6EDF5] bg-white/80 p-3 ${!isTraveler ? "hidden lg:block" : ""}`}>
                               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                                 Condiciones
                               </p>
@@ -787,29 +726,12 @@ export default async function MatchesPage() {
 
                         <div className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-3.5 shadow-sm sm:p-4">
                           <p className="text-[11px] font-semibold uppercase tracking-wide text-[#0B5CAD]">
-                            {actionTitle}
-                          </p>
-                          <p className="mt-2 text-[14px] font-semibold leading-5 text-[#0B2C4A]">
-                            {actionLead}
+                            Acciones del envío
                           </p>
 
-                          <div className="mt-4 grid gap-2.5">
+                          <div className="mt-3 grid gap-2.5">
                           {match.status === "accepted" ? (
                             <>
-                              <Link
-                                href={`/app/matches/${match.id}/chat`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-[13px] font-semibold text-white transition hover:opacity-95"
-                              >
-                                Abrir chat
-                              </Link>
-
-                              <Link
-                                href={`/app/matches/${match.id}`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
-                              >
-                                Ver detalle
-                              </Link>
-
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
                                   payment?.status === "held" &&
@@ -826,19 +748,11 @@ export default async function MatchesPage() {
                                     >
                                       <button
                                         type="submit"
-                                        className="mt-4 min-h-11 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                                        className="min-h-11 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
                                       >
                                         Paquete entregado
                                       </button>
                                     </form>
-                                  )}
-
-                                {shipment?.status === "in_transit" &&
-                                  isTraveler &&
-                                  payment?.traveler_delivered_at && (
-                                    <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] font-medium leading-4 text-emerald-700">
-                                      Entrega reportada. Esperando confirmación del cliente.
-                                    </p>
                                   )}
 
                                 {shipment?.status === "in_transit" &&
@@ -857,11 +771,37 @@ export default async function MatchesPage() {
                                     >
                                       <button
                                         type="submit"
-                                        className="mt-4 min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                                        className="min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
                                       >
                                         Paquete recibido
                                       </button>
                                     </form>
+                                  )}
+
+                              <Link
+                                href={`/app/matches/${match.id}/chat`}
+                                className={`flex min-h-11 items-center justify-center rounded-2xl px-4 text-[13px] font-semibold text-white transition hover:opacity-95 ${
+                                  unread ? "bg-[#0B5CAD]" : "bg-[#0B2C4A]"
+                                }`}
+                              >
+                                <MessageCircle className="mr-2 h-4 w-4" strokeWidth={1.9} />
+                                Abrir chat
+                              </Link>
+
+                              <Link
+                                href={`/app/matches/${match.id}`}
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                              >
+                                <ArrowRight className="mr-2 h-4 w-4" strokeWidth={1.9} />
+                                Ver detalle
+                              </Link>
+
+                                {shipment?.status === "in_transit" &&
+                                  isTraveler &&
+                                  payment?.traveler_delivered_at && (
+                                    <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] font-medium leading-4 text-emerald-700">
+                                      Entrega reportada. Esperando confirmación del cliente.
+                                    </p>
                                   )}
                             </>
                           ) : (
@@ -870,6 +810,7 @@ export default async function MatchesPage() {
                                 href={`/app/matches/${match.id}`}
                                 className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
                               >
+                                <ArrowRight className="mr-2 h-4 w-4" strokeWidth={1.9} />
                                 Ver detalle
                               </Link>
 
