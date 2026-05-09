@@ -247,7 +247,7 @@ export default function AuthGateway({
                 className={`mt-5 ${tab === "register" ? "space-y-3" : "space-y-3.5"}`}
               >
                 {tab === "register" ? (
-                  <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-3 lg:grid-cols-2">
                     <div>
                       <label className="intra-label">
                         Nombre completo
@@ -277,50 +277,72 @@ export default function AuthGateway({
                   </div>
                 ) : null}
 
-                <div>
-                  <label className="intra-label">Email</label>
-                  <input
-                    className="intra-input mt-1"
-                    type="email"
-                    value={tab === "login" ? loginEmail : registerEmail}
-                    onChange={(e) =>
-                      tab === "login"
-                        ? setLoginEmail(e.target.value)
-                        : setRegisterEmail(e.target.value)
-                    }
-                    required
-                    placeholder="tu@email.com"
-                  />
-                </div>
+                {tab === "register" ? (
+                  <div className="grid gap-3 lg:grid-cols-2">
+                    <div>
+                      <label className="intra-label">Email</label>
+                      <input
+                        className="intra-input mt-1"
+                        type="email"
+                        value={registerEmail}
+                        onChange={(e) => setRegisterEmail(e.target.value)}
+                        required
+                        placeholder="tu@email.com"
+                      />
+                    </div>
 
-                <div>
-                  <div className="flex items-center justify-between gap-3">
-                    <label className="intra-label">
-                      Contraseña
-                    </label>
-                    {tab === "login" ? (
-                      <Link
-                        href="/login/reset-password"
-                        className="intra-link"
-                      >
-                        ¿Olvidaste tu contraseña?
-                      </Link>
-                    ) : null}
+                    <div>
+                      <label className="intra-label">
+                        Contraseña
+                      </label>
+                      <input
+                        className="intra-input mt-1"
+                        type="password"
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
+                        required
+                        minLength={6}
+                        placeholder="mínimo 6 caracteres"
+                      />
+                    </div>
                   </div>
-                  <input
-                    className="intra-input mt-1"
-                    type="password"
-                    value={tab === "login" ? loginPassword : registerPassword}
-                    onChange={(e) =>
-                      tab === "login"
-                        ? setLoginPassword(e.target.value)
-                        : setRegisterPassword(e.target.value)
-                    }
-                    required
-                    minLength={tab === "register" ? 6 : undefined}
-                    placeholder={tab === "login" ? "tu contraseña" : "mínimo 6 caracteres"}
-                  />
-                </div>
+                ) : (
+                  <>
+                    <div>
+                      <label className="intra-label">Email</label>
+                      <input
+                        className="intra-input mt-1"
+                        type="email"
+                        value={loginEmail}
+                        onChange={(e) => setLoginEmail(e.target.value)}
+                        required
+                        placeholder="tu@email.com"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between gap-3">
+                        <label className="intra-label">
+                          Contraseña
+                        </label>
+                        <Link
+                          href="/login/reset-password"
+                          className="intra-link"
+                        >
+                          ¿Olvidaste tu contraseña?
+                        </Link>
+                      </div>
+                      <input
+                        className="intra-input mt-1"
+                        type="password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        required
+                        placeholder="tu contraseña"
+                      />
+                    </div>
+                  </>
+                )}
 
                 {msg ? (
                   <div className="intra-alert-danger">
