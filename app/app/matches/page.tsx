@@ -656,7 +656,7 @@ export default async function MatchesPage() {
 
                     <div className="p-4 sm:p-5">
                       <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_240px]">
-                        <div className={`rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4 ${!isTraveler ? "pb-6 sm:pb-4" : ""}`}>
+                        <div className={`rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4 ${!isTraveler ? "pb-7 sm:pb-4" : ""}`}>
                           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center">
                             <div>
                               <div className="mb-3 flex items-center gap-3">
