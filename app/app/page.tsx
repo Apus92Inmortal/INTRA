@@ -681,7 +681,10 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                               </svg>
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-[#0B2C4A]">{trip.routeShortLabel}</p>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-sm font-semibold text-[#0B2C4A]">{trip.routeShortLabel}</p>
+                                <TripAvailabilityBadge trip={trip} />
+                              </div>
                               <p className="text-xs text-gray-400">{trip.departureDateLabel}</p>
                             </div>
                           </div>
@@ -691,16 +694,13 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                           ) : null}
                         </div>
 
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="h-1.5 max-w-[120px] flex-1 rounded-full bg-gray-100 sm:w-[120px]">
-                              <div className="h-full rounded-full bg-[#2ECC71]" style={{ width: `${trip.progressPercent}%` }} />
-                            </div>
-                            <span className="text-xs text-gray-400">
-                              {trip.usedCapacityKg}/{trip.totalCapacityKg} kg
-                            </span>
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 max-w-[120px] flex-1 rounded-full bg-gray-100 sm:w-[120px]">
+                            <div className="h-full rounded-full bg-[#2ECC71]" style={{ width: `${trip.progressPercent}%` }} />
                           </div>
-                          <TripAvailabilityBadge trip={trip} />
+                          <span className="text-xs text-gray-400">
+                            {trip.usedCapacityKg}/{trip.totalCapacityKg} kg
+                          </span>
                         </div>
                       </div>
                     ))}
