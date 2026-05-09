@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { CircleDollarSign, Clock3, PackageCheck, Route, Star } from "lucide-react";
+import { ArrowRight, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route, Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import MatchActions from "./MatchActions";
@@ -229,14 +229,14 @@ function SummaryMetricCard({
     <article
       className={`min-w-0 rounded-2xl border p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4 ${currentTone.card}`}
     >
-      <div className="flex items-center gap-3 sm:items-start">
+      <div className="flex items-center gap-3">
         <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 ${currentTone.bubble}`}>
           {icon}
         </div>
 
-        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:block">
-          <p className={`text-[10px] font-semibold uppercase tracking-[0.08em] ${currentTone.title} sm:text-[11px] sm:tracking-wide`}>{title}</p>
-          <p className="text-[1.75rem] font-bold leading-none tracking-tight text-[#0B2C4A] sm:mt-1 sm:text-[1.65rem]">{value}</p>
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+          <p className={`max-w-[9rem] text-[10px] font-semibold uppercase leading-4 tracking-[0.08em] ${currentTone.title} sm:max-w-none sm:text-[11px] sm:tracking-wide`}>{title}</p>
+          <p className="shrink-0 text-[1.5rem] font-bold leading-none tracking-tight text-[#0B2C4A] sm:text-[1.65rem]">{value}</p>
         </div>
       </div>
     </article>
@@ -782,6 +782,7 @@ export default async function MatchesPage() {
                                   unread ? "bg-[#0B5CAD]" : "bg-[#0B2C4A]"
                                 }`}
                               >
+                                <MessageCircle className="mr-2 h-4 w-4" strokeWidth={1.9} />
                                 Abrir chat
                               </Link>
 
@@ -789,6 +790,7 @@ export default async function MatchesPage() {
                                 href={`/app/matches/${match.id}`}
                                 className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
                               >
+                                <ArrowRight className="mr-2 h-4 w-4" strokeWidth={1.9} />
                                 Ver detalle
                               </Link>
 
@@ -806,6 +808,7 @@ export default async function MatchesPage() {
                                 href={`/app/matches/${match.id}`}
                                 className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
                               >
+                                <ArrowRight className="mr-2 h-4 w-4" strokeWidth={1.9} />
                                 Ver detalle
                               </Link>
 
