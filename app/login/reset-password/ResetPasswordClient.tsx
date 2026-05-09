@@ -66,7 +66,7 @@ export default function ResetPasswordClient() {
 
               <div className="intra-card-compact bg-[#EEF2F7] p-4">
                 <p className="intra-body-strong">Qué hacer ahora</p>
-                <ul className="mt-2 list-disc space-y-1 pl-5">
+                <ul className="intra-caption mt-2 list-disc space-y-1 pl-5">
                   <li>Abre el correo desde tu bandeja principal o spam.</li>
                   <li>Usa el enlace desde el mismo dispositivo si puedes.</li>
                   <li>Cuando abras el link, llegarás a la pantalla para definir tu nueva contraseña.</li>
