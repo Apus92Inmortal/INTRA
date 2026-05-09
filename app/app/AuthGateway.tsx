@@ -205,7 +205,7 @@ export default function AuthGateway({
           </section>
 
           <section className="px-5 py-6 sm:px-6 sm:py-7 lg:px-7 lg:py-8">
-            <div className="mx-auto w-full max-w-md">
+            <div className="mx-auto w-full max-w-md lg:min-h-[38rem]">
               <div className="grid grid-cols-2 rounded-2xl bg-[#EEF2F7] p-1.5">
                 <button
                   type="button"
