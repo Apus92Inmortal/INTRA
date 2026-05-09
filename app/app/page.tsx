@@ -692,7 +692,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
                           <div className="flex min-w-0 items-start gap-2">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F2FBF6]">
-                              <svg className="h-[30px] w-[30px] text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="h-[25px] w-[25px] text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
