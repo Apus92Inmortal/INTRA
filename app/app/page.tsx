@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleDollarSign } from "lucide-react";
+import { Briefcase, CircleDollarSign } from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
@@ -187,6 +187,23 @@ function TripAvailabilityBadge({ trip }: { trip: DashboardTripCard }) {
       {trip.availabilityLabel}
     </span>
   );
+}
+
+function formatTripUsagePercent(usedCapacityKg: number, totalCapacityKg: number) {
+  if (!totalCapacityKg || totalCapacityKg <= 0) {
+    return "0% usado";
+  }
+
+  const rawPercent = (usedCapacityKg / totalCapacityKg) * 100;
+  const roundedPercent = rawPercent < 1
+    ? Math.round(rawPercent * 10) / 10
+    : Math.round(rawPercent * 10) / 10;
+
+  const label = Number.isInteger(roundedPercent)
+    ? roundedPercent.toFixed(0)
+    : roundedPercent.toFixed(1);
+
+  return `${label}% usado`;
 }
 
 function EmptyCard({
@@ -671,36 +688,43 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 ) : (
                   <div className="space-y-3">
                     {dashboard.publishedTrips.map((trip) => (
-                      <div key={trip.id} className="rounded-2xl border border-gray-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
-                        <div className="mb-3 flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#EFFBF4]">
+                      <div key={trip.id} className="rounded-[28px] border border-gray-100 bg-white px-4 py-3.5 shadow-[0_18px_45px_-35px_rgba(11,44,74,0.28)] transition hover:-translate-y-0.5 hover:shadow-lg sm:px-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex min-w-0 items-start gap-3">
+                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F2FBF6]">
                               <svg className="h-4 w-4 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
                             </div>
-                            <div>
+                            <div className="min-w-0 pt-0.5">
                               <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-sm font-semibold text-[#0B2C4A]">{trip.routeShortLabel}</p>
+                                <p className="text-xl font-bold tracking-[-0.02em] text-[#0B2C4A] sm:text-lg">{trip.routeShortLabel}</p>
                                 <TripAvailabilityBadge trip={trip} />
                               </div>
-                              <p className="text-xs text-gray-400">{trip.departureDateLabel}</p>
+                              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-400">
+                                <span>{trip.departureDateLabel}</span>
+                                <span aria-hidden="true">·</span>
+                                <div className="flex items-center gap-1.5">
+                                  <Briefcase className="h-4 w-4 text-slate-400" />
+                                  <span>{formatTripUsagePercent(trip.usedCapacityKg, trip.totalCapacityKg)}</span>
+                                </div>
+                                <span
+                                  aria-hidden="true"
+                                  className="h-5 w-5 shrink-0 rounded-full border border-slate-200"
+                                  style={{
+                                    background: `conic-gradient(#2ECC71 ${trip.progressPercent}%, #E5E7EB ${trip.progressPercent}% 100%)`,
+                                  }}
+                                >
+                                  <span className="m-[3px] block h-[calc(100%-6px)] w-[calc(100%-6px)] rounded-full bg-white" />
+                                </span>
+                              </div>
                             </div>
                           </div>
 
                           {(trip.status === "open" || trip.status === "full") ? (
                             <DashboardTripCloseButton tripId={trip.id} />
                           ) : null}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <div className="h-1.5 max-w-[120px] flex-1 rounded-full bg-gray-100 sm:w-[120px]">
-                            <div className="h-full rounded-full bg-[#2ECC71]" style={{ width: `${trip.progressPercent}%` }} />
-                          </div>
-                          <span className="text-xs text-gray-400">
-                            {trip.usedCapacityKg}/{trip.totalCapacityKg} kg
-                          </span>
                         </div>
                       </div>
                     ))}
