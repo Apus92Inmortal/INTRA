@@ -512,8 +512,8 @@ export default async function MatchesPage() {
               Mis matches
             </h1>
             <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-500 sm:text-sm">
-              Revisa tus coincidencias, administra solicitudes y entra al chat
-              cuando el match esté aceptado.
+              Administra tus conexiones activas, conversa en el chat y mantén
+              cada envío bajo control.
             </p>
           </div>
 
@@ -656,7 +656,7 @@ export default async function MatchesPage() {
 
                     <div className="p-4 sm:p-5">
                       <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_240px]">
-                        <div className={`rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4 ${!isTraveler ? "pb-[34px] sm:pb-4" : ""}`}>
+                        <div className={`rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4 ${!isTraveler ? "pb-[40px] sm:pb-4" : ""}`}>
                           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center">
                             <div>
                               <div className="mb-3 flex items-center gap-3">
