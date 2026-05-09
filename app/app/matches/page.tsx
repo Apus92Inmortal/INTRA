@@ -166,48 +166,6 @@ function normalizeShipment(
   return Array.isArray(shipment) ? (shipment[0] ?? null) : shipment;
 }
 
-function getNextStepCopy({
-  matchStatus,
-  shipmentStatus,
-  isOwner,
-  hasUnread,
-}: {
-  matchStatus: string;
-  shipmentStatus: string | null;
-  isOwner: boolean;
-  hasUnread: boolean;
-}) {
-  if (hasUnread && matchStatus === "accepted") {
-    return "Tienes mensajes nuevos por revisar en este match.";
-  }
-
-  if (matchStatus === "pending") {
-    return isOwner
-      ? "Revisa la solicitud y decide si aceptas este viajero."
-      : "Tu solicitud fue enviada. Espera la respuesta del cliente.";
-  }
-
-  if (shipmentStatus === "matched") {
-    return null;
-  }
-
-  if (shipmentStatus === "accepted") {
-    return "El match está aceptado. Coordinen recogida y confirma cuando el paquete cambie de manos.";
-  }
-
-  if (shipmentStatus === "in_transit") {
-    return isOwner
-      ? "El paquete va en camino. Mantente pendiente del chat para coordinar entrega y confirmación."
-      : "El paquete ya está en tránsito. Cuando lo entregues, repórtalo para continuar el flujo.";
-  }
-
-  if (shipmentStatus === "delivered") {
-    return "La entrega ya quedó registrada. Puedes revisar el detalle o el estado del pago.";
-  }
-
-  return "Revisa el detalle para continuar con el siguiente paso del flujo.";
-}
-
 function EmptyState({ text }: { text: string }) {
   return (
     <div className="rounded-2xl border border-dashed border-[#D9E4F0] bg-white p-5 text-sm text-gray-500 shadow-sm sm:p-6">
@@ -644,12 +602,6 @@ export default async function MatchesPage() {
                     : !match.last_read_by_owner ||
                       new Date(lastMessage.created_at) >
                         new Date(match.last_read_by_owner));
-                const nextStepCopy = getNextStepCopy({
-                  matchStatus: match.status,
-                  shipmentStatus: shipment?.status ?? null,
-                  isOwner,
-                  hasUnread: Boolean(unread),
-                });
                 const primaryStatus = getPrimaryStatusInfo(match.status, shipment?.status ?? null);
                 const routeLabel = `${getCityName(shipment?.origin_city ?? null) ?? "Origen"} → ${getCityName(
                   shipment?.destination_city ?? null
@@ -666,20 +618,6 @@ export default async function MatchesPage() {
                       { label: "Múltiples", value: trip?.accepts_multiple_packages, icon: <Route className="h-4 w-4" /> },
                       { label: "Paradas", value: trip?.has_stopovers, icon: <Clock3 className="h-4 w-4" /> },
                     ];
-                const actionTitle =
-                  match.status === "pending"
-                    ? isOwner
-                      ? "Decide este match"
-                      : "Estado de tu solicitud"
-                    : unread
-                      ? "Responde este match"
-                      : "Siguiente paso";
-                const actionLead =
-                  nextStepCopy ??
-                  (match.status === "accepted"
-                    ? "Abre el chat para coordinar este match."
-                    : "Revisa el detalle para continuar.");
-
                 return (
                   <section
                     key={match.id}
@@ -786,29 +724,12 @@ export default async function MatchesPage() {
 
                         <div className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-3.5 shadow-sm sm:p-4">
                           <p className="text-[11px] font-semibold uppercase tracking-wide text-[#0B5CAD]">
-                            {actionTitle}
-                          </p>
-                          <p className="mt-2 text-[14px] font-semibold leading-5 text-[#0B2C4A]">
-                            {actionLead}
+                            Acciones del envío
                           </p>
 
-                          <div className="mt-4 grid gap-2.5">
+                          <div className="mt-3 grid gap-2.5">
                           {match.status === "accepted" ? (
                             <>
-                              <Link
-                                href={`/app/matches/${match.id}/chat`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 text-[13px] font-semibold text-white transition hover:opacity-95"
-                              >
-                                Abrir chat
-                              </Link>
-
-                              <Link
-                                href={`/app/matches/${match.id}`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
-                              >
-                                Ver detalle
-                              </Link>
-
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
                                   payment?.status === "held" &&
@@ -825,19 +746,11 @@ export default async function MatchesPage() {
                                     >
                                       <button
                                         type="submit"
-                                        className="mt-4 min-h-11 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                                        className="min-h-11 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
                                       >
                                         Paquete entregado
                                       </button>
                                     </form>
-                                  )}
-
-                                {shipment?.status === "in_transit" &&
-                                  isTraveler &&
-                                  payment?.traveler_delivered_at && (
-                                    <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] font-medium leading-4 text-emerald-700">
-                                      Entrega reportada. Esperando confirmación del cliente.
-                                    </p>
                                   )}
 
                                 {shipment?.status === "in_transit" &&
@@ -856,11 +769,35 @@ export default async function MatchesPage() {
                                     >
                                       <button
                                         type="submit"
-                                        className="mt-4 min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                                        className="min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
                                       >
                                         Paquete recibido
                                       </button>
                                     </form>
+                                  )}
+
+                              <Link
+                                href={`/app/matches/${match.id}/chat`}
+                                className={`flex min-h-11 items-center justify-center rounded-2xl px-4 text-[13px] font-semibold text-white transition hover:opacity-95 ${
+                                  unread ? "bg-[#0B5CAD]" : "bg-[#0B2C4A]"
+                                }`}
+                              >
+                                Abrir chat
+                              </Link>
+
+                              <Link
+                                href={`/app/matches/${match.id}`}
+                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                              >
+                                Ver detalle
+                              </Link>
+
+                                {shipment?.status === "in_transit" &&
+                                  isTraveler &&
+                                  payment?.traveler_delivered_at && (
+                                    <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] font-medium leading-4 text-emerald-700">
+                                      Entrega reportada. Esperando confirmación del cliente.
+                                    </p>
                                   )}
                             </>
                           ) : (
