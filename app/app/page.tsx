@@ -183,7 +183,7 @@ function TripAvailabilityBadge({ trip }: { trip: DashboardTripCard }) {
             : "bg-[#EFFBF4] text-[#2ECC71]";
 
   return (
-    <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-xs ${classes}`}>
+    <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold sm:px-2 sm:text-xs ${classes}`}>
       {trip.availabilityLabel}
     </span>
   );
@@ -689,7 +689,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   <div className="space-y-3">
                     {dashboard.publishedTrips.map((trip) => (
                       <div key={trip.id} className="rounded-[22px] border border-gray-100 bg-white px-3 py-2.5 shadow-[0_18px_45px_-35px_rgba(11,44,74,0.28)] transition hover:-translate-y-0.5 hover:shadow-lg sm:px-5">
-                        <div className="flex items-start justify-between gap-1.5">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
                           <div className="flex min-w-0 items-start gap-2">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F2FBF6]">
                               <svg className="h-3 w-3 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -699,19 +699,19 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             </div>
                             <div className="min-w-0 pt-0.5">
                               <div className="flex flex-wrap items-center gap-1">
-                                <p className="text-sm font-bold tracking-[-0.02em] text-[#0B2C4A] sm:text-lg">{trip.routeShortLabel}</p>
+                                <p className="text-[15px] font-bold tracking-[-0.02em] text-[#0B2C4A] sm:text-base">{trip.routeShortLabel}</p>
                                 <TripAvailabilityBadge trip={trip} />
                               </div>
-                              <div className="mt-0.5 flex flex-nowrap items-center gap-x-1 text-[9px] leading-none text-slate-400 sm:text-sm">
+                              <div className="mt-0.5 flex flex-nowrap items-center gap-x-1 text-[11px] leading-none text-slate-400 sm:gap-x-1.5 sm:text-xs">
                                 <span className="whitespace-nowrap">{trip.departureDateLabel}</span>
                                 <span aria-hidden="true" className="shrink-0">·</span>
                                 <div className="flex shrink-0 items-center gap-0.5">
-                                  <Briefcase className="h-2.5 w-2.5 text-slate-400" />
+                                  <Briefcase className="h-3 w-3 text-slate-400" />
                                   <span className="whitespace-nowrap">{formatTripUsagePercent(trip.usedCapacityKg, trip.totalCapacityKg)}</span>
                                 </div>
                                 <span
                                   aria-hidden="true"
-                                  className="h-3 w-3 shrink-0 rounded-full border border-slate-200"
+                                  className="h-3.5 w-3.5 shrink-0 rounded-full border border-slate-200"
                                   style={{
                                     background: `conic-gradient(#2ECC71 ${trip.progressPercent}%, #E5E7EB ${trip.progressPercent}% 100%)`,
                                   }}
