@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { ShieldAlert } from "lucide-react";
 
 type SuspiciousReportFormProps = {
   shipmentId: string;
   matchId: string;
   reporterName: string;
   recipientUserId: string;
+  embedded?: boolean;
 };
 
 const REPORT_TYPES = [
@@ -22,6 +24,7 @@ export default function SuspiciousReportForm({
   matchId,
   reporterName,
   recipientUserId,
+  embedded = false,
 }: SuspiciousReportFormProps) {
   const router = useRouter();
   const supabase = createClient();
@@ -97,20 +100,19 @@ export default function SuspiciousReportForm({
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-amber-200 bg-white/80 p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-amber-900">Botón de alerta</h3>
-          <p className="mt-1 text-xs leading-5 text-amber-800">
-            Úsalo solo si el paquete no coincide con lo acordado o aparece una situación delicada.
-          </p>
-        </div>
-
+    <form
+      onSubmit={onSubmit}
+      className={embedded ? "space-y-3" : "space-y-4 rounded-2xl border border-amber-200 bg-white/80 p-4"}
+    >
+      <div className="flex justify-start">
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700"
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700 ${
+            embedded ? "w-full" : ""
+          }`}
         >
+          <ShieldAlert className="h-4 w-4" strokeWidth={2.1} />
           {expanded ? "Cerrar alerta" : "Activar alerta"}
         </button>
       </div>
@@ -161,8 +163,11 @@ export default function SuspiciousReportForm({
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-amber-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-amber-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60 ${
+            embedded ? "w-full" : ""
+          }`}
         >
+          <ShieldAlert className="h-4 w-4" strokeWidth={2.1} />
           {loading ? "Enviando alerta..." : "Enviar alerta"}
         </button>
       ) : null}
