@@ -255,8 +255,8 @@ body {
   }
 
   .intra-on-dark-body {
-    font-size: var(--intra-font-caption);
-    line-height: var(--intra-line-caption);
+    font-size: 15px;
+    line-height: 26px;
     font-weight: 400;
     color: color-mix(in srgb, var(--intra-card) 78%, transparent);
   }
