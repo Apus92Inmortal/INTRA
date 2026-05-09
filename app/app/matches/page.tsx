@@ -96,11 +96,6 @@ function formatTimeLabel(timeString: string | null | undefined) {
   }).format(value);
 }
 
-function formatDepartureLabel(dateString: string | null | undefined, timeString: string | null | undefined) {
-  const dateLabel = dateString ? formatDate(dateString) : "Sin fecha";
-  return timeString ? `${dateLabel} · ${formatTimeLabel(timeString)}` : dateLabel;
-}
-
 function formatCurrency(value: number | null) {
   if (!value) return "$ 0";
   return new Intl.NumberFormat("es-CO", {
@@ -755,11 +750,10 @@ export default async function MatchesPage() {
                                 </div>
                               ) : (
                                 <div className="flex h-full flex-col justify-center space-y-2.5 lg:pr-2">
-                                  <DetailRow
-                                    label="Salida"
-                                    value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
-                                  />
+                                  <DetailRow label="Salida" value={trip?.departure_date ? formatDate(trip.departure_date) : "Sin fecha"} />
+                                  <DetailRow label="Hora" value={formatTimeLabel(trip?.departure_time)} />
                                   <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+                                  <DetailRow label="Ruta" value={routeLabel} />
 
                                   <div className="mt-1 border-t border-[#E6EDF5] pt-4 lg:hidden">
                                     <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
