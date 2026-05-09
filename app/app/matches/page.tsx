@@ -656,7 +656,7 @@ export default async function MatchesPage() {
 
                     <div className="p-4 sm:p-5">
                       <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_240px]">
-                        <div className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4">
+                        <div className="overflow-hidden rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4">
                           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center">
                             <div>
                               <div className="mb-3 flex items-center gap-3">
@@ -693,15 +693,17 @@ export default async function MatchesPage() {
                                   <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
                                   <DetailRow label="Ruta" value={routeLabel} />
 
-                                  <div className="mt-1 border-t border-[#E6EDF5] pt-4 lg:hidden">
-                                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                      Condiciones
-                                    </p>
-                                    <p className="mt-1 text-[12px] leading-5 text-slate-500">
-                                      Este viaje permite
-                                    </p>
-                                    <div className="mt-3">
-                                      <PreferenceToggleColumn items={primaryPreferenceItems} />
+                                  <div className="mt-4 lg:hidden">
+                                    <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
+                                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                        Condiciones
+                                      </p>
+                                      <p className="mt-1 text-[12px] leading-5 text-slate-500">
+                                        Este viaje permite
+                                      </p>
+                                      <div className="mt-3">
+                                        <PreferenceToggleColumn items={primaryPreferenceItems} />
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
