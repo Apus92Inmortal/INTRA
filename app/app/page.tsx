@@ -248,8 +248,8 @@ function CompactCompatibleShipmentCard({
 }) {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
+      <div className="relative sm:flex sm:items-start sm:justify-between sm:gap-3">
+        <div className="min-w-0 pr-24 sm:pr-0">
           <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
             <span>Cliente: {shipment.customerName}</span>
@@ -262,35 +262,36 @@ function CompactCompatibleShipmentCard({
               <span className="font-medium text-[#0B2C4A]">Descripción:</span> {shipment.description}
             </p>
           ) : null}
+          <div className="mt-3">
+            <CustomerRatingBadge
+              avgRating={shipment.customerAvgRating}
+              totalReviews={shipment.customerTotalReviews}
+            />
+          </div>
         </div>
-        <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+
+        <div className="absolute right-0 top-0 sm:static sm:flex sm:shrink-0 sm:justify-end">
           <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
             Peso: {shipment.weightLabel}
           </span>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <CustomerRatingBadge
-          avgRating={shipment.customerAvgRating}
-          totalReviews={shipment.customerTotalReviews}
-        />
-        <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
-          <div className="flex items-center gap-2 rounded-2xl border border-[#D8F3E3] bg-[#EFFBF4] px-3 py-2 shadow-[0_10px_30px_-22px_rgba(46,204,113,0.9)]">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#2ECC71]">
-              <CircleDollarSign className="h-4 w-4" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1E8C4E]">
-                Tu ganancia
-              </p>
-              <p className="text-base font-bold leading-none text-[#119C57] sm:text-lg">
-                {shipment.travelerEarningsLabel ?? "Por confirmar"}
-              </p>
-            </div>
+      <div className="mt-4 flex items-center gap-3 sm:justify-end">
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-[#D8F3E3] bg-[#EFFBF4] px-3 py-2 shadow-[0_10px_30px_-22px_rgba(46,204,113,0.9)] sm:flex-none">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#2ECC71]">
+            <CircleDollarSign className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1E8C4E]">
+              Tu ganancia
+            </p>
+            <p className="text-base font-bold leading-none text-[#119C57] sm:text-lg">
+              {shipment.travelerEarningsLabel ?? "Por confirmar"}
+            </p>
           </div>
-          {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
         </div>
+        {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
       </div>
     </div>
   );
