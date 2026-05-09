@@ -267,6 +267,15 @@ function CompactCompatibleShipmentCard({
           <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
             Peso: {shipment.weightLabel}
           </span>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <CustomerRatingBadge
+          avgRating={shipment.customerAvgRating}
+          totalReviews={shipment.customerTotalReviews}
+        />
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-3">
           <div className="flex items-center gap-2 rounded-2xl border border-[#D8F3E3] bg-[#EFFBF4] px-3 py-2 shadow-[0_10px_30px_-22px_rgba(46,204,113,0.9)]">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#2ECC71]">
               <CircleDollarSign className="h-4 w-4" />
@@ -280,15 +289,8 @@ function CompactCompatibleShipmentCard({
               </p>
             </div>
           </div>
+          {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
         </div>
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <CustomerRatingBadge
-          avgRating={shipment.customerAvgRating}
-          totalReviews={shipment.customerTotalReviews}
-        />
-        {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
       </div>
     </div>
   );
