@@ -242,39 +242,39 @@ body {
   }
 
   .intra-landing-hero-title {
-    font-size: 40px;
-    line-height: 1.05;
+    font-size: 32px;
+    line-height: 1.12;
     font-weight: 800;
     letter-spacing: -0.03em;
   }
 
   .intra-landing-lead {
-    font-size: 17px;
-    line-height: 32px;
+    font-size: 15px;
+    line-height: 26px;
     font-weight: 400;
   }
 
   .intra-on-dark-body {
-    font-size: var(--intra-font-body);
-    line-height: var(--intra-line-body);
+    font-size: var(--intra-font-caption);
+    line-height: var(--intra-line-caption);
     font-weight: 400;
     color: color-mix(in srgb, var(--intra-card) 78%, transparent);
   }
 
   .intra-on-dark-body-strong {
-    font-size: var(--intra-font-h3);
-    line-height: var(--intra-line-h3);
+    font-size: var(--intra-font-h4);
+    line-height: var(--intra-line-h4);
     font-weight: 700;
     color: var(--intra-card);
   }
 
   @media (min-width: 640px) {
     .intra-landing-hero-title {
-      font-size: 52px;
+      font-size: 44px;
     }
 
     .intra-landing-lead {
-      font-size: 20px;
+      font-size: 16px;
     }
   }
 
