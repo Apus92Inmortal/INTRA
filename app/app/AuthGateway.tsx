@@ -244,37 +244,36 @@ export default function AuthGateway({
 
               <form
                 onSubmit={tab === "login" ? handleLogin : handleRegister}
-                className="mt-6 space-y-4"
+                className={`mt-6 ${tab === "register" ? "space-y-3" : "space-y-4"}`}
               >
                 {tab === "register" ? (
-                  <div>
-                    <label className="intra-label">
-                      Nombre completo
-                    </label>
-                    <input
-                      className="intra-input mt-1"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      placeholder="Tu nombre completo"
-                    />
-                  </div>
-                ) : null}
-
-                {tab === "register" ? (
-                  <div>
-                    <label className="intra-label">
-                      Teléfono
-                    </label>
-                    <input
-                      className="intra-input mt-1"
-                      type="tel"
-                      inputMode="tel"
-                      value={registerPhone}
-                      onChange={(e) => setRegisterPhone(e.target.value)}
-                      required
-                      placeholder="3001234567"
-                    />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <label className="intra-label">
+                        Nombre completo
+                      </label>
+                      <input
+                        className="intra-input mt-1"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        required
+                        placeholder="Tu nombre completo"
+                      />
+                    </div>
+                    <div>
+                      <label className="intra-label">
+                        Teléfono
+                      </label>
+                      <input
+                        className="intra-input mt-1"
+                        type="tel"
+                        inputMode="tel"
+                        value={registerPhone}
+                        onChange={(e) => setRegisterPhone(e.target.value)}
+                        required
+                        placeholder="3001234567"
+                      />
+                    </div>
                   </div>
                 ) : null}
 
