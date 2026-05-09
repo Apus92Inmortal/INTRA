@@ -151,35 +151,35 @@ export default function AuthGateway({
   };
 
   return (
-    <main className="intra-page-shell p-4 sm:p-5 lg:p-6">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-2.5rem)] lg:min-h-[calc(100vh-3rem)]">
+    <main className="intra-page-shell p-3 sm:p-4 lg:p-5">
+      <div className="mx-auto flex min-h-[calc(100vh-1.5rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2.5rem)]">
         <div className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_24px_70px_rgba(11,44,74,0.16)] lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="intra-auth-hero px-7 py-8 sm:px-8 sm:py-9 lg:px-10 lg:py-10">
+          <section className="intra-auth-hero px-6 py-7 sm:px-7 sm:py-8 lg:px-8 lg:py-8">
             <Link
               href="/"
               aria-label="Ir a la landing de INTRA"
-              className="intra-auth-logo-shell ring-1 ring-white/70 sm:p-5"
+              className="intra-auth-logo-shell ring-1 ring-white/70 sm:p-4"
             >
               <Image
                 src="/logo.png"
                 alt="INTRA"
                 width={280}
                 height={180}
-                className="h-auto w-[180px] sm:w-[220px]"
+                className="h-auto w-[160px] sm:w-[190px]"
                 priority
               />
             </Link>
 
-            <div className="mt-6 max-w-xl">
+            <div className="mt-5 max-w-xl">
               <h1 className="intra-landing-hero-title">
                 Entra a INTRA desde aquí
               </h1>
-              <p className="intra-landing-lead mt-3 text-white/82">
+              <p className="intra-landing-lead mt-2.5 text-white/82">
                 Esta es la entrada oficial de la app. Desde aquí puedes iniciar sesión o crear tu cuenta para publicar envíos y viajes.
               </p>
             </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
               <div className="intra-auth-feature-card">
                 <div className="text-2xl">📦</div>
                 <h2 className="intra-on-dark-body-strong mt-3">Clientes</h2>
@@ -197,20 +197,20 @@ export default function AuthGateway({
             </div>
 
             {isSafeInternalPath(nextPath) ? (
-              <div className="intra-auth-highlight mt-6">
+              <div className="intra-auth-highlight mt-5">
                 Después de autenticarte te llevaremos a <span className="font-bold">{nextPath}</span>.
               </div>
             ) : null}
 
           </section>
 
-          <section className="px-6 py-7 sm:px-7 sm:py-8 lg:px-8 lg:py-9">
+          <section className="px-5 py-6 sm:px-6 sm:py-7 lg:px-7 lg:py-8">
             <div className="mx-auto w-full max-w-md">
               <div className="grid grid-cols-2 rounded-2xl bg-[#EEF2F7] p-1.5">
                 <button
                   type="button"
                   onClick={() => switchTab("login")}
-                  className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                  className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
                     tab === "login"
                       ? "bg-white text-[#0B2C4A] shadow-sm"
                       : "text-slate-500 hover:text-[#0B2C4A]"
@@ -221,7 +221,7 @@ export default function AuthGateway({
                 <button
                   type="button"
                   onClick={() => switchTab("register")}
-                  className={`rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                  className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
                     tab === "register"
                       ? "bg-white text-[#0B2C4A] shadow-sm"
                       : "text-slate-500 hover:text-[#0B2C4A]"
@@ -231,7 +231,7 @@ export default function AuthGateway({
                 </button>
               </div>
 
-              <div className="mt-6">
+              <div className="mt-5">
                 <h2 className="intra-h1">
                   {tab === "login" ? "Bienvenido de nuevo" : "Crea tu cuenta"}
                 </h2>
@@ -244,7 +244,7 @@ export default function AuthGateway({
 
               <form
                 onSubmit={tab === "login" ? handleLogin : handleRegister}
-                className={`mt-6 ${tab === "register" ? "space-y-3" : "space-y-4"}`}
+                className={`mt-5 ${tab === "register" ? "space-y-3" : "space-y-3.5"}`}
               >
                 {tab === "register" ? (
                   <div className="grid gap-3 sm:grid-cols-2">
