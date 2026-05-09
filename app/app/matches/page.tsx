@@ -760,11 +760,23 @@ export default async function MatchesPage() {
                                     value={formatDepartureLabel(trip?.departure_date, trip?.departure_time)}
                                   />
                                   <DetailRow label="Capacidad" value={`${trip?.capacity_kg ?? 0} kg`} />
+
+                                  <div className="mt-1 border-t border-[#E6EDF5] pt-4 lg:hidden">
+                                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                      Condiciones
+                                    </p>
+                                    <p className="mt-1 text-[12px] leading-5 text-slate-500">
+                                      Este viaje permite
+                                    </p>
+                                    <div className="mt-3">
+                                      <PreferenceToggleColumn items={primaryPreferenceItems} />
+                                    </div>
+                                  </div>
                                 </div>
                               )}
                             </div>
 
-                            <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
+                            <div className={`rounded-2xl border border-[#E6EDF5] bg-white/80 p-3 ${!isTraveler ? "hidden lg:block" : ""}`}>
                               <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                                 Condiciones
                               </p>
