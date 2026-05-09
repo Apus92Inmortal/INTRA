@@ -643,6 +643,35 @@ export async function getDashboardData(): Promise<DashboardData | null> {
 
   const counterpartRatingSummaryMap = await fetchRatingSummaryMap(supabase, counterpartIds);
 
+  const compatibleRouteOriginIds = Array.from(
+    new Set(compatibleShipmentRows.map((shipment) => shipment.origin_city_id).filter(Boolean))
+  ) as string[];
+  const compatibleRouteDestinationIds = Array.from(
+    new Set(compatibleShipmentRows.map((shipment) => shipment.destination_city_id).filter(Boolean))
+  ) as string[];
+
+  const compatibleRoutePricesRes =
+    compatibleRouteOriginIds.length && compatibleRouteDestinationIds.length
+      ? await supabase
+          .from("route_prices")
+          .select("id, origin_city_id, destination_city_id, route_category, is_active")
+          .eq("is_active", true)
+          .in("origin_city_id", compatibleRouteOriginIds)
+          .in("destination_city_id", compatibleRouteDestinationIds)
+      : { data: [] as RoutePriceRow[] | null, error: null };
+
+  const compatibleTravelerAmountByKey = new Map<string, number>(
+    (((compatibleRoutePricesRes.data ?? []) as RoutePriceRow[]) ?? [])
+      .flatMap((routePrice) => {
+        if (!isRouteCategory(routePrice.route_category)) return [];
+
+        return [[
+          `${routePrice.origin_city_id}:${routePrice.destination_city_id}`,
+          ROUTE_PRICING_BY_CATEGORY[routePrice.route_category].travelerAmount,
+        ] as const];
+      })
+  );
+
   const compatibleShipments: DashboardCompatibleShipmentCard[] = compatibleShipmentRows
     .map((shipment) => {
       const matchingTrip = trips.find(
@@ -655,10 +684,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
       const routePriceKey = shipment.origin_city_id && shipment.destination_city_id
         ? `${shipment.origin_city_id}:${shipment.destination_city_id}`
         : null;
-      const routePriceCategory = routePriceKey ? routePrices.find((routePrice) => `${routePrice.origin_city_id}:${routePrice.destination_city_id}` === routePriceKey) ?? null : null;
-      const travelerAmount = routePriceCategory && isRouteCategory(routePriceCategory.route_category)
-        ? ROUTE_PRICING_BY_CATEGORY[routePriceCategory.route_category].travelerAmount
-        : null;
+      const travelerAmount = routePriceKey ? compatibleTravelerAmountByKey.get(routePriceKey) ?? null : null;
 
       return {
         id: shipment.id,
