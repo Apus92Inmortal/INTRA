@@ -75,12 +75,12 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-12 z-20 min-w-[180px] rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+        <div className="absolute right-0 top-12 z-20 min-w-[180px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
           <button
             type="button"
             onClick={handleClick}
             disabled={isPending}
-            className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-11 w-full items-center justify-center gap-2 px-4 py-2.5 text-center text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Lock className="h-4 w-4" />
             {isPending ? "Cerrando..." : "Despegando"}
