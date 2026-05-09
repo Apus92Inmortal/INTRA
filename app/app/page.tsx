@@ -282,10 +282,7 @@ function CompactCompatibleShipmentCard({
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#2ECC71]">
             <CircleDollarSign className="h-4 w-4" />
           </span>
-          <div className="flex min-w-0 flex-col justify-center text-left">
-            <p className="text-[11px] font-semibold leading-none text-[#1E8C4E]">
-              Ganancia
-            </p>
+          <div className="flex min-w-0 items-center text-left">
             <p className="text-base font-bold leading-none text-[#119C57] sm:text-lg">
               {shipment.travelerEarningsLabel ?? "Por confirmar"}
             </p>
