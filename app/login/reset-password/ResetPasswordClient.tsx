@@ -128,7 +128,7 @@ export default function ResetPasswordClient() {
 
               <p className="intra-body mt-5">
                 ¿Recordaste tu contraseña?{" "}
-                <Link href="/login" className="intra-link">
+                <Link href="/login" className="intra-link mt-1 block sm:mt-0 sm:inline">
                   Volver a iniciar sesión
                 </Link>
               </p>
