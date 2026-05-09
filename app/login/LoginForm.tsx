@@ -56,33 +56,31 @@ export default function LoginForm({ initialError = null }: LoginFormProps) {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-400 p-6">
-      <div className="w-full max-w-md rounded-2xl shadow-lg bg-white p-8 relative">
+    <main className="intra-page-shell flex items-center justify-center p-6">
+      <div className="intra-card relative w-full max-w-md p-8">
         <button
           type="button"
           onClick={() => router.push("/")}
-          className="absolute top-5 left-5 rounded-full border border-gray-200 px-3 py-1.5 text-sm font-medium text-[#0B2C4A] hover:bg-gray-200 transition"
+          className="intra-btn intra-btn-secondary absolute left-5 top-5 min-h-10 rounded-full px-3 py-1.5"
         >
           Volver
         </button>
 
-        <div className="flex justify-center mb-0">
+        <div className="mb-2 flex justify-center">
           <Image src="/logo.png" alt="INTRA Logo" width={260} height={160} />
         </div>
 
-        <h1 className="text-2xl font-bold text-center text-[#0B2C4A]">
-          Inicia sesión
-        </h1>
+        <h1 className="intra-h2 text-center">Inicia sesión</h1>
 
-        <p className="mt-2 text-sm text-center text-gray-600">
+        <p className="intra-body mt-2 text-center">
           Accede para continuar en INTRA
         </p>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="text-sm text-[#0B2C4A] font-medium">Email</label>
+            <label className="intra-label">Email</label>
             <input
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+              className="intra-input mt-1"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -92,11 +90,9 @@ export default function LoginForm({ initialError = null }: LoginFormProps) {
           </div>
 
           <div>
-            <label className="text-sm text-[#0B2C4A] font-medium">
-              Contraseña
-            </label>
+            <label className="intra-label">Contraseña</label>
             <input
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+              className="intra-input mt-1"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -106,12 +102,12 @@ export default function LoginForm({ initialError = null }: LoginFormProps) {
           </div>
 
           {msg && (
-            <div className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-600">
+            <div className="intra-alert-danger">
               <p>{msg}</p>
 
               {needsEmailVerification && email && (
                 <a
-                  className="mt-2 inline-block font-semibold text-[#0B2C4A] hover:underline"
+                  className="intra-link mt-2 inline-block"
                   href={`/verify-email?email=${encodeURIComponent(email)}`}
                 >
                   Reenviar correo de verificación
@@ -122,16 +118,16 @@ export default function LoginForm({ initialError = null }: LoginFormProps) {
 
           <button
             disabled={loading}
-            className="w-full rounded-xl bg-[#0B2C4A] text-white py-2 font-semibold hover:scale-105 transition disabled:opacity-60"
+            className="intra-btn intra-btn-primary w-full"
             type="submit"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
 
-          <p className="text-sm text-center text-gray-500">
+          <p className="intra-body text-center">
             ¿No tienes cuenta?{" "}
             <a
-              className="text-[#0B2C4A] font-semibold hover:underline"
+              className="intra-link"
               href="/register"
             >
               Regístrate

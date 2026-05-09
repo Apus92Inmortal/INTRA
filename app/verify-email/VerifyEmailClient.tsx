@@ -87,17 +87,17 @@ export default function VerifyEmailClient({
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-400 p-6">
+    <main className="intra-page-shell p-6">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
-        <div className="w-full max-w-md rounded-[32px] bg-white p-8 text-center shadow-[0_24px_70px_rgba(11,44,74,0.16)] sm:p-10">
+        <div className="intra-card w-full max-w-md p-8 text-center sm:p-10">
           <div className="flex justify-center">
             <Image src="/logo.png" alt="INTRA Logo" width={260} height={160} />
           </div>
 
           {status === "verified" ? (
             <>
-              <h1 className="mt-6 text-3xl font-bold text-[#0B2C4A]">Email verificado</h1>
-              <p className="mt-3 text-sm leading-6 text-gray-600">
+              <h1 className="intra-h1 mt-6">Email verificado</h1>
+              <p className="intra-body mt-3">
                 Tu correo ya quedó confirmado. Ya puedes entrar y continuar dentro de INTRA.
               </p>
 
@@ -108,13 +108,13 @@ export default function VerifyEmailClient({
               <div className="mt-6 flex flex-col gap-3">
                 <Link
                   href={continueHref}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-95"
+                  className="intra-btn intra-btn-primary w-full"
                 >
                   Continuar
                 </Link>
                 <Link
                   href="/login"
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                  className="intra-btn intra-btn-secondary w-full"
                 >
                   Ir al login
                 </Link>
@@ -122,17 +122,17 @@ export default function VerifyEmailClient({
             </>
           ) : (
             <>
-              <h1 className="mt-6 text-3xl font-bold text-[#0B2C4A]">Revisa tu correo</h1>
+              <h1 className="intra-h1 mt-6">Revisa tu correo</h1>
 
-              <p className="mt-3 text-sm leading-6 text-gray-600">
+              <p className="intra-body mt-3">
                 Te enviaremos un enlace de verificación a{" "}
-                <span className="font-semibold text-[#0B2C4A]">{email || "tu correo"}</span>.
+                <span className="intra-body-strong">{email || "tu correo"}</span>.
                 Cuando en Supabase se active <span className="font-semibold">Confirm email</span>,
                 esta pantalla y el reenvío quedarán listos para producción sin desarrollo adicional.
               </p>
 
-              <div className="mt-6 rounded-2xl border border-gray-200 bg-gray-50 p-4 text-left text-sm text-gray-600">
-                <p className="font-semibold text-[#0B2C4A]">Qué hacer ahora</p>
+              <div className="intra-card-compact mt-6 bg-[#EEF2F7] p-4 text-left">
+                <p className="intra-body-strong">Qué hacer ahora</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5">
                   <li>Revisa tu bandeja de entrada.</li>
                   <li>Si no aparece, busca en spam o promociones.</li>
@@ -157,7 +157,7 @@ export default function VerifyEmailClient({
                   type="button"
                   onClick={handleResend}
                   disabled={loading || cooldown > 0}
-                  className="w-full rounded-2xl bg-[#0B2C4A] py-3 font-semibold text-white transition hover:scale-[1.01] disabled:opacity-60"
+                  className="intra-btn intra-btn-primary w-full"
                 >
                   {loading
                     ? "Reenviando..."
@@ -168,7 +168,7 @@ export default function VerifyEmailClient({
 
                 <Link
                   href={backHref}
-                  className="inline-block text-sm font-semibold text-[#0B2C4A] hover:underline"
+                  className="intra-link inline-block"
                 >
                   Volver a iniciar sesión
                 </Link>
