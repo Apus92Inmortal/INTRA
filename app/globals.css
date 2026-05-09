@@ -143,7 +143,7 @@ body {
     border-radius: var(--intra-radius-sm);
     border: 1px solid color-mix(in srgb, var(--intra-card) 12%, transparent);
     background: color-mix(in srgb, var(--intra-card) 8%, transparent);
-    padding: 20px;
+    padding: 16px;
     backdrop-filter: blur(8px);
   }
 
