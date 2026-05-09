@@ -151,7 +151,7 @@ export default function AuthGateway({
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-400 p-6">
+    <main className="intra-page-shell p-6">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
         <div className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_24px_70px_rgba(11,44,74,0.16)] lg:grid-cols-[1.05fr_0.95fr]">
           <section className="bg-[linear-gradient(160deg,#0B2C4A_0%,#123d61_55%,#0f6b52_100%)] px-8 py-10 text-white sm:px-10 lg:px-12 lg:py-14">
@@ -232,10 +232,10 @@ export default function AuthGateway({
               </div>
 
               <div className="mt-8">
-                <h2 className="text-3xl font-bold text-[#0B2C4A]">
+                <h2 className="intra-h1">
                   {tab === "login" ? "Bienvenido de nuevo" : "Crea tu cuenta"}
                 </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <p className="intra-body mt-2">
                   {tab === "login"
                     ? "Ingresa para continuar dentro de INTRA."
                     : "Regístrate para empezar a publicar envíos o viajes."}
@@ -248,11 +248,11 @@ export default function AuthGateway({
               >
                 {tab === "register" ? (
                   <div>
-                    <label className="text-sm font-medium text-[#0B2C4A]">
+                    <label className="intra-label">
                       Nombre completo
                     </label>
                     <input
-                      className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+                      className="intra-input mt-1"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
@@ -263,11 +263,11 @@ export default function AuthGateway({
 
                 {tab === "register" ? (
                   <div>
-                    <label className="text-sm font-medium text-[#0B2C4A]">
+                    <label className="intra-label">
                       Teléfono
                     </label>
                     <input
-                      className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+                      className="intra-input mt-1"
                       type="tel"
                       inputMode="tel"
                       value={registerPhone}
@@ -279,9 +279,9 @@ export default function AuthGateway({
                 ) : null}
 
                 <div>
-                  <label className="text-sm font-medium text-[#0B2C4A]">Email</label>
+                  <label className="intra-label">Email</label>
                   <input
-                    className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+                    className="intra-input mt-1"
                     type="email"
                     value={tab === "login" ? loginEmail : registerEmail}
                     onChange={(e) =>
@@ -296,20 +296,20 @@ export default function AuthGateway({
 
                 <div>
                   <div className="flex items-center justify-between gap-3">
-                    <label className="text-sm font-medium text-[#0B2C4A]">
+                    <label className="intra-label">
                       Contraseña
                     </label>
                     {tab === "login" ? (
                       <Link
                         href="/login/reset-password"
-                        className="text-sm font-semibold text-[#0B2C4A] hover:underline"
+                        className="intra-link"
                       >
                         ¿Olvidaste tu contraseña?
                       </Link>
                     ) : null}
                   </div>
                   <input
-                    className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+                    className="intra-input mt-1"
                     type="password"
                     value={tab === "login" ? loginPassword : registerPassword}
                     onChange={(e) =>
@@ -324,12 +324,12 @@ export default function AuthGateway({
                 </div>
 
                 {msg ? (
-                  <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  <div className="intra-alert-danger">
                     <p>{msg}</p>
 
                     {needsEmailVerification && loginEmail ? (
                       <Link
-                        className="mt-2 inline-block font-semibold text-[#0B2C4A] hover:underline"
+                        className="intra-link mt-2 inline-block"
                         href={`/verify-email?email=${encodeURIComponent(loginEmail)}${
                           isSafeInternalPath(nextDestination)
                             ? `&next=${encodeURIComponent(nextDestination)}`
@@ -344,7 +344,7 @@ export default function AuthGateway({
 
                 <button
                   disabled={loading}
-                  className="w-full rounded-2xl bg-[#0B2C4A] py-3 font-semibold text-white transition hover:scale-[1.01] disabled:opacity-60"
+                  className="intra-btn intra-btn-primary w-full"
                   type="submit"
                 >
                   {loading
@@ -357,12 +357,12 @@ export default function AuthGateway({
                 </button>
               </form>
 
-              <p className="mt-5 text-sm text-slate-600">
+              <p className="intra-body mt-5">
                 {tab === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
                 <button
                   type="button"
                   onClick={() => switchTab(tab === "login" ? "register" : "login")}
-                  className="font-semibold text-[#0B2C4A] hover:underline"
+                  className="intra-link"
                 >
                   {tab === "login" ? "Regístrate" : "Inicia sesión"}
                 </button>

@@ -65,9 +65,9 @@ export default function UpdatePasswordClient({
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-white to-gray-400 p-6">
+    <main className="intra-page-shell p-6">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
-        <div className="w-full max-w-md overflow-hidden rounded-[32px] bg-white p-8 shadow-[0_24px_70px_rgba(11,44,74,0.16)] sm:p-10">
+        <div className="intra-card w-full max-w-md overflow-hidden p-8 sm:p-10">
           <Link
             href="/login"
             className="inline-flex rounded-3xl bg-white/96 p-4 shadow-[0_18px_50px_rgba(8,26,44,0.12)] ring-1 ring-gray-100 transition hover:scale-[1.01] sm:p-5"
@@ -83,17 +83,17 @@ export default function UpdatePasswordClient({
           </Link>
 
           <div className="mt-8">
-            <h1 className="text-3xl font-bold text-[#0B2C4A]">Crea tu nueva contraseña</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
+            <h1 className="intra-h1">Crea tu nueva contraseña</h1>
+            <p className="intra-body mt-2">
               Usa una contraseña nueva de mínimo 6 caracteres para volver a entrar a INTRA.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <div>
-              <label className="text-sm font-medium text-[#0B2C4A]">Nueva contraseña</label>
+              <label className="intra-label">Nueva contraseña</label>
               <input
-                className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+                className="intra-input mt-1"
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
@@ -104,9 +104,9 @@ export default function UpdatePasswordClient({
             </div>
 
             <div>
-              <label className="text-sm font-medium text-[#0B2C4A]">Confirma la contraseña</label>
+              <label className="intra-label">Confirma la contraseña</label>
               <input
-                className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#0B2C4A]"
+                className="intra-input mt-1"
                 type="password"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
@@ -130,16 +130,16 @@ export default function UpdatePasswordClient({
 
             <button
               disabled={loading || isSuccess}
-              className="w-full rounded-2xl bg-[#0B2C4A] py-3 font-semibold text-white transition hover:scale-[1.01] disabled:opacity-60"
+              className="intra-btn intra-btn-primary w-full"
               type="submit"
             >
               {loading ? "Guardando..." : isSuccess ? "Redirigiendo..." : "Guardar nueva contraseña"}
             </button>
           </form>
 
-          <p className="mt-5 text-sm text-slate-600">
+          <p className="intra-body mt-5">
             ¿Prefieres empezar de nuevo?{" "}
-            <Link href="/login/reset-password" className="font-semibold text-[#0B2C4A] hover:underline">
+            <Link href="/login/reset-password" className="intra-link">
               Solicitar otro enlace
             </Link>
           </p>
