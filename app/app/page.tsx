@@ -672,18 +672,25 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   <div className="space-y-3">
                     {dashboard.publishedTrips.map((trip) => (
                       <div key={trip.id} className="rounded-2xl border border-gray-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
-                        <div className="mb-2 flex items-center gap-3">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#EFFBF4]">
-                            <svg className="h-4 w-4 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
+                        <div className="mb-3 flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#EFFBF4]">
+                              <svg className="h-4 w-4 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-[#0B2C4A]">{trip.routeShortLabel}</p>
+                              <p className="text-xs text-gray-400">{trip.departureDateLabel}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm font-semibold text-[#0B2C4A]">{trip.routeShortLabel}</p>
-                            <p className="text-xs text-gray-400">{trip.departureDateLabel}</p>
-                          </div>
+
+                          {(trip.status === "open" || trip.status === "full") ? (
+                            <DashboardTripCloseButton tripId={trip.id} />
+                          ) : null}
                         </div>
+
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-center gap-2">
                             <div className="h-1.5 max-w-[120px] flex-1 rounded-full bg-gray-100 sm:w-[120px]">
@@ -695,11 +702,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                           </div>
                           <TripAvailabilityBadge trip={trip} />
                         </div>
-                        {(trip.status === "open" || trip.status === "full") ? (
-                          <div className="mt-3 flex justify-start sm:justify-end">
-                            <DashboardTripCloseButton tripId={trip.id} />
-                          </div>
-                        ) : null}
                       </div>
                     ))}
                   </div>

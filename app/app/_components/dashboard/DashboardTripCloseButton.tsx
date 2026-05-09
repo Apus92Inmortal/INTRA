@@ -1,14 +1,40 @@
 "use client";
 
-import { Lock } from "lucide-react";
+import { Lock, MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { closeTripAction } from "@/app/app/_actions/trip-actions";
 
 export default function DashboardTripCloseButton({ tripId }: { tripId: string }) {
   const router = useRouter();
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen]);
 
   const handleClick = () => {
     const confirmed = window.confirm(
@@ -21,6 +47,7 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
 
     startTransition(async () => {
       setError(null);
+      setIsOpen(false);
 
       const result = await closeTripAction(tripId);
 
@@ -34,16 +61,32 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
   };
 
   return (
-    <div className="flex flex-col items-start gap-2 sm:items-end">
+    <div ref={menuRef} className="relative flex flex-col items-end gap-2">
       <button
         type="button"
-        onClick={handleClick}
+        onClick={() => setIsOpen((current) => !current)}
         disabled={isPending}
-        className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#0B2C4A]/10 bg-white px-3 py-2 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60"
+        aria-label="Abrir acciones del viaje"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#0B2C4A]/10 bg-white text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <Lock className="h-4 w-4" />
-        {isPending ? "Cerrando..." : "Despegando"}
+        <MoreVertical className="h-4 w-4" />
       </button>
+
+      {isOpen ? (
+        <div className="absolute right-0 top-12 z-20 min-w-[180px] rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+          <button
+            type="button"
+            onClick={handleClick}
+            disabled={isPending}
+            className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Lock className="h-4 w-4" />
+            {isPending ? "Cerrando..." : "Despegando"}
+          </button>
+        </div>
+      ) : null}
 
       {error ? <p className="text-xs text-red-600">{error}</p> : null}
     </div>
