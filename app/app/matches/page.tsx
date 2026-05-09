@@ -274,16 +274,16 @@ function SummaryMetricCard({
 
   return (
     <article
-      className={`rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${currentTone.card}`}
+      className={`min-w-[148px] snap-start rounded-2xl border p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:min-w-0 sm:p-4 ${currentTone.card}`}
     >
-      <div className="flex items-start gap-3">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${currentTone.bubble}`}>
+      <div className="flex items-center gap-3 sm:items-start">
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 ${currentTone.bubble}`}>
           {icon}
         </div>
 
-        <div className="min-w-0">
-          <p className={`text-[11px] font-semibold uppercase tracking-wide ${currentTone.title}`}>{title}</p>
-          <p className="mt-1 text-[1.65rem] font-bold leading-none tracking-tight text-[#0B2C4A]">{value}</p>
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 sm:block">
+          <p className={`text-[10px] font-semibold uppercase tracking-[0.08em] ${currentTone.title} sm:text-[11px] sm:tracking-wide`}>{title}</p>
+          <p className="text-[1.75rem] font-bold leading-none tracking-tight text-[#0B2C4A] sm:mt-1 sm:text-[1.65rem]">{value}</p>
         </div>
       </div>
     </article>
@@ -571,7 +571,7 @@ export default async function MatchesPage() {
             </p>
           </div>
 
-          <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="mb-6 -mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid-cols-4">
             <SummaryMetricCard
               title="Pendientes"
               value={pendingMatchesCount}
