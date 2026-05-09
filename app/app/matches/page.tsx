@@ -694,7 +694,7 @@ export default async function MatchesPage() {
                                   <DetailRow label="Ruta" value={routeLabel} />
 
                                   <div className="mt-4 lg:hidden">
-                                    <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
+                                    <div className="border-t border-[#E6EDF5] pt-4">
                                       <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                                         Condiciones
                                       </p>
