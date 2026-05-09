@@ -282,8 +282,8 @@ function CompactCompatibleShipmentCard({
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#2ECC71]">
             <CircleDollarSign className="h-4 w-4" />
           </span>
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1E8C4E]">
+          <div className="flex min-w-0 flex-col justify-center">
+            <p className="text-[10px] font-semibold uppercase leading-none tracking-[0.18em] text-[#1E8C4E]">
               Ganancia
             </p>
             <p className="text-base font-bold leading-none text-[#119C57] sm:text-lg">
