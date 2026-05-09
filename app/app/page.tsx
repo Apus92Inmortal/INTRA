@@ -284,7 +284,7 @@ function CompactCompatibleShipmentCard({
           </span>
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1E8C4E]">
-              Tu ganancia
+              Ganancia
             </p>
             <p className="text-base font-bold leading-none text-[#119C57] sm:text-lg">
               {shipment.travelerEarningsLabel ?? "Por confirmar"}
