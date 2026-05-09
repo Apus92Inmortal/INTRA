@@ -689,9 +689,9 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   <div className="space-y-3">
                     {dashboard.publishedTrips.map((trip) => (
                       <div key={trip.id} className="rounded-[28px] border border-gray-100 bg-white px-4 py-3.5 shadow-[0_18px_45px_-35px_rgba(11,44,74,0.28)] transition hover:-translate-y-0.5 hover:shadow-lg sm:px-5">
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start justify-between gap-2.5">
                           <div className="flex min-w-0 items-start gap-3">
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#F2FBF6]">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#F2FBF6]">
                               <svg className="h-4 w-4 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -699,24 +699,24 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             </div>
                             <div className="min-w-0 pt-0.5">
                               <div className="flex flex-wrap items-center gap-2">
-                                <p className="text-xl font-bold tracking-[-0.02em] text-[#0B2C4A] sm:text-lg">{trip.routeShortLabel}</p>
+                                <p className="text-lg font-bold tracking-[-0.02em] text-[#0B2C4A] sm:text-lg">{trip.routeShortLabel}</p>
                                 <TripAvailabilityBadge trip={trip} />
                               </div>
-                              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-400">
-                                <span>{trip.departureDateLabel}</span>
-                                <span aria-hidden="true">·</span>
-                                <div className="flex items-center gap-1.5">
-                                  <Briefcase className="h-4 w-4 text-slate-400" />
-                                  <span>{formatTripUsagePercent(trip.usedCapacityKg, trip.totalCapacityKg)}</span>
+                              <div className="mt-1.5 flex flex-nowrap items-center gap-x-2 text-[11px] leading-none text-slate-400 sm:text-sm">
+                                <span className="whitespace-nowrap">{trip.departureDateLabel}</span>
+                                <span aria-hidden="true" className="shrink-0">·</span>
+                                <div className="flex shrink-0 items-center gap-1">
+                                  <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                                  <span className="whitespace-nowrap">{formatTripUsagePercent(trip.usedCapacityKg, trip.totalCapacityKg)}</span>
                                 </div>
                                 <span
                                   aria-hidden="true"
-                                  className="h-5 w-5 shrink-0 rounded-full border border-slate-200"
+                                  className="h-4 w-4 shrink-0 rounded-full border border-slate-200"
                                   style={{
                                     background: `conic-gradient(#2ECC71 ${trip.progressPercent}%, #E5E7EB ${trip.progressPercent}% 100%)`,
                                   }}
                                 >
-                                  <span className="m-[3px] block h-[calc(100%-6px)] w-[calc(100%-6px)] rounded-full bg-white" />
+                                  <span className="m-[2px] block h-[calc(100%-4px)] w-[calc(100%-4px)] rounded-full bg-white" />
                                 </span>
                               </div>
                             </div>
