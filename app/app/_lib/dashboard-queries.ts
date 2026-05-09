@@ -652,12 +652,21 @@ export async function getDashboardData(): Promise<DashboardData | null> {
           trip.destination_city_id === shipment.destination_city_id
       );
 
+      const routePriceKey = shipment.origin_city_id && shipment.destination_city_id
+        ? `${shipment.origin_city_id}:${shipment.destination_city_id}`
+        : null;
+      const routePriceCategory = routePriceKey ? routePrices.find((routePrice) => `${routePrice.origin_city_id}:${routePrice.destination_city_id}` === routePriceKey) ?? null : null;
+      const travelerAmount = routePriceCategory && isRouteCategory(routePriceCategory.route_category)
+        ? ROUTE_PRICING_BY_CATEGORY[routePriceCategory.route_category].travelerAmount
+        : null;
+
       return {
         id: shipment.id,
         title: getShipmentKindLabel(shipment.kind),
         routeLabel: getRouteLabel(shipment.origin_city, shipment.destination_city),
         description: shipment.description?.trim() || null,
         weightLabel: shipment.weight_kg ? `${shipment.weight_kg} kg` : "Peso por confirmar",
+        travelerEarningsLabel: travelerAmount ? formatCurrency(travelerAmount) : null,
         customerName: counterpartNameById.get(shipment.owner_id) ?? "Usuario INTRA",
         customerAvgRating: counterpartRatingSummaryMap[shipment.owner_id]?.avgRating ?? null,
         customerTotalReviews: counterpartRatingSummaryMap[shipment.owner_id]?.totalReviews ?? 0,

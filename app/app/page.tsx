@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CircleDollarSign } from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
@@ -247,7 +248,7 @@ function CompactCompatibleShipmentCard({
 }) {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-4">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
@@ -262,9 +263,24 @@ function CompactCompatibleShipmentCard({
             </p>
           ) : null}
         </div>
-        <span className="shrink-0 rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
-          Peso: {shipment.weightLabel}
-        </span>
+        <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+          <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
+            Peso: {shipment.weightLabel}
+          </span>
+          <div className="flex items-center gap-2 rounded-2xl border border-[#D8F3E3] bg-[#EFFBF4] px-3 py-2 shadow-[0_10px_30px_-22px_rgba(46,204,113,0.9)]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#2ECC71]">
+              <CircleDollarSign className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1E8C4E]">
+                Tu ganancia
+              </p>
+              <p className="text-base font-bold leading-none text-[#119C57] sm:text-lg">
+                {shipment.travelerEarningsLabel ?? "Por confirmar"}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
