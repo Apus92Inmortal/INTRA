@@ -65,6 +65,7 @@ export type DashboardCompatibleShipmentCard = {
 
 export type DashboardTripCard = {
   id: string;
+  status: "open" | "full" | "closed" | "completed" | "cancelled";
   routeShortLabel: string;
   departureDateLabel: string;
   usedCapacityKg: number;

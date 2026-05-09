@@ -23,6 +23,8 @@ export function getStatusLabel(status: string | null) {
       return "Rechazado";
     case "cancelled":
       return "Cancelado";
+    case "closed":
+      return "Cerrado";
     case "completed":
       return "Completado";
     case "full":

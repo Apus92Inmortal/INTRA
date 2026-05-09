@@ -8,12 +8,14 @@ import { formatRatingValue } from "@/lib/reviews";
 import { createClient } from "@/lib/supabase/server";
 import { isSafeInternalPath } from "@/lib/safe-next";
 import AuthGateway from "./AuthGateway";
+import DashboardTripCloseButton from "./_components/dashboard/DashboardTripCloseButton";
 import DashboardPendingMatchActions from "./_components/dashboard/DashboardPendingMatchActions";
 import { getDashboardData } from "./_lib/dashboard-queries";
 import type {
   DashboardActivityIcon,
   DashboardCompatibleShipmentCard,
   DashboardShipmentCard,
+  DashboardTripCard,
 } from "./_lib/dashboard-types";
 import MatchButton from "./market/MatchButton";
 import MarketRealtime from "./market/MarketRealtime";
@@ -164,6 +166,25 @@ function ShipmentBadge({ shipment }: { shipment: DashboardShipmentCard }) {
   return (
     <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold ${classes}`}>
       {shipment.statusLabel}
+    </span>
+  );
+}
+
+function TripAvailabilityBadge({ trip }: { trip: DashboardTripCard }) {
+  const classes =
+    trip.status === "full"
+      ? "bg-[#EEF2F7] text-[#0B2C4A]"
+      : trip.status === "closed"
+        ? "bg-slate-100 text-slate-600"
+        : trip.status === "completed"
+          ? "bg-[#EFFBF4] text-[#1e8c4e]"
+          : trip.status === "cancelled"
+            ? "bg-rose-100 text-rose-700"
+            : "bg-[#EFFBF4] text-[#2ECC71]";
+
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${classes}`}>
+      {trip.availabilityLabel}
     </span>
   );
 }
@@ -672,10 +693,13 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                               {trip.usedCapacityKg}/{trip.totalCapacityKg} kg
                             </span>
                           </div>
-                          <span className="rounded-full bg-[#EFFBF4] px-2 py-0.5 text-xs font-semibold text-[#2ECC71]">
-                            {trip.availabilityLabel}
-                          </span>
+                          <TripAvailabilityBadge trip={trip} />
                         </div>
+                        {(trip.status === "open" || trip.status === "full") ? (
+                          <div className="mt-3 flex justify-start sm:justify-end">
+                            <DashboardTripCloseButton tripId={trip.id} />
+                          </div>
+                        ) : null}
                       </div>
                     ))}
                   </div>

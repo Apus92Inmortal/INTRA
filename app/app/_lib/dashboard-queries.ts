@@ -229,6 +229,8 @@ function getTripAvailabilityLabel(status: string | null) {
   switch (status) {
     case "full":
       return "Lleno";
+    case "closed":
+      return "Cerrado";
     case "completed":
       return "Completado";
     case "cancelled":
@@ -771,6 +773,9 @@ export async function getDashboardData(): Promise<DashboardData | null> {
 
       return {
         id: trip.id,
+        status: (trip.status === "full" || trip.status === "closed" || trip.status === "completed" || trip.status === "cancelled"
+          ? trip.status
+          : "open") as DashboardTripCard["status"],
         routeShortLabel: getRouteShortLabel(trip.origin_city, trip.destination_city),
         departureDateLabel: formatDepartureLabel(trip.departure_date, trip.departure_time),
         usedCapacityKg: Math.round(usedCapacityKg * 10) / 10,
