@@ -22,6 +22,8 @@
   --intra-danger: #D92D20;
   --intra-danger-soft: #FEF3F2;
   --intra-danger-border: #FECDCA;
+  --intra-auth-hero-mid: #123d61;
+  --intra-auth-hero-end: #0f6b52;
 
   --intra-radius-xs: 12px;
   --intra-radius-sm: 16px;
@@ -119,6 +121,42 @@ body {
     background: var(--intra-card);
   }
 
+  .intra-auth-hero {
+    background: linear-gradient(160deg, var(--intra-blue) 0%, var(--intra-auth-hero-mid) 55%, var(--intra-auth-hero-end) 100%);
+    color: var(--intra-card);
+  }
+
+  .intra-auth-logo-shell {
+    display: inline-flex;
+    border-radius: var(--intra-radius-md);
+    background: color-mix(in srgb, var(--intra-card) 96%, transparent);
+    padding: 20px;
+    box-shadow: var(--intra-shadow-hero);
+    transition: transform 160ms ease;
+  }
+
+  .intra-auth-logo-shell:hover {
+    transform: translateY(-1px);
+  }
+
+  .intra-auth-feature-card {
+    border-radius: var(--intra-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--intra-card) 12%, transparent);
+    background: color-mix(in srgb, var(--intra-card) 8%, transparent);
+    padding: 20px;
+    backdrop-filter: blur(8px);
+  }
+
+  .intra-auth-highlight {
+    border-radius: var(--intra-radius-sm);
+    border: 1px solid color-mix(in srgb, var(--intra-green) 35%, transparent);
+    background: color-mix(in srgb, var(--intra-green) 14%, transparent);
+    padding: 16px;
+    font-size: var(--intra-font-body);
+    line-height: var(--intra-line-body);
+    color: color-mix(in srgb, var(--intra-card) 92%, transparent);
+  }
+
   .intra-h1 {
     font-size: var(--intra-font-h1);
     line-height: var(--intra-line-h1);
@@ -201,6 +239,43 @@ body {
 
   .intra-link:hover {
     text-decoration: underline;
+  }
+
+  .intra-landing-hero-title {
+    font-size: 40px;
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .intra-landing-lead {
+    font-size: 17px;
+    line-height: 32px;
+    font-weight: 400;
+  }
+
+  .intra-on-dark-body {
+    font-size: var(--intra-font-body);
+    line-height: var(--intra-line-body);
+    font-weight: 400;
+    color: color-mix(in srgb, var(--intra-card) 78%, transparent);
+  }
+
+  .intra-on-dark-body-strong {
+    font-size: var(--intra-font-h3);
+    line-height: var(--intra-line-h3);
+    font-weight: 700;
+    color: var(--intra-card);
+  }
+
+  @media (min-width: 640px) {
+    .intra-landing-hero-title {
+      font-size: 52px;
+    }
+
+    .intra-landing-lead {
+      font-size: 20px;
+    }
   }
 
   .intra-input {

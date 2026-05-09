@@ -20,6 +20,8 @@ export const intraColors = {
   danger: "#D92D20",
   dangerSoft: "#FEF3F2",
   dangerBorder: "#FECDCA",
+  authHeroMid: "#123d61",
+  authHeroEnd: "#0f6b52",
 } as const;
 
 export const intraTypography = {

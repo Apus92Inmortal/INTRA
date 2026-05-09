@@ -154,11 +154,11 @@ export default function AuthGateway({
     <main className="intra-page-shell p-6">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
         <div className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_24px_70px_rgba(11,44,74,0.16)] lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="bg-[linear-gradient(160deg,#0B2C4A_0%,#123d61_55%,#0f6b52_100%)] px-8 py-10 text-white sm:px-10 lg:px-12 lg:py-14">
+          <section className="intra-auth-hero px-8 py-10 sm:px-10 lg:px-12 lg:py-14">
             <Link
               href="/"
               aria-label="Ir a la landing de INTRA"
-              className="inline-flex rounded-3xl bg-white/96 p-4 shadow-[0_18px_50px_rgba(8,26,44,0.22)] ring-1 ring-white/70 transition hover:scale-[1.01] sm:p-5"
+              className="intra-auth-logo-shell ring-1 ring-white/70 sm:p-5"
             >
               <Image
                 src="/logo.png"
@@ -171,33 +171,33 @@ export default function AuthGateway({
             </Link>
 
             <div className="mt-8 max-w-xl">
-              <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
+              <h1 className="intra-landing-hero-title">
                 Entra a INTRA desde aquí
               </h1>
-              <p className="mt-4 text-base leading-7 text-white/82 sm:text-lg">
+              <p className="intra-landing-lead mt-4 text-white/82">
                 Esta es la entrada oficial de la app. Desde aquí puedes iniciar sesión o crear tu cuenta para publicar envíos y viajes.
               </p>
             </div>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/12 bg-white/8 p-5 backdrop-blur-sm">
+              <div className="intra-auth-feature-card">
                 <div className="text-2xl">📦</div>
-                <h2 className="mt-3 text-lg font-bold">Clientes</h2>
-                <p className="mt-2 text-sm leading-6 text-white/78">
+                <h2 className="intra-on-dark-body-strong mt-3">Clientes</h2>
+                <p className="intra-on-dark-body mt-2">
                   Publica tu envío y encuentra viajeros reales para tu ruta.
                 </p>
               </div>
-              <div className="rounded-2xl border border-white/12 bg-white/8 p-5 backdrop-blur-sm">
+              <div className="intra-auth-feature-card">
                 <div className="text-2xl">✈️</div>
-                <h2 className="mt-3 text-lg font-bold">Viajeros</h2>
-                <p className="mt-2 text-sm leading-6 text-white/78">
+                <h2 className="intra-on-dark-body-strong mt-3">Viajeros</h2>
+                <p className="intra-on-dark-body mt-2">
                   Monetiza tu viaje llevando paquetes que ya van en tu misma dirección.
                 </p>
               </div>
             </div>
 
             {isSafeInternalPath(nextPath) ? (
-              <div className="mt-8 rounded-2xl border border-[#2ECC71]/35 bg-[#2ECC71]/14 p-4 text-sm text-white/92">
+              <div className="intra-auth-highlight mt-8">
                 Después de autenticarte te llevaremos a <span className="font-bold">{nextPath}</span>.
               </div>
             ) : null}
