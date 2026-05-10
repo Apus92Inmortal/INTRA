@@ -18,13 +18,13 @@
   --intra-text-subtle: #3B526B;
   --intra-border: #e4e7ec;
   --intra-border-strong: #D9E4F0;
-  --intra-border-soft: #E6EDF5;
+  --intra-border-soft: #D7E5F1;
   --intra-text-success: #1e8c4e;
   --intra-info: #0B5CAD;
   --intra-info-soft: #EEF4FB;
   --intra-info-soft-alt: #F8FBFF;
   --intra-warning: #F39C12;
-  --intra-warning-soft: #FFF7E8;
+  --intra-warning-soft: #FFF7ED;
   --intra-warning-soft-alt: #FFF4D6;
   --intra-warning-border: #F6D9A6;
   --intra-warning-text: #8A5A00;
@@ -224,8 +224,8 @@ body {
   }
 
   .intra-page-title {
-    font-size: clamp(var(--intra-font-h1), 2.5vw, 2.35rem);
-    line-height: clamp(var(--intra-line-h1), 3vw, 2.65rem);
+    font-size: var(--intra-font-h1);
+    line-height: var(--intra-line-h1);
     font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--intra-blue);

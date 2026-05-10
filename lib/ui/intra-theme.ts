@@ -10,10 +10,14 @@ export const intraColors = {
   softSurface: "#eef6f1",
   neutralPill: "#EEF2F7",
   successSoft: "#EFFBF4",
+  successBorder: "#CDEFD9",
   textMuted: "#667085",
+  textSubtle: "#3B526B",
   border: "#e4e7ec",
+  softBorder: "#D7E5F1",
   textSuccess: "#1e8c4e",
   warning: "#F39C12",
+  warningSoft: "#FFF7ED",
   warningAlt: "#D4A017",
   ratingStar: "#fbbf24",
   accentBlue: "#0ea5e9",
@@ -27,13 +31,7 @@ export const intraColors = {
 export const intraTypography = {
   app: {
     h1: { fontSize: 28, lineHeight: 34, fontWeight: 700 },
-    pageTitle: {
-      mobileFontSize: 28,
-      desktopFontSize: 38,
-      mobileLineHeight: 34,
-      desktopLineHeight: 42,
-      fontWeight: 700,
-    },
+    pageTitle: { fontSize: 28, lineHeight: 34, fontWeight: 700 },
     h2: { fontSize: 22, lineHeight: 28, fontWeight: 700 },
     h3: { fontSize: 18, lineHeight: 24, fontWeight: 700 },
     h4: { fontSize: 16, lineHeight: 22, fontWeight: 700 },
@@ -69,6 +67,29 @@ export const intraShadow = {
   base: "0 16px 50px rgba(11, 44, 74, .08)",
   nav: "0 12px 40px rgba(11, 44, 74, .08)",
   hero: "0 22px 70px rgba(11, 44, 74, .18)",
+} as const;
+
+export const intraViewportQa = {
+  commonPhysicalDesktop: { width: 1366, height: 768 },
+  minimumUsefulViewport: { width: 1366, height: 650 },
+  baseDesktopViewport: { width: 1440, height: 800 },
+  browserZoomPercent: 100,
+  osScalePercent: 100,
+} as const;
+
+export const intraDashboardRules = {
+  heroMaxHeightPx: 140,
+  pageVerticalPaddingMinPx: 16,
+  pageVerticalPaddingMaxPx: 24,
+  sectionGapMinPx: 16,
+  sectionGapMaxPx: 20,
+  mainCardPaddingMinPx: 20,
+  mainCardPaddingMaxPx: 24,
+  compactCardPaddingMinPx: 16,
+  compactCardPaddingMaxPx: 20,
+  metricCardMinHeightPx: 84,
+  metricCardMaxHeightPx: 100,
+  emptyStateMaxHeightPx: 260,
 } as const;
 
 export const intraSizing = {
@@ -123,4 +144,7 @@ export const intraRules = {
   inputMinimumHeightPx: 44,
   clickableMinimumAreaPx: 40,
   stableActionWidthOnLabelSwap: true,
+  internalAppDisallowFreeDisplaySizes: true,
+  internalAppDisallowLandingTypography: true,
+  dashboardsShouldFitViewportWhenShort: true,
 } as const;
