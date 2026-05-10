@@ -13,7 +13,6 @@ import DashboardTripCloseButton from "./_components/dashboard/DashboardTripClose
 import DashboardPendingMatchActions from "./_components/dashboard/DashboardPendingMatchActions";
 import { getDashboardData } from "./_lib/dashboard-queries";
 import type {
-  DashboardActivityIcon,
   DashboardCompatibleShipmentCard,
   DashboardShipmentCard,
   DashboardTripCard,
@@ -34,116 +33,6 @@ function getGreetingName(fullName: string | null, email: string | null) {
   const candidate = fullName?.trim() || email?.split("@")[0]?.trim() || "";
   const firstName = candidate.split(" ")[0]?.trim();
   return firstName || "";
-}
-
-function getActivityIcon(icon: DashboardActivityIcon) {
-  switch (icon) {
-    case "match":
-      return {
-        bgClassName: "bg-[#EFFBF4]",
-        textClassName: "text-[#2ECC71]",
-        svg: (
-          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        ),
-      };
-    case "message":
-      return {
-        bgClassName: "bg-[#EEF2F7]",
-        textClassName: "text-[#0B2C4A]",
-        svg: (
-          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
-            />
-          </svg>
-        ),
-      };
-    case "trip":
-      return {
-        bgClassName: "bg-[#EEF2F7]",
-        textClassName: "text-[#0B2C4A]",
-        svg: (
-          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        ),
-      };
-    case "shipment":
-      return {
-        bgClassName: "bg-[#EEF2F7]",
-        textClassName: "text-[#0B2C4A]",
-        svg: (
-          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-            />
-          </svg>
-        ),
-      };
-    case "payment":
-      return {
-        bgClassName: "bg-[#EFFBF4]",
-        textClassName: "text-[#2ECC71]",
-        svg: (
-          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-            />
-          </svg>
-        ),
-      };
-    case "alert":
-      return {
-        bgClassName: "bg-[#FFF4E5]",
-        textClassName: "text-[#F39C12]",
-        svg: (
-          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 9v4m0 4h.01M10.29 3.86l-7.5 13A1 1 0 003.65 18h16.7a1 1 0 00.86-1.5l-7.5-13a1 1 0 00-1.72 0z"
-            />
-          </svg>
-        ),
-      };
-    default:
-      return {
-        bgClassName: "bg-[#EEF2F7]",
-        textClassName: "text-[#0B2C4A]",
-        svg: (
-          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 6v6l4 2"
-            />
-          </svg>
-        ),
-      };
-  }
 }
 
 function ShipmentBadge({ shipment }: { shipment: DashboardShipmentCard }) {
@@ -772,62 +661,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 )}
 
               </section>
-
-              <div>
-                <h2 className="mb-3 intra-h3">Actividad reciente</h2>
-                {dashboard.recentActivity.length === 0 ? (
-                  <div className="intra-card-compact border-dashed p-5">
-                    <div className="flex items-center gap-2 intra-body-strong">
-                      <span className="intra-icon-shell-body rounded-full bg-[#EEF2F7] text-[#0B2C4A]">
-                        <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                      </span>
-                      <p>Sin novedades</p>
-                    </div>
-                    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                      <Link
-                        href="/app/shipments/new"
-                        className="intra-btn intra-btn-primary"
-                      >
-                        Publicar envío
-                      </Link>
-                      <Link
-                        href="/app/trips/new"
-                        className="intra-btn intra-btn-secondary"
-                      >
-                        Publicar viaje
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-50 rounded-2xl border border-gray-100 bg-white">
-                    {dashboard.recentActivity.map((item) => {
-                      const icon = getActivityIcon(item.icon);
-                      const content = (
-                        <div className="flex items-start gap-3 p-3.5">
-                          <div className={`intra-icon-shell-body mt-0.5 rounded-full ${icon.bgClassName} ${icon.textClassName}`}>
-                            {icon.svg}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="intra-body-strong">{item.title}</p>
-                            <p className="mt-0.5 intra-caption">{item.relativeTimeLabel}</p>
-                          </div>
-                        </div>
-                      );
-
-                      return item.href ? (
-                        <Link key={item.id} href={item.href} className="block transition hover:bg-gray-50">
-                          {content}
-                        </Link>
-                      ) : (
-                        <div key={item.id}>{content}</div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
               <div className="overflow-hidden rounded-[var(--intra-radius-md)] border border-white/10 bg-[linear-gradient(145deg,#0B2C4A_0%,#103656_58%,#123d61_100%)] p-5 text-white shadow-[0_18px_48px_rgba(11,44,74,0.18)]">
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
