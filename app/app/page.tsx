@@ -539,36 +539,31 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                   {shipment.travelerName ?? "Un viajero"}
                                 </p>
                                 <p className="mt-0.5 text-sm leading-5 text-intra-text-subtle">Quiere transportar tu envío</p>
-
-                                {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 || shipment.travelerVerified ? (
-                                  <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
-                                    {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 ? (
-                                      <span className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-intra-success-text-bright/20 bg-intra-success-soft px-2 py-1 text-[10px] font-semibold text-intra-success-text-bright sm:gap-1.5 sm:px-2.5 sm:text-xs">
-                                        <PackageCheck className="h-3.5 w-3.5" />
-                                        <span>
-                                          {shipment.travelerCompletedDeliveriesCount === 1
-                                            ? "1 entrega completada"
-                                            : `${shipment.travelerCompletedDeliveriesCount} entregas completadas`}
-                                        </span>
-                                      </span>
-                                    ) : null}
-
-                                    {shipment.travelerVerified ? (
-                                      <span className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-intra-border-soft bg-intra-card px-2 py-1 text-[10px] font-semibold text-intra-blue sm:gap-1.5 sm:px-2.5 sm:text-xs">
-                                        <ShieldCheck className="h-3.5 w-3.5" />
-                                        <span>Viajero verificado</span>
-                                      </span>
-                                    ) : null}
-                                  </div>
-                                ) : null}
-
-                                <div className="mt-3 hidden items-center gap-1.5 text-sm leading-5 text-intra-text-subtle sm:flex">
-                                  <Calendar className="h-4 w-4 shrink-0" />
-                                  <p>{shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}</p>
-                                </div>
                               </div>
                             </div>
-                            <div className="mt-3 flex items-start gap-1.5 text-sm leading-5 text-intra-text-subtle sm:hidden">
+                            {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 || shipment.travelerVerified ? (
+                              <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start sm:pl-12">
+                                {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 ? (
+                                  <span className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-intra-success-text-bright/20 bg-intra-success-soft px-2 py-1 text-[10px] font-semibold text-intra-success-text-bright sm:gap-1.5 sm:px-2.5 sm:text-xs">
+                                    <PackageCheck className="h-3.5 w-3.5" />
+                                    <span>
+                                      {shipment.travelerCompletedDeliveriesCount === 1
+                                        ? "1 entrega completada"
+                                        : `${shipment.travelerCompletedDeliveriesCount} entregas completadas`}
+                                    </span>
+                                  </span>
+                                ) : null}
+
+                                {shipment.travelerVerified ? (
+                                  <span className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-intra-border-soft bg-intra-card px-2 py-1 text-[10px] font-semibold text-intra-blue sm:gap-1.5 sm:px-2.5 sm:text-xs">
+                                    <ShieldCheck className="h-3.5 w-3.5" />
+                                    <span>Viajero verificado</span>
+                                  </span>
+                                ) : null}
+                              </div>
+                            ) : null}
+
+                            <div className="mt-3 flex items-start gap-1.5 text-sm leading-5 text-intra-text-subtle sm:pl-12">
                               <Calendar className="mt-0.5 h-4 w-4 shrink-0" />
                               <p>{shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}</p>
                             </div>
