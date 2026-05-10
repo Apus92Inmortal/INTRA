@@ -541,9 +541,9 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 <p className="mt-0.5 text-sm leading-5 text-intra-text-subtle">Quiere transportar tu envío</p>
 
                                 {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 || shipment.travelerVerified ? (
-                                  <div className="mt-3 flex flex-wrap gap-2">
+                                  <div className="mt-3 flex gap-2 overflow-x-auto sm:flex-wrap">
                                     {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 ? (
-                                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-intra-success-text-bright/20 bg-intra-success-soft px-2.5 py-1 text-xs font-semibold text-intra-success-text-bright">
+                                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-intra-success-text-bright/20 bg-intra-success-soft px-2.5 py-1 text-xs font-semibold text-intra-success-text-bright">
                                         <PackageCheck className="h-3.5 w-3.5" />
                                         <span>
                                           {shipment.travelerCompletedDeliveriesCount === 1
@@ -554,7 +554,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                     ) : null}
 
                                     {shipment.travelerVerified ? (
-                                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-intra-border-soft bg-intra-card px-2.5 py-1 text-xs font-semibold text-intra-blue">
+                                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-intra-border-soft bg-intra-card px-2.5 py-1 text-xs font-semibold text-intra-blue">
                                         <ShieldCheck className="h-3.5 w-3.5" />
                                         <span>Viajero verificado</span>
                                       </span>
