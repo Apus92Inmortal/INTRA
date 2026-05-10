@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Briefcase, CircleDollarSign } from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
@@ -148,7 +149,7 @@ function getActivityIcon(icon: DashboardActivityIcon) {
 function ShipmentBadge({ shipment }: { shipment: DashboardShipmentCard }) {
   if (shipment.hasPendingAction) {
     return (
-      <span className="whitespace-nowrap rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-700">
+      <span className="intra-pill whitespace-nowrap bg-yellow-100 text-yellow-700">
         Match pendiente
       </span>
     );
@@ -164,7 +165,7 @@ function ShipmentBadge({ shipment }: { shipment: DashboardShipmentCard }) {
           : "bg-gray-100 text-gray-600";
 
   return (
-    <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold ${classes}`}>
+    <span className={`intra-pill whitespace-nowrap ${classes}`}>
       {shipment.statusLabel}
     </span>
   );
@@ -183,7 +184,7 @@ function TripAvailabilityBadge({ trip }: { trip: DashboardTripCard }) {
             : "bg-[#EFFBF4] text-[#2ECC71]";
 
   return (
-    <span className={`rounded-full px-1.5 py-0.5 text-[11px] font-semibold sm:px-2 sm:text-xs ${classes}`}>
+    <span className={`intra-pill px-2 py-0.5 text-[11px] sm:text-xs ${classes}`}>
       {trip.availabilityLabel}
     </span>
   );
@@ -206,6 +207,84 @@ function formatTripUsagePercent(usedCapacityKg: number, totalCapacityKg: number)
   return `${label}% usado`;
 }
 
+function DashboardShortcutCard({
+  href,
+  title,
+  description,
+  tone,
+  icon,
+}: {
+  href: string;
+  title: string;
+  description: string;
+  tone: "green" | "blue";
+  icon: ReactNode;
+}) {
+  const cardClassName =
+    tone === "green"
+      ? "bg-intra-green shadow-lg shadow-intra-green/20 hover:bg-intra-green-hover-app"
+      : "bg-intra-blue hover:bg-[#123a5f]";
+
+  const iconShellClassName =
+    tone === "green" ? "bg-white/20 text-white" : "bg-white/10 text-intra-green";
+
+  const descriptionClassName = tone === "green" ? "text-white/75" : "text-white/70";
+  const arrowClassName = tone === "green" ? "text-white/60" : "text-white/40";
+
+  return (
+    <Link
+      href={href}
+      className={`group flex min-h-28 items-center gap-4 rounded-[var(--intra-radius-md)] p-4 text-left transition sm:p-5 ${cardClassName}`}
+    >
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] ${iconShellClassName}`}>
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className="intra-h4 text-white">{title}</p>
+        <p className={`mt-1 text-sm leading-snug ${descriptionClassName}`}>{description}</p>
+      </div>
+      <svg className={`ml-auto h-5 w-5 shrink-0 transition group-hover:translate-x-1 ${arrowClassName}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </Link>
+  );
+}
+
+function DashboardStatCard({
+  icon,
+  value,
+  label,
+  eyebrow,
+  accent = false,
+  badge,
+}: {
+  icon: ReactNode;
+  value: string | number;
+  label: string;
+  eyebrow?: string;
+  accent?: boolean;
+  badge?: string;
+}) {
+  return (
+    <div
+      className={accent ? "intra-card-compact border-2 border-[#A3E4BF] p-4 ring-2 ring-[#EFFBF4]" : "intra-card-compact p-4"}
+    >
+      <div className="mb-2 flex items-center gap-2">
+        <div
+          className={accent ? "flex h-8 w-8 items-center justify-center rounded-lg bg-intra-green text-white" : "flex h-8 w-8 items-center justify-center rounded-lg bg-intra-neutral-pill text-intra-blue"}
+        >
+          {icon}
+        </div>
+        {eyebrow ? <span className="intra-caption">{eyebrow}</span> : null}
+        {badge ? <span className="intra-pill bg-intra-success-soft text-intra-green">{badge}</span> : null}
+      </div>
+
+      <p className={accent ? "text-2xl font-extrabold text-intra-green" : "intra-metric text-[30px] leading-9"}>{value}</p>
+      <p className="mt-0.5 intra-caption">{label}</p>
+    </div>
+  );
+}
+
 function EmptyCard({
   title,
   description,
@@ -218,13 +297,13 @@ function EmptyCard({
   ctaLabel?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-5 text-sm text-gray-500">
-      <p className="font-semibold text-[#0B2C4A]">{title}</p>
-      <p className="mt-1">{description}</p>
+    <div className="intra-card-compact border-dashed p-5">
+      <p className="intra-h4">{title}</p>
+      <p className="mt-1 intra-body">{description}</p>
       {ctaHref && ctaLabel ? (
         <Link
           href={ctaHref}
-          className="mt-4 inline-flex rounded-xl bg-[#2ECC71] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#27ae60]"
+          className="intra-btn intra-btn-primary mt-4"
         >
           {ctaLabel}
         </Link>
@@ -249,7 +328,7 @@ function SectionToggleLink({
   const className =
     tone === "amber"
       ? "text-sm font-medium text-amber-900 hover:text-amber-950"
-      : "text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]";
+      : "intra-link text-intra-green hover:text-intra-green-hover-app hover:no-underline";
 
   return (
     <Link href={href} className={className}>
@@ -269,7 +348,7 @@ function CustomerRatingBadge({
 
   if (!formatted || totalReviews <= 0) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF7E8] px-3 py-1 text-xs font-semibold text-[#B7791F]">
+      <span className="intra-pill gap-1 bg-[#FFF7E8] text-[#B7791F]">
         <span aria-hidden="true">⭐</span>
         <span>Sin calificaciones aún</span>
       </span>
@@ -285,19 +364,19 @@ function CompactCompatibleShipmentCard({
   shipment: DashboardCompatibleShipmentCard;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4">
+    <div className="intra-card-compact p-4">
       <div className="relative sm:flex sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 pr-24 sm:pr-0">
-          <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+          <p className="intra-h4">{shipment.title}</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2 intra-body">
             <span>Cliente: {shipment.customerName}</span>
           </div>
-          <p className="mt-1 text-sm text-slate-600">
-            <span className="font-medium text-[#0B2C4A]">Ruta:</span> {shipment.routeLabel}
+          <p className="mt-1 intra-body">
+            <span className="intra-body-strong">Ruta:</span> {shipment.routeLabel}
           </p>
           {shipment.description ? (
-            <p className="mt-2 line-clamp-2 text-sm text-gray-500">
-              <span className="font-medium text-[#0B2C4A]">Descripción:</span> {shipment.description}
+            <p className="mt-2 line-clamp-2 intra-body">
+              <span className="intra-body-strong">Descripción:</span> {shipment.description}
             </p>
           ) : null}
           <div className="mt-3">
@@ -309,7 +388,7 @@ function CompactCompatibleShipmentCard({
         </div>
 
         <div className="absolute right-0 top-0 sm:static sm:flex sm:shrink-0 sm:justify-end">
-          <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
+          <span className="intra-pill bg-intra-neutral-pill text-intra-blue">
             Peso: {shipment.weightLabel}
           </span>
         </div>
@@ -388,117 +467,92 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
         initialOpen={dashboard.user.showWelcomeModal}
       />
 
-      <main className="min-h-screen bg-gray-50">
+      <main className="intra-page-shell">
         <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
           <div>
-            <h1 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">
+            <h1 className="intra-h1">
               {greetingName ? `Hola, ${greetingName}` : "Hola"}
             </h1>
-            <p className="mt-1 text-gray-500">Resumen de tu actividad</p>
+            <p className="mt-1 intra-body">Resumen de tu actividad</p>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Link
+            <DashboardShortcutCard
               href="/app/shipments/new"
-              className="group flex min-h-28 items-center gap-4 rounded-2xl bg-[#2ECC71] p-4 text-left shadow-lg shadow-[#2ECC71]/20 transition hover:bg-[#27ae60] sm:p-5"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              title="Crear envío"
+              description="Publica un paquete para que un viajero lo lleve"
+              tone="green"
+              icon={(
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-white">Crear envío</p>
-                <p className="text-sm leading-snug text-white/75">
-                  Publica un paquete para que un viajero lo lleve
-                </p>
-              </div>
-              <svg className="ml-auto h-5 w-5 shrink-0 text-white/60 transition group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+              )}
+            />
 
-            <Link
+            <DashboardShortcutCard
               href="/app/trips/new"
-              className="group flex min-h-28 items-center gap-4 rounded-2xl bg-[#0B2C4A] p-4 text-left transition hover:bg-[#123a5f] sm:p-5"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10">
-                <svg className="h-5 w-5 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              title="Publicar viaje"
+              description="Gana dinero con tu próximo viaje llevando paquetes"
+              tone="blue"
+              icon={(
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-white">Publicar viaje</p>
-                <p className="text-sm leading-snug text-white/70">
-                  Gana dinero con tu próximo viaje llevando paquetes
-                </p>
-              </div>
-              <svg className="ml-auto h-5 w-5 shrink-0 text-white/40 transition group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
+              )}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <div className="rounded-2xl border border-gray-100 bg-white p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EFFBF4]">
-                  <svg className="h-4 w-4 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <DashboardStatCard
+              eyebrow={`+${dashboard.summary.activityTodayCount} hoy`}
+              value={dashboard.summary.activeShipmentsCount}
+              label="Envíos activos"
+              icon={(
+                <svg className="h-4 w-4 text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
-                </div>
-                <span className="text-xs text-gray-400">+{dashboard.summary.activityTodayCount} hoy</span>
-              </div>
-              <p className="text-2xl font-bold text-[#0B2C4A]">{dashboard.summary.activeShipmentsCount}</p>
-              <p className="mt-0.5 text-xs text-gray-500">Envíos activos</p>
-            </div>
+              )}
+            />
 
-            <div className="rounded-2xl border border-gray-100 bg-white p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EEF2F7]">
-                  <svg className="h-4 w-4 text-[#0B2C4A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <DashboardStatCard
+              value={dashboard.summary.publishedTripsCount}
+              label="Viajes publicados"
+              icon={(
+                <svg className="h-4 w-4 text-intra-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0" />
                   </svg>
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-[#0B2C4A]">{dashboard.summary.publishedTripsCount}</p>
-              <p className="mt-0.5 text-xs text-gray-500">Viajes publicados</p>
-            </div>
+              )}
+            />
 
-            <div className="rounded-2xl border-2 border-[#A3E4BF] bg-white p-4 ring-2 ring-[#EFFBF4]">
-              <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#2ECC71]">
-                  <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <DashboardStatCard
+              accent
+              badge="Requiere acción"
+              value={dashboard.summary.pendingActionMatchesCount}
+              label="Matches pendientes"
+              icon={(
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
-                </div>
-                <span className="rounded bg-[#EFFBF4] px-1.5 py-0.5 text-[10px] font-semibold text-[#2ECC71]">
-                  Requiere acción
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-[#2ECC71]">{dashboard.summary.pendingActionMatchesCount}</p>
-              <p className="mt-0.5 text-xs text-gray-500">Matches pendientes</p>
-            </div>
+              )}
+            />
 
-            <div className="rounded-2xl border border-gray-100 bg-white p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EFFBF4]">
-                  <svg className="h-4 w-4 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <DashboardStatCard
+              value={dashboard.summary.completedDeliveriesCount}
+              label="Entregas completadas"
+              icon={(
+                <svg className="h-4 w-4 text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0" />
                   </svg>
-                </div>
-              </div>
-              <p className="text-2xl font-bold text-[#0B2C4A]">{dashboard.summary.completedDeliveriesCount}</p>
-              <p className="mt-0.5 text-xs text-gray-500">Entregas completadas</p>
-            </div>
+              )}
+            />
           </div>
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-5">
             <div className="space-y-4 lg:col-span-3">
               <section id="mis-envios" className="space-y-4">
                 <div>
-                  <h2 className="text-lg font-bold text-[#0B2C4A]">Mis envíos activos</h2>
+                  <h2 className="intra-h3">Mis envíos activos</h2>
                 </div>
 
                 {dashboard.pendingPaymentShipments.length > 0 ? (
