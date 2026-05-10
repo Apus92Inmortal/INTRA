@@ -271,7 +271,7 @@ function DashboardStatCard({
         >
           {icon}
         </div>
-        <p className={accent ? "intra-metric-sm leading-none text-intra-green" : "intra-metric leading-none"}>{value}</p>
+        <p className={accent ? "intra-metric leading-none text-intra-green" : "intra-metric leading-none"}>{value}</p>
         <p className="min-w-0 intra-caption">{label}</p>
       </div>
     </div>
