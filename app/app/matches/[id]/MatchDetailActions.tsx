@@ -102,7 +102,7 @@ export default function MatchDetailActions({
           <button
             onClick={handleAccept}
             disabled={isPending}
-            className="intra-btn w-full gap-2 rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-white hover:opacity-95 disabled:opacity-50 sm:w-auto"
+            className="intra-btn w-full gap-2 rounded-2xl bg-intra-blue px-5 py-2.5 text-white hover:opacity-95 disabled:opacity-50 sm:w-auto"
           >
             <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
             {isPending && activeAction === "accept"
@@ -119,10 +119,10 @@ export default function MatchDetailActions({
               canAccept && status === "pending" ? "sm:w-auto" : ""
             } ${
               status === "accepted"
-                ? "border border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
+                ? "border border-intra-danger-border bg-intra-card text-intra-danger hover:bg-intra-danger-soft"
                 : canAccept && status === "pending"
-                ? "border border-[#D9E4F0] bg-white text-slate-700 hover:bg-[#F7FAFD]"
-                  : "border border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
+                ? "border border-intra-border-strong bg-intra-card text-intra-text-muted hover:bg-intra-neutral-soft-alt"
+                  : "border border-intra-danger-border bg-intra-card text-intra-danger hover:bg-intra-danger-soft"
             }`}
           >
             {status === "accepted" || !(canAccept && status === "pending") ? (
@@ -138,7 +138,7 @@ export default function MatchDetailActions({
         )}
       </div>
 
-      {error && <p className="mt-3 intra-caption text-red-600">{error}</p>}
+      {error && <p className="mt-3 intra-caption text-intra-danger">{error}</p>}
     </div>
   );
 }

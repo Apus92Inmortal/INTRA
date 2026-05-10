@@ -245,18 +245,18 @@ export default async function MatchDetailPage({ params }: PageProps) {
   ];
   const matchStatusBadgeClass =
     match.status === "pending"
-      ? "bg-amber-100 text-amber-700"
+      ? "border border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
       : match.status === "accepted"
-        ? "bg-emerald-100 text-emerald-700"
+        ? "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
         : match.status === "rejected"
-          ? "bg-rose-100 text-rose-700"
-          : "bg-slate-100 text-slate-700";
+          ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+          : "border border-intra-border bg-intra-neutral-pill text-intra-text-muted";
   const primaryActionButtonClass =
-    "intra-btn min-h-11 w-full gap-2 rounded-2xl bg-[#2C9B57] px-5 py-2.5 text-white hover:bg-[#247C47]";
+    "intra-btn intra-btn-primary min-h-11 w-full gap-2 rounded-2xl px-5 py-2.5";
   const chatActionButtonClass =
-    "intra-btn min-h-11 w-full gap-2 rounded-2xl bg-[#0B5CAD] px-5 py-2.5 text-white hover:bg-[#094B8C]";
+    "intra-btn min-h-11 w-full gap-2 rounded-2xl bg-intra-info px-5 py-2.5 text-white hover:opacity-95";
   const warningActionButtonClass =
-    "intra-btn min-h-11 w-full gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-2.5 text-amber-800 hover:bg-amber-100";
+    "intra-btn min-h-11 w-full gap-2 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-5 py-2.5 text-intra-warning-text hover:bg-intra-warning-soft-alt";
 
   const canAccept = isOwner && match.status === "pending";
   const canCancel =
@@ -317,12 +317,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
         <MatchDetailRealtime matchId={match.id} />
 
         <div className="mx-auto max-w-5xl">
-          <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
-            <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
+          <div className="overflow-hidden rounded-[28px] border border-intra-border-strong bg-intra-card shadow-sm">
+            <div className="border-b border-intra-border-strong bg-[linear-gradient(90deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] px-6 py-6 sm:px-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EEF4FB] text-[#0B5CAD]">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-intra-info-soft text-intra-info">
                       <Route className="intra-icon-emphasis" strokeWidth={2.1} />
                     </div>
                     <h1 className="intra-page-title">
@@ -337,21 +337,21 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       <span className="intra-caption">{otherUserRoleLabel}:</span>{" "}
                       <span className="intra-body-strong">{otherUserName}</span>
                     </span>
-                    <span className="intra-pill items-center gap-1.5 self-start bg-[#FFF4D6] text-[#8A5A00] sm:self-auto">
-                      <Star className="intra-icon-compact fill-[#D4A017] text-[#D4A017]" strokeWidth={1.8} />
+                    <span className="intra-pill items-center gap-1.5 self-start bg-intra-warning-soft-alt text-intra-warning-text sm:self-auto">
+                      <Star className="intra-icon-compact fill-intra-warning-alt text-intra-warning-alt" strokeWidth={1.8} />
                       <span>{headerRatingText}</span>
                     </span>
                   </div>
                 </div>
 
                 <div className="flex shrink-0 flex-col items-center gap-2 text-center">
-                  <TrackingCodeBadge code={matchCode} className="bg-[#0B2C4A] hover:bg-[#12385C]" />
+                  <TrackingCodeBadge code={matchCode} className="!bg-intra-blue hover:!bg-intra-blue" />
                   <span className="intra-caption">Creado: {formatDate(match.created_at)}</span>
                 </div>
               </div>
 
               <div className="mt-5">
-                <p className="intra-caption-strong uppercase tracking-wide text-slate-500">Progreso del envío</p>
+                <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted">Progreso del envío</p>
                 <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
                   {progressSteps.map((step, index) => {
                     const isDone = index <= progressIndex;
@@ -361,12 +361,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       <div key={step} className="min-w-0">
                         <div
                           className={`h-2.5 rounded-full transition ${
-                            isDone ? "bg-[#2C9B57]" : "bg-slate-200"
+                            isDone ? "bg-intra-green" : "bg-intra-neutral-pill"
                           }`}
                         />
                         <p
                           className={`intra-step-label mt-2 text-center ${
-                            isCurrent ? "text-[#0B2C4A]" : isDone ? "text-slate-700" : "text-slate-400"
+                            isCurrent ? "text-intra-blue" : isDone ? "text-intra-text-muted" : "text-intra-text-muted/70"
                           }`}
                         >
                           {step}
@@ -381,9 +381,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
             <div className="px-4 py-5 sm:px-8 sm:py-6">
               <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="space-y-5">
-                  <section className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-5 shadow-sm">
+                  <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-info-soft-alt)_100%)] p-5 shadow-sm">
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isTraveler ? "bg-intra-warning-soft text-intra-warning" : "bg-intra-info-soft text-intra-info"}`}>
                         {isTraveler ? <PackageCheck className="intra-icon-body" strokeWidth={2.1} /> : <Route className="intra-icon-body" strokeWidth={2.1} />}
                       </div>
                       <div>
@@ -401,12 +401,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         </div>
 
                         {shipment?.id && ownerId ? (
-                          <div className="flex flex-col justify-center rounded-2xl border border-amber-200 bg-[linear-gradient(180deg,#FFFDF8_0%,#FFF7E8_100%)] p-4 shadow-sm">
-                            <div className="flex items-center gap-2 text-amber-700">
-                              <div className="intra-icon-shell-body rounded-xl bg-amber-100">
+                          <div className="flex flex-col justify-center rounded-2xl border border-intra-warning-border bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-warning-soft)_100%)] p-4 shadow-sm">
+                            <div className="flex items-center gap-2 text-intra-warning-text">
+                              <div className="intra-icon-shell-body rounded-xl bg-intra-warning-soft-alt">
                                 <ShieldAlert className="intra-icon-body" strokeWidth={2} />
                               </div>
-                              <p className="intra-caption-strong uppercase tracking-wide text-amber-700">Protección del envío</p>
+                              <p className="intra-caption-strong uppercase tracking-wide text-intra-warning-text">Protección del envío</p>
                             </div>
 
                             <div className="mt-3">
@@ -434,7 +434,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 </div>
 
                 <div className="space-y-5">
-                  <section className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-5 shadow-sm">
+                  <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
                     <h2 className="intra-h3">Acciones del match</h2>
 
                     <div className="mt-5 space-y-3">
@@ -510,7 +510,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
               </div>
 
               {!canOpenChat ? (
-                <div className="mt-6 rounded-2xl bg-slate-100 px-4 py-3 intra-body">
+                <div className="mt-6 rounded-2xl bg-intra-neutral-pill px-4 py-3 intra-body">
                   El chat se activará automáticamente cuando el match sea aceptado.
                 </div>
               ) : null}
