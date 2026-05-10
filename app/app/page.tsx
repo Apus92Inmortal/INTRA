@@ -846,17 +846,23 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 </div>
 
                 <div className="grid grid-cols-3 rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm">
-                  <div className="px-3 py-3 sm:px-4">
+                  <div className="flex flex-col px-3 py-3 sm:px-4">
                     <p className="text-[11px] font-medium text-white/55 sm:text-xs">Entregas</p>
-                    <p className="mt-1 text-center text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.deliveriesCount}</p>
+                    <div className="mt-1 flex w-full justify-center">
+                      <p className="text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.deliveriesCount}</p>
+                    </div>
                   </div>
-                  <div className="border-l border-white/10 px-3 py-3 sm:px-4">
+                  <div className="flex flex-col border-l border-white/10 px-3 py-3 sm:px-4">
                     <p className="text-[11px] font-medium text-white/55 sm:text-xs">Promedio</p>
-                    <p className="mt-1 text-center text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.averageTicketLabel}</p>
+                    <div className="mt-1 flex w-full justify-center">
+                      <p className="text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.averageTicketLabel}</p>
+                    </div>
                   </div>
-                  <div className="border-l border-white/10 px-3 py-3 sm:px-4">
+                  <div className="flex flex-col border-l border-white/10 px-3 py-3 sm:px-4">
                     <p className="text-[11px] font-medium text-white/55 sm:text-xs">Mejor ruta</p>
-                    <p className="mt-1 text-center text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}</p>
+                    <div className="mt-1 flex w-full justify-center">
+                      <p className="text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}</p>
+                    </div>
                   </div>
                 </div>
               </div>
