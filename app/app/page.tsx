@@ -43,7 +43,7 @@ function getActivityIcon(icon: DashboardActivityIcon) {
         bgClassName: "bg-[#EFFBF4]",
         textClassName: "text-[#2ECC71]",
         svg: (
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -58,7 +58,7 @@ function getActivityIcon(icon: DashboardActivityIcon) {
         bgClassName: "bg-[#EEF2F7]",
         textClassName: "text-[#0B2C4A]",
         svg: (
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -73,7 +73,7 @@ function getActivityIcon(icon: DashboardActivityIcon) {
         bgClassName: "bg-[#EEF2F7]",
         textClassName: "text-[#0B2C4A]",
         svg: (
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -88,7 +88,7 @@ function getActivityIcon(icon: DashboardActivityIcon) {
         bgClassName: "bg-[#EEF2F7]",
         textClassName: "text-[#0B2C4A]",
         svg: (
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -103,7 +103,7 @@ function getActivityIcon(icon: DashboardActivityIcon) {
         bgClassName: "bg-[#EFFBF4]",
         textClassName: "text-[#2ECC71]",
         svg: (
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -118,7 +118,7 @@ function getActivityIcon(icon: DashboardActivityIcon) {
         bgClassName: "bg-[#FFF4E5]",
         textClassName: "text-[#F39C12]",
         svg: (
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -133,7 +133,7 @@ function getActivityIcon(icon: DashboardActivityIcon) {
         bgClassName: "bg-[#EEF2F7]",
         textClassName: "text-[#0B2C4A]",
         svg: (
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -236,14 +236,14 @@ function DashboardShortcutCard({
       href={href}
       className={`group flex min-h-28 items-center gap-4 rounded-[var(--intra-radius-md)] p-4 text-left transition sm:p-5 ${cardClassName}`}
     >
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] ${iconShellClassName}`}>
+      <div className={`intra-icon-shell-emphasis rounded-[var(--intra-radius-xs)] ${iconShellClassName}`}>
         {icon}
       </div>
       <div className="min-w-0">
         <p className="intra-h4 text-white">{title}</p>
         <p className={`mt-1 text-sm leading-snug ${descriptionClassName}`}>{description}</p>
       </div>
-      <svg className={`ml-auto h-5 w-5 shrink-0 transition group-hover:translate-x-1 ${arrowClassName}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className={`ml-auto intra-icon-emphasis shrink-0 transition group-hover:translate-x-1 ${arrowClassName}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
       </svg>
     </Link>
@@ -271,7 +271,7 @@ function DashboardStatCard({
     >
       <div className="mb-2 flex items-center gap-2">
         <div
-          className={accent ? "flex h-8 w-8 items-center justify-center rounded-lg bg-intra-green text-white" : "flex h-8 w-8 items-center justify-center rounded-lg bg-intra-neutral-pill text-intra-blue"}
+          className={accent ? "intra-icon-shell-body rounded-lg bg-intra-green text-white" : "intra-icon-shell-body rounded-lg bg-intra-neutral-pill text-intra-blue"}
         >
           {icon}
         </div>
@@ -396,8 +396,8 @@ function CompactCompatibleShipmentCard({
 
       <div className="mt-4 flex items-center gap-3 sm:justify-end">
         <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-[#D8F3E3] bg-[#EFFBF4] px-3 py-2 shadow-[0_10px_30px_-22px_rgba(46,204,113,0.9)] sm:flex-none">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#2ECC71]">
-            <CircleDollarSign className="h-4 w-4" />
+          <span className="intra-icon-shell-body rounded-full bg-white text-[#2ECC71]">
+            <CircleDollarSign className="intra-icon-body" />
           </span>
           <div className="flex min-w-0 items-center gap-2 text-left">
             <span className="hidden whitespace-nowrap text-sm font-semibold text-[#1E8C4E] sm:inline">
@@ -483,7 +483,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               description="Publica un paquete para que un viajero lo lleve"
               tone="green"
               icon={(
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="intra-icon-emphasis" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               )}
@@ -495,7 +495,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               description="Gana dinero con tu próximo viaje llevando paquetes"
               tone="blue"
               icon={(
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="intra-icon-emphasis" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
@@ -509,7 +509,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               value={dashboard.summary.activeShipmentsCount}
               label="Envíos activos"
               icon={(
-                <svg className="h-4 w-4 text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="intra-icon-body text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
               )}
@@ -519,7 +519,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               value={dashboard.summary.publishedTripsCount}
               label="Viajes publicados"
               icon={(
-                <svg className="h-4 w-4 text-intra-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="intra-icon-body text-intra-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0" />
                   </svg>
               )}
@@ -531,7 +531,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               value={dashboard.summary.pendingActionMatchesCount}
               label="Matches pendientes"
               icon={(
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
               )}
@@ -541,7 +541,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               value={dashboard.summary.completedDeliveriesCount}
               label="Entregas completadas"
               icon={(
-                <svg className="h-4 w-4 text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="intra-icon-body text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0" />
                   </svg>
               )}
@@ -637,8 +637,8 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                         {shipment.hasPendingAction && shipment.pendingMatchId ? (
                           <div className="rounded-xl bg-yellow-50 p-3 sm:p-4">
                             <div className="mb-3 flex items-start gap-3">
-                              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-yellow-100">
-                                <svg className="h-4 w-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-yellow-100 text-yellow-600">
+                                <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                               </div>
@@ -792,8 +792,8 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 {dashboard.recentActivity.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-5 text-sm text-gray-500">
                     <div className="flex items-center gap-2 font-semibold text-[#0B2C4A]">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2F7] text-[#0B2C4A]">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span className="intra-icon-shell-body rounded-full bg-[#EEF2F7] text-[#0B2C4A]">
+                        <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
                       </span>
@@ -820,7 +820,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                       const icon = getActivityIcon(item.icon);
                       const content = (
                         <div className="flex items-start gap-3 p-3.5">
-                          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${icon.bgClassName} ${icon.textClassName}`}>
+                          <div className={`intra-icon-shell-body mt-0.5 rounded-full ${icon.bgClassName} ${icon.textClassName}`}>
                             {icon.svg}
                           </div>
                           <div className="min-w-0">
@@ -845,7 +845,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               <div className="rounded-2xl bg-[#0B2C4A] p-5 text-white">
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-sm font-medium text-white/60">Ganancias este mes</p>
-                  <svg className="h-5 w-5 text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="intra-icon-emphasis text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                 </div>

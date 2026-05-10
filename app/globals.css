@@ -398,4 +398,46 @@ body {
     line-height: var(--intra-line-badge);
     font-weight: 700;
   }
+
+  .intra-icon-shell-compact {
+    display: inline-flex;
+    height: 24px;
+    width: 24px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-body {
+    display: inline-flex;
+    height: 32px;
+    width: 32px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-emphasis {
+    display: inline-flex;
+    height: 40px;
+    width: 40px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-compact {
+    height: 14px;
+    width: 14px;
+  }
+
+  .intra-icon-body {
+    height: 16px;
+    width: 16px;
+  }
+
+  .intra-icon-emphasis {
+    height: 20px;
+    width: 20px;
+  }
 }
