@@ -31,6 +31,7 @@ type ProfileRow = {
 
 type CityRow = {
   name: string | null;
+  iata_code?: string | null;
 };
 
 type CityRelation = CityRow | CityRow[] | null;
@@ -75,6 +76,26 @@ function getCompactRatingText(avgRating: number | null | undefined, totalReviews
   const formatted = formatRatingValue(avgRating) ?? "0.0";
 
   return `${formatted}/${Math.max(totalReviews, 0)}`;
+}
+
+function getCityCode(city: CityRelation) {
+  const cityName = getCityName(city);
+
+  if (!city) return null;
+  if (Array.isArray(city)) {
+    const firstCity = city[0];
+    if (firstCity?.iata_code) return firstCity.iata_code.toUpperCase();
+    return cityName ? cityName.slice(0, 3).toUpperCase() : null;
+  }
+
+  if (city.iata_code) return city.iata_code.toUpperCase();
+  return cityName ? cityName.slice(0, 3).toUpperCase() : null;
+}
+
+function getRouteShortLabel(origin: CityRelation, destination: CityRelation) {
+  const originCode = getCityCode(origin) ?? "ORG";
+  const destinationCode = getCityCode(destination) ?? "DST";
+  return `${originCode} → ${destinationCode}`;
 }
 
 function getProgressStepIndex({
@@ -124,8 +145,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
         departure_time,
         origin_city_id,
         destination_city_id,
-        origin_city:cities!trips_origin_city_id_fkey(name),
-        destination_city:cities!trips_destination_city_id_fkey(name)
+        origin_city:cities!trips_origin_city_id_fkey(name, iata_code),
+        destination_city:cities!trips_destination_city_id_fkey(name, iata_code)
       ),
       shipments (
         id,
@@ -138,8 +159,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
         tracking_code,
         origin_city_id,
         destination_city_id,
-        origin_city:cities!shipments_origin_city_id_fkey(name),
-        destination_city:cities!shipments_destination_city_id_fkey(name)
+        origin_city:cities!shipments_origin_city_id_fkey(name, iata_code),
+        destination_city:cities!shipments_destination_city_id_fkey(name, iata_code)
       )
     `)
     .eq("id", id)
@@ -199,9 +220,10 @@ export default async function MatchDetailPage({ params }: PageProps) {
     ? participantNameById.get(otherUserId) ?? "la otra persona"
     : "la otra persona";
   const otherUserRoleLabel = isOwner ? "Viajero" : "Cliente";
-  const shipmentRouteLabel = `${getCityName(shipment?.origin_city as CityRelation) ?? "Origen"} → ${getCityName(
+  const shipmentRouteShortLabel = getRouteShortLabel(
+    shipment?.origin_city as CityRelation,
     shipment?.destination_city as CityRelation
-  ) ?? "Destino"}`;
+  );
   const tripRouteLabel = `${getCityName(trip?.origin_city as CityRelation) ?? "Origen"} → ${getCityName(
     trip?.destination_city as CityRelation
   ) ?? "Destino"}`;
@@ -218,7 +240,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
   });
   const matchCode = shipment?.tracking_code || `MATCH-${match.id.slice(0, 8).toUpperCase()}`;
   const progressSteps = [
-    "Match aceptado",
+    "Aceptado",
     "Recogida",
     "En tránsito",
     "Entrega",
@@ -306,7 +328,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       <Route className="intra-icon-emphasis" strokeWidth={2.1} />
                     </div>
                     <h1 className="intra-page-title">
-                      {shipmentRouteLabel}
+                      {shipmentRouteShortLabel}
                     </h1>
                     <span className={`intra-pill intra-badge-text w-fit ${matchStatusBadgeClass}`}>
                       {getStatusLabel(match.status)}
