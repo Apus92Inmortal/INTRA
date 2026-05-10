@@ -562,11 +562,15 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                   </div>
                                 ) : null}
 
-                                <div className="mt-3 flex items-center gap-1.5 text-sm leading-5 text-intra-text-subtle">
+                                <div className="mt-3 hidden items-center gap-1.5 text-sm leading-5 text-intra-text-subtle sm:flex">
                                   <Calendar className="h-4 w-4 shrink-0" />
                                   <p>{shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}</p>
                                 </div>
                               </div>
+                            </div>
+                            <div className="mt-3 flex items-start gap-1.5 text-sm leading-5 text-intra-text-subtle sm:hidden">
+                              <Calendar className="mt-0.5 h-4 w-4 shrink-0" />
+                              <p>{shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}</p>
                             </div>
                             <div className="mt-4 border-t border-intra-trust-border pt-4">
                               <DashboardPendingMatchActions matchId={shipment.pendingMatchId} />
