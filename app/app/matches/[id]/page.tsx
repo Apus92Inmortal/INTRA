@@ -110,9 +110,8 @@ function getProgressStepIndex({
   deliveredAt: string | null | undefined;
 }) {
   if (matchStatus === "pending") return -1;
-  if (deliveredAt || shipmentStatus === "delivered" || matchStatus === "completed") return 3;
-  if (travelerDeliveredAt) return 3;
-  if (shipmentStatus === "in_transit") return 2;
+  if (deliveredAt || travelerDeliveredAt || shipmentStatus === "delivered" || matchStatus === "completed") return 2;
+  if (shipmentStatus === "in_transit") return 1;
   if (shipmentStatus === "matched" || matchStatus === "accepted") return 0;
   return -1;
 }
@@ -241,9 +240,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const matchCode = shipment?.tracking_code || `MATCH-${match.id.slice(0, 8).toUpperCase()}`;
   const progressSteps = [
     "Aceptado",
-    "Recogida",
     "En tránsito",
-    "Entrega",
+    "Entregado",
   ];
   const matchStatusBadgeClass =
     match.status === "pending"
@@ -354,7 +352,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
               <div className="mt-5">
                 <p className="intra-caption-strong uppercase tracking-wide text-slate-500">Progreso del envío</p>
-                <div className="mt-3 grid grid-cols-4 gap-2 sm:gap-3">
+                <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
                   {progressSteps.map((step, index) => {
                     const isDone = index <= progressIndex;
                     const isCurrent = index === progressIndex;
