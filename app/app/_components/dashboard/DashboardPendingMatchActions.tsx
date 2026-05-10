@@ -45,7 +45,7 @@ export default function DashboardPendingMatchActions({
           type="button"
           disabled={isPending}
           onClick={() => handleAction("accept")}
-          className="intra-btn min-h-[48px] flex-1 gap-2 rounded-xl bg-intra-trust-success-fg px-4 py-3 text-base font-bold text-intra-card hover:bg-intra-green-hover-app"
+          className="intra-btn min-h-[48px] flex-1 gap-2 rounded-xl bg-intra-success-bright px-4 py-3 text-base font-bold text-intra-card hover:bg-intra-success-bright-hover"
         >
           <CheckCircle2 className="h-4 w-4" />
           {isPending && activeAction === "accept" ? "Procesando..." : "Aceptar"}
@@ -55,7 +55,7 @@ export default function DashboardPendingMatchActions({
           type="button"
           disabled={isPending}
           onClick={() => handleAction("reject")}
-          className="intra-btn min-h-[48px] flex-1 gap-2 rounded-xl border border-intra-trust-neutral-border px-4 py-3 text-base font-bold text-intra-trust-ink hover:bg-intra-bg-app"
+          className="intra-btn min-h-[48px] flex-1 gap-2 rounded-xl border border-intra-border-soft px-4 py-3 text-base font-bold text-intra-blue hover:bg-intra-bg-app"
         >
           <XCircle className="h-4 w-4" />
           {isPending && activeAction === "reject" ? "Procesando..." : "Rechazar"}

@@ -527,23 +527,23 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                         </div>
 
                         {shipment.hasPendingAction && shipment.pendingMatchId ? (
-                          <div className="rounded-2xl border border-intra-trust-card-border bg-intra-trust-card-bg p-5">
+                          <div className="rounded-2xl border border-intra-trust-border bg-intra-trust-soft p-5">
                             <div className="flex items-start gap-3">
-                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-intra-trust-avatar-bg text-intra-trust-avatar-fg">
+                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-intra-trust-icon-bg text-intra-trust-icon-text">
                                 <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="text-[16px] font-bold leading-6 text-intra-trust-ink">
+                                <p className="text-[16px] font-bold leading-6 text-intra-blue">
                                   {shipment.travelerName ?? "Un viajero"}
                                 </p>
-                                <p className="mt-0.5 text-sm leading-5 text-intra-trust-muted">Quiere transportar tu envío</p>
+                                <p className="mt-0.5 text-sm leading-5 text-intra-text-subtle">Quiere transportar tu envío</p>
 
                                 {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 || shipment.travelerVerified ? (
                                   <div className="mt-3 flex flex-wrap gap-2">
                                     {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 ? (
-                                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-intra-trust-success-fg/20 bg-intra-trust-success-bg px-2.5 py-1 text-xs font-semibold text-intra-trust-success-fg">
+                                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-intra-success-text-bright/20 bg-intra-success-soft px-2.5 py-1 text-xs font-semibold text-intra-success-text-bright">
                                         <PackageCheck className="h-3.5 w-3.5" />
                                         <span>
                                           {shipment.travelerCompletedDeliveriesCount === 1
@@ -554,7 +554,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                     ) : null}
 
                                     {shipment.travelerVerified ? (
-                                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-intra-trust-neutral-border bg-intra-card px-2.5 py-1 text-xs font-semibold text-intra-trust-ink">
+                                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-intra-border-soft bg-intra-card px-2.5 py-1 text-xs font-semibold text-intra-blue">
                                         <ShieldCheck className="h-3.5 w-3.5" />
                                         <span>Viajero verificado</span>
                                       </span>
@@ -562,13 +562,13 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                   </div>
                                 ) : null}
 
-                                <div className="mt-3 flex items-center gap-1.5 text-sm leading-5 text-intra-trust-muted">
+                                <div className="mt-3 flex items-center gap-1.5 text-sm leading-5 text-intra-text-subtle">
                                   <Calendar className="h-4 w-4 shrink-0" />
                                   <p>{shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}</p>
                                 </div>
                               </div>
                             </div>
-                            <div className="mt-4 border-t border-intra-trust-card-border pt-4">
+                            <div className="mt-4 border-t border-intra-trust-border pt-4">
                               <DashboardPendingMatchActions matchId={shipment.pendingMatchId} />
                             </div>
                           </div>

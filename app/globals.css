@@ -41,15 +41,13 @@
   --intra-dashboard-hero-end: #123d61;
   --intra-auth-hero-mid: #123d61;
   --intra-auth-hero-end: #0f6b52;
-  --intra-trust-card-bg: #FFF9EB;
-  --intra-trust-card-border: #FDECC8;
-  --intra-trust-avatar-bg: #FEF0D7;
-  --intra-trust-avatar-fg: #B47B25;
-  --intra-trust-ink: #0D1B2A;
-  --intra-trust-muted: #5E6C84;
-  --intra-trust-success-bg: #E7F9F0;
-  --intra-trust-success-fg: #22C55E;
-  --intra-trust-neutral-border: #E2E8F0;
+  --intra-trust-soft: #FFF9EB;
+  --intra-trust-border: #FDECC8;
+  --intra-trust-icon-bg: #FEF0D7;
+  --intra-trust-icon-text: #B47B25;
+  --intra-success-bright: #22C55E;
+  --intra-success-bright-hover: #16A34A;
+  --intra-success-text-bright: #22C55E;
 
   --intra-radius-xs: 12px;
   --intra-radius-sm: 16px;
@@ -126,15 +124,13 @@
   --color-intra-blue-hover-card: var(--intra-blue-hover-card);
   --color-intra-dashboard-hero-mid: var(--intra-dashboard-hero-mid);
   --color-intra-dashboard-hero-end: var(--intra-dashboard-hero-end);
-  --color-intra-trust-card-bg: var(--intra-trust-card-bg);
-  --color-intra-trust-card-border: var(--intra-trust-card-border);
-  --color-intra-trust-avatar-bg: var(--intra-trust-avatar-bg);
-  --color-intra-trust-avatar-fg: var(--intra-trust-avatar-fg);
-  --color-intra-trust-ink: var(--intra-trust-ink);
-  --color-intra-trust-muted: var(--intra-trust-muted);
-  --color-intra-trust-success-bg: var(--intra-trust-success-bg);
-  --color-intra-trust-success-fg: var(--intra-trust-success-fg);
-  --color-intra-trust-neutral-border: var(--intra-trust-neutral-border);
+  --color-intra-trust-soft: var(--intra-trust-soft);
+  --color-intra-trust-border: var(--intra-trust-border);
+  --color-intra-trust-icon-bg: var(--intra-trust-icon-bg);
+  --color-intra-trust-icon-text: var(--intra-trust-icon-text);
+  --color-intra-success-bright: var(--intra-success-bright);
+  --color-intra-success-bright-hover: var(--intra-success-bright-hover);
+  --color-intra-success-text-bright: var(--intra-success-text-bright);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
