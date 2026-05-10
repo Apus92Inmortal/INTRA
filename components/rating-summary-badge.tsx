@@ -19,7 +19,7 @@ export function RatingSummaryBadge({ avgRating, totalReviews, className = "" }: 
     >
       <span aria-hidden="true">⭐</span>
       <span>
-        {formatted}/{totalReviews}
+        {formatted}({totalReviews})
       </span>
     </span>
   );
