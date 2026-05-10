@@ -2,14 +2,15 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { ArrowRight, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route, Star } from "lucide-react";
+import { ArrowRight, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
+import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 import { cancelMatchAction, confirmDeliveryAction, markDeliveredAction } from "./[id]/actions";
-import { fetchRatingSummaryMap, formatRatingValue } from "@/lib/reviews";
+import { fetchRatingSummaryMap } from "@/lib/reviews";
 
 type CityRow = {
   name: string;
@@ -259,23 +260,6 @@ function DetailRow({
         <span className="font-semibold text-intra-blue">{label}:</span> {value}
       </p>
     </div>
-  );
-}
-
-function ReputationInline({
-  avgRating,
-  totalReviews,
-}: {
-  avgRating: number | null;
-  totalReviews: number;
-}) {
-  const formatted = formatRatingValue(avgRating) ?? "0.0";
-
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-intra-warning-soft-alt px-3 py-1 text-[11px] font-semibold text-intra-warning-text sm:text-sm">
-      <Star className="h-3.5 w-3.5 fill-intra-warning-alt text-intra-warning-alt" strokeWidth={1.8} />
-      <span>{formatted}/{Math.max(totalReviews, 0)}</span>
-    </span>
   );
 }
 
@@ -640,13 +624,15 @@ export default async function MatchesPage() {
                               <span>
                                 <span className="font-medium text-intra-blue">{otherUserRoleLabel}:</span> {otherUserName}
                               </span>
-                              <span className="inline-flex items-center gap-1">
-                                <span className="font-medium text-intra-blue">Calificación:</span>
-                                <ReputationInline
-                                  avgRating={otherUserRating.avgRating}
-                                  totalReviews={otherUserRating.totalReviews}
-                                />
-                              </span>
+                              {otherUserRating.totalReviews > 0 ? (
+                                <span className="inline-flex items-center gap-1">
+                                  <span className="font-medium text-intra-blue">Calificación:</span>
+                                  <RatingSummaryBadge
+                                    avgRating={otherUserRating.avgRating}
+                                    totalReviews={otherUserRating.totalReviews}
+                                  />
+                                </span>
+                              ) : null}
                               <span>Creado: {formatDate(match.created_at)}</span>
                             </div>
                           </div>

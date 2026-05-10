@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
+import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import MatchDetailActions from "./MatchDetailActions";
 import MatchDetailRealtime from "./MatchDetailRealtime";
 import {
@@ -15,9 +16,9 @@ import {
 } from "./actions";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
-import { fetchRatingSummaryMap, formatRatingValue } from "@/lib/reviews";
+import { fetchRatingSummaryMap } from "@/lib/reviews";
 import SuspiciousReportForm from "./SuspiciousReportForm";
-import { CheckCircle2, MessageCircle, PackageCheck, Route, ShieldAlert, Star, Truck } from "lucide-react";
+import { CheckCircle2, MessageCircle, PackageCheck, Route, ShieldAlert, Truck } from "lucide-react";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -70,12 +71,6 @@ function getCityName(city: CityRelation) {
   if (!city) return null;
   if (Array.isArray(city)) return city[0]?.name ?? null;
   return city.name ?? null;
-}
-
-function getCompactRatingText(avgRating: number | null | undefined, totalReviews: number) {
-  const formatted = formatRatingValue(avgRating) ?? "0.0";
-
-  return `${formatted}/${Math.max(totalReviews, 0)}`;
 }
 
 function getCityCode(city: CityRelation) {
@@ -227,10 +222,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
     trip?.destination_city as CityRelation
   ) ?? "Destino"}`;
   const primaryPanelTitle = isTraveler ? "Envío solicitado" : "Viaje disponible";
-  const headerRatingText = getCompactRatingText(
-    otherUserId ? ratingSummaryMap[otherUserId]?.avgRating ?? null : null,
-    otherUserId ? ratingSummaryMap[otherUserId]?.totalReviews ?? 0 : 0
-  );
+  const otherUserAvgRating = otherUserId ? ratingSummaryMap[otherUserId]?.avgRating ?? null : null;
+  const otherUserTotalReviews = otherUserId ? ratingSummaryMap[otherUserId]?.totalReviews ?? 0 : 0;
   const progressIndex = getProgressStepIndex({
     matchStatus: match.status,
     shipmentStatus: shipment?.status,
@@ -337,10 +330,13 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       <span className="intra-caption">{otherUserRoleLabel}:</span>{" "}
                       <span className="intra-body-strong">{otherUserName}</span>
                     </span>
-                    <span className="intra-pill items-center gap-1.5 self-start bg-intra-warning-soft-alt text-intra-warning-text sm:self-auto">
-                      <Star className="intra-icon-compact fill-intra-warning-alt text-intra-warning-alt" strokeWidth={1.8} />
-                      <span>{headerRatingText}</span>
-                    </span>
+                    {otherUserTotalReviews > 0 ? (
+                      <RatingSummaryBadge
+                        avgRating={otherUserAvgRating}
+                        totalReviews={otherUserTotalReviews}
+                        className="self-start sm:self-auto"
+                      />
+                    ) : null}
                   </div>
                 </div>
 
