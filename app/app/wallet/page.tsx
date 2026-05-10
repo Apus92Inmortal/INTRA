@@ -59,7 +59,7 @@ function WalletEmptyState({
   description: string
 }) {
   return (
-    <div className="mt-4 flex flex-col items-center rounded-[20px] border border-dashed border-intra-border-soft bg-intra-bg-app px-6 py-10 text-center">
+    <div className="mt-4 flex flex-col items-center rounded-[20px] border border-dashed border-intra-border-soft bg-intra-bg-app px-6 py-6 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-intra-card text-intra-text-muted shadow-sm">
         {icon}
       </div>
