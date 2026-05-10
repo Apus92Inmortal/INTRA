@@ -18,10 +18,10 @@ export default function DashboardPendingMatchActions({
   const [error, setError] = useState<string | null>(null);
 
   const handleAction = (type: "accept" | "reject") => {
-    startTransition(async () => {
-      setError(null);
-      setActiveAction(type);
+    setError(null);
+    setActiveAction(type);
 
+    startTransition(async () => {
       const result =
         type === "accept"
           ? await acceptMatchAction(matchId)
