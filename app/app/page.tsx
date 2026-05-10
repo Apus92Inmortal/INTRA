@@ -583,7 +583,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             </div>
                           </>
                         ) : (
-                          <div className="mt-2 flex items-start gap-3">
+                          <div className="mt-2 flex items-center gap-3">
                             <div className="flex-1">
                               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                                 {shipmentProgressSteps.map((step) => (
@@ -593,9 +593,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 ))}
                               </div>
                             </div>
-                            <div className="pt-0.5">
-                              <DashboardPublishedTimeLabel createdAt={shipment.createdAt} />
-                            </div>
+                            <DashboardPublishedTimeLabel createdAt={shipment.createdAt} />
                           </div>
                         )}
                       </div>
