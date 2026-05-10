@@ -254,33 +254,26 @@ function DashboardStatCard({
   icon,
   value,
   label,
-  eyebrow,
   accent = false,
-  badge,
 }: {
   icon: ReactNode;
   value: string | number;
   label: string;
-  eyebrow?: string;
   accent?: boolean;
-  badge?: string;
 }) {
   return (
     <div
       className={accent ? "intra-card-compact border-2 border-[#A3E4BF] p-4 ring-2 ring-[#EFFBF4]" : "intra-card-compact p-4"}
     >
-      <div className="mb-2 flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <div
           className={accent ? "intra-icon-shell-body rounded-lg bg-intra-green text-white" : "intra-icon-shell-body rounded-lg bg-intra-neutral-pill text-intra-blue"}
         >
           {icon}
         </div>
-        {eyebrow ? <span className="intra-caption">{eyebrow}</span> : null}
-        {badge ? <span className="intra-pill bg-intra-success-soft text-intra-green">{badge}</span> : null}
+        <p className={accent ? "text-2xl font-extrabold leading-none text-intra-green" : "intra-metric text-[30px] leading-none"}>{value}</p>
+        <p className="min-w-0 intra-caption">{label}</p>
       </div>
-
-      <p className={accent ? "text-2xl font-extrabold text-intra-green" : "intra-metric text-[30px] leading-9"}>{value}</p>
-      <p className="mt-0.5 intra-caption">{label}</p>
     </div>
   );
 }
@@ -505,7 +498,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <DashboardStatCard
-              eyebrow={`+${dashboard.summary.activityTodayCount} hoy`}
               value={dashboard.summary.activeShipmentsCount}
               label="Envíos activos"
               icon={(
@@ -523,7 +515,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
             <DashboardStatCard
               accent
-              badge="Requiere acción"
               value={dashboard.summary.pendingActionMatchesCount}
               label="Matches pendientes"
               icon={<Clock3 className="intra-icon-body" />}
