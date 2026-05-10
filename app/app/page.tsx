@@ -39,14 +39,14 @@ function getGreetingName(fullName: string | null, email: string | null) {
 function ShipmentBadge({ shipment }: { shipment: DashboardShipmentCard }) {
   const classes =
     shipment.status === "in_transit"
-      ? "bg-[#EFFBF4] text-[#1e8c4e]"
+      ? "bg-intra-success-soft text-intra-text-success"
       : shipment.status === "accepted"
-        ? "bg-[#EEF2F7] text-[#0B2C4A]"
+        ? "bg-intra-neutral-pill text-intra-blue"
         : shipment.status === "matched"
-          ? "bg-[#EEF2F7] text-[#0B2C4A]"
+          ? "bg-intra-neutral-pill text-intra-blue"
         : shipment.status === "delivered"
-          ? "bg-[#EFFBF4] text-[#1e8c4e]"
-          : "bg-gray-100 text-gray-600";
+          ? "bg-intra-success-soft text-intra-text-success"
+          : "bg-intra-neutral-pill text-intra-text-muted";
 
   return (
     <span className={`intra-pill intra-badge-text whitespace-nowrap ${classes}`}>
@@ -58,14 +58,14 @@ function ShipmentBadge({ shipment }: { shipment: DashboardShipmentCard }) {
 function TripAvailabilityBadge({ trip }: { trip: DashboardTripCard }) {
   const classes =
     trip.status === "full"
-      ? "bg-[#EEF2F7] text-[#0B2C4A]"
+      ? "bg-intra-neutral-pill text-intra-blue"
       : trip.status === "closed"
-        ? "bg-slate-100 text-slate-600"
+        ? "bg-intra-neutral-pill text-intra-text-muted"
         : trip.status === "completed"
-          ? "bg-[#EFFBF4] text-[#1e8c4e]"
-          : trip.status === "cancelled"
-            ? "bg-rose-100 text-rose-700"
-            : "bg-[#EFFBF4] text-[#2ECC71]";
+          ? "bg-intra-success-soft text-intra-text-success"
+        : trip.status === "cancelled"
+            ? "bg-intra-danger-soft text-intra-danger"
+            : "bg-intra-success-soft text-intra-green";
 
   return (
     <span className={`intra-pill intra-badge-text px-2 py-0.5 ${classes}`}>
@@ -123,7 +123,7 @@ function DashboardShortcutCard({
   const cardClassName =
     tone === "green"
       ? "bg-intra-green shadow-lg shadow-intra-green/20 hover:bg-intra-green-hover-app"
-      : "bg-intra-blue hover:bg-[#123a5f]";
+      : "bg-intra-blue hover:bg-intra-blue-hover-card";
 
   const iconShellClassName =
     tone === "green" ? "bg-white/20 text-white" : "bg-white/10 text-intra-green";
@@ -163,7 +163,7 @@ function DashboardStatCard({
 }) {
   return (
     <div
-      className={accent ? "intra-card-compact border-2 border-[#A3E4BF] p-4 ring-2 ring-[#EFFBF4]" : "intra-card-compact p-4"}
+      className={accent ? "intra-card-compact border-2 border-intra-success-border p-4 ring-2 ring-intra-success-soft" : "intra-card-compact p-4"}
     >
       <div className="flex items-center gap-3">
         <div
@@ -220,7 +220,7 @@ function SectionToggleLink({
 }) {
   const className =
     tone === "amber"
-      ? "intra-link text-amber-900 hover:text-amber-950 hover:no-underline"
+      ? "intra-link text-intra-warning-text hover:text-intra-warning-text-strong hover:no-underline"
       : "intra-link text-intra-green hover:text-intra-green-hover-app hover:no-underline";
 
   return (
@@ -241,7 +241,7 @@ function CustomerRatingBadge({
 
   if (!formatted || totalReviews <= 0) {
     return (
-      <span className="intra-pill gap-1 bg-[#FFF7E8] text-[#B7791F]">
+      <span className="intra-pill gap-1 bg-intra-warning-soft text-intra-warning-text">
         <span aria-hidden="true">⭐</span>
         <span>Sin calificaciones aún</span>
       </span>
@@ -288,15 +288,15 @@ function CompactCompatibleShipmentCard({
       </div>
 
       <div className="mt-4 flex items-center gap-3 sm:justify-end">
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-[#D8F3E3] bg-[#EFFBF4] px-3 py-2 shadow-[0_10px_30px_-22px_rgba(46,204,113,0.9)] sm:flex-none">
-          <span className="intra-icon-shell-body rounded-full bg-white text-[#2ECC71]">
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3 py-2 shadow-sm sm:flex-none">
+          <span className="intra-icon-shell-body rounded-full bg-intra-card text-intra-green">
             <CircleDollarSign className="intra-icon-body" />
           </span>
           <div className="flex min-w-0 items-center gap-2 text-left">
-            <span className="hidden whitespace-nowrap intra-body-strong text-[#1E8C4E] sm:inline">
+            <span className="hidden whitespace-nowrap intra-body-strong text-intra-text-success sm:inline">
               Ganancia
             </span>
-            <p className="intra-metric-sm text-[#119C57]">
+            <p className="intra-metric-sm text-intra-green">
               {shipment.travelerEarningsLabel ?? "Por confirmar"}
             </p>
           </div>
@@ -442,16 +442,16 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 </div>
 
                 {dashboard.pendingPaymentShipments.length > 0 ? (
-                  <div id="pendientes-de-pago" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
+                  <div id="pendientes-de-pago" className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft p-4 sm:p-5">
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="intra-h4 text-amber-900">Pendientes de pago</h3>
-                          <span className="intra-pill bg-amber-100 text-amber-800">
+                          <h3 className="intra-h4 text-intra-warning-text-strong">Pendientes de pago</h3>
+                          <span className="intra-pill bg-intra-warning-soft-alt text-intra-warning-text">
                             Requiere acción
                           </span>
                         </div>
-                        <p className="mt-1 intra-body text-amber-800/80">
+                        <p className="mt-1 intra-body text-intra-warning-text/80">
                           Completa el checkout para activar estos envíos y empezar a recibir matches.
                         </p>
                       </div>
@@ -466,14 +466,14 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
                     <div className="space-y-3">
                       {pendingPaymentItems.map((shipment) => (
-                        <div key={shipment.id} className="rounded-2xl border border-amber-200 bg-white p-4">
+                        <div key={shipment.id} className="rounded-2xl border border-intra-warning-border bg-intra-card p-4">
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
                               <div className="mb-1 flex items-center gap-2">
-                                <span className="intra-pill bg-amber-100 text-amber-800">
+                                <span className="intra-pill bg-intra-warning-soft-alt text-intra-warning-text">
                                   {shipment.paymentLabel}
                                 </span>
-                                <TrackingCodeBadge code={shipment.code} className="bg-amber-700" />
+                                <TrackingCodeBadge code={shipment.code} className="!bg-intra-warning-text-strong hover:!bg-intra-warning-text-strong" />
                               </div>
                               <p className="intra-h4">{shipment.title}</p>
                               <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
@@ -483,7 +483,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                               <span className="intra-metric-sm">{shipment.amountLabel}</span>
                               <Link
                                 href={shipment.checkoutHref}
-                                className="intra-btn min-h-11 items-center justify-center rounded-xl bg-amber-500 px-4 py-2 text-white transition hover:bg-amber-600"
+                                className="intra-btn min-h-11 items-center justify-center rounded-xl bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong"
                               >
                                 Ir al checkout
                               </Link>
@@ -505,7 +505,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 ) : (
                   <div className="space-y-3">
                     {dashboard.activeShipments.map((shipment) => (
-                      <div key={shipment.id} className="rounded-2xl border border-gray-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                      <div key={shipment.id} className="rounded-2xl border border-intra-border-soft bg-intra-card p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
                         <div className="mb-3 flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="mb-1 flex items-center gap-2">
@@ -521,9 +521,9 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                         </div>
 
                         {shipment.hasPendingAction && shipment.pendingMatchId ? (
-                          <div className="rounded-xl bg-yellow-50 p-3 sm:p-4">
+                          <div className="rounded-xl border border-intra-warning-border bg-intra-warning-soft-alt p-3 sm:p-4">
                             <div className="mb-3 flex items-start gap-3">
-                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-yellow-100 text-yellow-600">
+                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-intra-warning-soft text-intra-warning-text">
                                 <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
@@ -553,12 +553,12 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                     <div key={step} className="min-w-0">
                                       <div
                                         className={`h-2 rounded-full transition ${
-                                          isDone ? "bg-[#2ECC71]" : "bg-slate-200"
+                                          isDone ? "bg-intra-green" : "bg-intra-border-strong"
                                         }`}
                                       />
                                       <p
                                         className={`intra-step-label mt-2 text-center ${
-                                          isCurrent ? "text-[#0B2C4A]" : isDone ? "text-slate-700" : "text-slate-400"
+                                          isCurrent ? "text-intra-blue" : isDone ? "text-intra-text-subtle" : "text-intra-text-muted/70"
                                         }`}
                                       >
                                         {step}
@@ -568,15 +568,15 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 })}
                               </div>
                             </div>
-                            <div className="mt-3 flex flex-col gap-3 border-t border-gray-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="mt-3 flex flex-col gap-3 border-t border-intra-border-soft pt-3 sm:flex-row sm:items-center sm:justify-between">
                               <div className="flex items-center gap-2 sm:self-auto">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFFBF4] text-[#2ECC71]">
-                                  <span className="intra-caption-strong text-[#2ECC71]">{shipment.travelerName.slice(0, 2).toUpperCase()}</span>
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-intra-success-soft text-intra-green">
+                                  <span className="intra-caption-strong text-intra-green">{shipment.travelerName.slice(0, 2).toUpperCase()}</span>
                                 </div>
                                 <span className="intra-body">{shipment.travelerName}</span>
                               </div>
                               <div className="flex justify-center sm:block">
-                                <Link href="/app/matches" className="intra-link inline-flex min-h-11 items-center text-[#2ECC71] hover:text-[#27ae60] hover:no-underline">
+                                <Link href="/app/matches" className="intra-link inline-flex min-h-11 items-center text-intra-green hover:text-intra-green-hover-app hover:no-underline">
                                   Ver detalles
                                 </Link>
                               </div>
@@ -588,7 +588,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                                 {shipmentProgressSteps.map((step) => (
                                   <div key={step} className="min-w-0">
-                                    <div className="h-2 rounded-full bg-slate-200" />
+                                    <div className="h-2 rounded-full bg-intra-border-strong" />
                                   </div>
                                 ))}
                               </div>
@@ -601,7 +601,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   </div>
                 )}
 
-                <div id="envios-compatibles" className="space-y-3 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4 sm:p-5">
+                <div id="envios-compatibles" className="space-y-3 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="intra-h4">Envíos compatibles con mis viajes</h3>
@@ -648,11 +648,11 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 ) : (
                   <div className="space-y-3">
                     {dashboard.publishedTrips.map((trip) => (
-                      <div key={trip.id} className="rounded-[22px] border border-gray-100 bg-white px-3 py-2.5 shadow-[0_18px_45px_-35px_rgba(11,44,74,0.28)] transition hover:-translate-y-0.5 hover:shadow-lg sm:px-5">
+                      <div key={trip.id} className="rounded-[22px] border border-intra-border-soft bg-intra-card px-3 py-2.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:px-5">
                         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
                           <div className="flex min-w-0 items-start gap-2">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F2FBF6]">
-                              <svg className="h-[25px] w-[25px] text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-intra-success-soft-alt">
+                              <svg className="h-[25px] w-[25px] text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                               </svg>
@@ -666,7 +666,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 <span className="whitespace-nowrap">{trip.departureDateLabel}</span>
                                 <span aria-hidden="true" className="shrink-0">·</span>
                                 <div className="flex shrink-0 items-center gap-0.5">
-                                  <Briefcase className="intra-icon-compact text-slate-400" />
+                                  <Briefcase className="intra-icon-compact text-intra-text-muted/70" />
                                   <span className="whitespace-nowrap">{formatTripUsagePercent(trip.usedCapacityKg, trip.totalCapacityKg)}</span>
                                 </div>
                               </div>
@@ -683,7 +683,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 )}
 
               </section>
-              <div className="overflow-hidden rounded-[var(--intra-radius-md)] border border-white/10 bg-[linear-gradient(145deg,#0B2C4A_0%,#103656_58%,#123d61_100%)] p-5 text-white shadow-[0_18px_48px_rgba(11,44,74,0.18)]">
+              <div className="intra-dashboard-revenue-card overflow-hidden p-5 text-white">
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
                     <p className="intra-on-dark-label">{revenueTitle}</p>
@@ -695,8 +695,8 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                     </p>
                   </div>
 
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#BEE8CD]/28 bg-[#EFFBF4] text-[#2ECC71] shadow-[0_10px_24px_rgba(46,204,113,0.18)]">
-                    <span className="intra-body-strong text-[#2ECC71]">$</span>
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-intra-success-border/30 bg-intra-success-soft text-intra-green shadow-sm">
+                    <span className="intra-body-strong text-intra-green">$</span>
                   </span>
                 </div>
 
