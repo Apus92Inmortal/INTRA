@@ -78,6 +78,20 @@ export const intraSizing = {
   clickable: {
     minArea: 40,
   },
+  icon: {
+    compact: {
+      glyph: 16,
+      shell: 24,
+    },
+    body: {
+      glyph: 18,
+      shell: 32,
+    },
+    emphasis: {
+      glyph: 22,
+      shell: 40,
+    },
+  },
   layout: {
     landingMaxWidth: 1200,
     appMaxWidth: 1280,

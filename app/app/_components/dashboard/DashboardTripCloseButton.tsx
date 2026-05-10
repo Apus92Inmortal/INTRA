@@ -71,7 +71,7 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
         aria-expanded={isOpen}
         className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#0B2C4A]/10 bg-white text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60 sm:h-9 sm:w-9"
       >
-        <MoreVertical className="h-4 w-4" />
+        <MoreVertical className="intra-icon-body" />
       </button>
 
       {isOpen ? (
@@ -80,15 +80,15 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
             type="button"
             onClick={handleClick}
             disabled={isPending}
-            className="flex min-h-11 w-full items-center justify-center gap-2 px-4 py-2.5 text-center text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60"
+            className="intra-label flex min-h-11 w-full items-center justify-center gap-2 px-4 py-2.5 text-center text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Lock className="h-4 w-4" />
+            <Lock className="intra-icon-body" />
             {isPending ? "Cerrando..." : "Despegando"}
           </button>
         </div>
       ) : null}
 
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="intra-caption text-red-600">{error}</p> : null}
     </div>
   );
 }
