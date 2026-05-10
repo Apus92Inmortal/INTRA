@@ -81,7 +81,7 @@ function TripAvailabilityBadge({ trip }: { trip: DashboardTripCard }) {
 
 function formatTripUsagePercent(usedCapacityKg: number, totalCapacityKg: number) {
   if (!totalCapacityKg || totalCapacityKg <= 0) {
-    return "0% usado";
+    return "0%";
   }
 
   const rawPercent = (usedCapacityKg / totalCapacityKg) * 100;
@@ -93,7 +93,7 @@ function formatTripUsagePercent(usedCapacityKg: number, totalCapacityKg: number)
     ? roundedPercent.toFixed(0)
     : roundedPercent.toFixed(1);
 
-  return `${label}% usado`;
+  return `${label}%`;
 }
 
 function DashboardShortcutCard({
@@ -635,18 +635,10 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 <span className="whitespace-nowrap">{trip.departureDateLabel}</span>
                                 <span aria-hidden="true" className="shrink-0">·</span>
                                 <div className="flex shrink-0 items-center gap-0.5">
+                                  <span className="whitespace-nowrap">Capacidad</span>
                                   <Briefcase className="intra-icon-compact text-slate-400" />
                                   <span className="whitespace-nowrap">{formatTripUsagePercent(trip.usedCapacityKg, trip.totalCapacityKg)}</span>
                                 </div>
-                                <span
-                                  aria-hidden="true"
-                                  className="h-4 w-4 shrink-0 rounded-full border border-slate-200"
-                                  style={{
-                                    background: `conic-gradient(#2ECC71 ${trip.progressPercent}%, #E5E7EB ${trip.progressPercent}% 100%)`,
-                                  }}
-                                >
-                                  <span className="m-[2px] block h-[calc(100%-4px)] w-[calc(100%-4px)] rounded-full bg-white" />
-                                </span>
                               </div>
                             </div>
                           </div>
