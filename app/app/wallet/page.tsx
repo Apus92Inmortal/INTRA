@@ -53,28 +53,18 @@ function WalletEmptyState({
   icon,
   title,
   description,
-  compact = false,
 }: {
   icon: ReactNode
   title: string
   description: string
-  compact?: boolean
 }) {
   return (
-    <div
-      className={`mt-4 flex flex-col items-center rounded-[20px] border border-dashed border-intra-border-soft bg-intra-bg-app px-5 text-center ${
-        compact ? "py-6" : "py-8"
-      }`}
-    >
-      <div
-        className={`flex items-center justify-center rounded-full bg-intra-card text-intra-text-muted shadow-sm ${
-          compact ? "h-11 w-11" : "h-12 w-12"
-        }`}
-      >
+    <div className="mt-4 flex flex-col items-center rounded-[20px] border border-dashed border-intra-border-soft bg-intra-bg-app px-6 py-10 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-intra-card text-intra-text-muted shadow-sm">
         {icon}
       </div>
-      <p className={`font-semibold text-intra-blue ${compact ? "mt-3 text-sm" : "mt-4 text-sm"}`}>{title}</p>
-      <p className={`max-w-xs text-sm text-intra-text-subtle ${compact ? "mt-1" : "mt-1.5"}`}>{description}</p>
+      <p className="mt-4 text-sm font-semibold text-intra-blue">{title}</p>
+      <p className="mt-1 max-w-xs text-sm text-intra-text-subtle">{description}</p>
     </div>
   )
 }
@@ -102,12 +92,12 @@ function WalletMetricCard({
   const chevronClass = tone === "success" ? "text-intra-text-success" : "text-intra-text-muted"
 
   return (
-    <div className={`rounded-[24px] border p-4 shadow-sm ${cardClass}`}>
-      <div className="flex min-h-[88px] items-center gap-3">
-        <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${iconShellClass}`}>{icon}</div>
+    <div className={`rounded-[24px] border p-5 shadow-sm ${cardClass}`}>
+      <div className="flex items-center gap-4">
+        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${iconShellClass}`}>{icon}</div>
         <div className="min-w-0 flex-1">
           <p className={`text-sm font-semibold ${labelClass}`}>{label}</p>
-          <p className="mt-1 text-2xl font-extrabold leading-none tracking-[-0.02em] text-intra-blue">{value}</p>
+          <p className="mt-1 text-[30px] font-extrabold leading-none tracking-[-0.02em] text-intra-blue">{value}</p>
         </div>
         <ChevronRight className={`h-5 w-5 shrink-0 ${chevronClass}`} />
       </div>
@@ -162,12 +152,12 @@ export default async function WalletPage() {
   return (
     <>
       <AppNavbar />
-      <main className="intra-page-shell min-h-screen px-4 py-4 sm:px-6 sm:py-4">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4">
-          <section className="relative overflow-hidden rounded-[24px] bg-intra-blue px-6 py-4 shadow-[var(--intra-shadow-hero)] sm:px-7 sm:py-5">
+      <main className="intra-page-shell px-4 py-5 sm:px-6 sm:py-6">
+        <div className="mx-auto max-w-6xl space-y-4">
+          <section className="relative overflow-hidden rounded-[24px] bg-intra-blue px-5 py-5 shadow-[var(--intra-shadow-hero)] sm:px-6 sm:py-6">
             <div className="pointer-events-none absolute -right-16 top-0 h-44 w-44 rounded-full bg-intra-card/10 blur-3xl" />
             <div className="pointer-events-none absolute -left-10 bottom-0 h-32 w-32 rounded-full bg-intra-card/10 blur-2xl" />
-            <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-2xl">
                 <div className="flex items-start gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-intra-card/20 bg-intra-card/10 text-intra-card">
@@ -245,8 +235,8 @@ export default async function WalletPage() {
             />
           </section>
 
-          <section className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.95fr)] lg:items-stretch">
-            <div className="flex h-[320px] flex-col overflow-hidden rounded-[24px] border border-intra-border-soft bg-intra-card p-4 shadow-sm xl:h-[344px]">
+          <section className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.95fr)]">
+            <div className="rounded-[24px] border border-intra-border-soft bg-intra-card p-5 shadow-sm">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-intra-bg-app text-intra-text-subtle">
@@ -262,12 +252,12 @@ export default async function WalletPage() {
 
               {movementEntries.length === 0 ? (
                 <WalletEmptyState
-                  icon={<ReceiptText className="h-5 w-5" />}
+                  icon={<ReceiptText className="h-6 w-6" />}
                   title="Aún no hay movimientos"
                   description="Aún no hay movimientos registrados en tu wallet."
                 />
               ) : (
-                <div className="mt-3 flex-1 divide-y divide-intra-border-soft overflow-y-auto">
+                <div className="mt-4 divide-y divide-intra-border-soft">
                   {movementEntries.map((entry) => (
                     <div key={entry.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
@@ -293,8 +283,8 @@ export default async function WalletPage() {
               )}
             </div>
 
-            <div className="grid gap-4 lg:h-[320px] lg:grid-rows-[auto_minmax(0,1fr)] xl:h-[344px]">
-              <div className="rounded-[24px] border border-intra-border-soft bg-intra-card p-4 shadow-sm">
+            <div className="space-y-5">
+              <div className="rounded-[24px] border border-intra-border-soft bg-intra-card p-5 shadow-sm">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-intra-success-soft text-intra-text-success">
@@ -308,11 +298,11 @@ export default async function WalletPage() {
                   </span>
                 </div>
 
-                <p className="mt-3 text-2xl font-extrabold leading-none tracking-[-0.02em] text-intra-blue sm:text-[28px]">
+                <p className="mt-4 text-[30px] font-extrabold leading-none tracking-[-0.02em] text-intra-blue">
                   {formatCop(withdrawableBalance)}
                 </p>
 
-                <div className="mt-4 space-y-3">
+                <div className="mt-5 space-y-3">
                   <Link
                     href={hasPayoutAccount ? "/app/wallet/payout" : "/app/wallet/payout/accounts"}
                     className="intra-btn flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-intra-green px-5 py-3 text-sm font-bold text-intra-card hover:bg-intra-green-hover"
@@ -328,7 +318,7 @@ export default async function WalletPage() {
                 </div>
               </div>
 
-              <div className="flex min-h-0 flex-col rounded-[24px] border border-intra-border-soft bg-intra-card p-4 shadow-sm">
+              <div className="rounded-[24px] border border-intra-border-soft bg-intra-card p-5 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-intra-bg-app text-intra-text-subtle">
@@ -344,13 +334,12 @@ export default async function WalletPage() {
 
                 {payouts.length === 0 ? (
                   <WalletEmptyState
-                    icon={<Inbox className="h-5 w-5" />}
+                    icon={<Inbox className="h-6 w-6" />}
                     title="Sin solicitudes recientes"
                     description="No tienes retiros solicitados todavía."
-                    compact
                   />
                 ) : (
-                  <div className="mt-3 space-y-3 overflow-y-auto">
+                  <div className="mt-4 space-y-3">
                     {payouts.map((payout) => (
                       <article key={payout.id} className="rounded-2xl border border-intra-border-soft p-4">
                         <div className="flex items-center justify-between gap-3">
