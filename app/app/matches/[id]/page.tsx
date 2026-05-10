@@ -334,12 +334,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       {getStatusLabel(match.status)}
                     </span>
                   </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 intra-body">
-                    <span>
+                  <div className="mt-4 flex flex-col items-start gap-2 intra-body sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
+                    <span className="text-left">
                       <span className="intra-caption">{otherUserRoleLabel}:</span>{" "}
                       <span className="intra-body-strong">{otherUserName}</span>
                     </span>
-                    <span className="intra-pill items-center gap-1.5 bg-[#FFF4D6] text-[#8A5A00]">
+                    <span className="intra-pill items-center gap-1.5 self-start bg-[#FFF4D6] text-[#8A5A00] sm:self-auto">
                       <Star className="intra-icon-compact fill-[#D4A017] text-[#D4A017]" strokeWidth={1.8} />
                       <span>{headerRatingText}</span>
                     </span>
