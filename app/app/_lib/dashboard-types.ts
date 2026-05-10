@@ -25,6 +25,7 @@ export type DashboardShipmentStatus =
 export type DashboardShipmentCard = {
   id: string;
   code: string;
+  createdAt: string;
   title: string;
   routeLabel: string;
   weightKg: number | null;

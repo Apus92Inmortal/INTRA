@@ -11,6 +11,7 @@ import { isSafeInternalPath } from "@/lib/safe-next";
 import AuthGateway from "./AuthGateway";
 import DashboardTripCloseButton from "./_components/dashboard/DashboardTripCloseButton";
 import DashboardPendingMatchActions from "./_components/dashboard/DashboardPendingMatchActions";
+import DashboardPublishedTimeLabel from "./_components/dashboard/DashboardPublishedTimeLabel";
 import { getDashboardData } from "./_lib/dashboard-queries";
 import type {
   DashboardCompatibleShipmentCard,
@@ -36,25 +37,19 @@ function getGreetingName(fullName: string | null, email: string | null) {
 }
 
 function ShipmentBadge({ shipment }: { shipment: DashboardShipmentCard }) {
-  if (shipment.hasPendingAction) {
-    return (
-      <span className="intra-pill whitespace-nowrap bg-yellow-100 text-yellow-700">
-        Match pendiente
-      </span>
-    );
-  }
-
   const classes =
     shipment.status === "in_transit"
       ? "bg-[#EFFBF4] text-[#1e8c4e]"
       : shipment.status === "accepted"
         ? "bg-[#EEF2F7] text-[#0B2C4A]"
+        : shipment.status === "matched"
+          ? "bg-[#EEF2F7] text-[#0B2C4A]"
         : shipment.status === "delivered"
           ? "bg-[#EFFBF4] text-[#1e8c4e]"
           : "bg-gray-100 text-gray-600";
 
   return (
-    <span className={`intra-pill whitespace-nowrap ${classes}`}>
+    <span className={`intra-pill intra-badge-text whitespace-nowrap ${classes}`}>
       {shipment.statusLabel}
     </span>
   );
@@ -104,6 +99,7 @@ function getShipmentProgressStepIndex(status: DashboardShipmentCard["status"]) {
       return 2;
     case "in_transit":
       return 1;
+    case "matched":
     case "accepted":
       return 0;
     default:
@@ -573,15 +569,17 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                               </div>
                             </div>
                             <div className="mt-3 flex flex-col gap-3 border-t border-gray-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 sm:self-auto">
                                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFFBF4] text-[#2ECC71]">
                                   <span className="intra-caption-strong text-[#2ECC71]">{shipment.travelerName.slice(0, 2).toUpperCase()}</span>
                                 </div>
                                 <span className="intra-body">{shipment.travelerName}</span>
                               </div>
-                              <Link href="/app/matches" className="intra-link inline-flex min-h-11 items-center text-[#2ECC71] hover:text-[#27ae60] hover:no-underline">
-                                Ver detalles
-                              </Link>
+                              <div className="flex justify-center sm:block">
+                                <Link href="/app/matches" className="intra-link inline-flex min-h-11 items-center text-[#2ECC71] hover:text-[#27ae60] hover:no-underline">
+                                  Ver detalles
+                                </Link>
+                              </div>
                             </div>
                           </>
                         ) : (
@@ -592,7 +590,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 style={{ width: `${shipment.progressPercent}%` }}
                               />
                             </div>
-                            <span className="intra-caption">{shipment.progressLabel}</span>
+                            <DashboardPublishedTimeLabel createdAt={shipment.createdAt} />
                           </div>
                         )}
                       </div>
