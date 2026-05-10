@@ -25,8 +25,8 @@ export function TrackingCodeBadge({ code, className = "", variant = "dark" }: Tr
 
   const toneClasses =
     variant === "light"
-      ? "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50"
-      : "bg-slate-900 text-white hover:bg-slate-800";
+      ? "border border-intra-border-soft bg-intra-card text-intra-blue hover:bg-intra-bg-app"
+      : "bg-intra-blue text-intra-card hover:bg-intra-blue-hover-card";
 
   return (
     <button
