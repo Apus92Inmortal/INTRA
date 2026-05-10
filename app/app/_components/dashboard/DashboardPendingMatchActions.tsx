@@ -41,7 +41,7 @@ export default function DashboardPendingMatchActions({
           type="button"
           disabled={isPending}
           onClick={() => handleAction("accept")}
-          className="min-h-11 flex-1 rounded-xl bg-[#2ECC71] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#27ae60] disabled:cursor-not-allowed disabled:opacity-60"
+          className="intra-btn intra-btn-primary min-h-11 flex-1 px-4 py-2.5"
         >
           {isPending ? "Procesando..." : "Aceptar"}
         </button>
@@ -50,14 +50,14 @@ export default function DashboardPendingMatchActions({
           type="button"
           disabled={isPending}
           onClick={() => handleAction("reject")}
-          className="min-h-11 flex-1 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="intra-btn intra-btn-secondary min-h-11 flex-1 border-gray-200 px-4 py-2.5 text-gray-700 hover:bg-gray-50"
         >
           {isPending ? "Procesando..." : "Rechazar"}
         </button>
       </div>
 
       {error ? (
-        <p className="text-xs text-red-600">{error}</p>
+        <p className="intra-caption text-red-600">{error}</p>
       ) : null}
     </div>
   );

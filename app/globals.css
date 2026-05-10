@@ -216,6 +216,13 @@ body {
     color: var(--intra-text-muted);
   }
 
+  .intra-caption-strong {
+    font-size: var(--intra-font-caption);
+    line-height: var(--intra-line-caption);
+    font-weight: 600;
+    color: var(--intra-blue);
+  }
+
   .intra-badge-text {
     font-size: var(--intra-font-badge);
     line-height: var(--intra-line-badge);
@@ -225,6 +232,13 @@ body {
   .intra-metric {
     font-size: var(--intra-font-metric);
     line-height: var(--intra-line-metric);
+    font-weight: 800;
+    color: var(--intra-blue);
+  }
+
+  .intra-metric-sm {
+    font-size: var(--intra-font-metric-sm);
+    line-height: var(--intra-line-metric-sm);
     font-weight: 800;
     color: var(--intra-blue);
   }
@@ -261,10 +275,31 @@ body {
     color: color-mix(in srgb, var(--intra-card) 78%, transparent);
   }
 
+  .intra-on-dark-caption {
+    font-size: var(--intra-font-caption);
+    line-height: var(--intra-line-caption);
+    font-weight: 500;
+    color: color-mix(in srgb, var(--intra-card) 58%, transparent);
+  }
+
+  .intra-on-dark-label {
+    font-size: var(--intra-font-label);
+    line-height: var(--intra-line-label);
+    font-weight: 600;
+    color: color-mix(in srgb, var(--intra-card) 68%, transparent);
+  }
+
   .intra-on-dark-body-strong {
     font-size: var(--intra-font-h4);
     line-height: var(--intra-line-h4);
     font-weight: 700;
+    color: var(--intra-card);
+  }
+
+  .intra-on-dark-metric {
+    font-size: var(--intra-font-metric);
+    line-height: var(--intra-line-metric);
+    font-weight: 800;
     color: var(--intra-card);
   }
 

@@ -184,7 +184,7 @@ function TripAvailabilityBadge({ trip }: { trip: DashboardTripCard }) {
             : "bg-[#EFFBF4] text-[#2ECC71]";
 
   return (
-    <span className={`intra-pill px-2 py-0.5 text-[11px] sm:text-xs ${classes}`}>
+    <span className={`intra-pill intra-badge-text px-2 py-0.5 ${classes}`}>
       {trip.availabilityLabel}
     </span>
   );
@@ -241,7 +241,7 @@ function DashboardShortcutCard({
       </div>
       <div className="min-w-0">
         <p className="intra-h4 text-white">{title}</p>
-        <p className={`mt-1 text-sm leading-snug ${descriptionClassName}`}>{description}</p>
+        <p className={`mt-1 intra-body ${descriptionClassName}`}>{description}</p>
       </div>
       <svg className={`ml-auto intra-icon-emphasis shrink-0 transition group-hover:translate-x-1 ${arrowClassName}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -271,7 +271,7 @@ function DashboardStatCard({
         >
           {icon}
         </div>
-        <p className={accent ? "text-2xl font-extrabold leading-none text-intra-green" : "intra-metric text-[30px] leading-none"}>{value}</p>
+        <p className={accent ? "intra-metric-sm leading-none text-intra-green" : "intra-metric leading-none"}>{value}</p>
         <p className="min-w-0 intra-caption">{label}</p>
       </div>
     </div>
@@ -320,7 +320,7 @@ function SectionToggleLink({
 }) {
   const className =
     tone === "amber"
-      ? "text-sm font-medium text-amber-900 hover:text-amber-950"
+      ? "intra-link text-amber-900 hover:text-amber-950 hover:no-underline"
       : "intra-link text-intra-green hover:text-intra-green-hover-app hover:no-underline";
 
   return (
@@ -393,10 +393,10 @@ function CompactCompatibleShipmentCard({
             <CircleDollarSign className="intra-icon-body" />
           </span>
           <div className="flex min-w-0 items-center gap-2 text-left">
-            <span className="hidden whitespace-nowrap text-sm font-semibold text-[#1E8C4E] sm:inline">
+            <span className="hidden whitespace-nowrap intra-body-strong text-[#1E8C4E] sm:inline">
               Ganancia
             </span>
-            <p className="text-base font-bold leading-none text-[#119C57] sm:text-lg">
+            <p className="intra-metric-sm text-[#119C57]">
               {shipment.travelerEarningsLabel ?? "Por confirmar"}
             </p>
           </div>
@@ -546,12 +546,12 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-bold text-amber-900">Pendientes de pago</h3>
-                          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800">
+                          <h3 className="intra-h4 text-amber-900">Pendientes de pago</h3>
+                          <span className="intra-pill bg-amber-100 text-amber-800">
                             Requiere acción
                           </span>
                         </div>
-                        <p className="mt-1 text-sm text-amber-800/80">
+                        <p className="mt-1 intra-body text-amber-800/80">
                           Completa el checkout para activar estos envíos y empezar a recibir matches.
                         </p>
                       </div>
@@ -570,20 +570,20 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
                               <div className="mb-1 flex items-center gap-2">
-                                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                                <span className="intra-pill bg-amber-100 text-amber-800">
                                   {shipment.paymentLabel}
                                 </span>
                                 <TrackingCodeBadge code={shipment.code} className="bg-amber-700" />
                               </div>
-                              <p className="font-semibold text-[#0B2C4A]">{shipment.title}</p>
-                              <p className="mt-0.5 text-sm text-slate-600">{shipment.routeLabel}</p>
+                              <p className="intra-h4">{shipment.title}</p>
+                              <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
                             </div>
 
                             <div className="flex flex-col items-start gap-3 sm:items-end">
-                              <span className="text-lg font-bold text-[#0B2C4A]">{shipment.amountLabel}</span>
+                              <span className="intra-metric-sm">{shipment.amountLabel}</span>
                               <Link
                                 href={shipment.checkoutHref}
-                                className="inline-flex min-h-11 items-center justify-center rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600"
+                                className="intra-btn min-h-11 items-center justify-center rounded-xl bg-amber-500 px-4 py-2 text-white transition hover:bg-amber-600"
                               >
                                 Ir al checkout
                               </Link>
@@ -612,10 +612,10 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                               <ShipmentBadge shipment={shipment} />
                               <TrackingCodeBadge code={shipment.code} />
                             </div>
-                            <p className="truncate font-semibold text-[#0B2C4A]">{shipment.title}</p>
-                            <p className="mt-0.5 text-sm text-gray-500">{shipment.routeLabel}</p>
+                            <p className="truncate intra-h4">{shipment.title}</p>
+                            <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
                           </div>
-                          <span className="ml-3 shrink-0 text-lg font-bold text-[#0B2C4A]">
+                          <span className="ml-3 shrink-0 intra-metric-sm">
                             {shipment.amountLabel}
                           </span>
                         </div>
@@ -629,10 +629,10 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 </svg>
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="text-sm font-medium text-[#0B2C4A]">
+                                <p className="intra-body-strong">
                                   {shipment.travelerName ?? "Un viajero"} quiere transportar tu envío
                                 </p>
-                                <p className="mt-0.5 text-xs text-gray-500">
+                                <p className="mt-0.5 intra-caption">
                                   {shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}
                                   {shipment.travelerRatingLabel ? ` · ${shipment.travelerRatingLabel}` : ""}
                                 </p>
@@ -649,18 +649,18 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                   style={{ width: `${shipment.progressPercent}%` }}
                                 />
                               </div>
-                              <span className="whitespace-nowrap text-xs text-gray-400">
+                              <span className="whitespace-nowrap intra-caption">
                                 {shipment.progressPercent}%
                               </span>
                             </div>
                             <div className="mt-3 flex flex-col gap-3 border-t border-gray-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
                               <div className="flex items-center gap-2">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFFBF4] text-[10px] font-bold text-[#2ECC71]">
-                                  {shipment.travelerName.slice(0, 2).toUpperCase()}
+                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EFFBF4] text-[#2ECC71]">
+                                  <span className="intra-caption-strong text-[#2ECC71]">{shipment.travelerName.slice(0, 2).toUpperCase()}</span>
                                 </div>
-                                <span className="text-sm text-gray-600">{shipment.travelerName}</span>
+                                <span className="intra-body">{shipment.travelerName}</span>
                               </div>
-                              <Link href="/app/matches" className="inline-flex min-h-11 items-center text-sm font-medium text-[#2ECC71] hover:text-[#27ae60]">
+                              <Link href="/app/matches" className="intra-link inline-flex min-h-11 items-center text-[#2ECC71] hover:text-[#27ae60] hover:no-underline">
                                 Ver detalles
                               </Link>
                             </div>
@@ -673,7 +673,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 style={{ width: `${shipment.progressPercent}%` }}
                               />
                             </div>
-                            <span className="text-xs text-gray-400">{shipment.progressLabel}</span>
+                            <span className="intra-caption">{shipment.progressLabel}</span>
                           </div>
                         )}
                       </div>
@@ -684,7 +684,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 <div id="envios-compatibles" className="space-y-3 rounded-2xl border border-gray-100 bg-[#F8FAFC] p-4 sm:p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-base font-bold text-[#0B2C4A]">Envíos compatibles con mis viajes</h3>
+                      <h3 className="intra-h4">Envíos compatibles con mis viajes</h3>
                     </div>
                     {dashboard.compatibleShipments.length > 3 ? (
                       <SectionToggleLink
@@ -715,7 +715,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
             <div className="space-y-4 lg:col-span-2">
               <section id="mis-viajes" className="space-y-4">
                 <div className="mb-3">
-                  <h2 className="text-lg font-bold text-[#0B2C4A]">Mis viajes</h2>
+                  <h2 className="intra-h3">Mis viajes</h2>
                 </div>
 
                 {dashboard.publishedTrips.length === 0 ? (
@@ -739,10 +739,10 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             </div>
                             <div className="min-w-0 pt-0.5">
                               <div className="flex flex-wrap items-center gap-1">
-                                <p className="text-[15px] font-bold tracking-[-0.02em] text-[#0B2C4A] sm:text-base">{trip.routeShortLabel}</p>
+                                <p className="intra-h4 tracking-[-0.02em]">{trip.routeShortLabel}</p>
                                 <TripAvailabilityBadge trip={trip} />
                               </div>
-                              <div className="mt-0.5 flex flex-nowrap items-center gap-x-1 text-[11px] leading-none text-slate-400 sm:gap-x-1.5 sm:text-xs">
+                              <div className="mt-0.5 flex flex-nowrap items-center gap-x-1 intra-caption leading-none sm:gap-x-1.5">
                                 <span className="whitespace-nowrap">{trip.departureDateLabel}</span>
                                 <span aria-hidden="true" className="shrink-0">·</span>
                                 <div className="flex shrink-0 items-center gap-0.5">
@@ -774,10 +774,10 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               </section>
 
               <div>
-                <h2 className="mb-3 text-lg font-bold text-[#0B2C4A]">Actividad reciente</h2>
+                <h2 className="mb-3 intra-h3">Actividad reciente</h2>
                 {dashboard.recentActivity.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-5 text-sm text-gray-500">
-                    <div className="flex items-center gap-2 font-semibold text-[#0B2C4A]">
+                  <div className="intra-card-compact border-dashed p-5">
+                    <div className="flex items-center gap-2 intra-body-strong">
                       <span className="intra-icon-shell-body rounded-full bg-[#EEF2F7] text-[#0B2C4A]">
                         <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -788,13 +788,13 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                     <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                       <Link
                         href="/app/shipments/new"
-                        className="inline-flex items-center justify-center rounded-xl bg-[#2ECC71] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#27ae60]"
+                        className="intra-btn intra-btn-primary"
                       >
                         Publicar envío
                       </Link>
                       <Link
                         href="/app/trips/new"
-                        className="inline-flex items-center justify-center rounded-xl border border-[#0B2C4A]/10 bg-white px-4 py-2 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                        className="intra-btn intra-btn-secondary"
                       >
                         Publicar viaje
                       </Link>
@@ -810,8 +810,8 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             {icon.svg}
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm text-[#0B2C4A]">{item.title}</p>
-                            <p className="mt-0.5 text-xs text-gray-400">{item.relativeTimeLabel}</p>
+                            <p className="intra-body-strong">{item.title}</p>
+                            <p className="mt-0.5 intra-caption">{item.relativeTimeLabel}</p>
                           </div>
                         </div>
                       );
@@ -831,37 +831,37 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
               <div className="overflow-hidden rounded-[var(--intra-radius-md)] border border-white/10 bg-[linear-gradient(145deg,#0B2C4A_0%,#103656_58%,#123d61_100%)] p-5 text-white shadow-[0_18px_48px_rgba(11,44,74,0.18)]">
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm font-medium text-white/68">{revenueTitle}</p>
-                    <p className="mt-3 text-3xl font-bold tracking-[-0.03em]">{dashboard.monthlyRevenue.releasedAmountLabel}</p>
-                    <p className="mt-2 text-sm leading-6 text-white/74">
+                    <p className="intra-on-dark-label">{revenueTitle}</p>
+                    <p className="mt-3 intra-on-dark-metric tracking-[-0.03em]">{dashboard.monthlyRevenue.releasedAmountLabel}</p>
+                    <p className="mt-2 intra-on-dark-body">
                       {hasMonthlyRevenue
                         ? (dashboard.monthlyRevenue.deltaVsPreviousMonthLabel ?? dashboard.monthlyRevenue.monthLabel)
                         : "Aún no tienes entregas finalizadas este mes"}
                     </p>
                   </div>
 
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#BEE8CD]/28 bg-[#EFFBF4] text-lg font-bold text-[#2ECC71] shadow-[0_10px_24px_rgba(46,204,113,0.18)]">
-                    $
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#BEE8CD]/28 bg-[#EFFBF4] text-[#2ECC71] shadow-[0_10px_24px_rgba(46,204,113,0.18)]">
+                    <span className="intra-body-strong text-[#2ECC71]">$</span>
                   </span>
                 </div>
 
                 <div className="grid grid-cols-3 rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm">
                   <div className="flex flex-col px-3 py-3 sm:px-4">
-                    <p className="text-[11px] font-medium text-white/55 sm:text-xs">Entregas</p>
+                    <p className="intra-on-dark-caption">Entregas</p>
                     <div className="mt-1 flex w-full justify-center">
-                      <p className="text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.deliveriesCount}</p>
+                      <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.deliveriesCount}</p>
                     </div>
                   </div>
                   <div className="flex flex-col border-l border-white/10 px-3 py-3 sm:px-4">
-                    <p className="text-[11px] font-medium text-white/55 sm:text-xs">Promedio</p>
+                    <p className="intra-on-dark-caption">Promedio</p>
                     <div className="mt-1 flex w-full justify-center">
-                      <p className="text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.averageTicketLabel}</p>
+                      <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.averageTicketLabel}</p>
                     </div>
                   </div>
                   <div className="flex flex-col border-l border-white/10 px-3 py-3 sm:px-4">
-                    <p className="text-[11px] font-medium text-white/55 sm:text-xs">Mejor ruta</p>
+                    <p className="intra-on-dark-caption">Mejor ruta</p>
                     <div className="mt-1 flex w-full justify-center">
-                      <p className="text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}</p>
+                      <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}</p>
                     </div>
                   </div>
                 </div>
