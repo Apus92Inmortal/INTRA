@@ -92,15 +92,15 @@ export function getPayoutStatusLabel(status: string | null) {
 export function getPayoutStatusClasses(status: string | null) {
   switch (status) {
     case "pending":
-      return "border-amber-200 bg-amber-50 text-amber-700"
+      return "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
     case "approved":
-      return "border-sky-200 bg-sky-50 text-sky-700"
+      return "border-intra-border-soft bg-intra-info-soft text-intra-info"
     case "rejected":
-      return "border-red-200 bg-red-50 text-red-700"
+      return "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
     case "paid":
-      return "border-[#A3E4BF] bg-[#EFFBF4] text-[#1e8c4e]"
+      return "border-intra-success-border bg-intra-success-soft text-intra-text-success"
     default:
-      return "border-slate-200 bg-slate-50 text-slate-700"
+      return "border-intra-border-soft bg-intra-bg-app text-intra-text-subtle"
   }
 }
 

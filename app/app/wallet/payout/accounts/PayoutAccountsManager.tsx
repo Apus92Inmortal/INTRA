@@ -142,13 +142,13 @@ export default function PayoutAccountsManager({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="intra-card p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">
+            <h1 className="intra-page-title text-2xl sm:text-3xl">
               Cuentas de retiro
             </h1>
-            <p className="mt-1 text-sm text-slate-500 sm:text-base">
+            <p className="mt-1 intra-body text-intra-text-muted sm:text-base">
               Guarda tus métodos para recibir pagos por Nequi, Daviplata o transferencia bancaria.
             </p>
           </div>
@@ -156,7 +156,7 @@ export default function PayoutAccountsManager({
             <button
               type="button"
               onClick={resetForm}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-4 py-2.5 text-sm font-semibold"
             >
               Cancelar edición
             </button>
@@ -165,7 +165,7 @@ export default function PayoutAccountsManager({
 
         <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-semibold text-[#0B2C4A]">Tipo de cuenta</span>
+            <span className="text-sm font-semibold text-intra-blue">Tipo de cuenta</span>
             <select
               value={form.accountType}
               onChange={(event) =>
@@ -180,7 +180,7 @@ export default function PayoutAccountsManager({
                         : current.bankName,
                 }))
               }
-              className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+              className="intra-input"
             >
               <option value="nequi">Nequi</option>
               <option value="daviplata">Daviplata</option>
@@ -190,74 +190,74 @@ export default function PayoutAccountsManager({
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-semibold text-[#0B2C4A]">Titular</span>
+            <span className="text-sm font-semibold text-intra-blue">Titular</span>
             <input
               value={form.accountHolderName}
               onChange={(event) => setForm((current) => ({ ...current, accountHolderName: event.target.value }))}
-              className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+              className="intra-input"
               placeholder="Nombre completo"
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-semibold text-[#0B2C4A]">Documento</span>
+            <span className="text-sm font-semibold text-intra-blue">Documento</span>
             <input
               value={form.documentNumber}
               onChange={(event) => setForm((current) => ({ ...current, documentNumber: event.target.value }))}
-              className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+              className="intra-input"
               placeholder="Cédula o NIT"
             />
           </label>
 
           {isBankAccount ? (
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-[#0B2C4A]">Banco</span>
+              <span className="text-sm font-semibold text-intra-blue">Banco</span>
               <input
                 value={form.bankName}
                 onChange={(event) => setForm((current) => ({ ...current, bankName: event.target.value }))}
-                className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                className="intra-input"
                 placeholder="Bancolombia, Davivienda..."
               />
             </label>
           ) : (
-            <div className="rounded-2xl border border-dashed border-[#A3E4BF] bg-[#EFFBF4] px-4 py-3 text-sm text-[#1e8c4e]">
+            <div className="rounded-2xl border border-dashed border-intra-success-border bg-intra-success-soft px-4 py-3 text-sm text-intra-text-success">
               Para {getAccountTypeLabel(form.accountType)}, usaremos el número de celular asociado.
             </div>
           )}
 
           <label className="space-y-2">
-            <span className="text-sm font-semibold text-[#0B2C4A]">
+            <span className="text-sm font-semibold text-intra-blue">
               {isBankAccount ? "Número de cuenta" : "Celular asociado"}
             </span>
             <input
               value={form.accountNumber}
               onChange={(event) => setForm((current) => ({ ...current, accountNumber: event.target.value }))}
-              className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+              className="intra-input"
               placeholder={isBankAccount ? "000123456789" : "3001234567"}
             />
           </label>
 
           {isBankAccount ? (
             <label className="space-y-2 md:col-span-2">
-              <span className="text-sm font-semibold text-[#0B2C4A]">Llave BRE-B</span>
+              <span className="text-sm font-semibold text-intra-blue">Llave BRE-B</span>
               <input
                 value={form.brebKey}
                 onChange={(event) => setForm((current) => ({ ...current, brebKey: event.target.value }))}
-                className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                className="intra-input"
                 placeholder="Ej: correo, celular o identificador BRE-B"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-intra-text-muted">
                 Obligatoria para cuentas bancarias. Es la llave que usarán en operación para enviar el retiro.
               </p>
             </label>
           ) : null}
 
-          <label className="md:col-span-2 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          <label className="md:col-span-2 flex items-center gap-3 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
             <input
               type="checkbox"
               checked={form.isDefault}
               onChange={(event) => setForm((current) => ({ ...current, isDefault: event.target.checked }))}
-              className="h-4 w-4 rounded border-slate-300 text-[#0B2C4A]"
+              className="h-4 w-4 rounded border-intra-border text-intra-blue"
             />
             Dejar como cuenta principal para próximos retiros.
           </label>
@@ -266,8 +266,8 @@ export default function PayoutAccountsManager({
             <div
               className={`md:col-span-2 rounded-2xl px-4 py-3 text-sm ${
                 feedback.type === "error"
-                  ? "border border-red-200 bg-red-50 text-red-700"
-                  : "border border-[#A3E4BF] bg-[#EFFBF4] text-[#1e8c4e]"
+                  ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+                  : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
               }`}
             >
               {feedback.message}
@@ -278,13 +278,13 @@ export default function PayoutAccountsManager({
             <button
               type="submit"
               disabled={isPending}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60"
+              className="intra-btn intra-btn-primary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold disabled:opacity-60"
             >
               {isPending ? "Guardando..." : form.id ? "Actualizar cuenta" : "Guardar cuenta"}
             </button>
             <Link
               href="/app/wallet/payout"
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold"
             >
               Ir a retiros
             </Link>
@@ -292,21 +292,21 @@ export default function PayoutAccountsManager({
         </form>
       </section>
 
-      <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="intra-card p-6 shadow-sm sm:p-8">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-[#0B2C4A]">Métodos guardados</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <h2 className="intra-h4">Métodos guardados</h2>
+            <p className="mt-1 text-sm text-intra-text-muted">
               Elige cuál usarás por defecto cuando solicites retiros.
             </p>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+          <span className="rounded-full bg-intra-bg-app px-3 py-1 text-xs font-semibold text-intra-text-subtle">
             {accounts.length} guardadas
           </span>
         </div>
 
         {accounts.length === 0 ? (
-          <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+          <div className="mt-5 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-muted">
             Aún no tienes cuentas de retiro. Agrega la primera para habilitar solicitudes de pago.
           </div>
         ) : (
@@ -314,44 +314,44 @@ export default function PayoutAccountsManager({
             {accounts.map((account) => (
               <article
                 key={account.id}
-                className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:shadow-sm"
+                className="rounded-2xl border border-intra-border-soft bg-intra-card p-4 transition hover:shadow-sm"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold text-[#0B2C4A]">
+                    <p className="font-semibold text-intra-blue">
                         {getAccountTypeLabel(account.account_type)}
                       </p>
                       {account.is_default ? (
-                        <span className="rounded-full bg-[#EFFBF4] px-2.5 py-1 text-xs font-semibold text-[#1e8c4e]">
+                        <span className="rounded-full bg-intra-success-soft px-2.5 py-1 text-xs font-semibold text-intra-text-success">
                           Principal
                         </span>
                       ) : null}
                     </div>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-intra-text-subtle">
                       {account.account_holder_name || "Sin titular"}
                     </p>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-intra-text-muted">
                       {getPayoutAccountDisplayName(account)} · {maskAccountNumber(account.account_number)}
                     </p>
                     {account.breb_key ? (
-                      <p className="text-xs text-slate-500">Llave BRE-B: {account.breb_key}</p>
+                      <p className="text-xs text-intra-text-muted">Llave BRE-B: {account.breb_key}</p>
                     ) : null}
-                    <p className="text-xs text-slate-400">Documento: {account.document_number || "Sin documento"}</p>
+                    <p className="text-xs text-intra-text-muted/70">Documento: {account.document_number || "Sin documento"}</p>
                   </div>
 
                   <div className="flex gap-2 sm:flex-col md:flex-row">
                     <button
                       type="button"
                       onClick={() => handleEdit(account)}
-                      className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-4 py-2.5 text-sm font-semibold"
                     >
                       Editar
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDelete(account.id)}
-                      className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+                      className="intra-btn min-h-11 rounded-2xl border border-intra-danger-border px-4 py-2.5 text-sm font-semibold text-intra-danger hover:bg-intra-danger-soft"
                     >
                       Eliminar
                     </button>

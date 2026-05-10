@@ -75,26 +75,26 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
   return (
     <>
       <AppNavbar />
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6">
+      <main className="intra-page-shell px-4 py-6 sm:px-6">
         <div className="mx-auto max-w-6xl space-y-6">
-          <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+          <section className="intra-card p-6 shadow-sm sm:p-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">Historial de wallet</h1>
-                <p className="mt-1 text-sm text-slate-500 sm:text-base">
+                <h1 className="intra-page-title text-2xl sm:text-3xl">Historial de wallet</h1>
+                <p className="mt-1 intra-body text-intra-text-muted sm:text-base">
                   Todos tus movimientos de saldo disponible y saldo en retención temporal.
                 </p>
               </div>
               <div className="flex gap-3">
                 <Link
                   href="/app/wallet"
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-4 py-2.5 text-sm font-semibold"
                 >
                   Volver a wallet
                 </Link>
                 <Link
                   href="/app/wallet/payout"
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
+                  className="intra-btn intra-btn-primary min-h-11 rounded-2xl px-4 py-2.5 text-sm font-semibold"
                 >
                   Solicitar retiro
                 </Link>
@@ -102,73 +102,73 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+          <section className="overflow-hidden rounded-3xl border border-intra-border-soft bg-intra-card shadow-sm">
+            <div className="flex items-center justify-between border-b border-intra-border-soft px-6 py-4">
               <div>
-                <h2 className="text-lg font-semibold text-[#0B2C4A]">Movimientos</h2>
-                <p className="mt-1 text-sm text-slate-500">Página {currentPage} de {totalPages}</p>
+                <h2 className="intra-h4">Movimientos</h2>
+                <p className="mt-1 text-sm text-intra-text-muted">Página {currentPage} de {totalPages}</p>
               </div>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+              <span className="rounded-full bg-intra-bg-app px-3 py-1 text-xs font-semibold text-intra-text-subtle">
                 {totalCount} total
               </span>
             </div>
 
             {history.length === 0 ? (
-              <div className="px-6 py-10 text-sm text-slate-500">
+              <div className="px-6 py-10 text-sm text-intra-text-muted">
                 Aún no hay movimientos registrados.
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-100">
-                  <thead className="bg-slate-50">
+                <table className="min-w-full divide-y divide-intra-border-soft">
+                  <thead className="bg-intra-bg-app">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-intra-text-muted">
                         Movimiento
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-intra-text-muted">
                         Tipo
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-intra-text-muted">
                         Dirección
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-intra-text-muted">
                         Monto
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-intra-text-muted">
                         Fecha
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 bg-white">
+                  <tbody className="divide-y divide-intra-border-soft bg-intra-card">
                     {history.map((entry) => (
                       <tr key={entry.id}>
                         <td className="px-6 py-4 align-top">
-                          <p className="font-medium text-[#0B2C4A]">
+                          <p className="font-medium text-intra-blue">
                             {getLedgerEntryLabel(entry.entry_type, entry.description)}
                           </p>
-                          <div className="mt-1 flex flex-wrap gap-2 text-xs text-slate-400">
+                          <div className="mt-1 flex flex-wrap gap-2 text-xs text-intra-text-muted/70">
                             {entry.payment_id ? <span>Pago vinculado</span> : null}
                             {entry.match_id ? <span>Match asociado</span> : null}
                             {entry.payout_id ? <span>Retiro asociado · {payoutCodes.get(entry.payout_id) || entry.payout_id}</span> : null}
                           </div>
                         </td>
-                        <td className="px-6 py-4 align-top text-sm text-slate-600">
+                        <td className="px-6 py-4 align-top text-sm text-intra-text-subtle">
                           {getLedgerTypeLabel(entry.balance_type)}
                         </td>
-                        <td className="px-6 py-4 align-top text-sm text-slate-600">
+                        <td className="px-6 py-4 align-top text-sm text-intra-text-subtle">
                           {getDirectionLabel(entry.direction)}
                         </td>
                         <td className="px-6 py-4 align-top">
                           <span
                             className={`text-sm font-semibold ${
-                              entry.direction === "credit" ? "text-[#1e8c4e]" : "text-slate-800"
+                              entry.direction === "credit" ? "text-intra-text-success" : "text-intra-blue"
                             }`}
                           >
                             {entry.direction === "credit" ? "+" : "-"}
                             {formatCop(entry.amount ?? 0)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 align-top text-sm text-slate-500">
+                        <td className="px-6 py-4 align-top text-sm text-intra-text-muted">
                           {formatDateTime(entry.created_at)}
                         </td>
                       </tr>
@@ -178,8 +178,8 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
               </div>
             )}
 
-            <div className="flex flex-col gap-3 border-t border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-slate-500">
+            <div className="flex flex-col gap-3 border-t border-intra-border-soft px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-intra-text-muted">
                 Mostrando {history.length === 0 ? 0 : from + 1} a {Math.min(from + history.length, totalCount)} de {totalCount}
               </p>
               <div className="flex gap-3">
@@ -187,8 +187,8 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                   href={currentPage > 1 ? `/app/wallet/history?page=${currentPage - 1}` : "/app/wallet/history?page=1"}
                   className={`inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${
                     currentPage > 1
-                      ? "border border-slate-300 text-slate-700 hover:bg-slate-50"
-                      : "cursor-not-allowed border border-slate-200 text-slate-400"
+                      ? "border border-intra-border-soft text-intra-text-subtle hover:bg-intra-bg-app"
+                      : "cursor-not-allowed border border-intra-border-soft text-intra-text-muted/70"
                   }`}
                   aria-disabled={currentPage <= 1}
                 >
@@ -198,8 +198,8 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                   href={`/app/wallet/history?page=${Math.min(currentPage + 1, totalPages)}`}
                   className={`inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${
                     currentPage < totalPages
-                      ? "bg-[#0B2C4A] text-white hover:opacity-95"
-                      : "cursor-not-allowed border border-slate-200 text-slate-400"
+                      ? "bg-intra-blue text-intra-card hover:bg-intra-blue-hover-card"
+                      : "cursor-not-allowed border border-intra-border-soft text-intra-text-muted/70"
                   }`}
                   aria-disabled={currentPage >= totalPages}
                 >

@@ -78,52 +78,52 @@ export default function PayoutRequestForm({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="intra-card p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">Solicitar retiro</h1>
-            <p className="mt-1 text-sm text-slate-500 sm:text-base">
+            <h1 className="intra-page-title text-2xl sm:text-3xl">Solicitar retiro</h1>
+            <p className="mt-1 intra-body text-intra-text-muted sm:text-base">
               Mueve tu saldo disponible a una cuenta bancaria o billetera digital.
             </p>
           </div>
           <Link
             href="/app/wallet/payout/accounts"
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-4 py-2.5 text-sm font-semibold"
           >
             Administrar cuentas
           </Link>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-[#0B2C4A] p-5 text-white">
-            <p className="text-sm text-white/65">Disponible para retirar</p>
-            <p className="mt-2 text-3xl font-bold">{formatCop(withdrawableBalance)}</p>
-            <p className="mt-2 text-xs text-white/70">
+          <div className="intra-dashboard-revenue-card rounded-2xl p-5">
+            <p className="text-sm text-intra-card/65">Disponible para retirar</p>
+            <p className="mt-2 text-3xl font-bold text-intra-card">{formatCop(withdrawableBalance)}</p>
+            <p className="mt-2 text-xs text-intra-card/70">
               Ya descontamos solicitudes pendientes o aprobadas para evitar retiros duplicados.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#A3E4BF] bg-[#EFFBF4] p-5">
-            <p className="text-sm text-[#1e8c4e]">Retiro mínimo</p>
-            <p className="mt-2 text-3xl font-bold text-[#0B2C4A]">{formatCop(minimumPayout)}</p>
-            <p className="mt-2 text-xs text-slate-600">Solo procesamos montos desde {formatCop(minimumPayout)}.</p>
+          <div className="rounded-2xl border border-intra-success-border bg-intra-success-soft p-5">
+            <p className="text-sm text-intra-text-success">Retiro mínimo</p>
+            <p className="mt-2 text-3xl font-bold text-intra-blue">{formatCop(minimumPayout)}</p>
+            <p className="mt-2 text-xs text-intra-text-subtle">Solo procesamos montos desde {formatCop(minimumPayout)}.</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm text-slate-500">Cuenta principal</p>
-            <p className="mt-2 text-base font-semibold text-[#0B2C4A]">
+          <div className="rounded-2xl border border-intra-border-soft bg-intra-bg-app p-5">
+            <p className="text-sm text-intra-text-muted">Cuenta principal</p>
+            <p className="mt-2 text-base font-semibold text-intra-blue">
               {payoutAccounts.find((account) => account.is_default)
                 ? getPayoutAccountDisplayName(payoutAccounts.find((account) => account.is_default)!)
                 : "Sin cuenta principal"}
             </p>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-intra-text-muted">
               Si quieres cambiarla, edítala desde Cuentas de retiro.
             </p>
           </div>
         </div>
 
         {payoutAccounts.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-600">
+          <div className="mt-6 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-subtle">
             Antes de solicitar un retiro debes registrar una cuenta.
-            <Link href="/app/wallet/payout/accounts" className="ml-1 font-semibold text-[#0B2C4A] hover:underline">
+            <Link href="/app/wallet/payout/accounts" className="ml-1 font-semibold text-intra-blue hover:underline">
               Agregar cuenta
             </Link>
           </div>
@@ -131,7 +131,7 @@ export default function PayoutRequestForm({
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Monto</span>
+                <span className="text-sm font-semibold text-intra-blue">Monto</span>
                 <input
                   inputMode="numeric"
                   min={minimumPayout}
@@ -139,16 +139,16 @@ export default function PayoutRequestForm({
                   value={amount}
                   onChange={(event) => setAmount(event.target.value)}
                   placeholder="10000"
-                  className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                  className="intra-input"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Cuenta de retiro</span>
+                <span className="text-sm font-semibold text-intra-blue">Cuenta de retiro</span>
                 <select
                   value={selectedAccount}
                   onChange={(event) => setSelectedAccount(event.target.value)}
-                  className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                  className="intra-input"
                 >
                   {payoutAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
@@ -160,13 +160,13 @@ export default function PayoutRequestForm({
             </div>
 
             <label className="space-y-2 block">
-              <span className="text-sm font-semibold text-[#0B2C4A]">Nota para revisión (opcional)</span>
+              <span className="text-sm font-semibold text-intra-blue">Nota para revisión (opcional)</span>
               <textarea
                 rows={3}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder="Ej: pagar esta semana"
-                className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                className="intra-input min-h-0"
               />
             </label>
 
@@ -174,8 +174,8 @@ export default function PayoutRequestForm({
               <div
                 className={`rounded-2xl px-4 py-3 text-sm ${
                   feedback.type === "error"
-                    ? "border border-red-200 bg-red-50 text-red-700"
-                    : "border border-[#A3E4BF] bg-[#EFFBF4] text-[#1e8c4e]"
+                    ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+                    : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
                 }`}
               >
                 {feedback.message}
@@ -186,14 +186,14 @@ export default function PayoutRequestForm({
               <button
                 type="submit"
                 disabled={isPending || payoutAccounts.length === 0}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60"
+                className="intra-btn intra-btn-primary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold disabled:opacity-60"
               >
                 {isPending ? "Enviando..." : "Solicitar retiro"}
               </button>
               <button
                 type="button"
                 onClick={() => setAmount(String(withdrawableBalance > 0 ? Math.floor(withdrawableBalance / 1000) * 1000 : 0))}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold"
               >
                 Usar saldo disponible
               </button>
@@ -202,36 +202,36 @@ export default function PayoutRequestForm({
         )}
       </section>
 
-      <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="intra-card p-6 shadow-sm sm:p-8">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-[#0B2C4A]">Historial de retiros</h2>
-            <p className="mt-1 text-sm text-slate-500">Revisa el estado de cada solicitud.</p>
+            <h2 className="intra-h4">Historial de retiros</h2>
+            <p className="mt-1 text-sm text-intra-text-muted">Revisa el estado de cada solicitud.</p>
           </div>
-          <Link href="/app/wallet/history" className="text-sm font-semibold text-[#0B2C4A] hover:underline">
+          <Link href="/app/wallet/history" className="intra-link text-sm font-semibold">
             Ver movimientos
           </Link>
         </div>
 
         {payouts.length === 0 ? (
-          <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+          <div className="mt-5 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-muted">
             Aún no has solicitado retiros.
           </div>
         ) : (
           <div className="mt-5 space-y-3">
             {payouts.map((payout) => (
-              <article key={payout.id} className="rounded-2xl border border-slate-200 p-4">
+              <article key={payout.id} className="rounded-2xl border border-intra-border-soft p-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="font-semibold text-[#0B2C4A]">{formatCop(payout.amount)}</p>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    <p className="font-semibold text-intra-blue">{formatCop(payout.amount)}</p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">
                       {payout.payout_code || "Sin referencia"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-intra-text-muted">
                       Solicitado el {payout.requested_at ? new Date(payout.requested_at).toLocaleDateString("es-CO") : "sin fecha"}
                     </p>
                     {payout.review_notes ? (
-                      <p className="mt-2 text-sm text-slate-600">Nota: {payout.review_notes}</p>
+                      <p className="mt-2 text-sm text-intra-text-subtle">Nota: {payout.review_notes}</p>
                     ) : null}
                   </div>
                   <span
