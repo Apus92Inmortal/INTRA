@@ -583,14 +583,19 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             </div>
                           </>
                         ) : (
-                          <div className="mt-2 flex items-center gap-2">
-                            <div className="h-1.5 flex-1 rounded-full bg-gray-100">
-                              <div
-                                className="h-full rounded-full bg-gray-200"
-                                style={{ width: `${shipment.progressPercent}%` }}
-                              />
+                          <div className="mt-2 flex items-start gap-3">
+                            <div className="flex-1">
+                              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                {shipmentProgressSteps.map((step) => (
+                                  <div key={step} className="min-w-0">
+                                    <div className="h-2 rounded-full bg-slate-200" />
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                            <DashboardPublishedTimeLabel createdAt={shipment.createdAt} />
+                            <div className="pt-0.5">
+                              <DashboardPublishedTimeLabel createdAt={shipment.createdAt} />
+                            </div>
                           </div>
                         )}
                       </div>
