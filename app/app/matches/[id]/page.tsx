@@ -305,7 +305,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EEF4FB] text-[#0B5CAD]">
                       <Route className="intra-icon-emphasis" strokeWidth={2.1} />
                     </div>
-                    <h1 className="text-[clamp(1.65rem,2.5vw,2.35rem)] font-bold tracking-tight text-[#0B2C4A]">
+                    <h1 className="intra-page-title">
                       {shipmentRouteLabel}
                     </h1>
                     <span className={`intra-pill intra-badge-text w-fit ${matchStatusBadgeClass}`}>
@@ -345,7 +345,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                           }`}
                         />
                         <p
-                          className={`mt-2 text-center text-[11px] font-semibold leading-4 ${
+                          className={`intra-step-label mt-2 text-center ${
                             isCurrent ? "text-[#0B2C4A]" : isDone ? "text-slate-700" : "text-slate-400"
                           }`}
                         >
