@@ -122,4 +122,5 @@ export const intraRules = {
   buttonMinimumHeightPx: 40,
   inputMinimumHeightPx: 44,
   clickableMinimumAreaPx: 40,
+  stableActionWidthOnLabelSwap: true,
 } as const;
