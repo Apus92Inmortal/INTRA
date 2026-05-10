@@ -760,17 +760,17 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 <span className="whitespace-nowrap">{trip.departureDateLabel}</span>
                                 <span aria-hidden="true" className="shrink-0">·</span>
                                 <div className="flex shrink-0 items-center gap-0.5">
-                                  <Briefcase className="h-3 w-3 text-slate-400" />
+                                  <Briefcase className="intra-icon-compact text-slate-400" />
                                   <span className="whitespace-nowrap">{formatTripUsagePercent(trip.usedCapacityKg, trip.totalCapacityKg)}</span>
                                 </div>
                                 <span
                                   aria-hidden="true"
-                                  className="h-3.5 w-3.5 shrink-0 rounded-full border border-slate-200"
+                                  className="h-4 w-4 shrink-0 rounded-full border border-slate-200"
                                   style={{
                                     background: `conic-gradient(#2ECC71 ${trip.progressPercent}%, #E5E7EB ${trip.progressPercent}% 100%)`,
                                   }}
                                 >
-                                  <span className="m-[1.5px] block h-[calc(100%-3px)] w-[calc(100%-3px)] rounded-full bg-white" />
+                                  <span className="m-[2px] block h-[calc(100%-4px)] w-[calc(100%-4px)] rounded-full bg-white" />
                                 </span>
                               </div>
                             </div>

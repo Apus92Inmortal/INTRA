@@ -80,15 +80,15 @@ export const intraSizing = {
   },
   icon: {
     compact: {
-      glyph: 14,
+      glyph: 16,
       shell: 24,
     },
     body: {
-      glyph: 16,
+      glyph: 18,
       shell: 32,
     },
     emphasis: {
-      glyph: 20,
+      glyph: 22,
       shell: 40,
     },
   },
