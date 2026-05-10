@@ -18,9 +18,7 @@ export function RatingSummaryBadge({ avgRating, totalReviews, className = "" }: 
       className={`inline-flex items-center gap-1 rounded-full bg-intra-warning-soft-alt px-3 py-1 text-xs font-semibold text-intra-warning-text ${className}`.trim()}
     >
       <span aria-hidden="true">⭐</span>
-      <span>
-        {formatted}({totalReviews})
-      </span>
+      <span>{formatted}</span>
     </span>
   );
 }
