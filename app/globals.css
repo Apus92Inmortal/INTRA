@@ -36,6 +36,9 @@
   --intra-danger-soft: #FEF3F2;
   --intra-danger-border: #FECDCA;
   --intra-neutral-soft-alt: #F7FAFD;
+  --intra-blue-hover-card: #123a5f;
+  --intra-dashboard-hero-mid: #103656;
+  --intra-dashboard-hero-end: #123d61;
   --intra-auth-hero-mid: #123d61;
   --intra-auth-hero-end: #0f6b52;
 
@@ -111,6 +114,9 @@
   --color-intra-danger-soft: var(--intra-danger-soft);
   --color-intra-danger-border: var(--intra-danger-border);
   --color-intra-neutral-soft-alt: var(--intra-neutral-soft-alt);
+  --color-intra-blue-hover-card: var(--intra-blue-hover-card);
+  --color-intra-dashboard-hero-mid: var(--intra-dashboard-hero-mid);
+  --color-intra-dashboard-hero-end: var(--intra-dashboard-hero-end);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
@@ -154,6 +160,14 @@ body {
   .intra-auth-hero {
     background: linear-gradient(160deg, var(--intra-blue) 0%, var(--intra-auth-hero-mid) 55%, var(--intra-auth-hero-end) 100%);
     color: var(--intra-card);
+  }
+
+  .intra-dashboard-revenue-card {
+    border-radius: var(--intra-radius-md);
+    border: 1px solid color-mix(in srgb, var(--intra-card) 10%, transparent);
+    background: linear-gradient(145deg, var(--intra-blue) 0%, var(--intra-dashboard-hero-mid) 58%, var(--intra-dashboard-hero-end) 100%);
+    color: var(--intra-card);
+    box-shadow: var(--intra-shadow-hero);
   }
 
   .intra-auth-logo-shell {

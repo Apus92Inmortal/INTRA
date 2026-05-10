@@ -69,18 +69,18 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
         aria-label="Abrir acciones del viaje"
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#0B2C4A]/10 bg-white text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60 sm:h-9 sm:w-9"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-intra-blue/10 bg-intra-card text-intra-blue transition hover:bg-intra-neutral-pill disabled:cursor-not-allowed disabled:opacity-60 sm:h-9 sm:w-9"
       >
         <MoreVertical className="intra-icon-body" />
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-12 z-20 min-w-[180px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+        <div className="absolute right-0 top-12 z-20 min-w-[180px] overflow-hidden rounded-2xl border border-intra-border bg-intra-card shadow-xl">
           <button
             type="button"
             onClick={handleClick}
             disabled={isPending}
-            className="intra-label flex min-h-11 w-full items-center justify-center gap-2 px-4 py-2.5 text-center text-[#0B2C4A] transition hover:bg-[#EEF2F7] disabled:cursor-not-allowed disabled:opacity-60"
+            className="intra-label flex min-h-11 w-full items-center justify-center gap-2 px-4 py-2.5 text-center text-intra-blue transition hover:bg-intra-neutral-pill disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Lock className="intra-icon-body" />
             {isPending ? "Cerrando..." : "Despegando"}
@@ -88,7 +88,7 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
         </div>
       ) : null}
 
-      {error ? <p className="intra-caption text-red-600">{error}</p> : null}
+      {error ? <p className="intra-caption text-intra-danger">{error}</p> : null}
     </div>
   );
 }
