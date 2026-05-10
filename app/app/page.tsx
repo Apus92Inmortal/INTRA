@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Briefcase, CircleDollarSign, Clock3, PackageCheck, Route, ShieldCheck } from "lucide-react";
+import { Briefcase, Calendar, CircleDollarSign, Clock3, PackageCheck, Route, ShieldCheck } from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
@@ -527,23 +527,23 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                         </div>
 
                         {shipment.hasPendingAction && shipment.pendingMatchId ? (
-                          <div className="rounded-2xl border border-intra-warning/25 bg-intra-warning-soft p-4 sm:p-5">
+                          <div className="rounded-2xl border border-intra-trust-card-border bg-intra-trust-card-bg p-5">
                             <div className="flex items-start gap-3">
-                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-intra-warning-soft text-intra-warning-text">
+                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-intra-trust-avatar-bg text-intra-trust-avatar-fg">
                                 <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="intra-body-strong text-intra-blue">
+                                <p className="text-[16px] font-bold leading-6 text-intra-trust-ink">
                                   {shipment.travelerName ?? "Un viajero"}
                                 </p>
-                                <p className="mt-0.5 intra-caption">Quiere transportar tu envío</p>
+                                <p className="mt-0.5 text-sm leading-5 text-intra-trust-muted">Quiere transportar tu envío</p>
 
                                 {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 || shipment.travelerVerified ? (
                                   <div className="mt-3 flex flex-wrap gap-2">
                                     {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 ? (
-                                      <span className="inline-flex items-center gap-1.5 rounded-full border border-intra-green/20 bg-intra-success-soft px-3 py-1 text-xs font-semibold text-intra-text-success">
+                                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-intra-trust-success-fg/20 bg-intra-trust-success-bg px-2.5 py-1 text-xs font-semibold text-intra-trust-success-fg">
                                         <PackageCheck className="h-3.5 w-3.5" />
                                         <span>
                                           {shipment.travelerCompletedDeliveriesCount === 1
@@ -554,7 +554,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                     ) : null}
 
                                     {shipment.travelerVerified ? (
-                                      <span className="inline-flex items-center gap-1.5 rounded-full border border-intra-border bg-intra-card px-3 py-1 text-xs font-semibold text-intra-blue">
+                                      <span className="inline-flex items-center gap-1.5 rounded-lg border border-intra-trust-neutral-border bg-intra-card px-2.5 py-1 text-xs font-semibold text-intra-trust-ink">
                                         <ShieldCheck className="h-3.5 w-3.5" />
                                         <span>Viajero verificado</span>
                                       </span>
@@ -562,12 +562,13 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                   </div>
                                 ) : null}
 
-                                <p className="mt-3 intra-caption">
-                                  {shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}
-                                </p>
+                                <div className="mt-3 flex items-center gap-1.5 text-sm leading-5 text-intra-trust-muted">
+                                  <Calendar className="h-4 w-4 shrink-0" />
+                                  <p>{shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}</p>
+                                </div>
                               </div>
                             </div>
-                            <div className="mt-4 border-t border-intra-warning-border/40 pt-4">
+                            <div className="mt-4 border-t border-intra-trust-card-border pt-4">
                               <DashboardPendingMatchActions matchId={shipment.pendingMatchId} />
                             </div>
                           </div>
