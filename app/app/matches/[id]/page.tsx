@@ -223,6 +223,20 @@ export default async function MatchDetailPage({ params }: PageProps) {
     "En tránsito",
     "Entrega",
   ];
+  const matchStatusBadgeClass =
+    match.status === "pending"
+      ? "bg-amber-100 text-amber-700"
+      : match.status === "accepted"
+        ? "bg-emerald-100 text-emerald-700"
+        : match.status === "rejected"
+          ? "bg-rose-100 text-rose-700"
+          : "bg-slate-100 text-slate-700";
+  const primaryActionButtonClass =
+    "intra-btn min-h-11 w-full gap-2 rounded-2xl bg-[#2C9B57] px-5 py-2.5 text-white hover:bg-[#247C47]";
+  const chatActionButtonClass =
+    "intra-btn min-h-11 w-full gap-2 rounded-2xl bg-[#0B5CAD] px-5 py-2.5 text-white hover:bg-[#094B8C]";
+  const warningActionButtonClass =
+    "intra-btn min-h-11 w-full gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-2.5 text-amber-800 hover:bg-amber-100";
 
   const canAccept = isOwner && match.status === "pending";
   const canCancel =
@@ -279,42 +293,32 @@ export default async function MatchDetailPage({ params }: PageProps) {
   return (
     <>
       <AppNavbar />
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 sm:py-8">
+      <main className="intra-page-shell px-4 py-6 sm:px-6 sm:py-8">
         <MatchDetailRealtime matchId={match.id} />
 
         <div className="mx-auto max-w-5xl">
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-200 bg-gradient-to-r from-white to-slate-50 px-6 py-6 sm:px-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-3">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EEF4FB] text-[#0B5CAD]">
-                      <Route className="h-5 w-5" strokeWidth={2.1} />
+                      <Route className="intra-icon-emphasis" strokeWidth={2.1} />
                     </div>
                     <h1 className="text-[clamp(1.65rem,2.5vw,2.35rem)] font-bold tracking-tight text-[#0B2C4A]">
                       {shipmentRouteLabel}
                     </h1>
-                    <span
-                      className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
-                        match.status === "pending"
-                          ? "bg-amber-100 text-amber-700"
-                          : match.status === "accepted"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : match.status === "rejected"
-                              ? "bg-rose-100 text-rose-700"
-                            : "bg-slate-100 text-slate-700"
-                      }`}
-                    >
+                    <span className={`intra-pill intra-badge-text w-fit ${matchStatusBadgeClass}`}>
                       {getStatusLabel(match.status)}
                     </span>
                   </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 intra-body">
                     <span>
-                      <span className="font-medium text-slate-500">{otherUserRoleLabel}:</span>{" "}
-                      <span className="font-semibold text-[#0B2C4A]">{otherUserName}</span>
+                      <span className="intra-caption">{otherUserRoleLabel}:</span>{" "}
+                      <span className="intra-body-strong">{otherUserName}</span>
                     </span>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4D6] px-3 py-1 text-sm font-semibold text-[#8A5A00]">
-                      <Star className="h-3.5 w-3.5 fill-[#D4A017] text-[#D4A017]" strokeWidth={1.8} />
+                    <span className="intra-pill items-center gap-1.5 bg-[#FFF4D6] text-[#8A5A00]">
+                      <Star className="intra-icon-compact fill-[#D4A017] text-[#D4A017]" strokeWidth={1.8} />
                       <span>{headerRatingText}</span>
                     </span>
                   </div>
@@ -322,12 +326,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
                 <div className="flex shrink-0 flex-col items-center gap-2 text-center">
                   <TrackingCodeBadge code={matchCode} className="bg-[#0B2C4A] hover:bg-[#12385C]" />
-                  <span className="text-sm text-slate-500">Creado: {formatDate(match.created_at)}</span>
+                  <span className="intra-caption">Creado: {formatDate(match.created_at)}</span>
                 </div>
               </div>
 
               <div className="mt-5">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Progreso del envío</p>
+                <p className="intra-caption-strong uppercase tracking-wide text-slate-500">Progreso del envío</p>
                 <div className="mt-3 grid grid-cols-4 gap-2 sm:gap-3">
                   {progressSteps.map((step, index) => {
                     const isDone = index <= progressIndex;
@@ -341,7 +345,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                           }`}
                         />
                         <p
-                          className={`mt-2 text-center text-[10px] font-semibold leading-3.5 sm:text-[11px] sm:leading-4 ${
+                          className={`mt-2 text-center text-[11px] font-semibold leading-4 ${
                             isCurrent ? "text-[#0B2C4A]" : isDone ? "text-slate-700" : "text-slate-400"
                           }`}
                         >
@@ -360,29 +364,29 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   <section className="rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-5 shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
-                        <span className="text-lg">{isTraveler ? "📦" : "✈️"}</span>
+                        {isTraveler ? <PackageCheck className="intra-icon-body" strokeWidth={2.1} /> : <Route className="intra-icon-body" strokeWidth={2.1} />}
                       </div>
                       <div>
-                        <h2 className="text-lg font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h2>
+                        <h2 className="intra-h3">{primaryPanelTitle}</h2>
                       </div>
                     </div>
 
                     {isTraveler ? (
                       <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-center">
-                        <div className="space-y-3 text-sm text-slate-700">
-                          <p><span className="font-medium text-slate-900">Tipo:</span> {getShipmentKindLabel(shipment?.kind)}</p>
-                          <p><span className="font-medium text-slate-900">Valor:</span> {formatCurrency(shipment?.declared_value_cop)}</p>
-                          <p><span className="font-medium text-slate-900">Descripción:</span> {shipment?.description?.trim() || "Sin descripción"}</p>
-                          <p><span className="font-medium text-slate-900">Peso:</span> {shipment?.weight_kg ?? 0} kg</p>
+                        <div className="space-y-3 intra-body">
+                          <p><span className="intra-body-strong">Tipo:</span> {getShipmentKindLabel(shipment?.kind)}</p>
+                          <p><span className="intra-body-strong">Valor:</span> {formatCurrency(shipment?.declared_value_cop)}</p>
+                          <p><span className="intra-body-strong">Descripción:</span> {shipment?.description?.trim() || "Sin descripción"}</p>
+                          <p><span className="intra-body-strong">Peso:</span> {shipment?.weight_kg ?? 0} kg</p>
                         </div>
 
                         {shipment?.id && ownerId ? (
                           <div className="flex flex-col justify-center rounded-2xl border border-amber-200 bg-[linear-gradient(180deg,#FFFDF8_0%,#FFF7E8_100%)] p-4 shadow-sm">
                             <div className="flex items-center gap-2 text-amber-700">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100">
-                                <ShieldAlert className="h-4 w-4" strokeWidth={2} />
+                              <div className="intra-icon-shell-body rounded-xl bg-amber-100">
+                                <ShieldAlert className="intra-icon-body" strokeWidth={2} />
                               </div>
-                              <p className="text-[11px] font-semibold uppercase tracking-wide">Protección del envío</p>
+                              <p className="intra-caption-strong uppercase tracking-wide text-amber-700">Protección del envío</p>
                             </div>
 
                             <div className="mt-3">
@@ -398,11 +402,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         ) : null}
                       </div>
                     ) : (
-                      <div className="mt-4 space-y-3 text-sm text-slate-700">
-                        <p><span className="font-medium text-slate-900">Salida:</span> {formatDate(trip?.departure_date)}</p>
-                        <p><span className="font-medium text-slate-900">Hora:</span> {formatTimeLabel(trip?.departure_time)}</p>
-                        <p><span className="font-medium text-slate-900">Capacidad:</span> {trip?.capacity_kg ?? 0} kg</p>
-                        <p><span className="font-medium text-slate-900">Ruta del viaje:</span> {tripRouteLabel}</p>
+                      <div className="mt-4 space-y-3 intra-body">
+                        <p><span className="intra-body-strong">Salida:</span> {formatDate(trip?.departure_date)}</p>
+                        <p><span className="intra-body-strong">Hora:</span> {formatTimeLabel(trip?.departure_time)}</p>
+                        <p><span className="intra-body-strong">Capacidad:</span> {trip?.capacity_kg ?? 0} kg</p>
+                        <p><span className="intra-body-strong">Ruta del viaje:</span> {tripRouteLabel}</p>
                       </div>
                     )}
                   </section>
@@ -411,16 +415,16 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
                 <div className="space-y-5">
                   <section className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-5 shadow-sm">
-                    <h2 className="text-lg font-semibold text-[#0B2C4A]">Acciones del match</h2>
+                    <h2 className="intra-h3">Acciones del match</h2>
 
                     <div className="mt-5 space-y-3">
                       {canMarkInTransit && markInTransitSubmitAction ? (
                         <form action={markInTransitSubmitAction}>
                           <button
                             type="submit"
-                            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#2C9B57] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#247C47]"
+                            className={primaryActionButtonClass}
                           >
-                            <PackageCheck className="h-4 w-4" strokeWidth={2.1} />
+                            <PackageCheck className="intra-icon-body" strokeWidth={2.1} />
                             Confirmar recogida
                           </button>
                         </form>
@@ -430,9 +434,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         <form action={markDeliveredSubmitAction}>
                           <button
                             type="submit"
-                            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#2C9B57] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#247C47]"
+                            className={primaryActionButtonClass}
                           >
-                            <Truck className="h-4 w-4" strokeWidth={2.1} />
+                            <Truck className="intra-icon-body" strokeWidth={2.1} />
                             Confirmar entrega
                           </button>
                         </form>
@@ -442,18 +446,18 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         <form action={confirmDeliverySubmitAction}>
                           <button
                             type="submit"
-                            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#2C9B57] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#247C47]"
+                            className={primaryActionButtonClass}
                           >
-                            <CheckCircle2 className="h-4 w-4" strokeWidth={2.1} />
+                            <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
                             Confirmar recepción
                           </button>
                         </form>
                       ) : canOpenChat ? (
                         <Link
                           href={`/app/matches/${match.id}/chat`}
-                          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#0B5CAD] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#094B8C]"
+                          className={chatActionButtonClass}
                         >
-                          <MessageCircle className="h-4 w-4" strokeWidth={2.1} />
+                          <MessageCircle className="intra-icon-body" strokeWidth={2.1} />
                           Abrir chat
                         </Link>
                       ) : (
@@ -472,9 +476,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         <form action={openDisputeSubmitAction}>
                           <button
                             type="submit"
-                            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-2.5 text-sm font-semibold text-amber-800 transition hover:bg-amber-100"
+                            className={warningActionButtonClass}
                           >
-                            <ShieldAlert className="h-4 w-4" strokeWidth={2.1} />
+                            <ShieldAlert className="intra-icon-body" strokeWidth={2.1} />
                             Solicitar revisión
                           </button>
                         </form>
@@ -486,7 +490,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
               </div>
 
               {!canOpenChat ? (
-                <div className="mt-6 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-500">
+                <div className="mt-6 rounded-2xl bg-slate-100 px-4 py-3 intra-body">
                   El chat se activará automáticamente cuando el match sea aceptado.
                 </div>
               ) : null}
