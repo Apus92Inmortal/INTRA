@@ -109,7 +109,7 @@ function WalletHeroAction({ href, children, variant = "secondary" }: { href: str
 
 function WalletHistoryEmptyState() {
   return (
-    <div className="mt-7 flex flex-col items-center rounded-[20px] border border-dashed border-intra-border-soft bg-intra-bg-app px-6 py-12 text-center">
+    <div className="mt-7 flex flex-col items-center rounded-[20px] border border-dashed border-intra-border-soft bg-intra-bg-app px-6 py-6 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-intra-card text-intra-text-muted shadow-sm">
         <ReceiptText className="h-6 w-6" />
       </div>
@@ -177,7 +177,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                 </div>
 
                 <div>
-                  <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-intra-card sm:text-[40px] sm:leading-[46px]">
+                  <h1 className="text-[28px] font-extrabold leading-[34px] tracking-tight text-intra-card sm:text-[28px] sm:leading-[34px]">
                     Historial de wallet
                   </h1>
                   <p className="mt-3 max-w-3xl text-base leading-7 text-intra-card/85 sm:text-[18px]">
