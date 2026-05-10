@@ -36,7 +36,8 @@ export type DashboardShipmentCard = {
   progressLabel: string;
   travelerName: string | null;
   travelerDepartureLabel: string | null;
-  travelerRatingLabel: string | null;
+  travelerCompletedDeliveriesCount: number | null;
+  travelerVerified: boolean;
   pendingMatchId: string | null;
   hasPendingAction: boolean;
 };

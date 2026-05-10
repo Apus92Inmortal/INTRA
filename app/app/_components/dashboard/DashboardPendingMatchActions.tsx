@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import {
   acceptMatchAction,
   rejectMatchAction,
@@ -44,8 +45,9 @@ export default function DashboardPendingMatchActions({
           type="button"
           disabled={isPending}
           onClick={() => handleAction("accept")}
-          className="intra-btn intra-btn-primary min-h-11 flex-1 px-4 py-2.5"
+          className="intra-btn min-h-11 flex-1 gap-2 rounded-2xl bg-intra-green px-4 py-2.5 text-sm font-bold text-intra-card hover:bg-intra-green-hover-app"
         >
+          <CheckCircle2 className="h-4 w-4" />
           {isPending && activeAction === "accept" ? "Procesando..." : "Aceptar"}
         </button>
 
@@ -53,14 +55,15 @@ export default function DashboardPendingMatchActions({
           type="button"
           disabled={isPending}
           onClick={() => handleAction("reject")}
-          className="intra-btn intra-btn-secondary min-h-11 flex-1 border-gray-200 px-4 py-2.5 text-gray-700 hover:bg-gray-50"
+          className="intra-btn min-h-11 flex-1 gap-2 rounded-2xl border border-intra-border px-4 py-2.5 text-sm font-bold text-intra-blue hover:bg-intra-bg-app"
         >
+          <XCircle className="h-4 w-4" />
           {isPending && activeAction === "reject" ? "Procesando..." : "Rechazar"}
         </button>
       </div>
 
       {error ? (
-        <p className="intra-caption text-red-600">{error}</p>
+        <p className="intra-caption text-intra-danger">{error}</p>
       ) : null}
     </div>
   );

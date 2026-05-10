@@ -93,6 +93,22 @@ type ProfileRow = {
   full_name: string | null;
 };
 
+type UserVerificationRow = {
+  user_id: string;
+  verification_status: string | null;
+};
+
+type TravelerHistoryTripRow = {
+  id: string;
+  traveler_id: string;
+};
+
+type TravelerHistoryMatchRow = {
+  trip_id: string;
+  status: string;
+  shipment: MatchShipmentRelation | MatchShipmentRelation[] | null;
+};
+
 type NotificationRow = {
   id: string;
   type: string | null;
@@ -491,14 +507,79 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     )
   ) as string[];
 
-  const travelerProfilesRes = travelerIds.length
-    ? await supabase.from("profiles").select("id, full_name").in("id", travelerIds)
-    : { data: [], error: null };
+  const [travelerProfilesRes, travelerVerificationsRes, travelerHistoryTripsRes] = await Promise.all([
+    travelerIds.length
+      ? supabase.from("profiles").select("id, full_name").in("id", travelerIds)
+      : Promise.resolve({ data: [], error: null }),
+    travelerIds.length
+      ? supabase
+          .from("user_verifications")
+          .select("user_id, verification_status")
+          .in("user_id", travelerIds)
+      : Promise.resolve({ data: [], error: null }),
+    travelerIds.length
+      ? supabase.from("trips").select("id, traveler_id").in("traveler_id", travelerIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
   const travelerProfiles = new Map(
     (((travelerProfilesRes.data ?? []) as ProfileRow[]) ?? []).map((traveler) => [
       traveler.id,
       traveler.full_name,
+    ])
+  );
+
+  const travelerVerifiedSet = new Set(
+    (((travelerVerificationsRes.data ?? []) as UserVerificationRow[]) ?? [])
+      .filter((verification) => verification.verification_status === "verified")
+      .map((verification) => verification.user_id)
+  );
+
+  const travelerHistoryTripOwnerById = new Map(
+    (((travelerHistoryTripsRes.data ?? []) as TravelerHistoryTripRow[]) ?? []).map((trip) => [
+      trip.id,
+      trip.traveler_id,
+    ])
+  );
+
+  const travelerHistoryTripIds = Array.from(travelerHistoryTripOwnerById.keys());
+
+  const travelerHistoryMatchesRes = travelerHistoryTripIds.length
+    ? await supabase
+        .from("matches")
+        .select(`
+          trip_id,
+          status,
+          shipment:shipments!matches_shipment_id_fkey(
+            id,
+            weight_kg,
+            status,
+            origin_city:cities!shipments_origin_city_id_fkey(name, iata_code),
+            destination_city:cities!shipments_destination_city_id_fkey(name, iata_code)
+          )
+        `)
+        .in("trip_id", travelerHistoryTripIds)
+        .in("status", ["accepted", "completed"])
+    : { data: [], error: null };
+
+  const travelerCompletedShipmentIdsByTraveler = new Map<string, Set<string>>();
+  for (const match of (((travelerHistoryMatchesRes.data ?? []) as TravelerHistoryMatchRow[]) ?? []).filter(Boolean)) {
+    const travelerId = travelerHistoryTripOwnerById.get(match.trip_id);
+    const shipment = normalizeShipmentRelation(match.shipment);
+
+    if (!travelerId || !shipment || shipment.status !== "delivered") {
+      continue;
+    }
+
+    const shipmentIds = travelerCompletedShipmentIdsByTraveler.get(travelerId) ?? new Set<string>();
+    shipmentIds.add(shipment.id);
+    travelerCompletedShipmentIdsByTraveler.set(travelerId, shipmentIds);
+  }
+
+  const travelerCompletedDeliveriesCountById = new Map(
+    Array.from(travelerCompletedShipmentIdsByTraveler.entries()).map(([travelerId, shipmentIds]) => [
+      travelerId,
+      shipmentIds.size,
     ])
   );
 
@@ -712,6 +793,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         null;
       const relevantMatch = pendingMatch ?? acceptedMatch;
       const relevantTrip = normalizeTripRelation(relevantMatch?.trip ?? null);
+      const relevantTravelerId = relevantTrip?.traveler_id ?? null;
       const travelerName = relevantTrip?.traveler_id
         ? travelerProfiles.get(relevantTrip.traveler_id) ?? "Viajero"
         : null;
@@ -744,7 +826,10 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         travelerDepartureLabel: relevantTrip?.departure_date
           ? `Viaja el ${formatDepartureLabel(relevantTrip.departure_date, relevantTrip.departure_time)}`
           : null,
-        travelerRatingLabel: null,
+        travelerCompletedDeliveriesCount: relevantTravelerId
+          ? travelerCompletedDeliveriesCountById.get(relevantTravelerId) ?? 0
+          : null,
+        travelerVerified: relevantTravelerId ? travelerVerifiedSet.has(relevantTravelerId) : false,
         pendingMatchId: pendingMatch?.id ?? null,
         hasPendingAction: Boolean(pendingMatch),
       };
