@@ -81,18 +81,21 @@ export default async function WalletPage() {
   const withdrawableBalance = Math.max(Number(wallet?.available_balance ?? 0) - reservedAmount, 0)
   const hasWallet = Boolean(wallet?.id)
   const hasPayoutAccount = (accountsRes.data?.length ?? 0) > 0
+  const movementEntries = ledger.filter(
+    (entry) => entry.entry_type === "release_available_credit" || entry.entry_type === "payout_paid_debit"
+  )
 
   return (
     <>
       <AppNavbar />
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6">
+      <main className="intra-page-shell px-4 py-6 sm:px-6">
         <div className="mx-auto max-w-6xl space-y-6">
-          <section className="rounded-3xl bg-[#0B2C4A] p-6 text-white shadow-lg shadow-[#0B2C4A]/10 sm:p-8">
+          <section className="intra-dashboard-revenue-card p-6 sm:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <p className="text-sm text-white/70">INTRA Pay</p>
-                <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Mi wallet</h1>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75 sm:text-base">
+                <p className="text-sm text-intra-card/70">INTRA Pay</p>
+                <h1 className="mt-2 text-3xl font-bold text-intra-card sm:text-4xl">Mi wallet</h1>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-intra-card/75 sm:text-base">
                   Gestiona tu saldo disponible, pagos en retención temporal y retiros desde un solo lugar.
                 </p>
               </div>
@@ -100,13 +103,13 @@ export default async function WalletPage() {
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/app/wallet/payout"
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-slate-100"
+                  className="intra-btn min-h-11 rounded-2xl bg-intra-card px-5 py-3 text-sm font-semibold text-intra-blue hover:bg-intra-bg-app"
                 >
                   Solicitar retiro
                 </Link>
                 <Link
                   href="/app/wallet/history"
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="intra-btn min-h-11 rounded-2xl border border-intra-card/20 px-5 py-3 text-sm font-semibold text-intra-card hover:bg-intra-card/10"
                 >
                   Ver historial
                 </Link>
@@ -115,22 +118,22 @@ export default async function WalletPage() {
           </section>
 
           {!hasWallet ? (
-            <section className="rounded-3xl border border-dashed border-slate-200 bg-white p-6 text-slate-600 shadow-sm sm:p-8">
-              <h2 className="text-xl font-semibold text-[#0B2C4A]">Aún no tienes wallet activa</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 sm:text-base">
+            <section className="intra-card rounded-3xl border-dashed p-6 text-intra-text-subtle sm:p-8">
+              <h2 className="intra-h3">Aún no tienes wallet activa</h2>
+              <p className="mt-2 max-w-2xl intra-body">
                 La wallet se crea cuando recibes tu primer pago seguro asociado a una entrega. Mientras tanto,
                 puedes guardar tu cuenta de retiro para tener todo listo.
               </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/app/wallet/payout/accounts"
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95"
+                  className="intra-btn intra-btn-primary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold"
                 >
                   Configurar cuenta de retiro
                 </Link>
                 <Link
                   href="/app/matches"
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold"
                 >
                   Ir a mis matches
                 </Link>
@@ -138,69 +141,58 @@ export default async function WalletPage() {
             </section>
           ) : null}
 
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-3xl border border-[#A3E4BF] bg-[#EFFBF4] p-5 shadow-sm">
-              <p className="text-sm text-[#1e8c4e]">Saldo disponible</p>
-              <p className="mt-3 text-3xl font-bold text-[#0B2C4A]">{formatCop(wallet?.available_balance ?? 0)}</p>
-              <p className="mt-2 text-xs text-slate-600">Listo para retiro o pago al viajero.</p>
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="rounded-3xl border border-intra-success-border bg-intra-success-soft p-5 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <p className="intra-body-strong text-intra-text-success">Saldo disponible</p>
+                <p className="intra-h3">{formatCop(wallet?.available_balance ?? 0)}</p>
+              </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm text-slate-500">Saldo pendiente</p>
-              <p className="mt-3 text-3xl font-bold text-[#0B2C4A]">{formatCop(wallet?.pending_balance ?? 0)}</p>
-              <p className="mt-2 text-xs text-slate-500">Pagos en retención temporal aún no liberados.</p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm text-slate-500">Total ganado</p>
-              <p className="mt-3 text-3xl font-bold text-[#0B2C4A]">{formatCop(wallet?.total_earned ?? 0)}</p>
-              <p className="mt-2 text-xs text-slate-500">Acumulado liberado por entregas completadas.</p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm text-slate-500">Total retirado</p>
-              <p className="mt-3 text-3xl font-bold text-[#0B2C4A]">{formatCop(wallet?.total_withdrawn ?? 0)}</p>
-              <p className="mt-2 text-xs text-slate-500">Valor pagado hacia tus cuentas registradas.</p>
+            <div className="rounded-3xl border border-intra-border-soft bg-intra-card p-5 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <p className="intra-body-strong text-intra-text-subtle">Total ganado</p>
+                <p className="intra-h3">{formatCop(wallet?.total_earned ?? 0)}</p>
+              </div>
             </div>
           </section>
 
           <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+            <div className="rounded-3xl border border-intra-border-soft bg-intra-card p-6 shadow-sm lg:col-span-2">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold text-[#0B2C4A]">Últimos movimientos</h2>
-                  <p className="mt-1 text-sm text-slate-500">Tus eventos más recientes de retención temporal y liberación.</p>
+                  <h2 className="intra-h4">Últimos movimientos</h2>
                 </div>
-                <Link href="/app/wallet/history" className="text-sm font-semibold text-[#0B2C4A] hover:underline">
+                <Link href="/app/wallet/history" className="intra-link text-sm font-semibold">
                   Ver todo
                 </Link>
               </div>
 
-              {ledger.length === 0 ? (
-                <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+              {movementEntries.length === 0 ? (
+                <div className="mt-5 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-muted">
                   Aún no hay movimientos registrados en tu wallet.
                 </div>
               ) : (
-                <div className="mt-5 divide-y divide-slate-100">
-                  {ledger.map((entry) => (
+                <div className="mt-5 divide-y divide-intra-border-soft">
+                  {movementEntries.map((entry) => (
                     <div key={entry.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="font-medium text-[#0B2C4A]">
+                        <p className="font-medium text-intra-blue">
                           {getLedgerEntryLabel(entry.entry_type, entry.description)}
                         </p>
-                        <p className="mt-1 text-sm text-slate-500">{formatDateTime(entry.created_at)}</p>
+                        <p className="mt-1 text-sm text-intra-text-muted">{formatDateTime(entry.created_at)}</p>
                       </div>
                       <div className="text-left sm:text-right">
                         <p
                           className={`text-base font-semibold ${
-                            entry.direction === "credit" ? "text-[#1e8c4e]" : "text-slate-800"
+                            entry.direction === "credit" ? "text-intra-text-success" : "text-intra-blue"
                           }`}
                         >
                           {entry.direction === "credit" ? "+" : "-"}
                           {formatCop(entry.amount ?? 0)}
                         </p>
-                        <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">
-                          {entry.balance_type === "available" ? "Disponible" : "Pendiente"}
+                        <p className="mt-1 text-xs uppercase tracking-wide text-intra-text-muted/70">
+                          {entry.entry_type === "release_available_credit" ? "Depositado" : "Retirado"}
                         </p>
                       </div>
                     </div>
@@ -210,48 +202,45 @@ export default async function WalletPage() {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 className="text-lg font-semibold text-[#0B2C4A]">Retiro rápido</h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Saldo realmente disponible para retiro después de apartar solicitudes abiertas.
-                </p>
-                <p className="mt-4 text-3xl font-bold text-[#0B2C4A]">{formatCop(withdrawableBalance)}</p>
+              <div className="rounded-3xl border border-intra-border-soft bg-intra-card p-6 shadow-sm">
+                <h2 className="intra-h4">Retiro rápido</h2>
+                <p className="mt-4 text-3xl font-bold text-intra-blue">{formatCop(withdrawableBalance)}</p>
                 <div className="mt-5 flex flex-col gap-3">
                   <Link
                     href={hasPayoutAccount ? "/app/wallet/payout" : "/app/wallet/payout/accounts"}
-                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95"
+                    className="intra-btn intra-btn-primary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold"
                   >
                     {hasPayoutAccount ? "Solicitar retiro" : "Agregar cuenta de retiro"}
                   </Link>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-intra-text-muted">
                     Mínimo operativo: retiro desde $10.000 COP.
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="rounded-3xl border border-intra-border-soft bg-intra-card p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-lg font-semibold text-[#0B2C4A]">Solicitudes recientes</h2>
-                  <Link href="/app/wallet/payout" className="text-sm font-semibold text-[#0B2C4A] hover:underline">
+                  <h2 className="intra-h4">Solicitudes recientes</h2>
+                  <Link href="/app/wallet/payout" className="intra-link text-sm font-semibold">
                     Ver retiros
                   </Link>
                 </div>
 
                 {payouts.length === 0 ? (
-                  <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+                  <div className="mt-5 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-muted">
                     No tienes retiros solicitados todavía.
                   </div>
                 ) : (
                   <div className="mt-5 space-y-3">
                     {payouts.map((payout) => (
-                      <article key={payout.id} className="rounded-2xl border border-slate-200 p-4">
+                      <article key={payout.id} className="rounded-2xl border border-intra-border-soft p-4">
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <p className="font-semibold text-[#0B2C4A]">{formatCop(payout.amount ?? 0)}</p>
-                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                            <p className="font-semibold text-intra-blue">{formatCop(payout.amount ?? 0)}</p>
+                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-intra-text-muted/70">
                               {payout.payout_code || "Sin referencia"}
                             </p>
-                            <p className="mt-1 text-xs text-slate-500">{formatDateTime(payout.requested_at)}</p>
+                            <p className="mt-1 text-xs text-intra-text-muted">{formatDateTime(payout.requested_at)}</p>
                           </div>
                           <span
                             className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getPayoutStatusClasses(
