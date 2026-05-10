@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Briefcase, CircleDollarSign, Clock3 } from "lucide-react";
+import { Briefcase, CircleDollarSign, Clock3, Route } from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
@@ -518,11 +518,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
             <DashboardStatCard
               value={dashboard.summary.publishedTripsCount}
               label="Viajes publicados"
-              icon={(
-                <svg className="intra-icon-body text-intra-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0" />
-                  </svg>
-              )}
+              icon={<Route className="intra-icon-body text-intra-blue" />}
             />
 
             <DashboardStatCard
