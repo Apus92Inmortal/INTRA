@@ -27,6 +27,13 @@ export const intraColors = {
 export const intraTypography = {
   app: {
     h1: { fontSize: 28, lineHeight: 34, fontWeight: 700 },
+    pageTitle: {
+      mobileFontSize: 28,
+      desktopFontSize: 38,
+      mobileLineHeight: 34,
+      desktopLineHeight: 42,
+      fontWeight: 700,
+    },
     h2: { fontSize: 22, lineHeight: 28, fontWeight: 700 },
     h3: { fontSize: 18, lineHeight: 24, fontWeight: 700 },
     h4: { fontSize: 16, lineHeight: 22, fontWeight: 700 },
@@ -35,6 +42,7 @@ export const intraTypography = {
     label: { fontSize: 14, lineHeight: 20, fontWeight: 600 },
     button: { fontSize: 14, lineHeight: 20, fontWeight: 700 },
     caption: { fontSize: 12, lineHeight: 18, fontWeight: 400 },
+    stepLabel: { fontSize: 12, lineHeight: 16, fontWeight: 600 },
     badge: { fontSize: 12, lineHeight: 16, fontWeight: 700 },
     metric: { fontSize: 30, lineHeight: 36, fontWeight: 800 },
     metricSmall: { fontSize: 20, lineHeight: 26, fontWeight: 800 },

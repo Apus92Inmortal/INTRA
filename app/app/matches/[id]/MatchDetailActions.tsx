@@ -102,9 +102,9 @@ export default function MatchDetailActions({
           <button
             onClick={handleAccept}
             disabled={isPending}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50 sm:w-auto"
+            className="intra-btn w-full gap-2 rounded-2xl bg-[#0B2C4A] px-5 py-2.5 text-white hover:opacity-95 disabled:opacity-50 sm:w-auto"
           >
-            <CheckCircle2 className="h-4 w-4" strokeWidth={2.1} />
+            <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
             {isPending && activeAction === "accept"
               ? "Procesando..."
               : "Aceptar match"}
@@ -115,7 +115,7 @@ export default function MatchDetailActions({
           <button
             onClick={isOwnerPending ? handleReject : handleCancel}
             disabled={isPending}
-            className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold transition disabled:opacity-50 ${
+            className={`intra-btn w-full gap-2 rounded-2xl px-5 py-2.5 transition disabled:opacity-50 ${
               canAccept && status === "pending" ? "sm:w-auto" : ""
             } ${
               status === "accepted"
@@ -126,9 +126,9 @@ export default function MatchDetailActions({
             }`}
           >
             {status === "accepted" || !(canAccept && status === "pending") ? (
-              <XCircle className="h-4 w-4" strokeWidth={2.1} />
+              <XCircle className="intra-icon-body" strokeWidth={2.1} />
             ) : (
-              <CircleX className="h-4 w-4" strokeWidth={2.1} />
+              <CircleX className="intra-icon-body" strokeWidth={2.1} />
             )}
             {isPending &&
             (activeAction === "reject" || activeAction === "cancel")
@@ -138,7 +138,7 @@ export default function MatchDetailActions({
         )}
       </div>
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 intra-caption text-red-600">{error}</p>}
     </div>
   );
 }
