@@ -48,7 +48,7 @@ export default function MatchButton({
       const m = (error.message || "").toLowerCase()
 
       if (m.includes("duplicate") || m.includes("matches_unique")) {
-        setMsg("Solicitud enviada ✅")
+        setMsg(null)
         setDone(true)
         return
       }
@@ -58,7 +58,7 @@ export default function MatchButton({
     }
 
     setDone(true)
-    setMsg("Solicitud enviada ✅")
+    setMsg(null)
   }
 
   return (
