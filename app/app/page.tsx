@@ -96,6 +96,21 @@ function formatTripUsagePercent(usedCapacityKg: number, totalCapacityKg: number)
   return `${label}% usado`;
 }
 
+const shipmentProgressSteps = ["Aceptado", "En tránsito", "Entregado"] as const;
+
+function getShipmentProgressStepIndex(status: DashboardShipmentCard["status"]) {
+  switch (status) {
+    case "delivered":
+      return 2;
+    case "in_transit":
+      return 1;
+    case "accepted":
+      return 0;
+    default:
+      return -1;
+  }
+}
+
 function DashboardShortcutCard({
   href,
   title,
@@ -495,18 +510,18 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   <div className="space-y-3">
                     {dashboard.activeShipments.map((shipment) => (
                       <div key={shipment.id} className="rounded-2xl border border-gray-100 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
-                        <div className="mb-3 flex items-start justify-between">
+                        <div className="mb-3 flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="mb-1 flex items-center gap-2">
                               <ShipmentBadge shipment={shipment} />
-                              <TrackingCodeBadge code={shipment.code} />
                             </div>
                             <p className="truncate intra-h4">{shipment.title}</p>
                             <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
                           </div>
-                          <span className="ml-3 shrink-0 intra-metric-sm">
-                            {shipment.amountLabel}
-                          </span>
+                          <div className="flex shrink-0 flex-col items-center text-center">
+                            <TrackingCodeBadge code={shipment.code} />
+                            <span className="mt-1 intra-metric-sm">{shipment.amountLabel}</span>
+                          </div>
                         </div>
 
                         {shipment.hasPendingAction && shipment.pendingMatchId ? (
@@ -531,16 +546,31 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                           </div>
                         ) : shipment.travelerName ? (
                           <>
-                            <div className="flex items-center gap-3">
-                              <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
-                                <div
-                                  className="h-full rounded-full bg-[#2ECC71]"
-                                  style={{ width: `${shipment.progressPercent}%` }}
-                                />
+                            <div>
+                              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                {shipmentProgressSteps.map((step, index) => {
+                                  const progressIndex = getShipmentProgressStepIndex(shipment.status);
+                                  const isDone = index <= progressIndex;
+                                  const isCurrent = index === progressIndex;
+
+                                  return (
+                                    <div key={step} className="min-w-0">
+                                      <div
+                                        className={`h-2 rounded-full transition ${
+                                          isDone ? "bg-[#2ECC71]" : "bg-slate-200"
+                                        }`}
+                                      />
+                                      <p
+                                        className={`intra-step-label mt-2 text-center ${
+                                          isCurrent ? "text-[#0B2C4A]" : isDone ? "text-slate-700" : "text-slate-400"
+                                        }`}
+                                      >
+                                        {step}
+                                      </p>
+                                    </div>
+                                  );
+                                })}
                               </div>
-                              <span className="whitespace-nowrap intra-caption">
-                                {shipment.progressPercent}%
-                              </span>
                             </div>
                             <div className="mt-3 flex flex-col gap-3 border-t border-gray-50 pt-3 sm:flex-row sm:items-center sm:justify-between">
                               <div className="flex items-center gap-2">
