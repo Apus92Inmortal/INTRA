@@ -263,6 +263,12 @@ function CompactCompatibleShipmentCard({
           <p className="intra-h4">{shipment.title}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2 intra-body">
             <span>Cliente: {shipment.customerName}</span>
+            <div className="hidden lg:flex lg:items-center">
+              <CustomerRatingBadge
+                avgRating={shipment.customerAvgRating}
+                totalReviews={shipment.customerTotalReviews}
+              />
+            </div>
           </div>
           <p className="mt-1 intra-body">
             <span className="intra-body-strong">Ruta:</span> {shipment.routeLabel}
@@ -272,7 +278,7 @@ function CompactCompatibleShipmentCard({
               <span className="intra-body-strong">Descripción:</span> {shipment.description}
             </p>
           ) : null}
-          <div className="mt-3">
+          <div className="mt-3 lg:hidden">
             <CustomerRatingBadge
               avgRating={shipment.customerAvgRating}
               totalReviews={shipment.customerTotalReviews}
