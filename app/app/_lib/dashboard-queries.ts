@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ROUTE_PRICING_BY_CATEGORY, isRouteCategory } from "@/lib/payments/quote";
 import { getShipmentKindLabel, getStatusLabel } from "@/lib/labels";
 import {
@@ -507,20 +508,31 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     )
   ) as string[];
 
-  const [travelerProfilesRes, travelerVerificationsRes, travelerHistoryTripsRes] = await Promise.all([
+  const [travelerProfilesRes, travelerHistoryTripsRes] = await Promise.all([
     travelerIds.length
       ? supabase.from("profiles").select("id, full_name").in("id", travelerIds)
-      : Promise.resolve({ data: [], error: null }),
-    travelerIds.length
-      ? supabase
-          .from("user_verifications")
-          .select("user_id, verification_status")
-          .in("user_id", travelerIds)
       : Promise.resolve({ data: [], error: null }),
     travelerIds.length
       ? supabase.from("trips").select("id, traveler_id").in("traveler_id", travelerIds)
       : Promise.resolve({ data: [], error: null }),
   ]);
+
+  let travelerVerificationsRes: { data: UserVerificationRow[] | null; error: unknown | null } = {
+    data: [],
+    error: null,
+  };
+
+  if (travelerIds.length) {
+    try {
+      const adminSupabase = createAdminClient();
+      travelerVerificationsRes = await adminSupabase
+        .from("user_verifications")
+        .select("user_id, verification_status")
+        .in("user_id", travelerIds);
+    } catch {
+      travelerVerificationsRes = { data: [], error: null };
+    }
+  }
 
   const travelerProfiles = new Map(
     (((travelerProfilesRes.data ?? []) as ProfileRow[]) ?? []).map((traveler) => [
