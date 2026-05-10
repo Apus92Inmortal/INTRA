@@ -81,7 +81,7 @@ function TripAvailabilityBadge({ trip }: { trip: DashboardTripCard }) {
 
 function formatTripUsagePercent(usedCapacityKg: number, totalCapacityKg: number) {
   if (!totalCapacityKg || totalCapacityKg <= 0) {
-    return "0%";
+    return "0% usado";
   }
 
   const rawPercent = (usedCapacityKg / totalCapacityKg) * 100;
@@ -93,7 +93,7 @@ function formatTripUsagePercent(usedCapacityKg: number, totalCapacityKg: number)
     ? roundedPercent.toFixed(0)
     : roundedPercent.toFixed(1);
 
-  return `${label}%`;
+  return `${label}% usado`;
 }
 
 function DashboardShortcutCard({
@@ -635,7 +635,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                                 <span className="whitespace-nowrap">{trip.departureDateLabel}</span>
                                 <span aria-hidden="true" className="shrink-0">·</span>
                                 <div className="flex shrink-0 items-center gap-0.5">
-                                  <span className="whitespace-nowrap">Capacidad</span>
                                   <Briefcase className="intra-icon-compact text-slate-400" />
                                   <span className="whitespace-nowrap">{formatTripUsagePercent(trip.usedCapacityKg, trip.totalCapacityKg)}</span>
                                 </div>
