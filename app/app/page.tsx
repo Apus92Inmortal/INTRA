@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Briefcase, CircleDollarSign, Clock3, Route } from "lucide-react";
+import { Briefcase, Calendar, CircleDollarSign, Clock3, PackageCheck, Route, ShieldCheck } from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
@@ -527,24 +527,49 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                         </div>
 
                         {shipment.hasPendingAction && shipment.pendingMatchId ? (
-                          <div className="rounded-xl border border-intra-warning-border bg-intra-warning-soft-alt p-3 sm:p-4">
-                            <div className="mb-3 flex items-start gap-3">
-                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-intra-warning-soft text-intra-warning-text">
+                          <div className="rounded-2xl border border-intra-trust-border bg-intra-trust-soft p-5">
+                            <div className="flex items-start gap-3">
+                              <div className="intra-icon-shell-body mt-0.5 rounded-full bg-intra-trust-icon-bg text-intra-trust-icon-text">
                                 <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="intra-body-strong">
-                                  {shipment.travelerName ?? "Un viajero"} quiere transportar tu envío
+                                <p className="text-[16px] font-bold leading-6 text-intra-blue">
+                                  {shipment.travelerName ?? "Un viajero"}
                                 </p>
-                                <p className="mt-0.5 intra-caption">
-                                  {shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}
-                                  {shipment.travelerRatingLabel ? ` · ${shipment.travelerRatingLabel}` : ""}
-                                </p>
+                                <p className="mt-0.5 text-sm leading-5 text-intra-text-subtle">Quiere transportar tu envío</p>
                               </div>
                             </div>
-                            <DashboardPendingMatchActions matchId={shipment.pendingMatchId} />
+                            {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 || shipment.travelerVerified ? (
+                              <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start sm:pl-12">
+                                {(shipment.travelerCompletedDeliveriesCount ?? 0) > 0 ? (
+                                  <span className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-intra-success-text-bright/20 bg-intra-success-soft px-2 py-1 text-[10px] font-semibold text-intra-success-text-bright sm:gap-1.5 sm:px-2.5 sm:text-xs">
+                                    <PackageCheck className="h-3.5 w-3.5" />
+                                    <span>
+                                      {shipment.travelerCompletedDeliveriesCount === 1
+                                        ? "1 entrega completada"
+                                        : `${shipment.travelerCompletedDeliveriesCount} entregas completadas`}
+                                    </span>
+                                  </span>
+                                ) : null}
+
+                                {shipment.travelerVerified ? (
+                                  <span className="inline-flex shrink-0 items-center justify-center gap-1 rounded-lg border border-intra-border-soft bg-intra-card px-2 py-1 text-[10px] font-semibold text-intra-blue sm:gap-1.5 sm:px-2.5 sm:text-xs">
+                                    <ShieldCheck className="h-3.5 w-3.5" />
+                                    <span>Viajero verificado</span>
+                                  </span>
+                                ) : null}
+                              </div>
+                            ) : null}
+
+                            <div className="mt-3 flex items-start gap-1.5 text-sm leading-5 text-intra-text-subtle sm:pl-12">
+                              <Calendar className="mt-0.5 h-4 w-4 shrink-0" />
+                              <p>{shipment.travelerDepartureLabel ?? "Salida pendiente de confirmar"}</p>
+                            </div>
+                            <div className="mt-4 border-t border-intra-trust-border pt-4">
+                              <DashboardPendingMatchActions matchId={shipment.pendingMatchId} />
+                            </div>
                           </div>
                         ) : shipment.travelerName ? (
                           <>
