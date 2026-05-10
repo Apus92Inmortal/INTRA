@@ -440,6 +440,9 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
   const activeView = resolvedSearchParams?.view ?? "";
   const showAllPendingPayments = activeView === "pending-payments";
   const showAllCompatibleShipments = activeView === "compatible-shipments";
+  const revenueMonthName = new Intl.DateTimeFormat("es-CO", { month: "long" }).format(new Date());
+  const revenueTitle = `Ganancias de ${revenueMonthName}`;
+  const hasMonthlyRevenue = dashboard.monthlyRevenue.releasedAmount > 0;
 
   const pendingPaymentItems = getVisibleItems(
     dashboard.pendingPaymentShipments,
@@ -825,31 +828,35 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 )}
               </div>
 
-              <div className="rounded-2xl bg-[#0B2C4A] p-5 text-white">
-                <div className="mb-3 flex items-center justify-between">
-                  <p className="text-sm font-medium text-white/60">Ganancias este mes</p>
-                  <svg className="intra-icon-emphasis text-[#2ECC71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
+              <div className="overflow-hidden rounded-[var(--intra-radius-md)] border border-white/10 bg-[linear-gradient(145deg,#0B2C4A_0%,#103656_58%,#123d61_100%)] p-5 text-white shadow-[0_18px_48px_rgba(11,44,74,0.18)]">
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-white/68">{revenueTitle}</p>
+                    <p className="mt-3 text-3xl font-bold tracking-[-0.03em]">{dashboard.monthlyRevenue.releasedAmountLabel}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/74">
+                      {hasMonthlyRevenue
+                        ? (dashboard.monthlyRevenue.deltaVsPreviousMonthLabel ?? dashboard.monthlyRevenue.monthLabel)
+                        : "Aún no tienes entregas finalizadas este mes"}
+                    </p>
+                  </div>
+
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#BEE8CD]/28 bg-[#EFFBF4] text-lg font-bold text-[#2ECC71] shadow-[0_10px_24px_rgba(46,204,113,0.18)]">
+                    $
+                  </span>
                 </div>
 
-                <p className="text-3xl font-bold">{dashboard.monthlyRevenue.releasedAmountLabel}</p>
-                <p className="mt-1 text-sm text-white/70">
-                  {dashboard.monthlyRevenue.deltaVsPreviousMonthLabel ?? dashboard.monthlyRevenue.monthLabel}
-                </p>
-
-                <div className="mt-5 grid grid-cols-1 gap-3 rounded-2xl bg-white/5 p-4 sm:grid-cols-3">
-                  <div>
-                    <p className="text-xs text-white/50">Entregas</p>
-                    <p className="mt-1 font-semibold">{dashboard.monthlyRevenue.deliveriesCount}</p>
+                <div className="grid grid-cols-3 rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm">
+                  <div className="px-3 py-3 sm:px-4">
+                    <p className="text-[11px] font-medium text-white/55 sm:text-xs">Entregas</p>
+                    <p className="mt-1 text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.deliveriesCount}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-white/50">Promedio</p>
-                    <p className="mt-1 font-semibold">{dashboard.monthlyRevenue.averageTicketLabel}</p>
+                  <div className="border-l border-white/10 px-3 py-3 sm:px-4">
+                    <p className="text-[11px] font-medium text-white/55 sm:text-xs">Promedio</p>
+                    <p className="mt-1 text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.averageTicketLabel}</p>
                   </div>
-                  <div>
-                    <p className="text-xs text-white/50">Mejor ruta</p>
-                    <p className="mt-1 font-semibold">{dashboard.monthlyRevenue.bestRouteLabel}</p>
+                  <div className="border-l border-white/10 px-3 py-3 sm:px-4">
+                    <p className="text-[11px] font-medium text-white/55 sm:text-xs">Mejor ruta</p>
+                    <p className="mt-1 text-sm font-semibold text-white sm:text-base">{dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}</p>
                   </div>
                 </div>
               </div>
