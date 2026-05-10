@@ -438,6 +438,19 @@ body {
     background: color-mix(in srgb, var(--intra-danger) 90%, black);
   }
 
+  .intra-stable-swap {
+    display: grid;
+    place-items: center;
+  }
+
+  .intra-stable-swap > * {
+    grid-area: 1 / 1;
+  }
+
+  .intra-stable-swap-ghost {
+    visibility: hidden;
+  }
+
   .intra-pill {
     display: inline-flex;
     align-items: center;

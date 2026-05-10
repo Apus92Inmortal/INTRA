@@ -274,8 +274,8 @@ function getShipmentVisualState(input: {
 }) {
   if (input.hasPendingMatch) {
     return {
-      status: "matched" as const,
-      statusLabel: "Match pendiente",
+      status: "open" as const,
+      statusLabel: "Esperando viajero",
       progressPercent: 35,
       progressLabel: "Requiere acción",
     };
@@ -729,6 +729,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
       return {
         id: shipment.id,
         code: shipment.tracking_code?.trim() || getShipmentCode(shipment.id),
+        createdAt: shipment.created_at,
         title:
           shipment.description?.trim() ||
           `${getShipmentKindLabel(shipment.kind)}${shipment.weight_kg ? ` · ${shipment.weight_kg} kg` : ""}`,
