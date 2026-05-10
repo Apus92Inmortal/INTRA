@@ -102,13 +102,13 @@ export default function SuspiciousReportForm({
   return (
     <form
       onSubmit={onSubmit}
-      className={embedded ? "space-y-3" : "space-y-4 rounded-2xl border border-amber-200 bg-white/80 p-4"}
+      className={embedded ? "space-y-3" : "space-y-4 rounded-2xl border border-intra-warning-border bg-intra-card/80 p-4"}
     >
       <div className="flex justify-start">
         <button
           type="button"
           onClick={() => setExpanded((value) => !value)}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700 ${
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-warning px-4 py-2.5 text-sm font-semibold text-intra-card transition hover:bg-intra-warning-text-strong ${
             embedded ? "w-full" : ""
           }`}
         >
@@ -119,12 +119,12 @@ export default function SuspiciousReportForm({
 
       {expanded ? (
         <>
-          <label className="block text-sm font-medium text-amber-900">
+          <label className="block text-sm font-medium text-intra-warning-text-strong">
             Tipo de alerta
             <select
               value={reportType}
               onChange={(event) => setReportType(event.target.value as (typeof REPORT_TYPES)[number]["value"])}
-              className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-3 text-sm text-slate-700"
+              className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
             >
               {REPORT_TYPES.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -134,13 +134,13 @@ export default function SuspiciousReportForm({
             </select>
           </label>
 
-          <label className="block text-sm font-medium text-amber-900">
+          <label className="block text-sm font-medium text-intra-warning-text-strong">
             Qué pasó
             <textarea
               rows={4}
               value={reason}
               onChange={(event) => setReason(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-amber-200 bg-white px-3 py-3 text-sm text-slate-700"
+              className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
               placeholder="Ej. el paquete no coincide con la descripción, presenta sellos alterados, olor extraño..."
             />
           </label>
@@ -151,8 +151,8 @@ export default function SuspiciousReportForm({
         <div
           className={`rounded-2xl border px-4 py-3 text-sm ${
             messageType === "success"
-              ? "border-green-200 bg-green-50 text-green-700"
-              : "border-red-200 bg-red-50 text-red-700"
+              ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+              : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
           }`}
         >
           {message}
@@ -163,7 +163,7 @@ export default function SuspiciousReportForm({
         <button
           type="submit"
           disabled={loading}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-amber-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60 ${
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-warning px-5 py-3 text-sm font-semibold text-intra-card transition hover:bg-intra-warning-text-strong disabled:cursor-not-allowed disabled:opacity-60 ${
             embedded ? "w-full" : ""
           }`}
         >

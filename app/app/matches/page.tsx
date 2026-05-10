@@ -108,15 +108,15 @@ function formatCurrency(value: number | null) {
 function getStatusClasses(status: string) {
   switch (status) {
     case "accepted":
-      return "bg-green-50 text-green-700 border border-green-200";
+      return "border border-intra-success-border bg-intra-success-soft text-intra-text-success";
     case "pending":
-      return "bg-yellow-50 text-yellow-700 border border-yellow-200";
+      return "border border-intra-warning-border bg-intra-warning-soft text-intra-warning-text";
     case "rejected":
-      return "bg-red-50 text-red-700 border border-red-200";
+      return "border border-intra-danger-border bg-intra-danger-soft text-intra-danger";
     case "cancelled":
-      return "bg-gray-100 text-gray-600 border border-gray-200";
+      return "border border-intra-border bg-intra-neutral-pill text-intra-text-muted";
     default:
-      return "bg-gray-100 text-gray-600 border border-gray-200";
+      return "border border-intra-border bg-intra-neutral-pill text-intra-text-muted";
   }
 }
 
@@ -124,21 +124,21 @@ function getPrimaryStatusInfo(matchStatus: string, shipmentStatus: string | null
   if (shipmentStatus === "in_transit") {
     return {
       label: "En tránsito",
-      classes: "bg-blue-50 text-[#0B2C4A] border border-blue-200",
+      classes: "border border-intra-border-strong bg-intra-info-soft text-intra-blue",
     };
   }
 
   if (shipmentStatus === "delivered") {
     return {
       label: "Entregado",
-      classes: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+      classes: "border border-intra-success-border bg-intra-success-soft text-intra-text-success",
     };
   }
 
   if (shipmentStatus === "cancelled" || matchStatus === "cancelled") {
     return {
       label: "Cancelado",
-      classes: "bg-gray-100 text-gray-600 border border-gray-200",
+      classes: "border border-intra-border bg-intra-neutral-pill text-intra-text-muted",
     };
   }
 
@@ -168,19 +168,19 @@ function normalizeShipment(
 
 function EmptyState({ text }: { text: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[#D9E4F0] bg-white p-5 text-sm text-gray-500 shadow-sm sm:p-6">
-      <h2 className="text-lg font-semibold text-[#0B2C4A]">Todavía no tienes matches</h2>
-      <p className="mt-2 max-w-2xl leading-6">{text}</p>
+    <div className="rounded-2xl border border-dashed border-intra-border-strong bg-intra-card p-5 shadow-sm sm:p-6">
+      <h2 className="intra-h3">Todavía no tienes matches</h2>
+      <p className="mt-2 max-w-2xl intra-body">{text}</p>
       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
         <Link
           href="/app/shipments/new"
-          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27ae60]"
+          className="intra-btn intra-btn-primary"
         >
           Crear envío
         </Link>
         <Link
           href="/app/trips/new"
-          className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          className="intra-btn intra-btn-secondary"
         >
           Publicar viaje
         </Link>
@@ -202,24 +202,24 @@ function SummaryMetricCard({
 }) {
   const tones = {
     amber: {
-      card: "border-[#F6D9A6] bg-white",
-      bubble: "bg-[#FFF7E8] text-[#F39C12]",
-      title: "text-[#A56A00]",
+      card: "border-intra-warning-border bg-intra-card",
+      bubble: "bg-intra-warning-soft text-intra-warning",
+      title: "text-intra-warning-text-strong",
     },
     green: {
-      card: "border-[#CDEFD9] bg-white",
-      bubble: "bg-[#EFFBF4] text-[#2ECC71]",
-      title: "text-[#1F8B4C]",
+      card: "border-intra-success-border bg-intra-card",
+      bubble: "bg-intra-success-soft text-intra-green",
+      title: "text-intra-text-success",
     },
     blue: {
-      card: "border-[#D7E5F4] bg-white",
-      bubble: "bg-[#EEF4FB] text-[#0B5CAD]",
-      title: "text-[#0B5CAD]",
+      card: "border-intra-border-strong bg-intra-card",
+      bubble: "bg-intra-info-soft text-intra-info",
+      title: "text-intra-info",
     },
     slate: {
-      card: "border-[#D9E4F0] bg-white",
-      bubble: "bg-[#EEF2F7] text-[#0B2C4A]",
-      title: "text-[#3B526B]",
+      card: "border-intra-border-strong bg-intra-card",
+      bubble: "bg-intra-neutral-pill text-intra-blue",
+      title: "text-intra-text-subtle",
     },
   } as const;
 
@@ -236,7 +236,7 @@ function SummaryMetricCard({
 
         <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
           <p className={`max-w-[9rem] text-[10px] font-semibold uppercase leading-4 tracking-[0.08em] ${currentTone.title} sm:max-w-none sm:text-[11px] sm:tracking-wide`}>{title}</p>
-          <p className="shrink-0 text-[1.5rem] font-bold leading-none tracking-tight text-[#0B2C4A] sm:text-[1.65rem]">{value}</p>
+          <p className="shrink-0 text-[1.5rem] font-bold leading-none tracking-tight text-intra-blue sm:text-[1.65rem]">{value}</p>
         </div>
       </div>
     </article>
@@ -253,10 +253,10 @@ function DetailRow({
   className?: string;
 }) {
   return (
-    <div className={`flex items-start gap-2 text-[13px] leading-5 text-slate-600 ${className}`}>
-      <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[#2ECC71]" />
+    <div className={`flex items-start gap-2 text-[13px] leading-5 text-intra-text-muted ${className}`}>
+      <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-intra-green" />
       <p>
-        <span className="font-semibold text-[#0B2C4A]">{label}:</span> {value}
+        <span className="font-semibold text-intra-blue">{label}:</span> {value}
       </p>
     </div>
   );
@@ -272,8 +272,8 @@ function ReputationInline({
   const formatted = formatRatingValue(avgRating) ?? "0.0";
 
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4D6] px-3 py-1 text-[11px] font-semibold text-[#8A5A00] sm:text-sm">
-      <Star className="h-3.5 w-3.5 fill-[#D4A017] text-[#D4A017]" strokeWidth={1.8} />
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-intra-warning-soft-alt px-3 py-1 text-[11px] font-semibold text-intra-warning-text sm:text-sm">
+      <Star className="h-3.5 w-3.5 fill-intra-warning-alt text-intra-warning-alt" strokeWidth={1.8} />
       <span>{formatted}/{Math.max(totalReviews, 0)}</span>
     </span>
   );
@@ -294,17 +294,17 @@ function PreferenceToggleColumn({
             key={item.label}
             className={`flex w-full min-w-0 items-center justify-between gap-3 rounded-full border px-3 py-1.5 text-[13px] leading-5 ${
               enabled
-                ? "border-[#BEE8CD] bg-[linear-gradient(180deg,#F7FFF9_0%,#EFFBF4_100%)] text-[#1E8C4E]"
-                : "border-[#D7E5F1] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] text-slate-500"
+                ? "border-intra-success-border bg-[linear-gradient(180deg,var(--intra-success-soft-alt)_0%,var(--intra-success-soft)_100%)] text-intra-text-success"
+                : "border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-info-soft-alt)_100%)] text-intra-text-muted"
             }`}
           >
             <span className="flex min-w-0 items-center gap-2.5">
-              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${enabled ? "bg-white/70 text-[#1E8C4E]" : "bg-[#F4F7FB] text-slate-500"}`}>
+              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${enabled ? "bg-intra-card/70 text-intra-text-success" : "bg-intra-bg-app text-intra-text-muted"}`}>
                 {item.icon}
               </span>
-              <span className="truncate font-semibold text-[#0B2C4A]">{item.label}</span>
+              <span className="truncate font-semibold text-intra-blue">{item.label}</span>
             </span>
-            <span className={`shrink-0 font-medium ${enabled ? "text-[#1E8C4E]" : "text-slate-500"}`}>
+            <span className={`shrink-0 font-medium ${enabled ? "text-intra-text-success" : "text-intra-text-muted"}`}>
               {enabled ? "Sí" : "No"}
             </span>
           </span>
@@ -503,15 +503,15 @@ export default async function MatchesPage() {
     <>
       <AppNavbar />
 
-      <main className="min-h-screen bg-[#F5F8FB]">
+      <main className="intra-page-shell">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <MatchesRealtime currentUserId={user.id} />
 
           <div className="mb-6">
-            <h1 className="text-[clamp(1.45rem,1.8vw,1.95rem)] font-bold leading-none tracking-tight text-[#0B2C4A]">
+            <h1 className="intra-page-title">
               Mis matches
             </h1>
-            <p className="mt-1 max-w-2xl text-[13px] leading-5 text-slate-500 sm:text-sm">
+            <p className="mt-1 max-w-2xl intra-body">
               Administra tus conexiones activas, conversa en el chat y mantén
               cada envío bajo control.
             </p>
@@ -621,27 +621,27 @@ export default async function MatchesPage() {
                 return (
                   <section
                     key={match.id}
-                    className="relative overflow-hidden rounded-2xl border border-[#D9E4F0] bg-white shadow-sm"
+                    className="relative overflow-hidden rounded-2xl border border-intra-border-strong bg-intra-card shadow-sm"
                   >
                     <span
-                      className={`absolute right-4 top-4 inline-flex w-fit shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold shadow-sm sm:right-6 ${primaryStatus.classes}`}
+                      className={`intra-pill intra-badge-text absolute right-4 top-4 w-fit shrink-0 shadow-sm sm:right-6 ${primaryStatus.classes}`}
                     >
                       {primaryStatus.label}
                     </span>
 
-                    <div className="border-b border-[#E6EDF5] px-4 py-4 pr-24 sm:px-6 sm:pr-28">
+                    <div className="border-b border-intra-border-soft px-4 py-4 pr-24 sm:px-6 sm:pr-28">
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
                           <div className="min-w-0">
-                            <h2 className="text-[15px] font-semibold tracking-tight text-[#0B2C4A] sm:text-base">
+                            <h2 className="text-[15px] font-semibold tracking-tight text-intra-blue sm:text-base">
                               {routeLabel}
                             </h2>
-                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-slate-500 sm:text-[13px]">
+                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-intra-text-muted sm:text-[13px]">
                               <span>
-                                <span className="font-medium text-[#0B2C4A]">{otherUserRoleLabel}:</span> {otherUserName}
+                                <span className="font-medium text-intra-blue">{otherUserRoleLabel}:</span> {otherUserName}
                               </span>
                               <span className="inline-flex items-center gap-1">
-                                <span className="font-medium text-[#0B2C4A]">Calificación:</span>
+                                <span className="font-medium text-intra-blue">Calificación:</span>
                                 <ReputationInline
                                   avgRating={otherUserRating.avgRating}
                                   totalReviews={otherUserRating.totalReviews}
@@ -656,11 +656,11 @@ export default async function MatchesPage() {
 
                     <div className="p-4 sm:p-5">
                       <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_240px]">
-                        <div className={`rounded-2xl border border-[#D7E5F4] bg-[linear-gradient(180deg,#FFFFFF_0%,#F8FBFF_100%)] p-3.5 shadow-sm sm:p-4 ${!isTraveler ? "pb-[40px] sm:pb-4" : ""}`}>
+                        <div className={`rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-info-soft-alt)_100%)] p-3.5 shadow-sm sm:p-4 ${!isTraveler ? "pb-[40px] sm:pb-4" : ""}`}>
                           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_190px] lg:items-center">
                             <div>
                               <div className="mb-3 flex items-center gap-3">
-                                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-[#FFF7E8] text-[#C98012]" : "bg-[#EEF4FB] text-[#0B5CAD]"}`}>
+                                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-intra-warning-soft text-intra-warning" : "bg-intra-info-soft text-intra-info"}`}>
                                   {isTraveler ? (
                                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
@@ -672,7 +672,7 @@ export default async function MatchesPage() {
                                   )}
                                 </div>
                                 <div>
-                                  <h3 className="text-[15px] font-semibold text-[#0B2C4A]">{primaryPanelTitle}</h3>
+                                  <h3 className="text-[15px] font-semibold text-intra-blue">{primaryPanelTitle}</h3>
                                 </div>
                               </div>
 
@@ -694,11 +694,11 @@ export default async function MatchesPage() {
                                   <DetailRow label="Ruta" value={routeLabel} />
 
                                   <div className="mt-4 lg:hidden">
-                                    <div className="rounded-2xl border border-[#E6EDF5] bg-white/80 p-3">
-                                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                    <div className="rounded-2xl border border-intra-border-soft bg-intra-card p-3">
+                                      <p className="text-[11px] font-semibold uppercase tracking-wide text-intra-text-muted">
                                         Condiciones
                                       </p>
-                                      <p className="mt-1 text-[12px] leading-5 text-slate-500">
+                                      <p className="mt-1 text-[12px] leading-5 text-intra-text-muted">
                                         Este viaje permite
                                       </p>
                                       <div className="mt-3">
@@ -710,11 +710,11 @@ export default async function MatchesPage() {
                               )}
                             </div>
 
-                            <div className={`rounded-2xl border border-[#E6EDF5] bg-white/80 p-3 ${!isTraveler ? "hidden lg:block" : ""}`}>
-                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            <div className={`rounded-2xl border border-intra-border-soft bg-intra-card p-3 ${!isTraveler ? "hidden lg:block" : ""}`}>
+                              <p className="text-[11px] font-semibold uppercase tracking-wide text-intra-text-muted">
                                 Condiciones
                               </p>
-                              <p className="mt-1 text-[12px] leading-5 text-slate-500">
+                              <p className="mt-1 text-[12px] leading-5 text-intra-text-muted">
                                 {isTraveler ? "Este envío requiere" : "Este viaje permite"}
                               </p>
                               <div className="mt-3">
@@ -724,8 +724,8 @@ export default async function MatchesPage() {
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border border-[#D9E4F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#F7FAFD_100%)] p-3.5 shadow-sm sm:p-4">
-                          <p className="text-[11px] font-semibold uppercase tracking-wide text-[#0B5CAD]">
+                        <div className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-3.5 shadow-sm sm:p-4">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-intra-info">
                             Acciones del envío
                           </p>
 
@@ -748,7 +748,7 @@ export default async function MatchesPage() {
                                     >
                                       <button
                                         type="submit"
-                                        className="min-h-11 w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                                        className="intra-btn intra-btn-primary min-h-11 w-full px-4 py-3"
                                       >
                                         Paquete entregado
                                       </button>
@@ -771,7 +771,7 @@ export default async function MatchesPage() {
                                     >
                                       <button
                                         type="submit"
-                                        className="min-h-11 w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                                        className="intra-btn intra-btn-primary min-h-11 w-full px-4 py-3"
                                       >
                                         Paquete recibido
                                       </button>
@@ -780,8 +780,8 @@ export default async function MatchesPage() {
 
                               <Link
                                 href={`/app/matches/${match.id}/chat`}
-                                className={`flex min-h-11 items-center justify-center rounded-2xl px-4 text-[13px] font-semibold text-white transition hover:opacity-95 ${
-                                  unread ? "bg-[#0B5CAD]" : "bg-[#0B2C4A]"
+                                className={`intra-btn min-h-11 w-full px-4 py-3 text-[13px] text-white hover:opacity-95 ${
+                                  unread ? "bg-intra-info" : "bg-intra-blue"
                                 }`}
                               >
                                 <MessageCircle className="mr-2 h-4 w-4" strokeWidth={1.9} />
@@ -790,7 +790,7 @@ export default async function MatchesPage() {
 
                               <Link
                                 href={`/app/matches/${match.id}`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                                className="intra-btn intra-btn-secondary min-h-11 w-full px-4 py-3 text-[13px]"
                               >
                                 <ArrowRight className="mr-2 h-4 w-4" strokeWidth={1.9} />
                                 Ver detalle
@@ -799,7 +799,7 @@ export default async function MatchesPage() {
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
                                   payment?.traveler_delivered_at && (
-                                    <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] font-medium leading-4 text-emerald-700">
+                                    <p className="rounded-2xl border border-intra-success-border bg-intra-success-soft px-4 py-3 text-[12px] font-medium leading-4 text-intra-text-success">
                                       Entrega reportada. Esperando confirmación del cliente.
                                     </p>
                                   )}
@@ -808,7 +808,7 @@ export default async function MatchesPage() {
                             <>
                               <Link
                                 href={`/app/matches/${match.id}`}
-                                className="flex min-h-11 items-center justify-center rounded-2xl border border-[#D9E4F0] bg-white px-4 text-[13px] font-semibold text-[#0B2C4A] transition hover:bg-[#F7FAFD]"
+                                className="intra-btn intra-btn-secondary min-h-11 w-full px-4 py-3 text-[13px]"
                               >
                                 <ArrowRight className="mr-2 h-4 w-4" strokeWidth={1.9} />
                                 Ver detalle

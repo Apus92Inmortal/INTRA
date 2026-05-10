@@ -112,21 +112,21 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-intra-border bg-intra-card p-4 shadow-sm">
       <div>
-        <h3 className="text-sm font-semibold text-[#0B2C4A]">Subir evidencia</h3>
-        <p className="mt-1 text-xs text-slate-500">
+        <h3 className="text-sm font-semibold text-intra-blue">Subir evidencia</h3>
+        <p className="mt-1 text-xs text-intra-text-muted">
           Sube una foto para dejar trazabilidad de recogida, estado o entrega. Si pesa más de 2MB la comprimimos antes de subirla.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-intra-text-muted">
           Tipo de evidencia
           <select
             value={selectedType}
             onChange={(event) => setSelectedType(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-sm text-gray-700"
+            className="mt-2 w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
           >
             {options.map((option) => (
               <option key={option.value} value={option.value}>
@@ -136,24 +136,24 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
           </select>
         </label>
 
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-intra-text-muted">
           Imagen
           <input
             type="file"
             accept="image/*"
-            className="mt-2 block w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-sm text-gray-700"
+            className="mt-2 block w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
             onChange={(event) => setFile(event.target.files?.[0] ?? null)}
           />
         </label>
       </div>
 
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-intra-text-muted">
         Nota opcional
         <textarea
           value={note}
           onChange={(event) => setNote(event.target.value)}
           rows={3}
-          className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-sm text-gray-700"
+          className="mt-2 w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
           placeholder="Ej. paquete recibido sin novedad, sellado, entregado a las 5:20 pm..."
         />
       </label>
@@ -162,8 +162,8 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
         <div
           className={`rounded-2xl border px-4 py-3 text-sm ${
             messageType === "success"
-              ? "border-green-200 bg-green-50 text-green-700"
-              : "border-red-200 bg-red-50 text-red-700"
+              ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+              : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
           }`}
         >
           {message}
@@ -173,7 +173,7 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
       <button
         type="submit"
         disabled={loading}
-        className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+        className="intra-btn min-h-11 bg-intra-blue px-5 py-3 text-sm text-intra-card hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? "Subiendo evidencia..." : "Guardar evidencia"}
       </button>

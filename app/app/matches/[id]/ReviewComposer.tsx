@@ -43,18 +43,18 @@ export default function ReviewComposer({ matchId, otherUserName }: Props) {
   }
 
   return (
-    <section className="rounded-2xl border border-[#0B2C4A]/10 bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-intra-blue/10 bg-intra-card p-5 shadow-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-[#0B2C4A]">
+          <h2 className="text-lg font-semibold text-intra-blue">
             ¿Cómo fue tu experiencia con {otherUserName}?
           </h2>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-intra-text-muted">
             Tu calificación ayuda a generar confianza dentro de INTRA.
           </p>
         </div>
 
-        <span className="inline-flex w-fit rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-semibold text-[#0B2C4A]">
+        <span className="inline-flex w-fit rounded-full bg-intra-neutral-pill px-3 py-1 text-xs font-semibold text-intra-blue">
           Review pendiente
         </span>
       </div>
@@ -73,8 +73,8 @@ export default function ReviewComposer({ matchId, otherUserName }: Props) {
               onMouseLeave={() => setHoveredRating(null)}
               className={`min-h-11 min-w-11 rounded-2xl border px-3 py-2 text-2xl transition ${
                 isActive
-                  ? "border-amber-200 bg-amber-50 text-amber-500"
-                  : "border-slate-200 bg-white text-slate-300 hover:border-amber-200 hover:text-amber-400"
+                  ? "border-intra-warning-border bg-intra-warning-soft text-intra-warning"
+                  : "border-intra-border bg-intra-card text-intra-text-muted/50 hover:border-intra-warning-border hover:text-intra-warning"
               }`}
               aria-label={`Calificar con ${value} estrella${value === 1 ? "" : "s"}`}
             >
@@ -85,7 +85,7 @@ export default function ReviewComposer({ matchId, otherUserName }: Props) {
       </div>
 
       <div className="mt-4">
-        <label className="block text-sm font-medium text-slate-700" htmlFor="review-comment">
+        <label className="block text-sm font-medium text-intra-text-muted" htmlFor="review-comment">
           Comentario (opcional)
         </label>
         <textarea
@@ -98,22 +98,22 @@ export default function ReviewComposer({ matchId, otherUserName }: Props) {
           }}
           rows={4}
           placeholder="Cuéntale a la comunidad cómo fue la experiencia."
-          className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+          className="mt-2 w-full rounded-2xl border border-intra-border bg-intra-card px-4 py-3 text-sm text-intra-blue outline-none transition placeholder:text-intra-text-muted/70 focus:border-intra-blue focus:ring-2 focus:ring-intra-blue/10"
         />
         <div className="mt-2 flex items-center justify-between gap-3">
-          <p className="text-xs text-slate-400">Máximo 300 caracteres.</p>
-          <p className="text-xs font-medium text-slate-500">{comment.length}/300</p>
+          <p className="text-xs text-intra-text-muted/70">Máximo 300 caracteres.</p>
+          <p className="text-xs font-medium text-intra-text-muted">{comment.length}/300</p>
         </div>
       </div>
 
-      {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-      {success ? <p className="mt-3 text-sm text-emerald-600">{success}</p> : null}
+      {error ? <p className="mt-3 text-sm text-intra-danger">{error}</p> : null}
+      {success ? <p className="mt-3 text-sm text-intra-text-success">{success}</p> : null}
 
       <button
         type="button"
         onClick={handleSubmit}
         disabled={isPending || rating < 1}
-        className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#29b765] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+        className="intra-btn intra-btn-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
       >
         {isPending ? "Enviando..." : "Enviar review"}
       </button>

@@ -630,30 +630,30 @@ export default function MatchChatClient({
   }
 
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col overflow-hidden rounded-none bg-[#EEF2F7] sm:min-h-[calc(100dvh-7rem)] sm:rounded-3xl sm:border sm:border-gray-200 sm:bg-white sm:shadow-sm">
-      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-5">
+    <div className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col overflow-hidden rounded-none bg-intra-bg-app sm:min-h-[calc(100dvh-7rem)] sm:rounded-3xl sm:border sm:border-intra-border sm:bg-intra-card sm:shadow-sm">
+      <div className="sticky top-0 z-10 border-b border-intra-border bg-intra-card/95 px-4 py-3 backdrop-blur sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-base font-semibold text-[#0B2C4A]">Chat con {otherUserName}</p>
+              <p className="text-base font-semibold text-intra-blue">Chat con {otherUserName}</p>
               <RatingSummaryBadge
                 avgRating={otherUserAvgRating}
                 totalReviews={otherUserTotalReviews}
               />
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-2">
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-intra-text-muted">
                 {otherUserTyping ? `${otherUserName} está escribiendo...` : "Mensajes en tiempo real"}
               </p>
-              {shipmentTrackingCode ? <TrackingCodeBadge code={shipmentTrackingCode} className="bg-[#0B2C4A]" /> : null}
+              {shipmentTrackingCode ? <TrackingCodeBadge code={shipmentTrackingCode} className="!bg-intra-blue hover:!bg-intra-blue" /> : null}
             </div>
-            <p className="mt-1 text-xs font-medium text-slate-500">Ruta: {shipmentRouteLabel}</p>
+            <p className="mt-1 text-xs font-medium text-intra-text-muted">Ruta: {shipmentRouteLabel}</p>
             {shipmentDescription ? (
-              <p className="mt-1 text-xs text-slate-500">Contenido declarado: {shipmentDescription}</p>
+              <p className="mt-1 text-xs text-intra-text-muted">Contenido declarado: {shipmentDescription}</p>
             ) : null}
           </div>
 
-          <span className="rounded-full bg-[#EEF2F7] px-3 py-1 text-xs font-medium text-[#0B2C4A]">
+          <span className="rounded-full bg-intra-neutral-pill px-3 py-1 text-xs font-medium text-intra-blue">
             {viewerRole === "owner" ? "Cliente" : "Viajero"}
           </span>
         </div>
@@ -661,11 +661,11 @@ export default function MatchChatClient({
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Link
             href={`/app/matches/${matchId}`}
-            className="inline-flex min-h-9 items-center justify-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex min-h-9 items-center justify-center rounded-full border border-intra-border px-3 py-1.5 text-xs font-semibold text-intra-text-muted transition hover:bg-intra-bg-app"
           >
             ← Ver detalle del match
           </Link>
-          <span className="inline-flex rounded-full bg-[#EEF2F7] px-3 py-1.5 text-xs text-slate-600">
+          <span className="inline-flex rounded-full bg-intra-neutral-pill px-3 py-1.5 text-xs text-intra-text-muted">
             Usa este chat para coordinar entrega, recogida y confirmaciones.
           </span>
         </div>
@@ -678,7 +678,7 @@ export default function MatchChatClient({
       >
         {messages.length === 0 ? (
           <div className="flex h-full min-h-60 items-center justify-center">
-            <div className="max-w-sm rounded-3xl border border-dashed border-gray-300 bg-white px-5 py-6 text-center text-sm text-slate-500">
+            <div className="max-w-sm rounded-3xl border border-dashed border-intra-border bg-intra-card px-5 py-6 text-center text-sm text-intra-text-muted">
               Aún no hay mensajes. Rompe el hielo confirmando punto de entrega, horario o dudas del paquete.
             </div>
           </div>
@@ -697,8 +697,8 @@ export default function MatchChatClient({
                     <div
                       className={`rounded-[22px] px-4 py-3 shadow-sm ${
                         isMine
-                          ? "rounded-br-md bg-[#0B2C4A] text-white"
-                          : "rounded-bl-md border border-gray-200 bg-white text-slate-900"
+                          ? "rounded-br-md bg-intra-blue text-intra-card"
+                          : "rounded-bl-md border border-intra-border bg-intra-card text-intra-blue"
                       }`}
                     >
                       <p className="whitespace-pre-wrap break-words text-sm leading-6">
@@ -708,7 +708,7 @@ export default function MatchChatClient({
                       <div
                         suppressHydrationWarning
                         className={`mt-2 flex items-center justify-end gap-2 text-[11px] ${
-                          isMine ? "text-slate-300" : "text-slate-400"
+                          isMine ? "text-intra-card/70" : "text-intra-text-muted/70"
                         }`}
                       >
                         <span>{formatMessageTime(msg.created_at)}</span>
@@ -725,7 +725,7 @@ export default function MatchChatClient({
         <div ref={bottomRef} />
       </div>
 
-      <div className="sticky bottom-0 border-t border-gray-200 bg-white/95 px-3 py-3 backdrop-blur sm:px-5">
+      <div className="sticky bottom-0 border-t border-intra-border bg-intra-card/95 px-3 py-3 backdrop-blur sm:px-5">
         <form onSubmit={handleSendMessage} className="flex items-end gap-2 sm:gap-3">
           <textarea
             ref={textareaRef}
@@ -735,14 +735,14 @@ export default function MatchChatClient({
               sendTypingEvent();
             }}
             rows={1}
-            className="max-h-36 min-h-11 flex-1 resize-none rounded-3xl border border-gray-300 bg-white px-4 py-3 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            className="max-h-36 min-h-11 flex-1 resize-none rounded-3xl border border-intra-border bg-intra-card px-4 py-3 text-base text-intra-blue outline-none transition placeholder:text-intra-text-muted/70 focus:border-intra-blue focus:ring-2 focus:ring-intra-blue/10"
             placeholder="Escribe un mensaje..."
             maxLength={1000}
           />
           <button
             type="submit"
             disabled={sending || !newMessage.trim()}
-            className="inline-flex min-h-11 items-center justify-center rounded-3xl bg-[#0B2C4A] px-4 py-3 text-sm font-semibold text-white transition disabled:opacity-50 sm:px-5"
+            className="inline-flex min-h-11 items-center justify-center rounded-3xl bg-intra-blue px-4 py-3 text-sm font-semibold text-intra-card transition disabled:opacity-50 sm:px-5"
           >
             {sending ? "Enviando..." : "Enviar"}
           </button>
