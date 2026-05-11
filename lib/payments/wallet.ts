@@ -1,6 +1,8 @@
 export const VISIBLE_WALLET_MOVEMENT_TYPES = [
   "release_available_credit",
   "payout_paid_debit",
+  "refund_pending_debit",
+  "refund_available_debit",
 ] as const
 
 export function formatCop(value: number | string | null | undefined) {
