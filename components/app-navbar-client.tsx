@@ -40,14 +40,14 @@ function getFirstName(fullName: string | null) {
 
 function getDesktopActionClassName(variant: QuickAction["variant"]) {
   return variant === "primary"
-    ? "bg-[#2ECC71] text-white hover:bg-[#27ae60]"
-    : "border border-gray-200 bg-white text-[#0B2C4A] hover:bg-gray-50";
+    ? "bg-intra-green text-intra-card hover:bg-intra-green-hover-app"
+    : "border border-intra-border-soft bg-intra-card text-intra-blue hover:bg-intra-bg-app";
 }
 
 function getMobileActionClassName(variant: QuickAction["variant"]) {
   return variant === "primary"
-    ? "bg-[#2ECC71] text-white hover:bg-[#27ae60]"
-    : "border border-gray-200 bg-white text-[#0B2C4A] hover:bg-gray-50";
+    ? "bg-intra-green text-intra-card hover:bg-intra-green-hover-app"
+    : "border border-intra-border-soft bg-intra-card text-intra-blue hover:bg-intra-bg-app";
 }
 
 function getQuickActions(
@@ -201,7 +201,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
   const pendingBadge = context.pendingMatchesCount > 9 ? "9+" : String(context.pendingMatchesCount);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+    <header className="sticky top-0 z-40 border-b border-intra-border-soft bg-intra-card/95 backdrop-blur supports-[backdrop-filter]:bg-intra-card/85">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link href={context.hasSession ? "/app" : "/"} className="flex min-w-0 items-center rounded-2xl">
           <Image
@@ -226,15 +226,15 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                   href={link.href}
                   className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium transition ${
                     isActive
-                      ? "bg-[#0B2C4A] text-white"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-[#0B2C4A]"
+                      ? "bg-intra-blue text-intra-card"
+                      : "text-intra-text-subtle hover:bg-intra-bg-app hover:text-intra-blue"
                   }`}
                 >
                   <span>{link.label}</span>
                   {showPending ? (
                     <span
                       className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                        isActive ? "bg-white/20 text-white" : "bg-[#EFFBF4] text-[#1e8c4e]"
+                        isActive ? "bg-intra-card/20 text-intra-card" : "bg-intra-success-soft text-intra-text-success"
                       }`}
                     >
                       {pendingBadge}
@@ -268,7 +268,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
             onClick={() => setMobileOpen((current) => !current)}
             aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={mobileOpen}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-[#0B2C4A] transition hover:bg-gray-50 md:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card text-intra-blue transition hover:bg-intra-bg-app md:hidden"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -276,7 +276,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
       </div>
 
       {mobileOpen ? (
-        <div className="border-t border-gray-100 bg-white md:hidden">
+        <div className="border-t border-intra-border-soft bg-intra-card md:hidden">
           <div className="mx-auto max-w-6xl px-4 py-4">
             {context.hasSession ? (
               <nav className="grid grid-cols-2 gap-3">
@@ -293,8 +293,8 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                       onClick={() => setMobileOpen(false)}
                       className={`flex min-h-11 items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition ${
                         isActive
-                          ? "border-[#0B2C4A] bg-[#0B2C4A] text-white"
-                          : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                          ? "border-intra-blue bg-intra-blue text-intra-card"
+                          : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:bg-intra-bg-app"
                       }`}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
@@ -302,7 +302,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                       {showPending ? (
                         <span
                           className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                            isActive ? "bg-white/20 text-white" : "bg-[#EFFBF4] text-[#1e8c4e]"
+                            isActive ? "bg-intra-card/20 text-intra-card" : "bg-intra-success-soft text-intra-text-success"
                           }`}
                         >
                           {pendingBadge}
@@ -331,7 +331,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
               </div>
             ) : null}
 
-            <p className="mt-4 rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm leading-6 text-slate-600">
+            <p className="mt-4 rounded-2xl bg-intra-bg-app px-4 py-3 text-sm leading-6 text-intra-text-subtle">
               {summary}
             </p>
           </div>

@@ -89,28 +89,28 @@ function getNotificationVisual(type: string | null) {
     case "new_message":
       return {
         icon: MessageCircle,
-        iconClassName: "text-[#0B2C4A]",
-        badgeClassName: "bg-[#EEF2F7]",
+        iconClassName: "text-intra-blue",
+        badgeClassName: "bg-intra-bg-app",
       };
     case "shipment_in_transit":
     case "delivery_confirmed":
       return {
         icon: Package,
-        iconClassName: "text-[#0B2C4A]",
-        badgeClassName: "bg-[#EEF2F7]",
+        iconClassName: "text-intra-blue",
+        badgeClassName: "bg-intra-bg-app",
       };
     case "payment_released":
     case "refund_processed":
       return {
         icon: Wallet,
-        iconClassName: "text-[#2ECC71]",
-        badgeClassName: "bg-[#EFFBF4]",
+        iconClassName: "text-intra-green",
+        badgeClassName: "bg-intra-success-soft",
       };
     case "dispute_opened":
       return {
         icon: AlertTriangle,
-        iconClassName: "text-[#F39C12]",
-        badgeClassName: "bg-[#FFF4E5]",
+        iconClassName: "text-intra-warning",
+        badgeClassName: "bg-intra-warning-soft",
       };
     case "match_requested":
     case "match_accepted":
@@ -118,14 +118,14 @@ function getNotificationVisual(type: string | null) {
     case "match_cancelled":
       return {
         icon: Handshake,
-        iconClassName: "text-[#2ECC71]",
-        badgeClassName: "bg-[#EFFBF4]",
+        iconClassName: "text-intra-green",
+        badgeClassName: "bg-intra-success-soft",
       };
     default:
       return {
         icon: Bell,
-        iconClassName: "text-[#0B2C4A]",
-        badgeClassName: "bg-[#EEF2F7]",
+        iconClassName: "text-intra-blue",
+        badgeClassName: "bg-intra-bg-app",
       };
   }
 }
@@ -716,14 +716,14 @@ export function NotificationsBell() {
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen((value) => !value)}
-        className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-gray-200 bg-white text-[#0B2C4A] transition hover:bg-slate-50"
+        className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card text-intra-blue transition hover:bg-intra-neutral-soft-alt"
         aria-label="Notificaciones"
         type="button"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span
-            className={`absolute -right-1 -top-1 min-w-[18px] rounded-full bg-red-500 px-1.5 text-center text-xs text-white ${
+            className={`absolute -right-1 -top-1 min-w-[18px] rounded-full bg-intra-danger px-1.5 text-center text-xs text-intra-card ${
               animateBadge ? "animate-pulse" : ""
             }`}
           >
@@ -733,16 +733,16 @@ export function NotificationsBell() {
       </button>
 
       {open && (
-        <div className="fixed inset-x-3 top-20 z-50 flex max-h-[calc(100dvh-6rem)] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-xl sm:absolute sm:right-0 sm:left-auto sm:top-auto sm:mt-2 sm:w-[24rem] sm:max-h-96">
+        <div className="fixed inset-x-3 top-20 z-50 flex max-h-[calc(100dvh-6rem)] flex-col rounded-2xl border border-intra-border-soft bg-intra-card p-3 shadow-xl sm:absolute sm:right-0 sm:left-auto sm:top-auto sm:mt-2 sm:w-[24rem] sm:max-h-96">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#0B2C4A]">Notificaciones</h3>
-              <p className="mt-1 text-xs text-slate-400">Desliza una tarjeta para mostrar borrar</p>
+              <h3 className="font-semibold text-intra-blue">Notificaciones</h3>
+              <p className="mt-1 text-xs text-intra-text-muted/70">Desliza una tarjeta para mostrar borrar</p>
             </div>
             <div className="flex flex-col items-end gap-1">
               <button
                 onClick={markAllAsRead}
-                className="min-h-11 text-sm text-blue-600 hover:underline"
+                className="min-h-11 text-sm text-intra-blue hover:underline"
                 type="button"
                 disabled={items.length === 0}
               >
@@ -750,7 +750,7 @@ export function NotificationsBell() {
               </button>
               <button
                 onClick={() => setShowClearAllModal(true)}
-                className="min-h-11 text-sm text-red-600 hover:underline disabled:text-slate-300"
+                className="min-h-11 text-sm text-intra-danger hover:underline disabled:text-intra-text-muted/60"
                 type="button"
                 disabled={items.length === 0}
               >
@@ -761,11 +761,11 @@ export function NotificationsBell() {
 
           <div className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto overscroll-contain pb-4">
             {loading ? (
-              <p className="text-sm text-slate-500">Cargando...</p>
+              <p className="text-sm text-intra-text-subtle">Cargando...</p>
             ) : items.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-gray-200 bg-slate-50 p-4 text-center">
-                <p className="text-sm font-semibold text-[#0B2C4A]">Sin novedades 🎉</p>
-                <p className="mt-1 text-sm text-slate-500">
+              <div className="rounded-2xl border border-dashed border-intra-border-soft bg-intra-neutral-soft-alt p-4 text-center">
+                <p className="text-sm font-semibold text-intra-blue">Sin novedades 🎉</p>
+                <p className="mt-1 text-sm text-intra-text-subtle">
                   Publica un envío o un viaje para empezar a ver actividad aquí.
                 </p>
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -775,7 +775,7 @@ export function NotificationsBell() {
                       router.push("/app/shipments/new");
                     }}
                     type="button"
-                    className="min-h-11 flex-1 rounded-xl bg-[#2ECC71] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#27ae60]"
+                    className="min-h-11 flex-1 rounded-xl bg-intra-green px-4 py-2 text-sm font-semibold text-intra-card transition hover:bg-intra-green-hover-app"
                   >
                     Publicar envío
                   </button>
@@ -785,7 +785,7 @@ export function NotificationsBell() {
                       router.push("/app/trips/new");
                     }}
                     type="button"
-                    className="min-h-11 flex-1 rounded-xl border border-[#0B2C4A]/10 bg-white px-4 py-2 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                    className="min-h-11 flex-1 rounded-xl border border-intra-blue/10 bg-intra-card px-4 py-2 text-sm font-semibold text-intra-blue transition hover:bg-intra-bg-app"
                   >
                     Publicar viaje
                   </button>
@@ -818,7 +818,7 @@ export function NotificationsBell() {
                         void deleteNotificationById(item.id);
                       }}
                       disabled={Boolean(deletingId) || clearingAll}
-                      className="absolute inset-0 flex w-full items-center justify-end rounded-xl bg-red-500 pr-5 text-sm font-semibold text-white disabled:opacity-60"
+                      className="absolute inset-0 flex w-full items-center justify-end rounded-xl bg-intra-danger pr-5 text-sm font-semibold text-intra-card disabled:opacity-60"
                     >
                       <div className="flex flex-col items-center gap-1">
                         <Trash2 className="h-4 w-4" />
@@ -834,8 +834,8 @@ export function NotificationsBell() {
                       onPointerCancel={handlePointerEnd(item.id)}
                       type="button"
                       disabled={clearingAll || isDeleting}
-                      className={`min-h-11 relative z-10 w-full rounded-xl border p-3 text-left transition ${
-                        item.is_read ? "bg-white" : "bg-slate-50"
+                      className={`min-h-11 relative z-10 w-full rounded-xl border border-intra-border-soft p-3 text-left transition ${
+                        item.is_read ? "bg-intra-card" : "bg-intra-neutral-soft-alt"
                       }`}
                       style={{
                         transform: `translateX(${offset}px)`,
@@ -856,19 +856,19 @@ export function NotificationsBell() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
-                              <p className="break-words font-medium text-slate-900">
+                              <p className="break-words font-medium text-intra-blue">
                                 {getNotificationTitle(item, counterpartName)}
                               </p>
-                              <p className="mt-1 break-words text-sm text-slate-600">
+                              <p className="mt-1 break-words text-sm text-intra-text-subtle">
                                 {getNotificationBody(item)}
                               </p>
-                              <p className="mt-2 text-xs text-slate-400">
+                              <p className="mt-2 text-xs text-intra-text-muted/70">
                                 {getRelativeTimeLabel(item.created_at)}
                               </p>
                             </div>
 
                             {!item.is_read && (
-                              <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" />
+                              <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-intra-blue" />
                             )}
                           </div>
                         </div>
@@ -883,10 +883,10 @@ export function NotificationsBell() {
       )}
 
       {open && showClearAllModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/45 p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
-            <h4 className="text-lg font-semibold text-[#0B2C4A]">Borrar todas las notificaciones</h4>
-            <p className="mt-2 text-sm text-slate-500">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-intra-blue/45 p-4">
+          <div className="w-full max-w-sm rounded-3xl bg-intra-card p-5 shadow-2xl">
+            <h4 className="text-lg font-semibold text-intra-blue">Borrar todas las notificaciones</h4>
+            <p className="mt-2 text-sm text-intra-text-subtle">
               Esto eliminará tanto las leídas como las no leídas. Esta acción no se puede deshacer.
             </p>
 
@@ -894,7 +894,7 @@ export function NotificationsBell() {
               <button
                 type="button"
                 onClick={() => setShowClearAllModal(false)}
-                className="min-h-11 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-[#0B2C4A] transition hover:bg-gray-50"
+                className="min-h-11 rounded-xl border border-intra-border-soft px-4 py-2 text-sm font-semibold text-intra-blue transition hover:bg-intra-bg-app"
                 disabled={clearingAll}
               >
                 Cancelar
@@ -902,7 +902,7 @@ export function NotificationsBell() {
               <button
                 type="button"
                 onClick={() => void clearAllNotifications()}
-                className="min-h-11 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-60"
+                className="min-h-11 rounded-xl bg-intra-danger px-4 py-2 text-sm font-semibold text-intra-card transition hover:opacity-95 disabled:opacity-60"
                 disabled={clearingAll}
               >
                 {clearingAll ? "Borrando..." : "Sí, borrar todo"}
