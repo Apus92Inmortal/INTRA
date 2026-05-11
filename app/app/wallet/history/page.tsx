@@ -110,9 +110,7 @@ function getEntryDetail(entry: WalletHistoryEntry, trackingCode?: string | null)
 
   switch (entry.entry_type) {
     case "release_available_credit":
-      return trackingCode
-        ? `Pago acreditado a tu wallet por la guía ${trackingCode}.`
-        : "Pago acreditado a tu wallet por una entrega completada."
+      return trackingCode ? `Guía: ${trackingCode}` : "Pago acreditado a tu wallet por una entrega completada."
     case "payout_paid_debit":
       return "Salida de dinero desde tu wallet a tu cuenta registrada."
     case "refund_pending_debit":

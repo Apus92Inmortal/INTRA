@@ -290,7 +290,7 @@ export default async function WalletPage() {
                         <p className="font-medium text-intra-blue">{getLedgerEntryLabel(entry.entry_type, entry.description)}</p>
                         <p className="mt-1 text-sm text-intra-text-muted">
                           {entry.entry_type === "release_available_credit" && entry.match_id && trackingCodes.get(entry.match_id)
-                            ? `Guía ${trackingCodes.get(entry.match_id)} · ${formatDateTime(entry.created_at)}`
+                            ? `Guía: ${trackingCodes.get(entry.match_id)}`
                             : formatDateTime(entry.created_at)}
                         </p>
                       </div>
