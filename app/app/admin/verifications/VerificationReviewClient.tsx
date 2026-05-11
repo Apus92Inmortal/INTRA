@@ -305,7 +305,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
       </section>
 
       {verifications.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-sm text-slate-500 shadow-sm">
+        <section className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
           No hay verificaciones cargadas todavía.
         </section>
       ) : (
@@ -318,7 +318,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
             </div>
 
             {pendingVerifications.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-sm text-slate-500 shadow-sm">
+              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
                 No hay verificaciones pendientes ahora mismo.
               </div>
             ) : (
@@ -448,7 +448,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
             </div>
 
             {reviewedVerifications.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-sm text-slate-500 shadow-sm">
+              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
                 No encontramos verificaciones revisadas con esos filtros.
               </div>
             ) : (

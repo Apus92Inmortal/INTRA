@@ -848,7 +848,7 @@ export function NotificationsBell() {
                     >
                       <div className="flex items-start gap-3">
                         <div
-                          className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${visual.badgeClassName}`}
+                          className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl ${visual.badgeClassName}`}
                         >
                           <Icon className={`h-4 w-4 ${visual.iconClassName}`} />
                         </div>
