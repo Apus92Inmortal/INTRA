@@ -51,15 +51,15 @@ function matchesSearch(verification: AdminVerification, search: string) {
 
 function VerificationImage({ title, url }: { title: string; url: string | null }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-[#0B2C4A]">{title}</p>
+        <p className="text-sm font-semibold text-intra-blue">{title}</p>
         {url ? (
           <a
             href={url}
             target="_blank"
             rel="noreferrer"
-            className="text-xs font-semibold text-[#0B2C4A] hover:underline"
+            className="text-xs font-semibold text-intra-blue hover:underline"
           >
             Abrir
           </a>
@@ -74,7 +74,7 @@ function VerificationImage({ title, url }: { title: string; url: string | null }
           className="aspect-[4/3] w-full rounded-2xl object-cover"
         />
       ) : (
-        <div className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white text-sm text-slate-400">
+        <div className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-intra-border-soft bg-intra-card text-sm text-intra-text-muted/70">
           Archivo no disponible
         </div>
       )}
@@ -84,9 +84,9 @@ function VerificationImage({ title, url }: { title: string; url: string | null }
 
 function VerificationLinkCard({ title, url }: { title: string; url: string | null }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <p className="text-sm font-semibold text-[#0B2C4A]">{title}</p>
-      <p className="mt-1 text-sm text-slate-500">
+    <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4">
+      <p className="text-sm font-semibold text-intra-blue">{title}</p>
+      <p className="mt-1 text-sm text-intra-text-subtle">
         {url ? "Abre el archivo completo solo cuando lo necesites revisar." : "Archivo no disponible."}
       </p>
 
@@ -95,7 +95,7 @@ function VerificationLinkCard({ title, url }: { title: string; url: string | nul
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#0B2C4A]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#EEF2F7]"
+          className="intra-btn intra-btn-secondary mt-4 min-h-11 border-intra-blue/15 px-4 py-2.5 text-sm"
         >
           Abrir {title.toLowerCase()}
         </a>
@@ -122,51 +122,51 @@ function ReviewedVerificationRow({
   const canReject = verification.verificationStatus !== "rejected"
 
   return (
-    <details className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <details className="intra-card rounded-3xl border border-intra-border-soft p-5 shadow-sm">
       <summary className="list-none cursor-pointer">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-lg font-semibold text-[#0B2C4A]">{verification.fullName}</h3>
+              <h3 className="text-lg font-semibold text-intra-blue">{verification.fullName}</h3>
               <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badge.classes}`}>
                 {badge.label}
               </span>
             </div>
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-500">
+            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-intra-text-subtle">
               <span>Documento: {verification.documentNumber || "Sin dato"}</span>
               <span>Teléfono: {verification.phone || "Sin dato"}</span>
               <span>Revisada: {formatDateTime(verification.reviewedAt)}</span>
             </div>
           </div>
 
-          <span className="text-sm font-medium text-slate-400">Ver detalle</span>
+          <span className="text-sm font-medium text-intra-text-muted/70">Ver detalle</span>
         </div>
       </summary>
 
-      <div className="mt-5 space-y-4 border-t border-slate-100 pt-5">
+      <div className="mt-5 space-y-4 border-t border-intra-border-soft pt-5">
         <div className="grid gap-4 lg:grid-cols-2">
           <VerificationLinkCard title="Documento" url={verification.documentPhotoUrl} />
           <VerificationLinkCard title="Selfie" url={verification.selfieUrl} />
         </div>
 
-        <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-          <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Enviada</p>
-            <p className="mt-1 text-[#0B2C4A]">{formatDateTime(verification.createdAt)}</p>
+        <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2">
+          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Enviada</p>
+            <p className="mt-1 text-intra-blue">{formatDateTime(verification.createdAt)}</p>
           </div>
-          <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">ID usuario</p>
-            <p className="mt-1 break-all text-[#0B2C4A]">{verification.userId}</p>
+          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">ID usuario</p>
+            <p className="mt-1 break-all text-intra-blue">{verification.userId}</p>
           </div>
         </div>
 
         <label className="block space-y-2">
-          <span className="text-sm font-semibold text-[#0B2C4A]">Motivo de rechazo</span>
+          <span className="text-sm font-semibold text-intra-blue">Motivo de rechazo</span>
           <textarea
             rows={3}
             value={reason}
             onChange={(event) => onReasonChange(event.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+            className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
             placeholder="Ej: la selfie no coincide con el documento"
           />
         </label>
@@ -176,7 +176,7 @@ function ReviewedVerificationRow({
             type="button"
             disabled={isPending || !canApprove}
             onClick={() => onReview(verification.id, "verified")}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+            className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
           >
             Aprobar verificación
           </button>
@@ -184,7 +184,7 @@ function ReviewedVerificationRow({
             type="button"
             disabled={isPending || !canReject}
             onClick={() => onReview(verification.id, "rejected")}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+            className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
           >
             Rechazar verificación
           </button>
@@ -269,24 +269,24 @@ export default function VerificationReviewClient({ verifications }: { verificati
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">Verificaciones</h2>
+            <h2 className="text-2xl font-bold text-intra-blue sm:text-3xl">Verificaciones</h2>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm text-slate-600">
-              <p className="font-semibold text-[#0B2C4A]">Pendientes</p>
-              <p className="mt-1 text-2xl font-bold text-[#0B2C4A]">{pendingVerifications.length}</p>
+            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+              <p className="font-semibold text-intra-blue">Pendientes</p>
+              <p className="mt-1 text-2xl font-bold text-intra-blue">{pendingVerifications.length}</p>
             </div>
-            <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm text-slate-600">
-              <p className="font-semibold text-[#0B2C4A]">Aprobadas</p>
-              <p className="mt-1 text-2xl font-bold text-[#0B2C4A]">{reviewedCounts.verified}</p>
+            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+              <p className="font-semibold text-intra-blue">Aprobadas</p>
+              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.verified}</p>
             </div>
-            <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm text-slate-600">
-              <p className="font-semibold text-[#0B2C4A]">Rechazadas</p>
-              <p className="mt-1 text-2xl font-bold text-[#0B2C4A]">{reviewedCounts.rejected}</p>
+            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+              <p className="font-semibold text-intra-blue">Rechazadas</p>
+              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.rejected}</p>
             </div>
           </div>
         </div>
@@ -295,8 +295,8 @@ export default function VerificationReviewClient({ verifications }: { verificati
           <div
             className={`mt-5 rounded-2xl px-4 py-3 text-sm ${
               feedback.type === "error"
-                ? "border border-red-200 bg-red-50 text-red-700"
-                : "border border-[#A3E4BF] bg-[#EFFBF4] text-[#1e8c4e]"
+                ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+                : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
             }`}
           >
             {feedback.message}
@@ -305,7 +305,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
       </section>
 
       {verifications.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
+        <section className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
           No hay verificaciones cargadas todavía.
         </section>
       ) : (
@@ -313,12 +313,12 @@ export default function VerificationReviewClient({ verifications }: { verificati
           <section className="space-y-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-[#0B2C4A]">Pendientes</h3>
+                <h3 className="text-xl font-semibold text-intra-blue">Pendientes</h3>
               </div>
             </div>
 
             {pendingVerifications.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
+              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
                 No hay verificaciones pendientes ahora mismo.
               </div>
             ) : (
@@ -327,31 +327,31 @@ export default function VerificationReviewClient({ verifications }: { verificati
                   const badge = getVerificationBadge(verification.verificationStatus)
 
                   return (
-                    <article key={verification.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <article key={verification.id} className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm">
                       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                         <div className="space-y-4 xl:max-w-sm">
                           <div className="flex flex-wrap items-center gap-3">
-                            <h3 className="text-xl font-semibold text-[#0B2C4A]">{verification.fullName}</h3>
+                            <h3 className="text-xl font-semibold text-intra-blue">{verification.fullName}</h3>
                             <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badge.classes}`}>
                               {badge.label}
                             </span>
                           </div>
 
-                          <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-1">
+                          <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-1">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Documento</p>
-                              <p className="mt-1 font-medium text-[#0B2C4A]">{verification.documentNumber || "Sin dato"}</p>
+                              <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Documento</p>
+                              <p className="mt-1 font-medium text-intra-blue">{verification.documentNumber || "Sin dato"}</p>
                             </div>
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Teléfono</p>
-                              <p className="mt-1 font-medium text-[#0B2C4A]">{verification.phone || "Sin dato"}</p>
+                              <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Teléfono</p>
+                              <p className="mt-1 font-medium text-intra-blue">{verification.phone || "Sin dato"}</p>
                             </div>
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Enviada</p>
+                              <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Enviada</p>
                               <p className="mt-1">{formatDateTime(verification.createdAt)}</p>
                             </div>
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">ID usuario</p>
+                              <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">ID usuario</p>
                               <p className="mt-1 break-all">{verification.userId}</p>
                             </div>
                           </div>
@@ -364,7 +364,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
                           </div>
 
                           <label className="block space-y-2">
-                            <span className="text-sm font-semibold text-[#0B2C4A]">Motivo de rechazo</span>
+                            <span className="text-sm font-semibold text-intra-blue">Motivo de rechazo</span>
                             <textarea
                               rows={3}
                               value={reasonsById[verification.id] ?? verification.rejectionReason ?? ""}
@@ -374,7 +374,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
                                   [verification.id]: event.target.value,
                                 }))
                               }
-                              className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                              className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
                               placeholder="Ej: la selfie no coincide con el documento"
                             />
                           </label>
@@ -384,7 +384,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
                               type="button"
                               disabled={isPending}
                               onClick={() => handleReview(verification.id, "verified")}
-                              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+                              className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
                             >
                               Aprobar verificación
                             </button>
@@ -392,7 +392,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
                               type="button"
                               disabled={isPending}
                               onClick={() => handleReview(verification.id, "rejected")}
-                              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                              className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
                             >
                               Rechazar verificación
                             </button>
@@ -407,9 +407,9 @@ export default function VerificationReviewClient({ verifications }: { verificati
           </section>
 
           <section className="space-y-4">
-            <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-col gap-4 intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
               <div className="shrink-0">
-                <h3 className="text-xl font-semibold text-[#0B2C4A]">Revisadas</h3>
+                <h3 className="text-xl font-semibold text-intra-blue">Revisadas</h3>
               </div>
 
               <div className="flex w-full flex-col gap-3 xl:max-w-4xl xl:flex-row xl:items-center xl:justify-end">
@@ -417,7 +417,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Buscar por nombre, teléfono o documento"
-                  className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A] xl:max-w-md"
+                  className="intra-input min-h-11 w-full px-4 py-3 text-sm xl:max-w-md"
                 />
 
                 <div className="flex flex-wrap gap-2 xl:flex-nowrap xl:justify-end">
@@ -435,8 +435,8 @@ export default function VerificationReviewClient({ verifications }: { verificati
                         onClick={() => setReviewedFilter(value)}
                         className={`whitespace-nowrap rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ${
                           isActive
-                            ? "border-[#0B2C4A] bg-[#0B2C4A] text-white"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-[#0B2C4A]/20 hover:text-[#0B2C4A]"
+                            ? "border-intra-blue bg-intra-blue text-intra-card"
+                            : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue/20 hover:text-intra-blue"
                         }`}
                       >
                         {label}
@@ -448,7 +448,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
             </div>
 
             {reviewedVerifications.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
+              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
                 No encontramos verificaciones revisadas con esos filtros.
               </div>
             ) : (

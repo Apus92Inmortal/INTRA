@@ -72,12 +72,12 @@ function ReviewedPayoutRow({
   const showActions = canApprove || canReject || canMarkPaid
 
   return (
-    <details className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <details className="intra-card rounded-3xl border border-intra-border-soft p-5 shadow-sm">
       <summary className="list-none cursor-pointer">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-lg font-semibold text-[#0B2C4A]">{payout.travelerName}</h3>
+              <h3 className="text-lg font-semibold text-intra-blue">{payout.travelerName}</h3>
               <span
                 className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getPayoutStatusClasses(
                   payout.status
@@ -87,7 +87,7 @@ function ReviewedPayoutRow({
               </span>
             </div>
 
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-500">
+            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-intra-text-subtle">
               <span>Ref: {payout.payoutCode || "Sin código"}</span>
               <span>Monto: {formatCop(payout.amount ?? 0)}</span>
               <span>Cuenta: {payout.accountLabel}</span>
@@ -95,65 +95,61 @@ function ReviewedPayoutRow({
             </div>
           </div>
 
-          <span className="text-sm font-medium text-slate-400">Ver detalle</span>
+          <span className="text-sm font-medium text-intra-text-muted/70">Ver detalle</span>
         </div>
       </summary>
 
-      <div className="mt-5 space-y-4 border-t border-slate-100 pt-5">
-        <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-5">
-          <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Referencia</p>
-            <p className="mt-1 break-all text-[#0B2C4A]">{payout.payoutCode || "Sin código"}</p>
+      <div className="mt-5 space-y-4 border-t border-intra-border-soft pt-5">
+        <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Referencia</p>
+            <p className="mt-1 break-all text-intra-blue">{payout.payoutCode || "Sin código"}</p>
           </div>
-          <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Cuenta</p>
-            <p className="mt-1 font-medium text-[#0B2C4A]">{payout.accountLabel}</p>
-            <p className="text-slate-500">{payout.accountMask}</p>
+          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Cuenta</p>
+            <p className="mt-1 font-medium text-intra-blue">{payout.accountLabel}</p>
+            <p className="text-intra-text-subtle">{payout.accountMask}</p>
           </div>
-          <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Solicitado</p>
-            <p className="mt-1 text-[#0B2C4A]">{formatDateTime(payout.requested_at)}</p>
+          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Solicitado</p>
+            <p className="mt-1 text-intra-blue">{formatDateTime(payout.requested_at)}</p>
           </div>
-          <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Pagado</p>
-            <p className="mt-1 text-[#0B2C4A]">{formatDateTime(payout.paid_at)}</p>
+          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Pagado</p>
+            <p className="mt-1 text-intra-blue">{formatDateTime(payout.paid_at)}</p>
           </div>
-          <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Ref. pago</p>
-            <p className="mt-1 break-all text-[#0B2C4A]">{payout.paid_reference || "Sin referencia"}</p>
+          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Ref. pago</p>
+            <p className="mt-1 break-all text-intra-blue">{payout.paid_reference || "Sin referencia"}</p>
           </div>
         </div>
 
         {payout.brebKey ? (
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-            <span className="font-semibold text-[#0B2C4A]">Llave BRE-B:</span> {payout.brebKey}
+          <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
+            <span className="font-semibold text-intra-blue">Llave BRE-B:</span> {payout.brebKey}
           </div>
         ) : null}
 
         <label className="block space-y-2">
-          <span className="text-sm font-semibold text-[#0B2C4A]">Notas de revisión</span>
+          <span className="text-sm font-semibold text-intra-blue">Notas de revisión</span>
           <textarea
             rows={3}
             value={notes}
             readOnly={isReadOnly}
             onChange={(event) => onNotesChange(event.target.value)}
-            className={`w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition ${
-              isReadOnly ? "bg-slate-50 text-slate-500" : "focus:border-[#0B2C4A]"
-            }`}
+            className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
             placeholder="Ej: validar cuenta antes de pagar"
           />
         </label>
 
         {!isReadOnly ? (
           <label className="block space-y-2">
-            <span className="text-sm font-semibold text-[#0B2C4A]">Referencia de pago</span>
+            <span className="text-sm font-semibold text-intra-blue">Referencia de pago</span>
             <input
               value={reference}
               readOnly={isReadOnly}
               onChange={(event) => onReferenceChange(event.target.value)}
-              className={`min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition ${
-                isReadOnly ? "bg-slate-50 text-slate-500" : "focus:border-[#0B2C4A]"
-              }`}
+              className="intra-input min-h-11 w-full px-4 py-3 text-sm"
               placeholder="Transferencia 123456"
             />
           </label>
@@ -165,7 +161,7 @@ function ReviewedPayoutRow({
               type="button"
               disabled={isPending || !canApprove}
               onClick={() => onStatusChange(payout.id, "approved")}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+              className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
             >
               Aprobar
             </button>
@@ -173,7 +169,7 @@ function ReviewedPayoutRow({
               type="button"
               disabled={isPending || !canReject}
               onClick={() => onStatusChange(payout.id, "rejected")}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+              className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
             >
               Rechazar
             </button>
@@ -181,7 +177,7 @@ function ReviewedPayoutRow({
               type="button"
               disabled={isPending || !canMarkPaid}
               onClick={() => onStatusChange(payout.id, "paid")}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#A3E4BF] px-4 py-2.5 text-sm font-semibold text-[#1e8c4e] transition hover:bg-[#EFFBF4] disabled:opacity-50"
+              className="intra-btn min-h-11 rounded-2xl border border-intra-success-border bg-intra-card px-4 py-2.5 text-sm font-semibold text-intra-text-success transition hover:bg-intra-success-soft disabled:opacity-50"
             >
               Marcar pagado
             </button>
@@ -258,28 +254,28 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-[#0B2C4A] sm:text-3xl">Retiros</h2>
+            <h2 className="text-2xl font-bold text-intra-blue sm:text-3xl">Retiros</h2>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm text-slate-600">
-              <p className="font-semibold text-[#0B2C4A]">Pendientes</p>
-              <p className="mt-1 text-2xl font-bold text-[#0B2C4A]">{pendingPayouts.length}</p>
+            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+              <p className="font-semibold text-intra-blue">Pendientes</p>
+              <p className="mt-1 text-2xl font-bold text-intra-blue">{pendingPayouts.length}</p>
             </div>
-            <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm text-slate-600">
-              <p className="font-semibold text-[#0B2C4A]">Aprobados</p>
-              <p className="mt-1 text-2xl font-bold text-[#0B2C4A]">{reviewedCounts.approved}</p>
+            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+              <p className="font-semibold text-intra-blue">Aprobados</p>
+              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.approved}</p>
             </div>
-            <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm text-slate-600">
-              <p className="font-semibold text-[#0B2C4A]">Rechazados</p>
-              <p className="mt-1 text-2xl font-bold text-[#0B2C4A]">{reviewedCounts.rejected}</p>
+            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+              <p className="font-semibold text-intra-blue">Rechazados</p>
+              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.rejected}</p>
             </div>
-            <div className="rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm text-slate-600">
-              <p className="font-semibold text-[#0B2C4A]">Pagados</p>
-              <p className="mt-1 text-2xl font-bold text-[#0B2C4A]">{reviewedCounts.paid}</p>
+            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+              <p className="font-semibold text-intra-blue">Pagados</p>
+              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.paid}</p>
             </div>
           </div>
         </div>
@@ -288,8 +284,8 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
           <div
             className={`mt-5 rounded-2xl px-4 py-3 text-sm ${
               feedback.type === "error"
-                ? "border border-red-200 bg-red-50 text-red-700"
-                : "border border-[#A3E4BF] bg-[#EFFBF4] text-[#1e8c4e]"
+                ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+                : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
             }`}
           >
             {feedback.message}
@@ -298,28 +294,28 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
       </section>
 
       {payouts.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
+        <section className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
           No hay retiros cargados todavía.
         </section>
       ) : (
         <>
           <section className="space-y-4">
             <div>
-              <h3 className="text-xl font-semibold text-[#0B2C4A]">Pendientes</h3>
+              <h3 className="text-xl font-semibold text-intra-blue">Pendientes</h3>
             </div>
 
             {pendingPayouts.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
+              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
                 No hay retiros pendientes ahora mismo.
               </div>
             ) : (
               <div className="space-y-4">
                 {pendingPayouts.map((payout) => (
-                  <article key={payout.id} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <article key={payout.id} className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm">
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-3">
-                          <h3 className="text-xl font-semibold text-[#0B2C4A]">{formatCop(payout.amount ?? 0)}</h3>
+                          <h3 className="text-xl font-semibold text-intra-blue">{formatCop(payout.amount ?? 0)}</h3>
                           <span
                             className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getPayoutStatusClasses(
                               payout.status
@@ -329,27 +325,27 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-3 text-sm text-intra-text-subtle sm:grid-cols-2">
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Referencia</p>
-                            <p className="mt-1 font-medium text-[#0B2C4A]">{payout.payoutCode || "Sin código"}</p>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Referencia</p>
+                            <p className="mt-1 font-medium text-intra-blue">{payout.payoutCode || "Sin código"}</p>
                           </div>
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Viajero</p>
-                            <p className="mt-1 font-medium text-[#0B2C4A]">{payout.travelerName}</p>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Viajero</p>
+                            <p className="mt-1 font-medium text-intra-blue">{payout.travelerName}</p>
                           </div>
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Cuenta</p>
-                            <p className="mt-1 font-medium text-[#0B2C4A]">{payout.accountLabel}</p>
-                            <p className="text-slate-500">{payout.accountMask}</p>
-                            {payout.brebKey ? <p className="text-slate-500">Llave BRE-B: {payout.brebKey}</p> : null}
+                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Cuenta</p>
+                            <p className="mt-1 font-medium text-intra-blue">{payout.accountLabel}</p>
+                            <p className="text-intra-text-subtle">{payout.accountMask}</p>
+                            {payout.brebKey ? <p className="text-intra-text-subtle">Llave BRE-B: {payout.brebKey}</p> : null}
                           </div>
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Solicitado</p>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Solicitado</p>
                             <p className="mt-1">{formatDateTime(payout.requested_at)}</p>
                           </div>
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Revisión</p>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Revisión</p>
                             <p className="mt-1">{formatDateTime(payout.reviewed_at)}</p>
                           </div>
                         </div>
@@ -357,7 +353,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
 
                       <div className="w-full max-w-xl space-y-3">
                         <label className="block space-y-2">
-                          <span className="text-sm font-semibold text-[#0B2C4A]">Notas de revisión</span>
+                          <span className="text-sm font-semibold text-intra-blue">Notas de revisión</span>
                           <textarea
                             rows={3}
                             value={notesById[payout.id] ?? payout.review_notes ?? ""}
@@ -367,13 +363,13 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                                 [payout.id]: event.target.value,
                               }))
                             }
-                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                            className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
                             placeholder="Ej: validar cuenta antes de pagar"
                           />
                         </label>
 
                         <label className="block space-y-2">
-                          <span className="text-sm font-semibold text-[#0B2C4A]">Referencia de pago</span>
+                          <span className="text-sm font-semibold text-intra-blue">Referencia de pago</span>
                           <input
                             value={referenceById[payout.id] ?? payout.paid_reference ?? ""}
                             onChange={(event) =>
@@ -382,7 +378,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                                 [payout.id]: event.target.value,
                               }))
                             }
-                            className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A]"
+                            className="intra-input min-h-11 w-full px-4 py-3 text-sm"
                             placeholder="Transferencia 123456"
                           />
                         </label>
@@ -392,7 +388,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                             type="button"
                             disabled={isPending}
                             onClick={() => handleStatusChange(payout.id, "approved")}
-                            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+                            className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
                           >
                             Aprobar
                           </button>
@@ -400,7 +396,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                             type="button"
                             disabled={isPending}
                             onClick={() => handleStatusChange(payout.id, "rejected")}
-                            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                            className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
                           >
                             Rechazar
                           </button>
@@ -414,9 +410,9 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
           </section>
 
           <section className="space-y-4">
-            <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-col gap-4 intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
               <div className="shrink-0">
-                <h3 className="text-xl font-semibold text-[#0B2C4A]">Historial</h3>
+                <h3 className="text-xl font-semibold text-intra-blue">Historial</h3>
               </div>
 
               <div className="flex w-full flex-col gap-3 xl:max-w-4xl xl:flex-row xl:items-center xl:justify-end">
@@ -424,7 +420,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Buscar por viajero, cuenta, llave o referencia"
-                  className="min-h-11 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#0B2C4A] xl:max-w-md"
+                  className="intra-input min-h-11 w-full px-4 py-3 text-sm xl:max-w-md"
                 />
 
                 <div className="flex flex-wrap gap-2 xl:flex-nowrap xl:justify-end">
@@ -443,8 +439,8 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                         onClick={() => setReviewedFilter(value)}
                         className={`whitespace-nowrap rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ${
                           isActive
-                            ? "border-[#0B2C4A] bg-[#0B2C4A] text-white"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-[#0B2C4A]/20 hover:text-[#0B2C4A]"
+                            ? "border-intra-blue bg-intra-blue text-intra-card"
+                            : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue/20 hover:text-intra-blue"
                         }`}
                       >
                         {label}
@@ -456,7 +452,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
             </div>
 
             {reviewedPayouts.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
+              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
                 No encontramos retiros con esos filtros.
               </div>
             ) : (

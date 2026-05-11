@@ -126,13 +126,13 @@ export default async function AdminPayoutsPage() {
   }
 
   return loadError || !hasAccess ? (
-    <section className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
-      <h2 className="text-2xl font-bold text-[#0B2C4A]">Retiros</h2>
-      <p className="mt-2 text-sm text-slate-500 sm:text-base">
+    <section className="rounded-3xl border border-intra-danger-border bg-intra-card p-6 shadow-sm sm:p-8">
+      <h2 className="text-2xl font-bold text-intra-blue">Retiros</h2>
+      <p className="mt-2 text-sm text-intra-text-subtle sm:text-base">
         No pudimos cargar este módulo administrativo en este entorno.
       </p>
       {loadError ? (
-        <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-sm text-intra-danger">
           {loadError}
         </div>
       ) : null}
