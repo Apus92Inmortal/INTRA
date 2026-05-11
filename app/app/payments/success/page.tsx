@@ -54,44 +54,44 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
   return (
     <>
       <AppNavbar />
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
+      <main className="intra-page-shell px-4 py-8 sm:px-6">
         <div className="mx-auto max-w-3xl">
-          <section className="rounded-3xl border border-[#A3E4BF] bg-white p-6 shadow-sm sm:p-8">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#EFFBF4] text-[#1e8c4e]">
+          <section className="rounded-3xl border border-intra-success-border bg-intra-card p-6 shadow-sm sm:p-8">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-sm font-semibold uppercase tracking-wide text-[#1e8c4e]">{eyebrow}</p>
-              <h1 className="mt-2 text-3xl font-bold text-[#0B2C4A]">{title}</h1>
-              <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
+              <p className="text-sm font-semibold uppercase tracking-wide text-intra-text-success">{eyebrow}</p>
+              <h1 className="mt-2 text-3xl font-bold text-intra-blue">{title}</h1>
+              <p className="mt-3 text-sm leading-6 text-intra-text-muted sm:text-base">
                 {description}
               </p>
             </div>
 
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monto</p>
-                <p className="mt-2 text-xl font-bold text-[#0B2C4A]">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
+              <div className="rounded-2xl bg-intra-bg-app p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Monto</p>
+                <p className="mt-2 text-xl font-bold text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Estado</p>
-                <p className="mt-2 text-xl font-bold text-[#0B2C4A]">{getPaymentResultLabel(paymentStatus)}</p>
+              <div className="rounded-2xl bg-intra-bg-app p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Estado</p>
+                <p className="mt-2 text-xl font-bold text-intra-blue">{getPaymentResultLabel(paymentStatus)}</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Referencia</p>
-                <p className="mt-2 break-all text-sm font-semibold text-[#0B2C4A]">{reference}</p>
+              <div className="rounded-2xl bg-intra-bg-app p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Referencia</p>
+                <p className="mt-2 break-all text-sm font-semibold text-intra-blue">{reference}</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Método</p>
-                <p className="mt-2 text-sm font-semibold text-[#0B2C4A]">{method}</p>
+              <div className="rounded-2xl bg-intra-bg-app p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Método</p>
+                <p className="mt-2 text-sm font-semibold text-intra-blue">{method}</p>
               </div>
             </div>
 
             {!paymentId || !payment ? (
-              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <div className="mt-6 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm text-intra-warning-text">
                 No pudimos recuperar todos los detalles del pago desde este enlace, pero el flujo quedó protegido sin exponer datos en la URL.
               </div>
             ) : null}
@@ -99,13 +99,13 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/app/matches"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-intra-blue px-5 py-3 text-sm font-semibold text-intra-card transition hover:bg-intra-blue-hover-card"
               >
                 Ir a mis matches
               </Link>
               <Link
                 href="/app/wallet"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-intra-border-soft px-5 py-3 text-sm font-semibold text-intra-text-subtle transition hover:bg-intra-bg-app"
               >
                 Ver wallet
               </Link>

@@ -43,41 +43,41 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
   return (
     <>
       <AppNavbar />
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
+      <main className="intra-page-shell px-4 py-8 sm:px-6">
         <div className="mx-auto max-w-3xl">
-          <section className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600">
+          <section className="rounded-3xl border border-intra-danger-border bg-intra-card p-6 shadow-sm sm:p-8">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-intra-danger-soft text-intra-danger">
               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
 
             <div className="mt-6 text-center">
-              <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Pago no completado</p>
-              <h1 className="mt-2 text-3xl font-bold text-[#0B2C4A]">No pudimos registrar el pago</h1>
-              <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
+              <p className="text-sm font-semibold uppercase tracking-wide text-intra-danger">Pago no completado</p>
+              <h1 className="mt-2 text-3xl font-bold text-intra-blue">No pudimos registrar el pago</h1>
+              <p className="mt-3 text-sm leading-6 text-intra-text-muted sm:text-base">
                 Puedes revisar los datos e intentarlo de nuevo. Esta pantalla ya no depende de datos operativos visibles en la URL.
               </p>
             </div>
 
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monto</p>
-                <p className="mt-2 text-xl font-bold text-[#0B2C4A]">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
+              <div className="rounded-2xl bg-intra-bg-app p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Monto</p>
+                <p className="mt-2 text-xl font-bold text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Estado</p>
-                <p className="mt-2 text-xl font-bold text-[#0B2C4A]">{getPaymentResultLabel(paymentStatus)}</p>
+              <div className="rounded-2xl bg-intra-bg-app p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Estado</p>
+                <p className="mt-2 text-xl font-bold text-intra-blue">{getPaymentResultLabel(paymentStatus)}</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Referencia</p>
-                <p className="mt-2 break-all text-sm font-semibold text-[#0B2C4A]">{reference}</p>
-                <p className="mt-3 text-sm text-slate-500">Motivo: revisa el método de pago e inténtalo de nuevo.</p>
+              <div className="rounded-2xl bg-intra-bg-app p-4 sm:col-span-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Referencia</p>
+                <p className="mt-2 break-all text-sm font-semibold text-intra-blue">{reference}</p>
+                <p className="mt-3 text-sm text-intra-text-muted">Motivo: revisa el método de pago e inténtalo de nuevo.</p>
               </div>
             </div>
 
             {!paymentId || !payment ? (
-              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <div className="mt-6 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm text-intra-warning-text">
                 Si llegaste aquí sin un pago asociado, puedes volver al checkout sin haber expuesto identificadores del envío en el navegador.
               </div>
             ) : null}
@@ -85,13 +85,13 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
                 href={retryHref}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-intra-blue px-5 py-3 text-sm font-semibold text-intra-card transition hover:bg-intra-blue-hover-card"
               >
                 Reintentar pago
               </Link>
               <Link
                 href="/app#pendientes-de-pago"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-intra-border-soft px-5 py-3 text-sm font-semibold text-intra-text-subtle transition hover:bg-intra-bg-app"
               >
                 Volver al inicio
               </Link>

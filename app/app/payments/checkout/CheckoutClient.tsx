@@ -93,7 +93,7 @@ function getShipmentKindLabel(kind: string) {
 
 function IconShell({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-[#EFFBF4] text-[#1e8c4e] lg:h-7 lg:w-7">
+    <span className="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-intra-success-soft text-intra-text-success lg:h-7 lg:w-7">
       {children}
     </span>
   )
@@ -111,12 +111,12 @@ function SummaryRow({
   detail?: ReactNode
 }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-2xl border border-slate-200 bg-white p-3 lg:p-2.5">
+    <div className="flex items-start gap-2.5 rounded-2xl border border-intra-border-soft bg-intra-card p-3 lg:p-2.5">
       <IconShell>{icon}</IconShell>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-        <div className="mt-0.5 text-sm font-semibold leading-5 text-[#0B2C4A]">{value}</div>
-        {detail ? <div className="mt-0.5 text-[11px] leading-4 text-slate-500">{detail}</div> : null}
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-muted">{label}</p>
+        <div className="mt-0.5 text-sm font-semibold leading-5 text-intra-blue">{value}</div>
+        {detail ? <div className="mt-0.5 text-[11px] leading-4 text-intra-text-muted">{detail}</div> : null}
       </div>
     </div>
   )
@@ -351,22 +351,22 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   }
 
   return (
-    <main className="min-h-screen bg-[#EEF2F7] px-4 py-3 sm:px-6 lg:px-8 lg:py-3">
+    <main className="intra-page-shell px-4 py-3 sm:px-6 lg:px-8 lg:py-3">
       <div className="mx-auto max-w-6xl">
         <div className="mb-3 flex flex-col gap-1 lg:mb-3.5">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#1e8c4e]">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-intra-text-success">
             Checkout seguro
           </p>
-          <h1 className="max-w-4xl text-2xl font-bold tracking-tight text-[#0B2C4A] sm:text-3xl lg:text-[28px] lg:leading-tight">
+          <h1 className="max-w-4xl text-2xl font-bold tracking-tight text-intra-blue sm:text-3xl lg:text-[28px] lg:leading-tight">
             Confirma tu pago
           </h1>
-          <p className="max-w-4xl text-sm leading-5 text-slate-600 lg:text-[14px]">
+          <p className="max-w-4xl text-sm leading-5 text-intra-text-subtle lg:text-[14px]">
             Revisa los datos del envío y confirma el cobro. El dinero queda protegido hasta que se complete la entrega.
           </p>
         </div>
 
         {view.isRetry ? (
-          <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <div className="mb-5 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm text-intra-warning-text">
             {view.retryPaymentId
               ? "El pago anterior no se completó correctamente. Reintenta el pago para continuar con la confirmación del envío."
               : "Tienes un envío pendiente de pago. Completa el checkout para publicarlo y continuar con el proceso."}
@@ -374,21 +374,21 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
         ) : null}
 
         <section className="grid gap-3 lg:grid-cols-[minmax(0,1.48fr)_300px] xl:grid-cols-[minmax(0,1.52fr)_315px] xl:items-start">
-          <div className="rounded-[28px] border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4">
+          <div className="rounded-[24px] border border-intra-border-soft bg-intra-card p-3.5 shadow-sm sm:p-4">
             <div className="mb-3 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-base font-semibold text-[#0B2C4A]">Resumen del envío</h2>
+                <h2 className="text-base font-semibold text-intra-blue">Resumen del envío</h2>
               </div>
-              <div className="rounded-full bg-[#EFFBF4] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#1e8c4e]">
+              <div className="rounded-full bg-intra-success-soft px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-intra-text-success">
                 Tarifa confirmada
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-3 sm:p-3.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Ruta</p>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-lg font-bold text-[#0B2C4A] sm:text-[24px] sm:leading-tight">
+            <div className="rounded-[24px] border border-intra-border-soft bg-intra-bg-app p-3 sm:p-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-muted">Ruta</p>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-lg font-bold text-intra-blue sm:text-[24px] sm:leading-tight">
                 <span>{view.origin}</span>
-                <span className="text-[#2ECC71]">→</span>
+                <span className="text-intra-green">→</span>
                 <span>{view.destination}</span>
               </div>
             </div>
@@ -436,9 +436,9 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               />
             </div>
 
-            <div className="mt-2.5 rounded-[24px] border border-slate-200 bg-white p-3 sm:p-3.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Descripción</p>
-              <p className="mt-1 text-sm leading-5 text-slate-700 lg:max-h-10 lg:overflow-hidden">{view.description}</p>
+            <div className="mt-2.5 rounded-[24px] border border-intra-border-soft bg-intra-card p-3 sm:p-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-muted">Descripción</p>
+              <p className="mt-1 text-sm leading-5 text-intra-text-subtle lg:max-h-10 lg:overflow-hidden">{view.description}</p>
             </div>
 
             <div className="mt-2.5 flex flex-wrap gap-2">
@@ -451,8 +451,8 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                   key={item.label}
                   className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${
                     item.active
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : "border-slate-200 bg-slate-50 text-slate-500"
+                      ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                      : "border-intra-border-soft bg-intra-bg-app text-intra-text-muted"
                   }`}
                 >
                   {item.label}: {item.active ? "Sí" : "No"}
@@ -461,13 +461,13 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             </div>
 
             {!view.isRetry ? (
-              <div className="mt-2.5 rounded-[24px] border border-emerald-200 bg-emerald-50 p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700">Declaración responsable</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700">{SHIPMENT_DECLARATION_TEXT}</p>
-                <label className="mt-4 flex items-start gap-3 text-sm text-slate-700">
+              <div className="mt-2.5 rounded-[24px] border border-intra-success-border bg-intra-success-soft p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-success">Declaración responsable</p>
+                <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{SHIPMENT_DECLARATION_TEXT}</p>
+                <label className="mt-4 flex items-start gap-3 text-sm text-intra-text-subtle">
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-slate-300 text-[#1e8c4e] focus:ring-[#1e8c4e]"
+                    className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
                     checked={acceptedDeclaration}
                     onChange={(event) => setAcceptedDeclaration(event.target.checked)}
                   />
@@ -479,37 +479,37 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             ) : null}
           </div>
 
-          <aside className="rounded-[28px] border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4 lg:sticky lg:top-16">
+          <aside className="rounded-[24px] border border-intra-border-soft bg-intra-card p-3.5 shadow-sm sm:p-4 lg:sticky lg:top-16">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0B2C4A]/70">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-intra-text-muted">
                 Resumen de pago
               </p>
             </div>
 
-            <div className="mt-2.5 space-y-2 rounded-[24px] bg-slate-50 p-3">
-              <div className="flex items-center justify-between gap-4 text-[13px] text-slate-600">
+            <div className="mt-2.5 space-y-2 rounded-[24px] bg-intra-bg-app p-3">
+              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
                 <span>Valor del transporte</span>
-                <span className="font-semibold text-[#0B2C4A]">{formatCurrency(travelerAmount)}</span>
+                <span className="font-semibold text-intra-blue">{formatCurrency(travelerAmount)}</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-[13px] text-slate-600">
+              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
                 <span>Servicio de plataforma</span>
-                <span className="font-semibold text-[#0B2C4A]">{formatCurrency(intraFee)}</span>
+                <span className="font-semibold text-intra-blue">{formatCurrency(intraFee)}</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-[13px] text-slate-600">
+              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
                 <span>Procesamiento de pago</span>
-                <span className="font-semibold text-[#0B2C4A]">{formatCurrency(gatewayFeeEstimated)}</span>
+                <span className="font-semibold text-intra-blue">{formatCurrency(gatewayFeeEstimated)}</span>
               </div>
             </div>
 
-            <div className="mt-3 rounded-[24px] bg-[#0B2C4A] px-3.5 py-4 text-white">
-              <p className="text-xs uppercase tracking-wide text-white/70">Total a pagar</p>
-              <p className="mt-1.5 text-center text-[30px] font-extrabold text-[#2ECC71] sm:text-[30px] sm:leading-[36px]">
+            <div className="mt-3 rounded-[24px] bg-intra-blue px-3.5 py-4 text-intra-card">
+              <p className="text-xs uppercase tracking-wide text-intra-card/70">Total a pagar</p>
+              <p className="mt-1.5 text-center text-[30px] font-extrabold leading-[36px] text-intra-green sm:text-[30px] sm:leading-[36px]">
                 {formatCurrency(totalAmount)}
               </p>
             </div>
 
             {errorMsg ? (
-              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-sm text-intra-danger">
                 {errorMsg}
               </div>
             ) : null}
@@ -518,7 +518,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               type="button"
               onClick={handlePayment}
               disabled={loading}
-              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-[15px] font-bold text-[#08321d] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-intra-green px-5 py-3 text-[15px] font-bold text-intra-card transition hover:bg-intra-green-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Preparando checkout..." : "Pagar con Wompi"}
             </button>
