@@ -296,7 +296,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                     Historial de wallet
                   </h1>
                   <p className="mt-3 max-w-3xl text-base leading-7 text-intra-card/85 sm:text-[18px]">
-                    Aquí ves solo pagos por entrega y retiros asociados a tu wallet.
+                    Aquí ves todos los movimientos asociados a tu wallet.
                   </p>
                 </div>
               </div>
