@@ -41,16 +41,16 @@ type PreferenceToggleProps = {
 
 function PreferenceToggle({ label, value, onChange }: PreferenceToggleProps) {
   return (
-    <div className="rounded-[16px] border border-[#E3EDF5] bg-[#FCFEFF] px-2.5 py-2">
+    <div className="rounded-2xl border border-intra-border-soft bg-intra-card px-2.5 py-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="truncate whitespace-nowrap text-[11px] font-medium leading-4 text-[#0B2C4A]">{label}</p>
+        <p className="truncate whitespace-nowrap text-[11px] font-medium leading-4 text-intra-blue">{label}</p>
 
-        <div className="inline-flex rounded-full border border-[#D7E5F1] bg-[#F3F7FA] p-1 shadow-[inset_0_1px_2px_rgba(11,44,74,0.06)]">
+        <div className="inline-flex rounded-full border border-intra-border-strong bg-intra-bg-app p-1 shadow-[inset_0_1px_2px_rgba(11,44,74,0.06)]">
           <button
             type="button"
             onClick={() => onChange(true)}
             className={`min-w-[44px] rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition ${
-              value ? "bg-[#2ECC71] text-white shadow-sm" : "text-slate-500"
+              value ? "bg-intra-green text-intra-card shadow-sm" : "text-intra-text-subtle"
             }`}
           >
             Sí
@@ -59,7 +59,7 @@ function PreferenceToggle({ label, value, onChange }: PreferenceToggleProps) {
             type="button"
             onClick={() => onChange(false)}
             className={`min-w-[44px] rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition ${
-              !value ? "bg-white text-[#0B2C4A] shadow-sm" : "text-slate-500"
+              !value ? "bg-intra-card text-intra-blue shadow-sm" : "text-intra-text-subtle"
             }`}
           >
             No
@@ -73,12 +73,12 @@ function PreferenceToggle({ label, value, onChange }: PreferenceToggleProps) {
 function SectionHeader({ step, title, description }: { step: string; title: string; description: string }) {
   return (
     <div className="mb-2.5 flex items-start gap-2">
-      <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-2xl bg-[#EAFBF1] text-[12px] font-bold text-[#1E8C4E]">
+      <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-2xl bg-intra-success-soft text-[12px] font-bold text-intra-text-success">
         {step}
       </div>
       <div>
-        <h2 className="text-[14px] font-semibold text-[#0B2C4A] sm:text-[15px]">{title}</h2>
-        <p className="mt-0.5 text-[12px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:900px)]:hidden">
+        <h2 className="text-[14px] font-semibold text-intra-blue sm:text-[15px]">{title}</h2>
+        <p className="mt-0.5 text-[12px] leading-4 text-intra-text-subtle [@media(min-width:1024px)_and_(max-height:900px)]:hidden">
           {description}
         </p>
       </div>
@@ -98,28 +98,28 @@ function AirRouteGraphic({
   destinationName: string
 }) {
   return (
-    <div className="rounded-[16px] border border-[#E3EDF5] bg-[linear-gradient(180deg,#F9FCFE_0%,#F3F8FC_100%)] px-3 py-2 [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5">
+    <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-3 py-2 [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5">
       <div className="flex items-center gap-3">
         <div className="flex min-w-[54px] flex-col items-center text-center">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#2ECC71] shadow-sm">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-intra-card text-intra-green shadow-sm">
             <MapPinned className="h-3.5 w-3.5" />
           </span>
-          <span className="mt-0.5 text-[10px] font-semibold text-[#0B2C4A]">{originName}</span>
-          <span className="text-[10px] uppercase tracking-[0.18em] text-slate-400">{originCode}</span>
+          <span className="mt-0.5 text-[10px] font-semibold text-intra-blue">{originName}</span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-intra-text-muted/60">{originCode}</span>
         </div>
 
-        <div className="relative h-px flex-1 border-t border-dashed border-[#8EC6AE]">
-          <div className="absolute left-1/2 top-1/2 flex h-6.5 w-6.5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#D7E5F1] bg-white text-[#2ECC71] shadow-sm">
+        <div className="relative h-px flex-1 border-t border-dashed border-intra-success-border">
+          <div className="absolute left-1/2 top-1/2 flex h-6.5 w-6.5 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-intra-border-strong bg-intra-card text-intra-green shadow-sm">
             <PlaneTakeoff className="h-3.5 w-3.5" />
           </div>
         </div>
 
         <div className="flex min-w-[54px] flex-col items-center text-center">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#2ECC71] shadow-sm">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-intra-card text-intra-green shadow-sm">
             <MapPinned className="h-3.5 w-3.5" />
           </span>
-          <span className="mt-0.5 text-[10px] font-semibold text-[#0B2C4A]">{destinationName}</span>
-          <span className="text-[10px] uppercase tracking-[0.18em] text-slate-400">{destinationCode}</span>
+          <span className="mt-0.5 text-[10px] font-semibold text-intra-blue">{destinationName}</span>
+          <span className="text-[10px] uppercase tracking-[0.18em] text-intra-text-muted/60">{destinationCode}</span>
         </div>
       </div>
     </div>
@@ -146,7 +146,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false)
 
   const fieldBaseClassName =
-    "block w-full min-w-0 max-w-full rounded-[13px] border border-[#D7E5F1] bg-white px-3 py-1.5 text-[13px] text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#0B2C4A] focus:ring-4 focus:ring-[#0B2C4A]/10 [@media(min-width:1024px)_and_(max-height:900px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:900px)]:text-[12px] [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[11px]";
+    "block w-full min-w-0 max-w-full rounded-2xl border border-intra-border-strong bg-intra-card px-3 py-1.5 text-[13px] text-intra-blue outline-none transition placeholder:text-intra-text-muted/60 focus:border-intra-blue focus:ring-4 focus:ring-intra-blue/10 [@media(min-width:1024px)_and_(max-height:900px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:900px)]:text-[12px] [@media(min-width:1024px)_and_(max-height:820px)]:px-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:py-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[11px]";
 
   const nativeDateTimeFieldClassName =
     `${fieldBaseClassName} appearance-none overflow-hidden pr-3 [color-scheme:light] [&::-webkit-date-and-time-value]:text-left [&::-webkit-calendar-picker-indicator]:shrink-0`
@@ -336,7 +336,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
   return (
     <div className="grid gap-2.5 pb-32 sm:pb-0 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1.52fr)_360px] lg:items-start [@media(min-width:1024px)_and_(max-height:900px)]:gap-2 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
       <form onSubmit={onSubmit} noValidate>
-        <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] sm:p-3.5 lg:h-full lg:min-h-0 lg:p-3.5 [@media(min-width:1024px)_and_(max-height:900px)]:p-3 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:760px)]:p-2">
+        <div className="rounded-[24px] border border-intra-border-strong bg-intra-card p-3 shadow-[var(--intra-shadow-base)] sm:p-3.5 lg:h-full lg:min-h-0 lg:p-3.5 [@media(min-width:1024px)_and_(max-height:900px)]:p-3 [@media(min-width:1024px)_and_(max-height:820px)]:h-auto [@media(min-width:1024px)_and_(max-height:820px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:760px)]:p-2">
           <section>
             <SectionHeader
               step="1"
@@ -346,13 +346,13 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
             <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_36px_minmax(0,1fr)] lg:items-end [@media(min-width:1024px)_and_(max-height:820px)]:gap-1.5">
               <div>
-                <label htmlFor="trip-origin-city" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                <label htmlFor="trip-origin-city" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle">
                   Origen
                 </label>
                 <select
                   id="trip-origin-city"
                   name="originCityId"
-                  className={`${fieldBaseClassName} ${errors.originCityId ? "border-red-300 bg-red-50" : ""}`}
+                  className={`${fieldBaseClassName} ${errors.originCityId ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
                   value={originCityId}
                   onChange={(e) => {
                     setOriginCityId(e.target.value)
@@ -367,13 +367,13 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                     </option>
                   ))}
                 </select>
-                {errors.originCityId ? <p className="mt-1 text-[10px] text-red-600">{errors.originCityId}</p> : null}
+                {errors.originCityId ? <p className="mt-1 text-[10px] text-intra-danger">{errors.originCityId}</p> : null}
               </div>
 
               <button
                 type="button"
                 onClick={swapRoute}
-                className="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-[#D7E5F1] bg-[#F8FBFD] text-[#0B2C4A] shadow-sm transition hover:bg-white"
+                className="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-intra-border-strong bg-intra-bg-app text-intra-blue shadow-sm transition hover:bg-intra-card"
                 aria-label="Intercambiar origen y destino"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -385,13 +385,13 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               </button>
 
               <div>
-                <label htmlFor="trip-destination-city" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                <label htmlFor="trip-destination-city" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle">
                   Destino
                 </label>
                 <select
                   id="trip-destination-city"
                   name="destinationCityId"
-                  className={`${fieldBaseClassName} ${errors.destinationCityId ? "border-red-300 bg-red-50" : ""}`}
+                  className={`${fieldBaseClassName} ${errors.destinationCityId ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
                   value={destinationCityId}
                   onChange={(e) => {
                     setDestinationCityId(e.target.value)
@@ -406,7 +406,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                     </option>
                   ))}
                 </select>
-                {errors.destinationCityId ? <p className="mt-1 text-[10px] text-red-600">{errors.destinationCityId}</p> : null}
+                {errors.destinationCityId ? <p className="mt-1 text-[10px] text-intra-danger">{errors.destinationCityId}</p> : null}
               </div>
             </div>
 
@@ -420,7 +420,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             </div>
           </section>
 
-          <section className="mt-2.5 border-t border-[#E9F0F6] pt-2.5 [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
+          <section className="mt-2.5 border-t border-intra-border-soft pt-2.5 [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
             <SectionHeader
               step="2"
               title="Detalles del viaje"
@@ -429,13 +429,13 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
 
             <div className="grid gap-2 lg:grid-cols-[1fr_1fr_0.8fr_1.02fr] [@media(min-width:1024px)_and_(max-height:900px)]:gap-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:gap-1">
               <div className="min-w-0">
-                <label htmlFor="trip-departure-date" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                <label htmlFor="trip-departure-date" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle">
                   Fecha de salida
                 </label>
                 <input
                   id="trip-departure-date"
                   name="departureDate"
-                  className={`${nativeDateTimeFieldClassName} ${errors.departureDate ? "border-red-300 bg-red-50" : ""}`}
+                  className={`${nativeDateTimeFieldClassName} ${errors.departureDate ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
                   type="date"
                   value={departureDate}
                   onChange={(e) => {
@@ -444,17 +444,17 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   }}
                   required
                 />
-                {errors.departureDate ? <p className="mt-1 text-[10px] text-red-600">{errors.departureDate}</p> : null}
+                {errors.departureDate ? <p className="mt-1 text-[10px] text-intra-danger">{errors.departureDate}</p> : null}
               </div>
 
               <div className="min-w-0">
-                <label htmlFor="trip-departure-time" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                <label htmlFor="trip-departure-time" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle">
                   Hora de salida
                 </label>
                 <input
                   id="trip-departure-time"
                   name="departureTime"
-                  className={`${nativeDateTimeFieldClassName} ${errors.departureTime ? "border-red-300 bg-red-50" : ""}`}
+                  className={`${nativeDateTimeFieldClassName} ${errors.departureTime ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
                   type="time"
                   value={departureTime}
                   onChange={(e) => {
@@ -463,17 +463,17 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   }}
                   required
                 />
-                {errors.departureTime ? <p className="mt-1 text-[10px] text-red-600">{errors.departureTime}</p> : null}
+                {errors.departureTime ? <p className="mt-1 text-[10px] text-intra-danger">{errors.departureTime}</p> : null}
               </div>
 
               <div className="min-w-0">
-                <label htmlFor="trip-capacity-kg" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                <label htmlFor="trip-capacity-kg" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle">
                   Capacidad (kg)
                 </label>
                 <input
                   id="trip-capacity-kg"
                   name="capacityKg"
-                  className={`${fieldBaseClassName} ${errors.capacityKg ? "border-red-300 bg-red-50" : ""}`}
+                  className={`${fieldBaseClassName} ${errors.capacityKg ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
                   type="text"
                   inputMode="decimal"
                   value={capacityKg}
@@ -482,17 +482,17 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   placeholder="10"
                   required
                 />
-                {errors.capacityKg ? <p className="mt-1 text-[10px] text-red-600">{errors.capacityKg}</p> : null}
+                {errors.capacityKg ? <p className="mt-1 text-[10px] text-intra-danger">{errors.capacityKg}</p> : null}
               </div>
 
               <div className="min-w-0">
-                <label htmlFor="trip-flight-number" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                <label htmlFor="trip-flight-number" className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle">
                   Número de vuelo
                 </label>
                 <input
                   id="trip-flight-number"
                   name="flightNumber"
-                  className={`${fieldBaseClassName} ${errors.flightNumber ? "border-red-300 bg-red-50" : ""}`}
+                  className={`${fieldBaseClassName} ${errors.flightNumber ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
                   type="text"
                   value={flightNumber}
                   onChange={(e) => {
@@ -504,13 +504,13 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
                   maxLength={12}
                   required
                 />
-                {errors.flightNumber ? <p className="mt-1 text-[10px] text-red-600">{errors.flightNumber}</p> : null}
+                {errors.flightNumber ? <p className="mt-1 text-[10px] text-intra-danger">{errors.flightNumber}</p> : null}
               </div>
             </div>
 
           </section>
 
-          <section className="mt-2.5 border-t border-[#E9F0F6] pt-2.5 [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
+          <section className="mt-2.5 border-t border-intra-border-soft pt-2.5 [@media(min-width:1024px)_and_(max-height:900px)]:mt-2 [@media(min-width:1024px)_and_(max-height:900px)]:pt-2 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5 [@media(min-width:1024px)_and_(max-height:820px)]:pt-1.5">
             <SectionHeader
               step="3"
               title="Información adicional"
@@ -540,19 +540,19 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             <div
               className={`mt-2.5 rounded-[16px] border px-3.5 py-2 text-sm ${
                 msg.startsWith("✅")
-                  ? "border-green-200 bg-green-50 text-green-700"
-                  : "border-red-200 bg-red-50 text-red-700"
+                  ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                  : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
               }`}
             >
               {msg}
             </div>
           ) : null}
 
-          <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#D7E5F1] bg-white/95 p-4 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:mt-2.5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none [@media(min-width:1024px)_and_(max-height:900px)]:sm:mt-2">
+          <div className="fixed inset-x-0 bottom-0 z-30 border-t border-intra-border-strong bg-intra-card/95 p-4 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:mt-2.5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none [@media(min-width:1024px)_and_(max-height:900px)]:sm:mt-2">
             <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row">
               <button
                 disabled={loading}
-                className="inline-flex min-h-11 items-center justify-center rounded-[13px] bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_22px_rgba(46,204,113,0.20)] transition hover:bg-[#29b765] disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-intra-green px-5 py-3 text-sm font-semibold text-intra-card shadow-[0_12px_22px_rgba(46,204,113,0.20)] transition hover:bg-intra-green-hover-alt disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
                 type="submit"
               >
                 <PlaneTakeoff className="mr-2 h-4 w-4" />
@@ -562,7 +562,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
               <button
                 type="button"
                 onClick={() => router.push("/app")}
-                className="inline-flex min-h-11 items-center justify-center rounded-[13px] border border-[#D7E5F1] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F8FBFD] sm:flex-1"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-intra-border-strong bg-intra-card px-5 py-3 text-sm font-semibold text-intra-blue transition hover:bg-intra-bg-app sm:flex-1"
               >
                 <House className="mr-2 h-4 w-4" />
                 Volver a inicio
@@ -573,12 +573,12 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       </form>
 
       <aside className="lg:h-full lg:min-h-0">
-        <div className="rounded-[22px] border border-[#D7E5F1] bg-white p-3 shadow-[0_14px_34px_rgba(11,44,74,0.08)] lg:h-full lg:min-h-0 [@media(min-width:1024px)_and_(max-height:900px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:p-2">
+        <div className="rounded-[24px] border border-intra-border-strong bg-intra-card p-3 shadow-[var(--intra-shadow-base)] lg:h-full lg:min-h-0 [@media(min-width:1024px)_and_(max-height:900px)]:p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:p-2">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[14px] font-semibold text-[#0B2C4A]">Resumen del viaje</p>
+              <p className="text-[14px] font-semibold text-intra-blue">Resumen del viaje</p>
             </div>
-            <div className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${isReadyToPublish ? "bg-[#EAFBF1] text-[#1E8C4E]" : "bg-amber-100 text-amber-700"}`}>
+            <div className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${isReadyToPublish ? "bg-intra-success-soft text-intra-text-success" : "bg-intra-warning-soft text-intra-warning-text"}`}>
               {isReadyToPublish ? "Listo" : "Pendiente"}
             </div>
           </div>
@@ -592,7 +592,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             />
           </div>
 
-          <div className="mt-2 overflow-hidden rounded-[16px] border border-[#E3EDF5] bg-white [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5">
+          <div className="mt-2 overflow-hidden rounded-2xl border border-intra-border-soft bg-intra-card [@media(min-width:1024px)_and_(max-height:820px)]:mt-1.5">
             {[
               {
                 label: "Ruta",
@@ -617,19 +617,19 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             ].map((item, index) => (
               <div
                 key={item.label}
-                className={`flex items-center justify-between gap-2.5 px-2.5 py-2 ${index !== 0 ? "border-t border-[#E9F0F6]" : ""}`}
+                className={`flex items-center justify-between gap-2.5 px-2.5 py-2 ${index !== 0 ? "border-t border-intra-border-soft" : ""}`}
               >
                 <div className="flex min-w-0 items-center gap-2.5">
-                  <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-[#F4F8FB] text-[#0B2C4A]">
+                  <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-intra-bg-app text-intra-blue">
                     <item.icon className="h-3.5 w-3.5" />
                   </div>
-                  <p className="whitespace-nowrap text-[12px] text-slate-500">{item.label}</p>
+                  <p className="whitespace-nowrap text-[12px] text-intra-text-subtle">{item.label}</p>
                 </div>
                 <p
                   className={`max-w-[56%] truncate whitespace-nowrap text-right text-[12px] font-semibold leading-4 ${
                     item.value === "Por definir" || item.value === "Selecciona origen y destino"
-                      ? "text-slate-400"
-                      : "text-[#0B2C4A]"
+                      ? "text-intra-text-muted/60"
+                      : "text-intra-blue"
                   }`}
                   title={item.value}
                 >
@@ -643,33 +643,33 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
             {summaryChips.map((chip) => (
               <div
                 key={chip.label}
-                className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-[#D7E5F1] bg-[#FBFDFF] px-1.5 py-1 text-[10px] text-slate-600 whitespace-nowrap [@media(min-width:1024px)_and_(max-height:760px)]:px-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[9px]"
+                className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-intra-border-strong bg-intra-card px-1.5 py-1 text-[10px] whitespace-nowrap text-intra-text-subtle [@media(min-width:1024px)_and_(max-height:760px)]:px-1 [@media(min-width:1024px)_and_(max-height:760px)]:text-[9px]"
               >
-                <chip.icon className="h-2.5 w-2.5 shrink-0 text-[#0B2C4A]" />
+                <chip.icon className="h-2.5 w-2.5 shrink-0 text-intra-blue" />
                 <span className="truncate">{chip.label}</span>
-                <span className="font-semibold text-[#0B2C4A]">{chip.value}</span>
+                <span className="font-semibold text-intra-blue">{chip.value}</span>
               </div>
             ))}
           </div>
 
-          <div className={`mt-1.5 rounded-[16px] border p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:p-2 ${isReadyToPublish ? "border-[#BEE8CD] bg-[#EFFBF4]" : "border-amber-200 bg-amber-50"}`}>
+          <div className={`mt-1.5 rounded-2xl border p-2.5 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:p-2 ${isReadyToPublish ? "border-intra-success-border bg-intra-success-soft" : "border-intra-warning-border bg-intra-warning-soft"}`}>
             <div className="flex items-start gap-3">
-              <div className={`flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ${isReadyToPublish ? "text-[#1E8C4E]" : "text-amber-700"}`}>
+              <div className={`flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-intra-card shadow-sm ${isReadyToPublish ? "text-intra-text-success" : "text-intra-warning-text"}`}>
                 <ShieldCheck className="h-3.5 w-3.5" />
               </div>
               <div>
-                <p className="text-[12px] font-semibold text-[#0B2C4A]">
+                <p className="text-[12px] font-semibold text-intra-blue">
                   {isReadyToPublish ? "Todo listo para publicar" : "Completa los datos obligatorios"}
                 </p>
-                <p className={`mt-0.5 text-[11px] leading-4 ${isReadyToPublish ? "text-[#3B5B4B]" : "text-amber-800"}`}>
+                <p className={`mt-0.5 text-[11px] leading-4 ${isReadyToPublish ? "text-intra-text-subtle" : "text-intra-warning-text"}`}>
                   Tu viaje se verá en la ruta y podrá recibir solicitudes compatibles.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-1.5 rounded-[16px] border border-[#E3EDF5] bg-[#FBFDFF] px-2.5 py-2 text-[11px] leading-4 text-slate-500 [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[10px]">
-            <p className="font-medium text-[#0B2C4A]">Privacidad</p>
+          <div className="mt-1.5 rounded-2xl border border-intra-border-soft bg-intra-card px-2.5 py-2 text-[11px] leading-4 text-intra-text-subtle [@media(min-width:1024px)_and_(max-height:820px)]:mt-1 [@media(min-width:1024px)_and_(max-height:820px)]:py-1.5 [@media(min-width:1024px)_and_(max-height:760px)]:text-[10px]">
+            <p className="font-medium text-intra-blue">Privacidad</p>
             <p className="mt-0.5">
               Tu información estará protegida y solo se compartirá con personas interesadas.
             </p>
