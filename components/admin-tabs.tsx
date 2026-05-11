@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BadgeCheck, CircleDollarSign } from "lucide-react"
+import { BadgeCheck, CircleDollarSign, ShieldAlert } from "lucide-react"
 
 const ADMIN_LINKS = [
   {
@@ -14,6 +14,11 @@ const ADMIN_LINKS = [
     href: "/app/admin/verifications",
     label: "Verificaciones",
     icon: BadgeCheck,
+  },
+  {
+    href: "/app/admin/disputes",
+    label: "Disputas",
+    icon: ShieldAlert,
   },
 ]
 

@@ -1,6 +1,7 @@
 export const VISIBLE_WALLET_MOVEMENT_TYPES = [
   "release_available_credit",
   "payout_paid_debit",
+  "refund_available_credit",
   "refund_pending_debit",
   "refund_available_debit",
 ] as const
@@ -44,6 +45,8 @@ export function getLedgerEntryLabel(entryType: string | null, description?: stri
       return "Salida de saldo pendiente"
     case "release_available_credit":
       return "Pago por entrega realizada"
+    case "refund_available_credit":
+      return "Devolución recibida"
     case "refund_pending_debit":
     case "refund_available_debit":
       return "Devolución al cliente"
@@ -62,6 +65,7 @@ export function getWalletMovementToneLabel(entryType: string | null) {
       return "Retiro"
     case "refund_pending_debit":
     case "refund_available_debit":
+    case "refund_available_credit":
       return "Devolución"
     default:
       return "Movimiento"
