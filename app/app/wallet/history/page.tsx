@@ -44,6 +44,13 @@ type PayoutCodeRow = {
   payout_code: string | null
 }
 
+type MatchTrackingRow = {
+  id: string
+  shipment: {
+    tracking_code: string | null
+  } | null
+}
+
 function getEntryBadgeClasses(entry: WalletHistoryEntry) {
   if (entry.entry_type === "refund_pending_debit" || entry.entry_type === "refund_available_debit") {
     return {
@@ -96,14 +103,16 @@ function getEntryTitle(entry: WalletHistoryEntry) {
   }
 }
 
-function getEntryDetail(entry: WalletHistoryEntry) {
+function getEntryDetail(entry: WalletHistoryEntry, trackingCode?: string | null) {
   if (entry.payout_id) {
     return null
   }
 
   switch (entry.entry_type) {
     case "release_available_credit":
-      return "Pago acreditado al viajero por una entrega completada."
+      return trackingCode
+        ? `Pago acreditado al viajero por la guía ${trackingCode}.`
+        : "Pago acreditado al viajero por una entrega completada."
     case "payout_paid_debit":
       return "Salida de dinero desde tu wallet a tu cuenta registrada."
     case "refund_pending_debit":
@@ -246,6 +255,24 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
     ((payoutCodesRes.data ?? []) as PayoutCodeRow[]).map((payout) => [payout.id, payout.payout_code])
   )
 
+  const matchIds = Array.from(new Set(history.map((entry) => entry.match_id).filter(Boolean))) as string[]
+
+  const matchTrackingRes = user && matchIds.length
+    ? await supabase
+        .from("matches")
+        .select(`
+          id,
+          shipment:shipments!matches_shipment_id_fkey (
+            tracking_code
+          )
+        `)
+        .in("id", matchIds)
+    : { data: [] as MatchTrackingRow[] }
+
+  const trackingCodes = new Map(
+    ((matchTrackingRes.data ?? []) as MatchTrackingRow[]).map((match) => [match.id, match.shipment?.tracking_code ?? null])
+  )
+
   return (
     <>
       <AppNavbar />
@@ -269,7 +296,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                     Historial de wallet
                   </h1>
                   <p className="mt-3 max-w-3xl text-base leading-7 text-intra-card/85 sm:text-[18px]">
-                    Aquí ves solo pagos por entrega, retiros y reembolsos de tu wallet.
+                    Aquí ves solo pagos por entrega y retiros asociados a tu wallet.
                   </p>
                 </div>
               </div>
@@ -323,7 +350,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                   <div className="divide-y divide-intra-border-soft">
                     {history.map((entry) => {
                       const badge = getEntryBadgeClasses(entry)
-                      const detail = getEntryDetail(entry)
+                      const detail = getEntryDetail(entry, entry.match_id ? trackingCodes.get(entry.match_id) : null)
                       const metaBadge = getEntryMetaBadge(entry, payoutCodes)
 
                       return (
@@ -373,7 +400,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                 <div className="mt-7 grid gap-4 lg:hidden">
                   {history.map((entry) => {
                     const badge = getEntryBadgeClasses(entry)
-                    const detail = getEntryDetail(entry)
+                    const detail = getEntryDetail(entry, entry.match_id ? trackingCodes.get(entry.match_id) : null)
                     const metaBadge = getEntryMetaBadge(entry, payoutCodes)
 
                     return (
