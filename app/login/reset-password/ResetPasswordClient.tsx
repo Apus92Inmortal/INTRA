@@ -42,7 +42,7 @@ export default function ResetPasswordClient() {
         <div className="intra-card w-full max-w-md overflow-hidden p-8 sm:p-10">
           <Link
             href="/login"
-            className="inline-flex rounded-3xl bg-white/96 p-4 shadow-[0_18px_50px_rgba(8,26,44,0.12)] ring-1 ring-gray-100 transition hover:scale-[1.01] sm:p-5"
+            className="inline-flex rounded-3xl border border-intra-border-soft bg-intra-card p-4 shadow-[var(--intra-shadow-base)] transition hover:scale-[1.01] sm:p-5"
           >
             <Image
               src="/logo.png"
@@ -64,7 +64,7 @@ export default function ResetPasswordClient() {
                 </p>
               </div>
 
-              <div className="intra-card-compact bg-[#EEF2F7] p-4">
+              <div className="intra-card-compact bg-intra-bg-app p-4">
                 <p className="intra-body-strong">Qué hacer ahora</p>
                 <ul className="intra-caption mt-2 list-disc space-y-1 pl-5">
                   <li>Abre el correo desde tu bandeja principal o spam.</li>

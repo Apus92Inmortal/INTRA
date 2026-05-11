@@ -101,7 +101,7 @@ export default function VerifyEmailClient({
                 Tu correo ya quedó confirmado. Ya puedes entrar y continuar dentro de INTRA.
               </p>
 
-              <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+              <div className="mt-6 rounded-2xl border border-intra-success-border bg-intra-success-soft p-4 text-sm text-intra-text-success">
                 ✅ La validación del enlace salió bien.
               </div>
 
@@ -131,7 +131,7 @@ export default function VerifyEmailClient({
                 esta pantalla y el reenvío quedarán listos para producción sin desarrollo adicional.
               </p>
 
-              <div className="intra-card-compact mt-6 bg-[#EEF2F7] p-4 text-left">
+              <div className="intra-card-compact mt-6 bg-intra-bg-app p-4 text-left">
                 <p className="intra-body-strong">Qué hacer ahora</p>
                 <ul className="mt-2 list-disc space-y-1 pl-5">
                   <li>Revisa tu bandeja de entrada.</li>
@@ -144,8 +144,8 @@ export default function VerifyEmailClient({
                 <div
                   className={`mt-4 rounded-2xl border p-4 text-sm ${
                     message.startsWith("✅")
-                      ? "border-green-200 bg-green-50 text-green-700"
-                      : "border-red-200 bg-red-50 text-red-700"
+                      ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                      : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
                   }`}
                 >
                   {message}
