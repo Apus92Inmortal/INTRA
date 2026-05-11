@@ -78,7 +78,7 @@ function getEntryTitle(entry: WalletHistoryEntry) {
       return "Pago por entrega realizada"
     case "refund_pending_debit":
     case "refund_available_debit":
-      return "Reembolso"
+      return "Devolución al cliente"
     case "payout_paid_debit":
       return "Retiro"
     default:
@@ -98,7 +98,7 @@ function getEntryDetail(entry: WalletHistoryEntry) {
       return "Salida de dinero desde tu wallet a tu cuenta registrada."
     case "refund_pending_debit":
     case "refund_available_debit":
-      return "Devolución al cliente aplicada sobre este movimiento."
+      return "El pago del cliente fue devuelto antes de completar el envío."
     default:
       return null
   }

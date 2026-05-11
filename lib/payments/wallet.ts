@@ -2,7 +2,6 @@ export const VISIBLE_WALLET_MOVEMENT_TYPES = [
   "release_available_credit",
   "payout_paid_debit",
   "refund_pending_debit",
-  "refund_available_debit",
 ] as const
 
 export function formatCop(value: number | string | null | undefined) {
@@ -46,7 +45,7 @@ export function getLedgerEntryLabel(entryType: string | null, description?: stri
       return "Pago por entrega realizada"
     case "refund_pending_debit":
     case "refund_available_debit":
-      return "Reembolso"
+      return "Devolución al cliente"
     case "payout_paid_debit":
       return "Retiro"
     default:
@@ -62,7 +61,7 @@ export function getWalletMovementToneLabel(entryType: string | null) {
       return "Retiro"
     case "refund_pending_debit":
     case "refund_available_debit":
-      return "Reembolso"
+      return "Devolución"
     default:
       return "Movimiento"
   }
