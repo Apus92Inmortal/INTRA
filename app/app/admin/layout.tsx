@@ -16,13 +16,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <>
       <AppNavbar />
 
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <main className="min-h-screen bg-intra-bg-app px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <div className="mx-auto max-w-6xl space-y-6">
-          <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+          <section className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm sm:p-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-[#0B2C4A]">Panel de Administración</h1>
-                <p className="mt-2 text-sm text-slate-500 sm:text-base lg:max-w-none lg:whitespace-nowrap">
+                <h1 className="text-3xl font-bold text-intra-blue">Panel de Administración</h1>
+                <p className="mt-2 text-sm text-intra-text-subtle sm:text-base lg:max-w-none lg:whitespace-nowrap">
                   Administra retiros, verificaciones, usuarios y operaciones internas desde un solo panel de control.
                 </p>
               </div>
