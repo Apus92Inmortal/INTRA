@@ -70,7 +70,7 @@ export default function UpdatePasswordClient({
         <div className="intra-card w-full max-w-md overflow-hidden p-8 sm:p-10">
           <Link
             href="/login"
-            className="inline-flex rounded-3xl bg-white/96 p-4 shadow-[0_18px_50px_rgba(8,26,44,0.12)] ring-1 ring-gray-100 transition hover:scale-[1.01] sm:p-5"
+            className="inline-flex rounded-3xl border border-intra-border-soft bg-intra-card p-4 shadow-[var(--intra-shadow-base)] transition hover:scale-[1.01] sm:p-5"
           >
             <Image
               src="/logo.png"
@@ -120,8 +120,8 @@ export default function UpdatePasswordClient({
               <div
                 className={`rounded-2xl border p-4 text-sm ${
                   isSuccess
-                    ? "border-green-200 bg-green-50 text-green-700"
-                    : "border-red-200 bg-red-50 text-red-700"
+                    ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                    : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
                 }`}
               >
                 {message}
