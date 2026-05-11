@@ -193,7 +193,7 @@ export default async function WalletPage() {
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-intra-card/70">INTRA Pay</p>
                     <h1 className="mt-2 text-2xl font-bold text-intra-card sm:text-3xl">Mi wallet</h1>
                     <p className="mt-2 max-w-xl text-sm leading-6 text-intra-card/70 sm:text-[15px]">
-                      Gestiona tus pagos por entrega y retiros desde un solo lugar.
+                      Gestiona tus movimientos, ganancias y retiros desde un solo lugar.
                     </p>
                   </div>
                 </div>
@@ -290,7 +290,7 @@ export default async function WalletPage() {
                         <p className="font-medium text-intra-blue">{getLedgerEntryLabel(entry.entry_type, entry.description)}</p>
                         <p className="mt-1 text-sm text-intra-text-muted">
                           {entry.entry_type === "release_available_credit" && entry.match_id && trackingCodes.get(entry.match_id)
-                            ? `Guía ${trackingCodes.get(entry.match_id)} · ${formatDateTime(entry.created_at)}`
+                            ? `Guía: ${trackingCodes.get(entry.match_id)}`
                             : formatDateTime(entry.created_at)}
                         </p>
                       </div>
