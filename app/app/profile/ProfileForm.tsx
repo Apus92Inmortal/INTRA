@@ -29,6 +29,8 @@ export default function ProfileForm({
 }: Props) {
   const supabase = createClient();
   const router = useRouter();
+  const fieldClassName = "intra-input";
+  const labelClassName = "mb-2 block text-sm font-medium text-intra-blue";
 
   const [fullName, setFullName] = useState(initialFullName);
   const [phone, setPhone] = useState(initialPhone);
@@ -94,30 +96,27 @@ export default function ProfileForm({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-[#0B2C4A]">
+        <h2 className="text-xl font-semibold text-intra-blue">
           Información personal
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-intra-text-subtle">
           Actualiza los datos que verán otros usuarios dentro de la plataforma.
         </p>
       </div>
 
       <form onSubmit={onSave} className="space-y-5">
         <div>
-          <label
-            htmlFor="email"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="email" className={labelClassName}>
             Correo
           </label>
-          <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700">
+          <div className="rounded-2xl border border-intra-border-soft bg-intra-bg-app px-4 py-3 text-sm text-intra-blue">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="break-all">{email || "Sin correo"}</span>
               <span
                 className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${
                   isEmailVerified
-                    ? "bg-green-100 text-green-700"
-                    : "bg-amber-100 text-amber-700"
+                    ? "bg-intra-success-soft text-intra-text-success"
+                    : "bg-intra-warning-soft text-intra-warning-text"
                 }`}
               >
                 {isEmailVerified ? "Correo verificado" : "Correo pendiente por verificar"}
@@ -127,15 +126,12 @@ export default function ProfileForm({
         </div>
 
         <div>
-          <label
-            htmlFor="fullName"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="fullName" className={labelClassName}>
             Nombre completo
           </label>
           <input
             id="fullName"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            className={fieldClassName}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
@@ -144,34 +140,28 @@ export default function ProfileForm({
         </div>
 
         <div>
-          <label
-            htmlFor="documentNumber"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="documentNumber" className={labelClassName}>
             Documento de identidad
           </label>
           <input
             id="documentNumber"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            className={fieldClassName}
             value={documentNumber}
             onChange={(e) => setDocumentNumber(e.target.value)}
             placeholder="Cédula o documento de identidad"
           />
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-intra-text-subtle">
             Este dato se usa como base para la verificación manual de identidad.
           </p>
         </div>
 
         <div>
-          <label
-            htmlFor="cityId"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="cityId" className={labelClassName}>
             Ciudad base
           </label>
           <select
             id="cityId"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            className={fieldClassName}
             value={cityId}
             onChange={(e) => setCityId(e.target.value)}
           >
@@ -185,17 +175,14 @@ export default function ProfileForm({
         </div>
 
         <div>
-          <label
-            htmlFor="phone"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="phone" className={labelClassName}>
             Teléfono
           </label>
           <input
             id="phone"
             type="tel"
             inputMode="tel"
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base text-gray-800 outline-none transition focus:border-[#0B2C4A] focus:ring-2 focus:ring-[#0B2C4A]/10"
+            className={fieldClassName}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="Opcional"
@@ -206,8 +193,8 @@ export default function ProfileForm({
           <div
             className={`rounded-2xl border px-4 py-3 text-sm ${
               msgType === "success"
-                ? "border-green-200 bg-green-50 text-green-700"
-                : "border-red-200 bg-red-50 text-red-700"
+                ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
             }`}
           >
             {msg}
@@ -218,7 +205,7 @@ export default function ProfileForm({
           <button
             disabled={loading}
             type="submit"
-            className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+            className="intra-btn intra-btn-primary h-12 px-5 text-sm"
           >
             {loading ? "Guardando..." : "Guardar cambios"}
           </button>
@@ -227,7 +214,7 @@ export default function ProfileForm({
             disabled={loading}
             type="button"
             onClick={onLogout}
-            className="inline-flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="intra-btn intra-btn-secondary h-12 px-5 text-sm"
           >
             Cerrar sesión
           </button>

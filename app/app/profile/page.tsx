@@ -48,17 +48,17 @@ export default async function ProfilePage() {
     <>
       <AppNavbar />
 
-      <main className="min-h-screen bg-[#EEF2F7] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <main className="intra-page-shell px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2C4A]">Mi perfil</h1>
-            <p className="mt-2 text-sm text-gray-600">
+            <h1 className="intra-page-title text-3xl">Mi perfil</h1>
+            <p className="mt-2 text-sm text-intra-text-subtle">
               Edita tu información personal y mantén tus datos actualizados en INTRA.
             </p>
           </div>
 
           <section className="grid gap-4 lg:grid-cols-2 lg:items-start">
-            <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="intra-card p-6 sm:p-8">
               <ProfileForm
                 initialFullName={profile?.full_name ?? ""}
                 initialPhone={profile?.phone ?? ""}
