@@ -108,18 +108,33 @@ export const intraSizing = {
     minArea: 40,
   },
   icon: {
-    compact: {
-      glyph: 16,
-      shell: 24,
-    },
-    body: {
-      glyph: 18,
-      shell: 32,
-    },
-    emphasis: {
-      glyph: 22,
-      shell: 40,
-    },
+    xs: 12,
+    sm: 14,
+    md: 16,
+    lg: 18,
+    xl: 20,
+    "2xl": 24,
+    hero: 28,
+    empty: 32,
+    compact: 14,
+    body: 16,
+    emphasis: 20,
+  },
+  iconContainer: {
+    xs: 24,
+    sm: 32,
+    md: 40,
+    lg: 48,
+    xl: 56,
+    hero: 64,
+    empty: 56,
+    compact: 24,
+    body: 32,
+    emphasis: 40,
+  },
+  iconStroke: {
+    default: 1.75,
+    strong: 2,
   },
   layout: {
     landingMaxWidth: 1200,
@@ -135,6 +150,20 @@ export const intraSizing = {
   },
 } as const;
 
+export const intraIconographyRules = {
+  library: "lucide-react",
+  style: "minimal-linear",
+  defaultStroke: 1.75,
+  strongStroke: 2,
+  disallowCaricatureIcons: true,
+  disallowOversizedIconsAgainstText: true,
+  body14MaxIconPx: 18,
+  h3RecommendedIconMinPx: 18,
+  h3RecommendedIconMaxPx: 20,
+  h1HeroRecommendedIconMinPx: 28,
+  h1HeroRecommendedIconMaxPx: 32,
+} as const;
+
 export const intraRules = {
   maxPrimaryActionsPerScreen: 1,
   fontFamilyPrimary: "Inter",
@@ -147,4 +176,5 @@ export const intraRules = {
   internalAppDisallowFreeDisplaySizes: true,
   internalAppDisallowLandingTypography: true,
   dashboardsShouldFitViewportWhenShort: true,
+  proportionalIconographyRequired: true,
 } as const;

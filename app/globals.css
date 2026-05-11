@@ -79,6 +79,26 @@
   --intra-font-metric-sm: 20px;
   --intra-line-metric-sm: 26px;
 
+  --intra-icon-xs: 12px;
+  --intra-icon-sm: 14px;
+  --intra-icon-md: 16px;
+  --intra-icon-lg: 18px;
+  --intra-icon-xl: 20px;
+  --intra-icon-2xl: 24px;
+  --intra-icon-hero: 28px;
+  --intra-icon-empty: 32px;
+
+  --intra-icon-shell-xs: 24px;
+  --intra-icon-shell-sm: 32px;
+  --intra-icon-shell-md: 40px;
+  --intra-icon-shell-lg: 48px;
+  --intra-icon-shell-xl: 56px;
+  --intra-icon-shell-hero: 64px;
+  --intra-icon-shell-empty: 56px;
+
+  --intra-icon-stroke-default: 1.75;
+  --intra-icon-stroke-strong: 2;
+
   --background: var(--intra-bg-app);
   --foreground: var(--intra-blue);
 }
@@ -522,8 +542,8 @@ body {
 
   .intra-icon-shell-compact {
     display: inline-flex;
-    height: 24px;
-    width: 24px;
+    height: var(--intra-icon-shell-xs);
+    width: var(--intra-icon-shell-xs);
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
@@ -531,8 +551,8 @@ body {
 
   .intra-icon-shell-body {
     display: inline-flex;
-    height: 32px;
-    width: 32px;
+    height: var(--intra-icon-shell-sm);
+    width: var(--intra-icon-shell-sm);
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
@@ -540,25 +560,128 @@ body {
 
   .intra-icon-shell-emphasis {
     display: inline-flex;
-    height: 40px;
-    width: 40px;
+    height: var(--intra-icon-shell-md);
+    width: var(--intra-icon-shell-md);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-xs {
+    display: inline-flex;
+    height: var(--intra-icon-shell-xs);
+    width: var(--intra-icon-shell-xs);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-sm {
+    display: inline-flex;
+    height: var(--intra-icon-shell-sm);
+    width: var(--intra-icon-shell-sm);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-md {
+    display: inline-flex;
+    height: var(--intra-icon-shell-md);
+    width: var(--intra-icon-shell-md);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-lg {
+    display: inline-flex;
+    height: var(--intra-icon-shell-lg);
+    width: var(--intra-icon-shell-lg);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-xl {
+    display: inline-flex;
+    height: var(--intra-icon-shell-xl);
+    width: var(--intra-icon-shell-xl);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-hero {
+    display: inline-flex;
+    height: var(--intra-icon-shell-hero);
+    width: var(--intra-icon-shell-hero);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .intra-icon-shell-empty {
+    display: inline-flex;
+    height: var(--intra-icon-shell-empty);
+    width: var(--intra-icon-shell-empty);
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
   }
 
   .intra-icon-compact {
-    height: 16px;
-    width: 16px;
+    height: var(--intra-icon-sm);
+    width: var(--intra-icon-sm);
   }
 
   .intra-icon-body {
-    height: 18px;
-    width: 18px;
+    height: var(--intra-icon-md);
+    width: var(--intra-icon-md);
   }
 
   .intra-icon-emphasis {
-    height: 22px;
-    width: 22px;
+    height: var(--intra-icon-xl);
+    width: var(--intra-icon-xl);
+  }
+
+  .intra-icon-xs {
+    height: var(--intra-icon-xs);
+    width: var(--intra-icon-xs);
+  }
+
+  .intra-icon-sm {
+    height: var(--intra-icon-sm);
+    width: var(--intra-icon-sm);
+  }
+
+  .intra-icon-md {
+    height: var(--intra-icon-md);
+    width: var(--intra-icon-md);
+  }
+
+  .intra-icon-lg {
+    height: var(--intra-icon-lg);
+    width: var(--intra-icon-lg);
+  }
+
+  .intra-icon-xl {
+    height: var(--intra-icon-xl);
+    width: var(--intra-icon-xl);
+  }
+
+  .intra-icon-2xl {
+    height: var(--intra-icon-2xl);
+    width: var(--intra-icon-2xl);
+  }
+
+  .intra-icon-hero {
+    height: var(--intra-icon-hero);
+    width: var(--intra-icon-hero);
+  }
+
+  .intra-icon-empty {
+    height: var(--intra-icon-empty);
+    width: var(--intra-icon-empty);
   }
 }
