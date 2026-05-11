@@ -22,6 +22,8 @@ import {
   getOpenPayoutAmount,
   getPayoutStatusClasses,
   getPayoutStatusLabel,
+  getWalletMovementToneLabel,
+  VISIBLE_WALLET_MOVEMENT_TYPES,
 } from "@/lib/payments/wallet"
 
 type WalletRow = {
@@ -39,6 +41,14 @@ type LedgerRow = {
   amount: number | null
   description: string | null
   created_at: string | null
+  match_id: string | null
+}
+
+type MatchTrackingRow = {
+  id: string
+  shipment: {
+    tracking_code: string | null
+  } | null
 }
 
 type PayoutRow = {
@@ -120,8 +130,9 @@ export default async function WalletPage() {
           .maybeSingle(),
         supabase
           .from("wallet_ledger")
-          .select("id, entry_type, balance_type, direction, amount, description, created_at")
+          .select("id, entry_type, balance_type, direction, amount, description, created_at, match_id")
           .eq("user_id", user.id)
+          .in("entry_type", [...VISIBLE_WALLET_MOVEMENT_TYPES])
           .order("created_at", { ascending: false })
           .limit(6),
         supabase
@@ -145,8 +156,23 @@ export default async function WalletPage() {
   const withdrawableBalance = Math.max(Number(wallet?.available_balance ?? 0) - reservedAmount, 0)
   const hasWallet = Boolean(wallet?.id)
   const hasPayoutAccount = (accountsRes.data?.length ?? 0) > 0
-  const movementEntries = ledger.filter(
-    (entry) => entry.entry_type === "release_available_credit" || entry.entry_type === "payout_paid_debit"
+  const movementEntries = ledger
+  const matchIds = Array.from(new Set(movementEntries.map((entry) => entry.match_id).filter(Boolean))) as string[]
+
+  const matchTrackingRes = user && matchIds.length
+    ? await supabase
+        .from("matches")
+        .select(`
+          id,
+          shipment:shipments!matches_shipment_id_fkey (
+            tracking_code
+          )
+        `)
+        .in("id", matchIds)
+    : { data: [] as MatchTrackingRow[] }
+
+  const trackingCodes = new Map(
+    ((matchTrackingRes.data ?? []) as MatchTrackingRow[]).map((match) => [match.id, match.shipment?.tracking_code ?? null])
   )
 
   return (
@@ -167,7 +193,7 @@ export default async function WalletPage() {
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-intra-card/70">INTRA Pay</p>
                     <h1 className="mt-2 text-2xl font-bold text-intra-card sm:text-3xl">Mi wallet</h1>
                     <p className="mt-2 max-w-xl text-sm leading-6 text-intra-card/70 sm:text-[15px]">
-                      Gestiona tu saldo disponible, pagos retenidos y retiros desde un solo lugar.
+                      Gestiona tus pagos por entrega y retiros desde un solo lugar.
                     </p>
                   </div>
                 </div>
@@ -262,7 +288,11 @@ export default async function WalletPage() {
                     <div key={entry.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
                         <p className="font-medium text-intra-blue">{getLedgerEntryLabel(entry.entry_type, entry.description)}</p>
-                        <p className="mt-1 text-sm text-intra-text-muted">{formatDateTime(entry.created_at)}</p>
+                        <p className="mt-1 text-sm text-intra-text-muted">
+                          {entry.entry_type === "release_available_credit" && entry.match_id && trackingCodes.get(entry.match_id)
+                            ? `Guía ${trackingCodes.get(entry.match_id)} · ${formatDateTime(entry.created_at)}`
+                            : formatDateTime(entry.created_at)}
+                        </p>
                       </div>
                       <div className="shrink-0 text-left sm:text-right">
                         <p
@@ -274,7 +304,7 @@ export default async function WalletPage() {
                           {formatCop(entry.amount ?? 0)}
                         </p>
                         <p className="mt-1 text-xs uppercase tracking-wide text-intra-text-muted/70">
-                          {entry.entry_type === "release_available_credit" ? "Depositado" : "Retirado"}
+                          {getWalletMovementToneLabel(entry.entry_type)}
                         </p>
                       </div>
                     </div>
