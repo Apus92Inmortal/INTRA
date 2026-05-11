@@ -15,6 +15,7 @@ import { createClient } from "@/lib/supabase/server"
 import {
   formatCop,
   formatDateTime,
+  VISIBLE_WALLET_MOVEMENT_TYPES,
 } from "@/lib/payments/wallet"
 
 type WalletHistoryPageProps = {
@@ -73,17 +74,13 @@ function getEntryIcon(entry: WalletHistoryEntry) {
 
 function getEntryTitle(entry: WalletHistoryEntry) {
   switch (entry.entry_type) {
-    case "payment_hold":
-      return "Pago recibido"
-    case "release_pending_debit":
-      return "Saldo retenido liberado"
     case "release_available_credit":
-      return "Entrega completada"
+      return "Pago por entrega realizada"
     case "refund_pending_debit":
     case "refund_available_debit":
-      return "Reembolso procesado"
+      return "Reembolso"
     case "payout_paid_debit":
-      return "Retiro pagado"
+      return "Retiro"
     default:
       return entry.description?.trim() || "Movimiento de wallet"
   }
@@ -95,13 +92,13 @@ function getEntryDetail(entry: WalletHistoryEntry) {
   }
 
   switch (entry.entry_type) {
-    case "payment_hold":
-      return "Quedó en retención hasta completar la entrega."
     case "release_available_credit":
-      return "Ya puedes usar este saldo o solicitar retiro."
+      return "Pago acreditado al viajero por una entrega completada."
+    case "payout_paid_debit":
+      return "Salida de dinero desde tu wallet a tu cuenta registrada."
     case "refund_pending_debit":
     case "refund_available_debit":
-      return "Se ajustó el saldo asociado a ese movimiento."
+      return "Devolución al cliente aplicada sobre este movimiento."
     default:
       return null
   }
@@ -220,6 +217,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
           { count: "exact" }
         )
         .eq("user_id", user.id)
+        .in("entry_type", [...VISIBLE_WALLET_MOVEMENT_TYPES])
         .order("created_at", { ascending: false })
         .range(from, to)
     : { data: [], count: 0 }
@@ -261,7 +259,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                     Historial de wallet
                   </h1>
                   <p className="mt-3 max-w-3xl text-base leading-7 text-intra-card/85 sm:text-[18px]">
-                    Todos tus movimientos de saldo disponible y saldo en retención temporal.
+                    Aquí ves solo pagos por entrega, retiros y reembolsos de tu wallet.
                   </p>
                 </div>
               </div>

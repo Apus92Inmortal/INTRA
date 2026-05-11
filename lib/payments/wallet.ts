@@ -1,3 +1,10 @@
+export const VISIBLE_WALLET_MOVEMENT_TYPES = [
+  "release_available_credit",
+  "payout_paid_debit",
+  "refund_pending_debit",
+  "refund_available_debit",
+] as const
+
 export function formatCop(value: number | string | null | undefined) {
   const numeric = typeof value === "string" ? Number(value) : value
 
@@ -30,25 +37,34 @@ export function formatDateTime(value: string | null | undefined) {
 }
 
 export function getLedgerEntryLabel(entryType: string | null, description?: string | null) {
-  if (description?.trim()) {
-    return description
-  }
-
   switch (entryType) {
     case "payment_hold":
       return "Retención temporal creada"
     case "release_pending_debit":
       return "Salida de saldo pendiente"
     case "release_available_credit":
-      return "Saldo disponible por entrega completada"
+      return "Pago por entrega realizada"
     case "refund_pending_debit":
-      return "Ajuste por reembolso en saldo pendiente"
     case "refund_available_debit":
-      return "Ajuste por reembolso en saldo disponible"
+      return "Reembolso"
     case "payout_paid_debit":
-      return "Retiro pagado"
+      return "Retiro"
     default:
-      return "Movimiento de wallet"
+      return description?.trim() || "Movimiento de wallet"
+  }
+}
+
+export function getWalletMovementToneLabel(entryType: string | null) {
+  switch (entryType) {
+    case "release_available_credit":
+      return "Pago"
+    case "payout_paid_debit":
+      return "Retiro"
+    case "refund_pending_debit":
+    case "refund_available_debit":
+      return "Reembolso"
+    default:
+      return "Movimiento"
   }
 }
 
