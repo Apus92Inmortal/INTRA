@@ -44,7 +44,17 @@ type PayoutCodeRow = {
   payout_code: string | null
 }
 
-function getEntryBadgeClasses(balanceType: string | null) {
+function getEntryBadgeClasses(entry: WalletHistoryEntry) {
+  if (entry.entry_type === "refund_pending_debit" || entry.entry_type === "refund_available_debit") {
+    return {
+      wrapper: "border-intra-danger-border bg-intra-danger-soft text-intra-danger",
+      icon: <ReceiptText className="h-3.5 w-3.5" />,
+      label: "Devuelto",
+    }
+  }
+
+  const balanceType = entry.balance_type
+
   if (balanceType === "pending") {
     return {
       wrapper: "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text",
@@ -312,7 +322,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
 
                   <div className="divide-y divide-intra-border-soft">
                     {history.map((entry) => {
-                      const badge = getEntryBadgeClasses(entry.balance_type)
+                      const badge = getEntryBadgeClasses(entry)
                       const detail = getEntryDetail(entry)
                       const metaBadge = getEntryMetaBadge(entry, payoutCodes)
 
@@ -362,7 +372,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
 
                 <div className="mt-7 grid gap-4 lg:hidden">
                   {history.map((entry) => {
-                    const badge = getEntryBadgeClasses(entry.balance_type)
+                    const badge = getEntryBadgeClasses(entry)
                     const detail = getEntryDetail(entry)
                     const metaBadge = getEntryMetaBadge(entry, payoutCodes)
 
