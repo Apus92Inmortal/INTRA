@@ -83,7 +83,7 @@ export default function PayoutRequestForm({
           <div>
             <h1 className="intra-page-title text-2xl sm:text-3xl">Solicitar retiro</h1>
             <p className="mt-1 intra-body text-intra-text-muted sm:text-base">
-              Mueve tu saldo disponible a una cuenta bancaria o billetera digital.
+              Mueve el saldo disponible de tu wallet a una cuenta bancaria o billetera digital.
             </p>
           </div>
           <Link
@@ -114,17 +114,17 @@ export default function PayoutRequestForm({
                 ? getPayoutAccountDisplayName(payoutAccounts.find((account) => account.is_default)!)
                 : "Sin cuenta principal"}
             </p>
-            <p className="mt-2 text-xs text-intra-text-muted">
-              Si quieres cambiarla, edítala desde Cuentas de retiro.
-            </p>
+              <p className="mt-2 text-xs text-intra-text-muted">
+              Si quieres cambiarla, edítala desde Métodos de retiro.
+              </p>
           </div>
         </div>
 
         {payoutAccounts.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-subtle">
-            Antes de solicitar un retiro debes registrar una cuenta.
+            Antes de solicitar un retiro debes registrar un método de retiro.
             <Link href="/app/wallet/payout/accounts" className="ml-1 font-semibold text-intra-blue hover:underline">
-              Agregar cuenta
+              Agregar método
             </Link>
           </div>
         ) : (
@@ -165,7 +165,7 @@ export default function PayoutRequestForm({
                 rows={3}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="Ej: pagar esta semana"
+                placeholder="Ej: procesar esta semana"
                 className="intra-input min-h-0"
               />
             </label>

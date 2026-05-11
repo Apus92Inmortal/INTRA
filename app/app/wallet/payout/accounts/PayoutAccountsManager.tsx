@@ -115,7 +115,7 @@ export default function PayoutAccountsManager({
   }
 
   function handleDelete(id: string) {
-    if (!confirm("¿Eliminar esta cuenta de retiro?")) {
+    if (!confirm("¿Eliminar este método de retiro?")) {
       return
     }
 
@@ -146,10 +146,10 @@ export default function PayoutAccountsManager({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="intra-page-title text-2xl sm:text-3xl">
-              Cuentas de retiro
+              Métodos de retiro
             </h1>
             <p className="mt-1 intra-body text-intra-text-muted sm:text-base">
-              Guarda tus métodos para recibir pagos por Nequi, Daviplata o transferencia bancaria.
+              Guarda tus métodos para recibir retiros por Nequi, Daviplata o transferencia bancaria.
             </p>
           </div>
           {form.id ? (
@@ -259,7 +259,7 @@ export default function PayoutAccountsManager({
               onChange={(event) => setForm((current) => ({ ...current, isDefault: event.target.checked }))}
               className="h-4 w-4 rounded border-intra-border text-intra-blue"
             />
-            Dejar como cuenta principal para próximos retiros.
+            Dejar como método principal para próximos retiros.
           </label>
 
           {feedback ? (
