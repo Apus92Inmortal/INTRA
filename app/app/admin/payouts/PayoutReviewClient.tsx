@@ -298,7 +298,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
       </section>
 
       {payouts.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-sm text-slate-500 shadow-sm">
+        <section className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
           No hay retiros cargados todavía.
         </section>
       ) : (
@@ -309,7 +309,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
             </div>
 
             {pendingPayouts.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-sm text-slate-500 shadow-sm">
+              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
                 No hay retiros pendientes ahora mismo.
               </div>
             ) : (
@@ -456,7 +456,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
             </div>
 
             {reviewedPayouts.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-10 text-sm text-slate-500 shadow-sm">
+              <div className="rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-6 text-sm text-slate-500 shadow-sm">
                 No encontramos retiros con esos filtros.
               </div>
             ) : (

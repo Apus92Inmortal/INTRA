@@ -172,8 +172,8 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
 
             <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center gap-4 sm:gap-6">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[20px] bg-intra-card/10 ring-1 ring-intra-card/15 sm:h-20 sm:w-20">
-                  <ReceiptText className="h-8 w-8 text-intra-card sm:h-10 sm:w-10" />
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] bg-intra-card/10 ring-1 ring-intra-card/15 sm:h-16 sm:w-16">
+                  <ReceiptText className="h-6 w-6 text-intra-card sm:h-7 sm:w-7" />
                 </div>
 
                 <div>
@@ -252,7 +252,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                           className="grid grid-cols-[minmax(320px,1.7fr)_0.6fr_0.7fr_0.7fr_1fr] items-center px-6 py-7"
                         >
                           <div className="flex min-w-0 items-start gap-4 pr-4">
-                            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
                               {getEntryIcon(entry.balance_type)}
                             </div>
                             <div className="min-w-0">
@@ -394,7 +394,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
           <section className="rounded-[24px] border border-intra-success-border bg-intra-success-soft p-5 shadow-sm">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-intra-green/15 text-intra-text-success">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-intra-green/15 text-intra-text-success">
                   <ShieldCheck className="h-7 w-7" />
                 </div>
                 <div>
