@@ -4,11 +4,8 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpFromLine,
-  Calendar,
-  ChevronDown,
   Clock,
   Headphones,
-  ListFilter,
   Lock,
   ReceiptText,
   ShieldCheck,
@@ -18,9 +15,6 @@ import { createClient } from "@/lib/supabase/server"
 import {
   formatCop,
   formatDateTime,
-  getDirectionLabel,
-  getLedgerEntryLabel,
-  getLedgerTypeLabel,
 } from "@/lib/payments/wallet"
 
 type WalletHistoryPageProps = {
@@ -54,41 +48,127 @@ function getEntryBadgeClasses(balanceType: string | null) {
     return {
       wrapper: "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text",
       icon: <Clock className="h-3.5 w-3.5" />,
-      label: getLedgerTypeLabel(balanceType),
+      label: "En retención",
     }
   }
 
   return {
     wrapper: "border-intra-success-border bg-intra-success-soft text-intra-text-success",
     icon: <Lock className="h-3.5 w-3.5" />,
-    label: getLedgerTypeLabel(balanceType),
+    label: "Disponible",
   }
 }
 
-function getEntryIcon(balanceType: string | null) {
-  if (balanceType === "pending") {
+function getEntryIcon(entry: WalletHistoryEntry) {
+  if (entry.payout_id || entry.entry_type === "payout_paid_debit") {
+    return <ArrowUpFromLine className="h-5 w-5" />
+  }
+
+  if (entry.balance_type === "pending") {
     return <Clock className="h-5 w-5" />
   }
 
   return <ReceiptText className="h-5 w-5" />
 }
 
-function getRelatedMeta(entry: WalletHistoryEntry, payoutCodes: Map<string, string | null>) {
-  const items: string[] = []
-
-  if (entry.payment_id) {
-    items.push("Pago vinculado")
+function getEntryTitle(entry: WalletHistoryEntry) {
+  switch (entry.entry_type) {
+    case "payment_hold":
+      return "Pago recibido"
+    case "release_pending_debit":
+      return "Saldo retenido liberado"
+    case "release_available_credit":
+      return "Entrega completada"
+    case "refund_pending_debit":
+    case "refund_available_debit":
+      return "Reembolso procesado"
+    case "payout_paid_debit":
+      return "Retiro pagado"
+    default:
+      return entry.description?.trim() || "Movimiento de wallet"
   }
+}
 
-  if (entry.match_id) {
-    items.push("Match asociado")
-  }
-
+function getEntryDetail(entry: WalletHistoryEntry) {
   if (entry.payout_id) {
-    items.push(`Retiro asociado · ${payoutCodes.get(entry.payout_id) || entry.payout_id}`)
+    return null
   }
 
-  return items
+  switch (entry.entry_type) {
+    case "payment_hold":
+      return "Quedó en retención hasta completar la entrega."
+    case "release_available_credit":
+      return "Ya puedes usar este saldo o solicitar retiro."
+    case "refund_pending_debit":
+    case "refund_available_debit":
+      return "Se ajustó el saldo asociado a ese movimiento."
+    default:
+      return null
+  }
+}
+
+function getAmountTone(direction: string | null) {
+  return direction === "credit" ? "text-intra-text-success" : "text-intra-blue"
+}
+
+function getAmountPrefix(direction: string | null) {
+  if (direction === "credit") {
+    return "+ "
+  }
+
+  if (direction === "debit") {
+    return "- "
+  }
+
+  return ""
+}
+
+function getHistorySummary(totalCount: number) {
+  if (totalCount === 1) {
+    return "1 movimiento"
+  }
+
+  return `${totalCount} movimientos`
+}
+
+function getEntryDateLabel(value: string | null) {
+  return `Fecha: ${formatDateTime(value)}`
+}
+
+function getEntryAmountLabel(entry: WalletHistoryEntry) {
+  return `${getAmountPrefix(entry.direction)}${formatCop(entry.amount ?? 0)}`
+}
+
+function getEntryMetaBadge(entry: WalletHistoryEntry, payoutCodes: Map<string, string | null>) {
+  if (!entry.payout_id) {
+    return null
+  }
+
+  return `Retiro ${payoutCodes.get(entry.payout_id) || entry.payout_id}`
+}
+
+function getEntryAssistiveLabel(entry: WalletHistoryEntry) {
+  if (entry.direction === "credit") {
+    return "Entrada"
+  }
+
+  if (entry.direction === "debit") {
+    return "Salida"
+  }
+
+  return "Movimiento"
+}
+
+function getEntryIconWrapperClass(entry: WalletHistoryEntry) {
+  if (entry.payout_id || entry.entry_type === "payout_paid_debit") {
+    return "bg-intra-info-soft text-intra-info"
+  }
+
+  if (entry.balance_type === "pending") {
+    return "bg-intra-warning-soft text-intra-warning-text"
+  }
+
+  return "bg-intra-success-soft text-intra-text-success"
 }
 
 function WalletHeroAction({ href, children, variant = "secondary" }: { href: string; children: ReactNode; variant?: "primary" | "secondary" }) {
@@ -202,28 +282,20 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
           <section className="rounded-[24px] border border-intra-border-soft bg-intra-card p-4 shadow-[0_16px_50px_rgba(11,44,74,.06)] sm:p-6">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-intra-success-soft text-intra-text-success">
-                  <ListFilter className="h-5 w-5" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-intra-bg-app text-intra-blue">
+                  <ReceiptText className="h-5 w-5" />
                 </div>
                 <div>
                   <h2 className="text-[22px] font-bold leading-tight text-intra-blue">Movimientos</h2>
-                  <p className="mt-1 text-[15px] text-intra-text-subtle">Página {currentPage} de {totalPages}</p>
+                  <p className="mt-1 text-[15px] text-intra-text-subtle">
+                    {getHistorySummary(totalCount)} · Página {currentPage} de {totalPages}
+                  </p>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center xl:justify-end">
-                <button
-                  type="button"
-                  className="flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-intra-border-soft bg-intra-card px-4 text-[14px] font-medium text-intra-blue shadow-sm sm:min-w-[300px]"
-                >
-                  <span className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-intra-text-muted" />
-                    Todos los movimientos
-                  </span>
-                  <ChevronDown className="h-4 w-4 text-intra-text-muted" />
-                </button>
                 <span className="inline-flex min-h-11 items-center justify-center rounded-full bg-intra-success-soft px-4 py-2 text-[14px] font-bold text-intra-text-success">
-                  {totalCount} total
+                  {getHistorySummary(totalCount)}
                 </span>
               </div>
             </div>
@@ -233,10 +305,9 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
             ) : (
               <>
                 <div className="mt-7 hidden overflow-hidden rounded-[20px] border border-intra-border-strong bg-intra-card lg:block">
-                  <div className="grid grid-cols-[minmax(320px,1.7fr)_0.6fr_0.7fr_0.7fr_1fr] bg-intra-bg-app px-6 py-5 text-[13px] font-extrabold uppercase tracking-wide text-intra-text-subtle">
+                  <div className="grid grid-cols-[minmax(320px,1.8fr)_0.8fr_0.8fr_1fr] bg-intra-bg-app px-6 py-5 text-[13px] font-extrabold uppercase tracking-wide text-intra-text-subtle">
                     <span>Movimiento</span>
-                    <span>Tipo</span>
-                    <span>Dirección</span>
+                    <span>Estado</span>
                     <span>Monto</span>
                     <span>Fecha</span>
                   </div>
@@ -244,30 +315,29 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                   <div className="divide-y divide-intra-border-soft">
                     {history.map((entry) => {
                       const badge = getEntryBadgeClasses(entry.balance_type)
-                      const relatedMeta = getRelatedMeta(entry, payoutCodes)
+                      const detail = getEntryDetail(entry)
+                      const metaBadge = getEntryMetaBadge(entry, payoutCodes)
 
                       return (
                         <div
                           key={entry.id}
-                          className="grid grid-cols-[minmax(320px,1.7fr)_0.6fr_0.7fr_0.7fr_1fr] items-center px-6 py-7"
+                          className="grid grid-cols-[minmax(320px,1.8fr)_0.8fr_0.8fr_1fr] items-center px-6 py-7"
                         >
                           <div className="flex min-w-0 items-start gap-4 pr-4">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
-                              {getEntryIcon(entry.balance_type)}
+                            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${getEntryIconWrapperClass(entry)}`}>
+                              {getEntryIcon(entry)}
                             </div>
                             <div className="min-w-0">
                               <p className="text-[15px] font-bold text-intra-blue">
-                                {getLedgerEntryLabel(entry.entry_type, entry.description)}
+                                {getEntryTitle(entry)}
                               </p>
-                              {relatedMeta.length > 0 ? (
-                                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-medium text-intra-text-muted">
-                                  {relatedMeta.map((meta, index) => (
-                                    <span key={`${entry.id}-${meta}`} className="inline-flex items-center gap-2">
-                                      {index > 0 ? <span className="h-4 w-px bg-intra-border-strong" /> : null}
-                                      <span>{meta}</span>
-                                    </span>
-                                  ))}
-                                </div>
+                              {detail ? (
+                                <p className="mt-2 text-sm text-intra-text-subtle">{detail}</p>
+                              ) : null}
+                              {metaBadge ? (
+                                <span className="mt-3 inline-flex rounded-full bg-intra-bg-app px-3 py-1 text-xs font-semibold text-intra-text-subtle">
+                                  {metaBadge}
+                                </span>
                               ) : null}
                             </div>
                           </div>
@@ -279,17 +349,12 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                             </span>
                           </div>
 
-                          <div className="pr-3 text-[15px] font-medium text-intra-blue">
-                            {getDirectionLabel(entry.direction)}
-                          </div>
-
-                          <div className={`pr-3 text-[16px] font-extrabold ${entry.direction === "credit" ? "text-intra-text-success" : "text-intra-blue"}`}>
-                            {entry.direction === "credit" ? "+ " : "- "}
-                            {formatCop(entry.amount ?? 0)}
+                          <div className={`pr-3 text-[16px] font-extrabold ${getAmountTone(entry.direction)}`} aria-label={getEntryAssistiveLabel(entry)}>
+                            {getEntryAmountLabel(entry)}
                           </div>
 
                           <div className="text-[15px] font-medium text-intra-text-subtle">
-                            {formatDateTime(entry.created_at)}
+                            {getEntryDateLabel(entry.created_at)}
                           </div>
                         </div>
                       )
@@ -300,7 +365,8 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                 <div className="mt-7 grid gap-4 lg:hidden">
                   {history.map((entry) => {
                     const badge = getEntryBadgeClasses(entry.balance_type)
-                    const relatedMeta = getRelatedMeta(entry, payoutCodes)
+                    const detail = getEntryDetail(entry)
+                    const metaBadge = getEntryMetaBadge(entry, payoutCodes)
 
                     return (
                       <article
@@ -308,41 +374,33 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                         className="rounded-[20px] border border-intra-border-soft bg-intra-card p-4 shadow-sm"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
-                            {getEntryIcon(entry.balance_type)}
+                          <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${getEntryIconWrapperClass(entry)}`}>
+                            {getEntryIcon(entry)}
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="text-[15px] font-bold text-intra-blue">
-                              {getLedgerEntryLabel(entry.entry_type, entry.description)}
+                              {getEntryTitle(entry)}
                             </p>
-                            <p className="mt-1 text-sm text-intra-text-subtle">{formatDateTime(entry.created_at)}</p>
+                            {detail ? <p className="mt-1 text-sm text-intra-text-subtle">{detail}</p> : null}
+                            <p className="mt-2 text-sm text-intra-text-subtle">{getEntryDateLabel(entry.created_at)}</p>
                           </div>
                         </div>
 
-                        <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                           <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${badge.wrapper}`}>
                             {badge.icon}
                             {badge.label}
                           </span>
-                          <span className="inline-flex rounded-full bg-intra-bg-app px-3 py-1.5 text-xs font-semibold text-intra-blue">
-                            {getDirectionLabel(entry.direction)}
-                          </span>
-                        </div>
-
-                        <div className="mt-4 flex items-end justify-between gap-3">
-                          <p className={`text-[16px] font-extrabold ${entry.direction === "credit" ? "text-intra-text-success" : "text-intra-blue"}`}>
-                            {entry.direction === "credit" ? "+ " : "- "}
-                            {formatCop(entry.amount ?? 0)}
+                          <p className={`text-[16px] font-extrabold ${getAmountTone(entry.direction)}`} aria-label={getEntryAssistiveLabel(entry)}>
+                            {getEntryAmountLabel(entry)}
                           </p>
                         </div>
 
-                        {relatedMeta.length > 0 ? (
+                        {metaBadge ? (
                           <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-intra-text-muted">
-                            {relatedMeta.map((meta) => (
-                              <span key={`${entry.id}-${meta}`} className="rounded-full bg-intra-bg-app px-3 py-1.5">
-                                {meta}
-                              </span>
-                            ))}
+                            <span className="rounded-full bg-intra-bg-app px-3 py-1.5">
+                              {metaBadge}
+                            </span>
                           </div>
                         ) : null}
                       </article>
