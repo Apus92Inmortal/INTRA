@@ -222,8 +222,8 @@ export default async function WalletPage() {
             <section className="intra-card rounded-[24px] border-dashed p-6 text-intra-text-subtle sm:p-7">
               <h2 className="intra-h3">Aún no tienes wallet activa</h2>
               <p className="mt-2 max-w-2xl intra-body">
-                La wallet se crea cuando recibes tu primer pago seguro asociado a una entrega. Mientras tanto,
-                puedes guardar tu cuenta de retiro para tener todo listo.
+                Tu wallet se activa automáticamente con tu primer movimiento. Mientras tanto,
+                puedes configurar tu cuenta de retiro.
               </p>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Link
