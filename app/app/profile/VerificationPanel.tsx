@@ -52,10 +52,10 @@ function UploadField({
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (
-    <div className={`rounded-2xl border border-slate-200 bg-slate-50 p-4 ${disabled ? "opacity-75" : ""}`}>
+    <div className={`rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4 ${disabled ? "opacity-75" : ""}`}>
       <div>
-        <p className="text-sm font-semibold text-slate-900">{label}</p>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="text-sm font-semibold text-intra-blue">{label}</p>
+        <p className="mt-1 text-sm text-intra-text-subtle">
           {selectedFile
             ? selectedFile.name
             : hasUploaded
@@ -68,8 +68,8 @@ function UploadField({
         <label
           className={`inline-flex min-h-11 items-center justify-center rounded-2xl border px-4 py-2 text-sm font-semibold transition ${
             disabled
-              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-              : "cursor-pointer border-[#0B2C4A]/12 bg-white text-[#0B2C4A] hover:bg-[#EEF2F7]"
+              ? "cursor-not-allowed border-intra-border-soft bg-intra-bg-app text-intra-text-muted/70"
+              : "cursor-pointer border-intra-border bg-intra-card text-intra-blue hover:bg-intra-bg-app"
           }`}
         >
           <input
@@ -92,7 +92,7 @@ function UploadField({
                 inputRef.current.value = "";
               }
             }}
-            className="text-sm font-medium text-slate-500 transition hover:text-slate-700"
+            className="text-sm font-medium text-intra-text-subtle transition hover:text-intra-blue"
           >
             Quitar
           </button>
@@ -226,11 +226,11 @@ export default function VerificationPanel({
   };
 
   return (
-    <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+    <section className="intra-card p-6 sm:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-[#0B2C4A]">Verificación de identidad</h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <h2 className="text-xl font-semibold text-intra-blue">Verificación de identidad</h2>
+          <p className="mt-1 text-sm text-intra-text-subtle">
             Esta revisión es manual. Nos ayuda a subir la confianza y a liberar mejores límites de uso.
           </p>
         </div>
@@ -240,39 +240,39 @@ export default function VerificationPanel({
         </span>
       </div>
 
-      <div className="mt-5 rounded-2xl bg-[#EEF2F7] px-4 py-3 text-sm text-slate-600">
+      <div className="mt-5 rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
         <p>{badge.description}</p>
-        {reviewedAt ? <p className="mt-2">Última revisión: <span className="font-medium text-slate-800">{formatDate(reviewedAt)}</span></p> : null}
+        {reviewedAt ? <p className="mt-2">Última revisión: <span className="font-medium text-intra-blue">{formatDate(reviewedAt)}</span></p> : null}
         {initialRejectionReason ? (
-          <p className="mt-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-rose-700">
+          <p className="mt-2 rounded-xl border border-intra-danger-border bg-intra-danger-soft px-3 py-2 text-intra-danger">
             Motivo de rechazo: {initialRejectionReason}
           </p>
         ) : null}
       </div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-semibold text-slate-900">Documento</p>
+            <p className="font-semibold text-intra-blue">Documento</p>
             <span
               className={`inline-flex min-w-[92px] justify-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${
                 hasDocumentPhoto
-                  ? "border-green-200 bg-green-100 text-green-700"
-                  : "border-amber-200 bg-amber-100 text-amber-700"
+                  ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                  : "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
               }`}
             >
               {hasDocumentPhoto ? "Cargado" : "Pendiente"}
             </span>
           </div>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-semibold text-slate-900">Selfie</p>
+            <p className="font-semibold text-intra-blue">Selfie</p>
             <span
               className={`inline-flex min-w-[92px] justify-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${
                 hasSelfie
-                  ? "border-green-200 bg-green-100 text-green-700"
-                  : "border-amber-200 bg-amber-100 text-amber-700"
+                  ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                  : "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
               }`}
             >
               {hasSelfie ? "Cargado" : "Pendiente"}
@@ -300,18 +300,18 @@ export default function VerificationPanel({
           />
         </div>
 
-        <details className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC]" open={!isLocked}>
-          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[#0B2C4A] [&::-webkit-details-marker]:hidden">
+        <details className="rounded-2xl border border-intra-border-strong bg-intra-neutral-soft-alt" open={!isLocked}>
+          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-intra-blue [&::-webkit-details-marker]:hidden">
             Autorización para revisión manual
           </summary>
-          <div className="border-t border-[#D9E7F2] px-4 py-3">
-            <label className={`flex items-start gap-3 text-sm leading-6 text-slate-600 ${isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}>
+          <div className="border-t border-intra-border-strong px-4 py-3">
+            <label className={`flex items-start gap-3 text-sm leading-6 text-intra-text-subtle ${isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}>
               <input
                 type="checkbox"
                 checked={acceptConsent || isLocked}
                 disabled={isLocked}
                 onChange={(event) => setAcceptConsent(event.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-[#0B2C4A] focus:ring-[#0B2C4A]/20"
+                className="mt-1 h-4 w-4 rounded border-intra-border text-intra-blue focus:ring-intra-blue/20"
               />
               <span>
                 Acepto que el equipo revise manualmente estas evidencias para validar mi identidad dentro de INTRA. Si la imagen pesa demasiado, la comprimimos antes de subirla.
@@ -321,7 +321,7 @@ export default function VerificationPanel({
         </details>
 
         {isLocked ? (
-          <div className="rounded-2xl border border-[#D9E7F2] bg-[#F7FAFC] px-4 py-3 text-sm text-slate-600">
+          <div className="rounded-2xl border border-intra-border-strong bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
             {initialStatus === "verified"
               ? "Tu identidad ya fue verificada. Los archivos quedaron bloqueados y no necesitas volver a enviarlos."
               : "Tu verificación está en revisión. Mientras el equipo responde, los archivos y el envío quedan bloqueados para evitar duplicados."}
@@ -332,8 +332,8 @@ export default function VerificationPanel({
           <div
             className={`rounded-2xl border px-4 py-3 text-sm ${
               messageType === "success"
-                ? "border-green-200 bg-green-50 text-green-700"
-                : "border-red-200 bg-red-50 text-red-700"
+                ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
             }`}
           >
             {message}
@@ -343,7 +343,7 @@ export default function VerificationPanel({
         <button
           type="submit"
           disabled={!canSubmit}
-          className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="intra-btn intra-btn-primary px-5 py-3 text-sm"
         >
           {loading
             ? "Enviando verificación..."

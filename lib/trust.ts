@@ -5,25 +5,25 @@ export function getVerificationBadge(status: string | null | undefined) {
     case "verified":
       return {
         label: "Identidad verificada",
-        classes: "bg-emerald-100 text-emerald-700",
+        classes: "bg-intra-success-soft text-intra-text-success",
         description: "Tu identidad ya fue revisada manualmente por el equipo.",
       }
     case "pending":
       return {
         label: "Verificación en revisión",
-        classes: "bg-amber-100 text-amber-700",
+        classes: "bg-intra-warning-soft text-intra-warning-text",
         description: "Ya recibimos tus documentos. El equipo los revisará manualmente.",
       }
     case "rejected":
       return {
         label: "Verificación rechazada",
-        classes: "bg-rose-100 text-rose-700",
+        classes: "bg-intra-danger-soft text-intra-danger",
         description: "Necesitas corregir la evidencia cargada para volver a enviarla.",
       }
     default:
       return {
         label: "Sin verificar",
-        classes: "bg-amber-100 text-amber-800 border border-amber-200",
+        classes: "border border-intra-warning-border bg-intra-warning-soft text-intra-warning-text",
         description: "Aún no has enviado tu documento ni tu selfie para revisión manual.",
       }
   }

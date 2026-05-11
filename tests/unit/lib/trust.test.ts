@@ -5,7 +5,7 @@ describe("trust helpers", () => {
   it("returns verified badge copy", () => {
     const badge = getVerificationBadge("verified")
     expect(badge.label).toBe("Identidad verificada")
-    expect(badge.classes).toContain("emerald")
+    expect(badge.classes).toContain("intra-success")
   })
 
   it("maps evidence types to user facing labels", () => {
