@@ -289,7 +289,7 @@ export async function requestPayoutAction(formData: FormData): Promise<ActionRes
     if (!wallet?.id) {
       return {
         success: false,
-        error: "Tu wallet se crea con el primer pago seguro confirmado. Aún no tienes saldo para retirar.",
+        error: "Tu wallet se activa con tu primer movimiento aprobado. Aún no tienes saldo para retirar.",
       }
     }
 
@@ -434,7 +434,7 @@ export async function updatePayoutStatusAction(formData: FormData): Promise<Acti
           balance_type: "available",
           direction: "debit",
           amount,
-          description: "Retiro pagado al viajero",
+          description: "Retiro pagado al usuario",
           metadata: {
             source: "admin_payout_review",
             paid_reference: paidReference || null,
