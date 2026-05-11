@@ -9,10 +9,10 @@ type AppErrorProps = {
 
 export default function AppError({ error, reset }: AppErrorProps) {
   return (
-    <main className="min-h-screen bg-[#EEF2F7] px-4 py-8 sm:px-6">
+    <main className="intra-page-shell px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
-        <div className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+        <div className="rounded-3xl border border-intra-danger-border bg-intra-card p-6 shadow-sm sm:p-8">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-intra-danger-soft text-intra-danger">
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -23,16 +23,16 @@ export default function AppError({ error, reset }: AppErrorProps) {
             </svg>
           </div>
 
-          <h1 className="mt-4 text-2xl font-bold text-[#0B2C4A]">
+          <h1 className="mt-4 text-2xl font-bold text-intra-blue">
             No pudimos cargar esta vista
           </h1>
 
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-intra-text-subtle">
             Ocurrió un problema al consultar la información. Puedes reintentar ahora.
           </p>
 
           {error.message ? (
-            <div className="mt-4 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-sm text-intra-danger">
               {error.message}
             </div>
           ) : null}
@@ -41,14 +41,14 @@ export default function AppError({ error, reset }: AppErrorProps) {
             <button
               type="button"
               onClick={reset}
-              className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#0B2C4A] px-5 text-sm font-semibold text-white transition hover:opacity-95"
+              className="intra-btn intra-btn-primary h-12 px-5 text-sm"
             >
               Reintentar
             </button>
 
             <Link
               href="/app"
-              className="inline-flex h-12 items-center justify-center rounded-2xl border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              className="intra-btn intra-btn-secondary h-12 px-5 text-sm"
             >
               Volver al dashboard
             </Link>

@@ -153,7 +153,7 @@ export default function AuthGateway({
   return (
     <main className="intra-page-shell p-2 sm:p-3 lg:p-4">
       <div className="mx-auto flex min-h-[calc(100vh-1rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-1.5rem)] lg:h-[calc(100vh-2rem)] lg:min-h-0">
-        <div className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_24px_70px_rgba(11,44,74,0.16)] lg:h-full lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="grid w-full overflow-hidden rounded-[32px] bg-intra-card shadow-[var(--intra-shadow-hero)] lg:h-full lg:grid-cols-[1.05fr_0.95fr]">
           <section className="intra-auth-hero px-6 py-7 sm:px-7 sm:py-8 lg:min-h-0 lg:overflow-y-auto lg:px-8 lg:py-8">
             <Link
               href="/"
@@ -206,14 +206,14 @@ export default function AuthGateway({
 
           <section className="px-5 py-6 sm:px-6 sm:py-7 lg:min-h-0 lg:overflow-y-auto lg:px-7 lg:py-8">
             <div className="mx-auto w-full max-w-md lg:min-h-full">
-              <div className="grid grid-cols-2 rounded-2xl bg-[#EEF2F7] p-1.5">
+              <div className="grid grid-cols-2 rounded-2xl bg-intra-bg-app p-1.5">
                 <button
                   type="button"
                   onClick={() => switchTab("login")}
                   className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
                     tab === "login"
-                      ? "bg-white text-[#0B2C4A] shadow-sm"
-                      : "text-slate-500 hover:text-[#0B2C4A]"
+                      ? "bg-intra-card text-intra-blue shadow-sm"
+                      : "text-intra-text-subtle hover:text-intra-blue"
                   }`}
                 >
                   Iniciar sesión
@@ -223,8 +223,8 @@ export default function AuthGateway({
                   onClick={() => switchTab("register")}
                   className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
                     tab === "register"
-                      ? "bg-white text-[#0B2C4A] shadow-sm"
-                      : "text-slate-500 hover:text-[#0B2C4A]"
+                      ? "bg-intra-card text-intra-blue shadow-sm"
+                      : "text-intra-text-subtle hover:text-intra-blue"
                   }`}
                 >
                   Registrarse
