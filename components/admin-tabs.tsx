@@ -32,8 +32,8 @@ export function AdminTabs() {
             href={link.href}
             className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
               isActive
-                ? "border-[#0B2C4A] bg-[#0B2C4A] text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:border-[#0B2C4A]/20 hover:text-[#0B2C4A]"
+                ? "border-intra-blue bg-intra-blue text-intra-card"
+                : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue/20 hover:text-intra-blue"
             }`}
           >
             <Icon className="h-4 w-4 shrink-0" />
