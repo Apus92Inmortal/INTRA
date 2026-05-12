@@ -12,6 +12,17 @@ type ActionResult = {
 
 type JsonObject = Record<string, unknown>
 
+type WalletRow = {
+  id: string
+}
+
+type WalletLedgerSummaryRow = {
+  entry_type: string | null
+  balance_type: string | null
+  direction: string | null
+  amount: number | null
+}
+
 type DisputePaymentRow = {
   id: string
   match_id: string | null
@@ -71,6 +82,124 @@ function mergeMetadata(base: unknown, patch: JsonObject) {
     ...asJsonObject(base),
     ...patch,
   }
+}
+
+async function creditManualRefundToWallet(
+  admin: ReturnType<typeof createAdminClient>,
+  input: {
+    userId: string
+    amount: number
+    reason: string
+  }
+): Promise<ActionResult> {
+  const now = new Date().toISOString()
+
+  const { data: wallet, error: walletError } = await admin
+    .from("wallets")
+    .upsert(
+      {
+        user_id: input.userId,
+        updated_at: now,
+      },
+      {
+        onConflict: "user_id",
+      }
+    )
+    .select("id")
+    .single()
+
+  if (walletError || !wallet) {
+    return {
+      success: false,
+      error: walletError?.message ?? "No pudimos asegurar la wallet del cliente.",
+    }
+  }
+
+  const { error: ledgerInsertError } = await admin.from("wallet_ledger").insert({
+    wallet_id: (wallet as WalletRow).id,
+    user_id: input.userId,
+    payment_id: null,
+    match_id: null,
+    payout_id: null,
+    entry_type: "refund_available_credit",
+    balance_type: "available",
+    direction: "credit",
+    amount: input.amount,
+    description: input.reason,
+    metadata: {
+      source: "admin_manual_refund",
+      reason: input.reason,
+    },
+  })
+
+  if (ledgerInsertError) {
+    return {
+      success: false,
+      error: ledgerInsertError.message,
+    }
+  }
+
+  const { data: ledgerRows, error: ledgerRowsError } = await admin
+    .from("wallet_ledger")
+    .select("entry_type, balance_type, direction, amount")
+    .eq("user_id", input.userId)
+
+  if (ledgerRowsError) {
+    return {
+      success: false,
+      error: ledgerRowsError.message,
+    }
+  }
+
+  const summary = ((ledgerRows ?? []) as WalletLedgerSummaryRow[]).reduce(
+    (acc, row) => {
+      const amount = Number(row.amount ?? 0)
+
+      if (row.balance_type === "available") {
+        acc.available += row.direction === "debit" ? -amount : amount
+      }
+
+      if (row.balance_type === "pending") {
+        acc.pending += row.direction === "debit" ? -amount : amount
+      }
+
+      if (row.entry_type === "release_available_credit") {
+        acc.totalEarned += amount
+      }
+
+      if (row.entry_type === "payout_paid_debit") {
+        acc.totalWithdrawn += amount
+      }
+
+      return acc
+    },
+    {
+      available: 0,
+      pending: 0,
+      totalEarned: 0,
+      totalWithdrawn: 0,
+    }
+  )
+
+  const { error: walletUpdateError } = await admin
+    .from("wallets")
+    .update({
+      available_balance: summary.available,
+      pending_balance: summary.pending,
+      total_earned: summary.totalEarned,
+      total_withdrawn: summary.totalWithdrawn,
+      updated_at: now,
+    })
+    .eq("user_id", input.userId)
+
+  if (walletUpdateError) {
+    return {
+      success: false,
+      error: walletUpdateError.message,
+    }
+  }
+
+  return { success: true }
 }
 
 async function insertParticipantNotifications(
@@ -317,20 +446,18 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
     })
 
     if (action === "customer_refund") {
-      const { data: refundResult, error: refundError } = await admin.rpc("admin_send_refund", {
-        p_user_id: shipment.owner_id,
-        p_amount: refundAmount,
-        p_reason: resolutionNotes || `Devolución manual por disputa · ${shipment.tracking_code ?? resolvedMatchId}`,
+      const resolvedRefundAmount = refundAmount ?? 0
+
+      const refundResult = await creditManualRefundToWallet(admin, {
+        userId: shipment.owner_id,
+        amount: resolvedRefundAmount,
+        reason: resolutionNotes || `Devolución manual por disputa · ${shipment.tracking_code ?? resolvedMatchId}`,
       })
 
-      if (refundError) {
-        return { success: false, error: refundError.message }
-      }
-
-      if (refundResult && typeof refundResult === "object" && "success" in refundResult && refundResult.success === false) {
+      if (!refundResult.success) {
         return {
           success: false,
-          error: typeof refundResult.error === "string" ? refundResult.error : "No se pudo acreditar la devolución.",
+          error: refundResult.error ?? "No se pudo acreditar la devolución.",
         }
       }
 
@@ -368,7 +495,7 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
         customerUserId: shipment.owner_id,
         travelerUserId: trip.traveler_id,
         customerTitle: "Tu disputa fue resuelta",
-        customerMessage: `Acreditamos ${refundAmount?.toLocaleString("es-CO") ?? "0"} COP a tu wallet como devolución.`,
+        customerMessage: `Acreditamos ${resolvedRefundAmount.toLocaleString("es-CO")} COP a tu wallet como devolución.`,
         travelerTitle: "Disputa resuelta a favor del cliente",
         travelerMessage: "La administración resolvió la disputa a favor del cliente y acreditó una devolución a su wallet.",
       })

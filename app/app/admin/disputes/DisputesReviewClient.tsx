@@ -217,7 +217,7 @@ function DisputeCard({
 
         {!isResolved ? (
           <label className="block space-y-2">
-            <span className="text-sm font-semibold text-intra-blue">Monto devolución manual (si gana cliente)</span>
+            <span className="text-sm font-semibold text-intra-blue">Monto devolución manual</span>
             <input
               value={refundAmount}
               onChange={(event) => onRefundAmountChange(event.target.value)}
@@ -571,7 +571,7 @@ export default function DisputesReviewClient({ disputes, alerts }: { disputes: A
                 dispute={dispute}
                 isPending={isPending}
                 notes={notesByKey[`dispute:${dispute.paymentId}`] ?? dispute.resolutionNotes ?? ""}
-                refundAmount={refundByPaymentId[dispute.paymentId] ?? String(Math.max(dispute.suggestedAmount, 0) || "")}
+                refundAmount={refundByPaymentId[dispute.paymentId] ?? ""}
                 onNotesChange={(value) =>
                   setNotesByKey((current) => ({
                     ...current,
