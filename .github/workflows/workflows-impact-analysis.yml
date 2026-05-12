@@ -1,0 +1,48 @@
+name: Workflows Impact Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  detect-impact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate pending analysis artifact
+        env:
+          WORKFLOWS_BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          WORKFLOWS_HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          WORKFLOWS_PR_NUMBER: ${{ github.event.pull_request.number }}
+          WORKFLOWS_PR_URL: ${{ github.event.pull_request.html_url }}
+          WORKFLOWS_ANALYSIS_OUT: generated/pending-analysis.json
+        run: node scripts/generate-workflows-impact.cjs
+
+      - name: Upload pending analysis artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflows-pending-analysis
+          path: generated/pending-analysis.json
+          if-no-files-found: error
+
+      - name: Job summary
+        run: |
+          echo '## Workflows impact analysis' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Artifact: `generated/pending-analysis.json`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Name: `workflows-pending-analysis`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Consumer: Joy / subagente / agente especializado bajo demanda' >> "$GITHUB_STEP_SUMMARY"

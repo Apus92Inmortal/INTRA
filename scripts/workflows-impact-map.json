@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "workflowsRepo": "EnjoyIA-Joy/intra-flow-hub",
+  "flows": [
+    {
+      "slug": "registro-login",
+      "title": "Registro / Login",
+      "watchPaths": ["app/page.tsx", "app/login/", "app/register/", "app/verify-email/"],
+      "codeRefs": ["app/page.tsx", "app/login/page.tsx", "app/register/page.tsx", "app/verify-email/page.tsx"],
+      "checklist": ["Revisar entrypoint público", "Revisar login/registro", "Revisar verificación de email"]
+    },
+    {
+      "slug": "publicar-envio",
+      "title": "Publicar envío",
+      "watchPaths": ["app/app/shipments/", "app/app/payments/checkout/", "supabase/migrations/"],
+      "codeRefs": ["app/app/shipments/new/page.tsx", "app/app/shipments/new/NewShipmentForm.tsx", "app/app/payments/checkout/page.tsx"],
+      "checklist": ["Revisar formulario", "Revisar validaciones", "Revisar paso a checkout"]
+    },
+    {
+      "slug": "publicar-viaje",
+      "title": "Publicar viaje",
+      "watchPaths": ["app/app/trips/", "app/app/matches/", "supabase/migrations/"],
+      "codeRefs": ["app/app/trips/new/page.tsx", "app/app/trips/new/NewTripForm.tsx", "app/app/matches/page.tsx"],
+      "checklist": ["Revisar formulario de viaje", "Revisar disponibilidad/capacidad", "Revisar entrada a matching"]
+    },
+    {
+      "slug": "matching",
+      "title": "Matching",
+      "watchPaths": ["app/app/matches/", "supabase/migrations/"],
+      "codeRefs": ["app/app/matches/page.tsx", "app/app/matches/[id]/page.tsx", "app/app/matches/[id]/actions.ts"],
+      "checklist": ["Revisar creación/aceptación/rechazo", "Revisar estados visibles", "Revisar métricas/listado"]
+    },
+    {
+      "slug": "chat",
+      "title": "Chat",
+      "watchPaths": ["app/app/matches/[id]/chat/", "components/notifications-bell.tsx", "supabase/migrations/"],
+      "codeRefs": ["app/app/matches/[id]/chat/page.tsx", "components/notifications-bell.tsx"],
+      "checklist": ["Revisar acceso al chat", "Revisar realtime/mensajes", "Revisar notificaciones asociadas"]
+    },
+    {
+      "slug": "pago-wompi",
+      "title": "Pago Wompi",
+      "watchPaths": ["app/app/payments/", "app/api/webhooks/wompi/", "app/api/internal/payments/", "supabase/migrations/"],
+      "codeRefs": ["app/app/payments/checkout/page.tsx", "app/api/webhooks/wompi/route.ts", "app/api/internal/payments/release-due/route.ts"],
+      "checklist": ["Revisar checkout", "Revisar webhook/return", "Revisar creación/liberación de pago"]
+    },
+    {
+      "slug": "entrega",
+      "title": "Entrega",
+      "watchPaths": ["app/app/matches/", "app/api/internal/payments/", "supabase/migrations/"],
+      "codeRefs": ["app/app/matches/[id]/page.tsx", "app/app/matches/[id]/actions.ts", "app/api/internal/payments/release-due/route.ts"],
+      "checklist": ["Revisar tránsito/entrega", "Revisar confirmación cliente", "Revisar release posterior"]
+    },
+    {
+      "slug": "wallet-intra-pay-v3",
+      "title": "Wallet / INTRA PAY v3",
+      "watchPaths": ["app/app/wallet/", "lib/payments/", "supabase/migrations/"],
+      "codeRefs": ["app/app/wallet/page.tsx", "app/app/wallet/history/page.tsx", "app/app/wallet/actions.ts", "lib/payments/wallet.ts"],
+      "checklist": ["Revisar saldo/resumen", "Revisar historial visible", "Revisar tipos/labels y reglas"]
+    },
+    {
+      "slug": "cancelacion-de-match",
+      "title": "Cancelación de match",
+      "watchPaths": ["app/app/matches/", "app/app/admin/disputes/", "supabase/migrations/"],
+      "codeRefs": ["app/app/matches/[id]/actions.ts", "app/app/matches/[id]/page.tsx", "supabase/migrations/202605112015_manual_refunds_cancel_match.sql"],
+      "checklist": ["Revisar cuándo se puede cancelar", "Revisar metadata manual_refund_required", "Revisar efecto operativo/financiero"]
+    },
+    {
+      "slug": "disputas",
+      "title": "Disputas",
+      "watchPaths": ["app/app/admin/disputes/", "app/app/admin/actions.ts", "app/app/matches/", "app/app/wallet/", "lib/payments/", "supabase/migrations/"],
+      "codeRefs": ["app/app/admin/disputes/page.tsx", "app/app/admin/disputes/DisputesReviewClient.tsx", "app/app/admin/actions.ts", "app/app/matches/[id]/actions.ts"],
+      "checklist": ["Revisar apertura de disputa", "Revisar estados admin", "Revisar refund manual/liberación/notificaciones"]
+    },
+    {
+      "slug": "alertas-del-viajero",
+      "title": "Alertas del viajero",
+      "watchPaths": ["app/app/matches/", "app/app/admin/disputes/", "app/app/admin/actions.ts", "supabase/migrations/"],
+      "codeRefs": ["app/app/matches/[id]/SuspiciousReportForm.tsx", "app/app/admin/disputes/page.tsx", "app/app/admin/actions.ts"],
+      "checklist": ["Revisar formulario de alerta", "Revisar flujo admin", "Revisar escalamiento/cierre"]
+    },
+    {
+      "slug": "admin-hub",
+      "title": "Admin Hub",
+      "watchPaths": ["app/app/admin/", "components/admin-tabs.tsx", "lib/auth/admin.ts"],
+      "codeRefs": ["app/app/admin/page.tsx", "app/app/admin/layout.tsx", "components/admin-tabs.tsx", "lib/auth/admin.ts"],
+      "checklist": ["Revisar acceso admin", "Revisar tabs/navegación", "Revisar shell general"]
+    },
+    {
+      "slug": "retiros",
+      "title": "Retiros",
+      "watchPaths": ["app/app/wallet/payout/", "app/app/wallet/actions.ts", "app/app/admin/payouts/", "supabase/migrations/"],
+      "codeRefs": ["app/app/wallet/payout/page.tsx", "app/app/wallet/payout/accounts/page.tsx", "app/app/wallet/actions.ts", "app/app/admin/payouts/page.tsx"],
+      "checklist": ["Revisar solicitud de retiro", "Revisar cuentas de retiro", "Revisar revisión admin"]
+    },
+    {
+      "slug": "verificacion-de-identidad",
+      "title": "Verificación de identidad",
+      "watchPaths": ["app/app/profile/", "app/app/admin/verifications/", "app/app/admin/actions.ts", "supabase/migrations/"],
+      "codeRefs": ["app/app/profile/page.tsx", "app/app/profile/VerificationPanel.tsx", "app/app/admin/verifications/page.tsx", "app/app/admin/actions.ts"],
+      "checklist": ["Revisar perfil/documentos", "Revisar cola admin", "Revisar aprobación/rechazo"]
+    },
+    {
+      "slug": "cerrar-viaje",
+      "title": "Cerrar viaje",
+      "watchPaths": ["app/app/matches/", "app/app/trips/", "supabase/migrations/"],
+      "codeRefs": ["app/app/matches/page.tsx", "app/app/matches/[id]/actions.ts", "app/app/trips/new/page.tsx"],
+      "checklist": ["Revisar resolución de matches", "Revisar consumo/liberación de capacidad", "Revisar cierre operativo"]
+    },
+    {
+      "slug": "notificaciones",
+      "title": "Notificaciones",
+      "watchPaths": ["components/notifications-bell.tsx", "app/app/admin/actions.ts", "app/app/matches/", "supabase/migrations/"],
+      "codeRefs": ["components/notifications-bell.tsx", "app/app/admin/actions.ts", "app/app/matches/[id]/actions.ts"],
+      "checklist": ["Revisar tipos creados", "Revisar render y copy", "Revisar navegación asociada"]
+    }
+  ]
+}
