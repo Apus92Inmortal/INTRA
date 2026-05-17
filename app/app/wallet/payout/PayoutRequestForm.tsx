@@ -261,15 +261,6 @@ export default function PayoutRequestForm({
               >
                 {isPending ? "Enviando..." : "Solicitar retiro"}
               </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setAmount(String(withdrawableBalance > 0 ? Math.floor(withdrawableBalance / 1000) * 1000 : 0))
-                }
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#E4E7EC] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB]"
-              >
-                Usar saldo disponible
-              </button>
             </div>
           </form>
         </section>
