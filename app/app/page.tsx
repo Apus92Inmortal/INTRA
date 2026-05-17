@@ -744,10 +744,12 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                       <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.averageTicketLabel}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col border-l border-white/10 px-3 py-3 sm:px-4">
+                  <div className="flex flex-col border-l border-white/10 px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Mejor ruta</p>
                     <div className="mt-1 flex w-full justify-center">
-                      <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}</p>
+                      <p className="whitespace-nowrap text-center text-[12px] font-bold leading-4 tracking-[-0.02em] text-white sm:text-[18px] sm:leading-6 sm:tracking-normal">
+                        {dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}
+                      </p>
                     </div>
                   </div>
                 </div>
