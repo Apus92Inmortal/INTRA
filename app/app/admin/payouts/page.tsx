@@ -1,5 +1,5 @@
 import { requireAdminUser } from "@/lib/auth/admin"
-import { getPayoutAccountDisplayName, maskAccountNumber } from "@/lib/payments/wallet"
+import { getPayoutAccountDisplayName } from "@/lib/payments/wallet"
 import { createAdminClient } from "@/lib/supabase/admin"
 import PayoutReviewClient from "./PayoutReviewClient"
 
@@ -45,7 +45,7 @@ export default async function AdminPayoutsPage() {
     paid_reference: string | null
     travelerName: string
     accountLabel: string
-    accountMask: string
+    accountNumber: string
     brebKey: string | null
   }> = []
 
@@ -108,7 +108,7 @@ export default async function AdminPayoutsPage() {
           payoutCode: payout.payout_code,
           travelerName: traveler?.full_name || "Viajero sin nombre",
           accountLabel: account ? getPayoutAccountDisplayName(account) : "Cuenta no disponible",
-          accountMask: account ? maskAccountNumber(account.account_number) : "Sin cuenta",
+          accountNumber: account?.account_number?.trim() || "Sin cuenta",
           brebKey: account?.breb_key ?? null,
         }
       }).sort((a, b) => {
