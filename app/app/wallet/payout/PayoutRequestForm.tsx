@@ -111,7 +111,7 @@ export default function PayoutRequestForm({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h1 className="text-[28px] font-semibold leading-tight text-[#0B2C4A]">Solicitar retiro</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#667085] sm:text-[14px]">
+            <p className="mt-2 hidden max-w-2xl text-sm leading-6 text-[#667085] sm:block sm:text-[14px]">
               Mueve el saldo disponible de tu wallet a una cuenta bancaria o billetera digital.
             </p>
           </div>
@@ -193,7 +193,7 @@ export default function PayoutRequestForm({
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr),auto] lg:items-start">
             <div>
               <h2 className="text-[22px] font-semibold leading-tight text-[#0B2C4A]">Solicita tu retiro</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#667085]">
+              <p className="mt-2 hidden max-w-2xl text-sm leading-6 text-[#667085] sm:block">
                 Elige la cuenta de destino, define el monto y deja una nota opcional para revisión manual.
               </p>
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#EFFBF4] px-3 py-1.5 text-xs font-semibold text-[#1C7C45]">
