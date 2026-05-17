@@ -134,7 +134,7 @@ function DashboardShortcutCard({
   return (
     <Link
       href={href}
-      className={`group flex min-h-[108px] items-center gap-3 rounded-[var(--intra-radius-md)] p-3.5 text-left transition sm:min-h-28 sm:gap-4 sm:p-5 ${cardClassName}`}
+      className={`group flex min-h-[96px] items-center gap-3 rounded-[var(--intra-radius-md)] p-3 text-left transition sm:min-h-28 sm:gap-4 sm:p-5 ${cardClassName}`}
     >
       <div className={`intra-icon-shell-emphasis rounded-[var(--intra-radius-xs)] ${iconShellClassName}`}>
         {icon}
@@ -172,7 +172,14 @@ function DashboardStatCard({
           {icon}
         </div>
         <p className={accent ? "intra-metric leading-none text-intra-green" : "intra-metric leading-none"}>{value}</p>
-        <p className="min-w-0 intra-caption">{label}</p>
+        {label === "Envíos activos" ? (
+          <p className="min-w-0 intra-caption leading-4 sm:leading-[inherit]">
+            <span className="sm:hidden">Envíos<br />activos</span>
+            <span className="hidden sm:inline">Envíos activos</span>
+          </p>
+        ) : (
+          <p className="min-w-0 intra-caption">{label}</p>
+        )}
       </div>
     </div>
   );
