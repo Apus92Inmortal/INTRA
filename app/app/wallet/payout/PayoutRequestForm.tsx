@@ -279,7 +279,7 @@ export default function PayoutRequestForm({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-[22px] font-semibold leading-tight text-[#0B2C4A]">Historial de retiros</h2>
-            <p className="mt-2 text-sm leading-6 text-[#667085]">
+            <p className="mt-2 hidden text-sm leading-6 text-[#667085] sm:block">
               Revisa el estado y detalle de cada solicitud de retiro.
             </p>
           </div>
