@@ -134,14 +134,14 @@ function DashboardShortcutCard({
   return (
     <Link
       href={href}
-      className={`group flex min-h-28 items-center gap-4 rounded-[var(--intra-radius-md)] p-4 text-left transition sm:p-5 ${cardClassName}`}
+      className={`group flex min-h-[96px] items-center gap-3 rounded-[var(--intra-radius-md)] p-3 text-left transition sm:min-h-28 sm:gap-4 sm:p-5 ${cardClassName}`}
     >
       <div className={`intra-icon-shell-emphasis rounded-[var(--intra-radius-xs)] ${iconShellClassName}`}>
         {icon}
       </div>
       <div className="min-w-0">
         <p className="intra-h4 text-white">{title}</p>
-        <p className={`mt-1 intra-body ${descriptionClassName}`}>{description}</p>
+        <p className={`mt-1 hidden intra-body sm:block ${descriptionClassName}`}>{description}</p>
       </div>
       <svg className={`ml-auto intra-icon-emphasis shrink-0 transition group-hover:translate-x-1 ${arrowClassName}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -172,7 +172,14 @@ function DashboardStatCard({
           {icon}
         </div>
         <p className={accent ? "intra-metric leading-none text-intra-green" : "intra-metric leading-none"}>{value}</p>
-        <p className="min-w-0 intra-caption">{label}</p>
+        {label === "Envíos activos" ? (
+          <p className="min-w-0 intra-caption leading-4 sm:leading-[inherit]">
+            <span className="sm:hidden">Envíos<br />activos</span>
+            <span className="hidden sm:inline">Envíos activos</span>
+          </p>
+        ) : (
+          <p className="min-w-0 intra-caption">{label}</p>
+        )}
       </div>
     </div>
   );
@@ -731,23 +738,25 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm">
-                  <div className="flex flex-col px-3 py-3 sm:px-4">
+                <div className="grid grid-cols-[0.65fr_1.05fr_1.3fr] rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm sm:grid-cols-3">
+                  <div className="flex flex-col px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Entregas</p>
                     <div className="mt-1 flex w-full justify-center">
                       <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.deliveriesCount}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col border-l border-white/10 px-3 py-3 sm:px-4">
+                  <div className="flex flex-col border-l border-white/10 px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Promedio</p>
                     <div className="mt-1 flex w-full justify-center">
                       <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.averageTicketLabel}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col border-l border-white/10 px-3 py-3 sm:px-4">
+                  <div className="flex flex-col border-l border-white/10 px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Mejor ruta</p>
                     <div className="mt-1 flex w-full justify-center">
-                      <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}</p>
+                      <p className="intra-on-dark-body-strong whitespace-nowrap text-center">
+                        {dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}
+                      </p>
                     </div>
                   </div>
                 </div>
