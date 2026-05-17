@@ -22,7 +22,7 @@ type AdminPayout = {
   paid_reference: string | null
   travelerName: string
   accountLabel: string
-  accountMask: string
+  accountNumber: string
   brebKey: string | null
 }
 
@@ -36,7 +36,7 @@ function matchesSearch(payout: AdminPayout, search: string) {
   const haystack = [
     payout.travelerName,
     payout.accountLabel,
-    payout.accountMask,
+    payout.accountNumber,
     payout.brebKey ?? "",
     payout.payoutCode ?? "",
     payout.paid_reference ?? "",
@@ -108,7 +108,7 @@ function ReviewedPayoutRow({
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Cuenta</p>
             <p className="mt-1 font-medium text-intra-blue">{payout.accountLabel}</p>
-            <p className="text-intra-text-subtle">{payout.accountMask}</p>
+            <p className="text-intra-text-subtle">{payout.accountNumber}</p>
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Solicitado</p>
@@ -337,7 +337,7 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
                           <div>
                             <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Cuenta</p>
                             <p className="mt-1 font-medium text-intra-blue">{payout.accountLabel}</p>
-                            <p className="text-intra-text-subtle">{payout.accountMask}</p>
+                            <p className="text-intra-text-subtle">{payout.accountNumber}</p>
                             {payout.brebKey ? <p className="text-intra-text-subtle">Llave BRE-B: {payout.brebKey}</p> : null}
                           </div>
                           <div>
