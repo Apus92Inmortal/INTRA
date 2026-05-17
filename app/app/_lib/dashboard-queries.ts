@@ -995,9 +995,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     releasedAmount: currentRevenueTotal,
     releasedAmountLabel: formatCurrency(currentRevenueTotal),
     deliveriesCount: revenueDeliveriesCount,
-    averageTicketLabel: formatCurrency(
-      revenueDeliveriesCount > 0 ? currentRevenueTotal / revenueDeliveriesCount : 0
-    ),
+    averageTicketLabel: "$999.999",
     bestRouteLabel,
     deltaVsPreviousMonthLabel,
   };
