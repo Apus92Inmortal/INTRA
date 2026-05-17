@@ -2,10 +2,12 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState, useTransition } from "react"
+import { useMemo, useState, useTransition, type FormEvent, type ReactNode } from "react"
+import { ArrowRight, Building2, FileText, Plus, ShieldCheck, Wallet } from "lucide-react"
 import { requestPayoutAction } from "@/app/app/wallet/actions"
 import {
   formatCop,
+  formatDateTime,
   getPayoutAccountDisplayName,
   getPayoutStatusClasses,
   getPayoutStatusLabel,
@@ -32,6 +34,31 @@ type Payout = {
   review_notes: string | null
 }
 
+function SurfaceIcon({
+  children,
+  tone = "blue",
+  shape = "square",
+}: {
+  children: ReactNode
+  tone?: "blue" | "green" | "neutral"
+  shape?: "square" | "circle"
+}) {
+  const toneClass =
+    tone === "green"
+      ? "bg-[#EFFBF4] text-[#2ECC71]"
+      : tone === "neutral"
+        ? "bg-[#F2F4F7] text-[#667085]"
+        : "bg-[#0B2C4A]/8 text-[#0B2C4A]"
+
+  const shapeClass = shape === "circle" ? "rounded-full" : "rounded-2xl"
+
+  return (
+    <div className={`flex h-12 w-12 items-center justify-center ${shapeClass} ${toneClass}`}>
+      {children}
+    </div>
+  )
+}
+
 export default function PayoutRequestForm({
   payoutAccounts,
   payouts,
@@ -49,10 +76,14 @@ export default function PayoutRequestForm({
   const [selectedAccount, setSelectedAccount] = useState(
     payoutAccounts.find((account) => account.is_default)?.id ?? payoutAccounts[0]?.id ?? ""
   )
-  const [note, setNote] = useState("")
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const defaultAccount = useMemo(
+    () => payoutAccounts.find((account) => account.is_default) ?? payoutAccounts[0] ?? null,
+    [payoutAccounts]
+  )
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFeedback(null)
 
@@ -60,7 +91,6 @@ export default function PayoutRequestForm({
       const formData = new FormData()
       formData.set("amount", amount)
       formData.set("payoutAccountId", selectedAccount)
-      formData.set("note", note)
 
       const result = await requestPayoutAction(formData)
 
@@ -71,67 +101,120 @@ export default function PayoutRequestForm({
 
       setFeedback({ type: "success", message: result.message ?? "Solicitud enviada." })
       setAmount("")
-      setNote("")
       router.refresh()
     })
   }
 
   return (
-    <div className="space-y-6">
-      <section className="intra-card p-6 shadow-sm sm:p-8">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+    <div className="space-y-5 text-[#0B2C4A]">
+      <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h1 className="intra-page-title text-2xl sm:text-3xl">Solicitar retiro</h1>
-            <p className="mt-1 intra-body text-intra-text-muted sm:text-base">
+            <h1 className="text-[28px] font-semibold leading-tight text-[#0B2C4A]">Solicitar retiro</h1>
+            <p className="mt-2 hidden max-w-2xl text-sm leading-6 text-[#667085] sm:block sm:text-[14px]">
               Mueve el saldo disponible de tu wallet a una cuenta bancaria o billetera digital.
             </p>
           </div>
-          <Link
-            href="/app/wallet/payout/accounts"
-            className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-4 py-2.5 text-sm font-semibold"
-          >
-            Administrar cuentas
-          </Link>
+
+          <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#EFFBF4] px-4 py-2 text-xs font-semibold text-[#1C7C45]">
+            <ShieldCheck className="h-4 w-4" strokeWidth={1.9} />
+            Retiros seguros y manuales
+          </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="intra-dashboard-revenue-card rounded-2xl p-5">
-            <p className="text-sm text-intra-card/65">Disponible para retirar</p>
-            <p className="mt-2 text-3xl font-bold text-intra-card">{formatCop(withdrawableBalance)}</p>
-            <p className="mt-2 text-xs text-intra-card/70">
-              Ya descontamos solicitudes pendientes o aprobadas para evitar retiros duplicados.
-            </p>
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <article className="rounded-[16px] border border-[#E4E7EC] bg-white p-6">
+            <div className="flex items-center gap-4">
+              <SurfaceIcon tone="blue" shape="circle">
+                <Wallet className="h-5 w-5" strokeWidth={1.9} />
+              </SurfaceIcon>
+              <div>
+                <p className="text-sm font-medium text-[#667085]">Disponible para retirar</p>
+                <p className="mt-2 text-[30px] font-semibold leading-none text-[#0B2C4A]">
+                  {formatCop(withdrawableBalance)}
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <article className="rounded-[16px] border border-[#E4E7EC] bg-white p-6">
+            <div className="flex items-center gap-4">
+              <SurfaceIcon tone="neutral" shape="circle">
+                <Building2 className="h-5 w-5" strokeWidth={1.9} />
+              </SurfaceIcon>
+              <div>
+                <p className="text-sm font-medium text-[#667085]">Cuenta principal</p>
+                <p className="mt-2 text-lg font-semibold leading-snug text-[#0B2C4A]">
+                  {defaultAccount ? getPayoutAccountDisplayName(defaultAccount) : "Sin cuenta principal"}
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      {payoutAccounts.length === 0 ? (
+        <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-2xl">
+              <SurfaceIcon tone="green">
+                <Wallet className="h-6 w-6" strokeWidth={1.9} />
+              </SurfaceIcon>
+
+              <h2 className="mt-6 text-[22px] font-semibold leading-tight text-[#0B2C4A]">
+                Aún no tienes un método de retiro registrado
+              </h2>
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#EFFBF4] px-3 py-1.5 text-xs font-semibold text-[#1C7C45]">
+                <span className="h-2 w-2 rounded-full bg-[#2ECC71]" />
+                Retiro mínimo: {formatCop(minimumPayout)}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row xl:mt-[68px] xl:shrink-0 xl:justify-end">
+              <Link
+                href="/app/wallet/payout/accounts"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] sm:w-auto whitespace-nowrap"
+              >
+                <Plus className="h-4 w-4" strokeWidth={1.9} />
+                Agregar método de retiro
+              </Link>
+              <Link
+                href="/app/wallet/payout/accounts"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB] sm:w-auto whitespace-nowrap"
+              >
+                <Building2 className="h-4 w-4" strokeWidth={1.9} />
+                Administrar cuentas
+              </Link>
+            </div>
           </div>
-          <div className="rounded-2xl border border-intra-success-border bg-intra-success-soft p-5">
-            <p className="text-sm text-intra-text-success">Retiro mínimo</p>
-            <p className="mt-2 text-3xl font-bold text-intra-blue">{formatCop(minimumPayout)}</p>
-            <p className="mt-2 text-xs text-intra-text-subtle">Solo procesamos montos desde {formatCop(minimumPayout)}.</p>
-          </div>
-          <div className="rounded-2xl border border-intra-border-soft bg-intra-bg-app p-5">
-            <p className="text-sm text-intra-text-muted">Cuenta principal</p>
-            <p className="mt-2 text-base font-semibold text-intra-blue">
-              {payoutAccounts.find((account) => account.is_default)
-                ? getPayoutAccountDisplayName(payoutAccounts.find((account) => account.is_default)!)
-                : "Sin cuenta principal"}
-            </p>
-              <p className="mt-2 text-xs text-intra-text-muted">
-              Si quieres cambiarla, edítala desde Métodos de retiro.
+        </section>
+      ) : (
+        <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h2 className="text-[22px] font-semibold leading-tight text-[#0B2C4A]">Solicita tu retiro</h2>
+              <p className="mt-2 hidden max-w-2xl text-sm leading-6 text-[#667085] sm:block">
+                Elige la cuenta de destino, define el monto y deja una nota opcional para revisión manual.
               </p>
-          </div>
-        </div>
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#EFFBF4] px-3 py-1.5 text-xs font-semibold text-[#1C7C45]">
+                <span className="h-2 w-2 rounded-full bg-[#2ECC71]" />
+                Retiro mínimo: {formatCop(minimumPayout)}
+              </div>
+            </div>
 
-        {payoutAccounts.length === 0 ? (
-          <div className="mt-6 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-subtle">
-            Antes de solicitar un retiro debes registrar un método de retiro.
-            <Link href="/app/wallet/payout/accounts" className="ml-1 font-semibold text-intra-blue hover:underline">
-              Agregar método
+            <Link
+              href="/app/wallet/payout/accounts"
+              className="intra-btn intra-btn-secondary inline-flex min-h-11 items-center justify-center gap-2 self-center rounded-2xl border-[var(--intra-border)] bg-[var(--intra-bg-app)] px-4 py-2.5 text-sm font-semibold text-[var(--intra-blue)] shadow-sm transition hover:bg-[var(--intra-card)] lg:mt-0 lg:self-start"
+            >
+              <Building2 className="h-4 w-4" strokeWidth={1.9} />
+              Administrar cuentas
             </Link>
           </div>
-        ) : (
+
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-intra-blue">Monto</span>
+                <span className="text-sm font-semibold text-[#0B2C4A]">Monto</span>
                 <input
                   inputMode="numeric"
                   min={minimumPayout}
@@ -139,16 +222,16 @@ export default function PayoutRequestForm({
                   value={amount}
                   onChange={(event) => setAmount(event.target.value)}
                   placeholder="10000"
-                  className="intra-input"
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-intra-blue">Cuenta de retiro</span>
+                <span className="text-sm font-semibold text-[#0B2C4A]">Cuenta de retiro</span>
                 <select
                   value={selectedAccount}
                   onChange={(event) => setSelectedAccount(event.target.value)}
-                  className="intra-input"
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
                 >
                   {payoutAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
@@ -159,79 +242,74 @@ export default function PayoutRequestForm({
               </label>
             </div>
 
-            <label className="space-y-2 block">
-              <span className="text-sm font-semibold text-intra-blue">Nota para revisión (opcional)</span>
-              <textarea
-                rows={3}
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Ej: procesar esta semana"
-                className="intra-input min-h-0"
-              />
-            </label>
-
             {feedback ? (
               <div
-                className={`rounded-2xl px-4 py-3 text-sm ${
+                className={`rounded-[16px] px-4 py-3 text-sm ${
                   feedback.type === "error"
                     ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-                    : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                    : "border border-[#B7E4C7] bg-[#EFFBF4] text-[#1C7C45]"
                 }`}
               >
                 {feedback.message}
               </div>
             ) : null}
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 type="submit"
                 disabled={isPending || payoutAccounts.length === 0}
-                className="intra-btn intra-btn-primary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold disabled:opacity-60"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] disabled:opacity-60"
               >
                 {isPending ? "Enviando..." : "Solicitar retiro"}
               </button>
-              <button
-                type="button"
-                onClick={() => setAmount(String(withdrawableBalance > 0 ? Math.floor(withdrawableBalance / 1000) * 1000 : 0))}
-                className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold"
-              >
-                Usar saldo disponible
-              </button>
             </div>
           </form>
-        )}
-      </section>
+        </section>
+      )}
 
-      <section className="intra-card p-6 shadow-sm sm:p-8">
-        <div className="flex items-center justify-between gap-3">
+      <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="intra-h4">Historial de retiros</h2>
-            <p className="mt-1 text-sm text-intra-text-muted">Revisa el estado de cada solicitud.</p>
+            <h2 className="text-[22px] font-semibold leading-tight text-[#0B2C4A]">Historial de retiros</h2>
+            <p className="mt-2 hidden text-sm leading-6 text-[#667085] sm:block">
+              Revisa el estado y detalle de cada solicitud de retiro.
+            </p>
           </div>
-          <Link href="/app/wallet/history" className="intra-link text-sm font-semibold">
+
+          <Link
+            href="/app/wallet/history"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-[#0B2C4A] transition hover:text-[#1C4C75]"
+          >
             Ver movimientos
+            <ArrowRight className="h-4 w-4" strokeWidth={1.9} />
           </Link>
         </div>
 
         {payouts.length === 0 ? (
-          <div className="mt-5 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-muted">
-            Aún no has solicitado retiros.
+          <div className="mt-6 rounded-[16px] border border-dashed border-[#E4E7EC] bg-[#F9FAFB] px-6 py-8 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F2F4F7] text-[#667085]">
+              <FileText className="h-6 w-6" strokeWidth={1.9} />
+            </div>
+            <h3 className="mt-4 text-[18px] font-semibold text-[#0B2C4A]">Aún no tienes retiros solicitados</h3>
+            <p className="mt-2 text-sm leading-6 text-[#667085]">
+              Cuando hagas tu primer retiro, lo verás reflejado aquí.
+            </p>
           </div>
         ) : (
-          <div className="mt-5 space-y-3">
+          <div className="mt-6 space-y-3">
             {payouts.map((payout) => (
-              <article key={payout.id} className="rounded-2xl border border-intra-border-soft p-4">
+              <article key={payout.id} className="rounded-[16px] border border-[#E4E7EC] bg-white p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="font-semibold text-intra-blue">{formatCop(payout.amount)}</p>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">
+                    <p className="text-[18px] font-semibold text-[#0B2C4A]">{formatCop(payout.amount)}</p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#667085]">
                       {payout.payout_code || "Sin referencia"}
                     </p>
-                    <p className="mt-1 text-sm text-intra-text-muted">
-                      Solicitado el {payout.requested_at ? new Date(payout.requested_at).toLocaleDateString("es-CO") : "sin fecha"}
+                    <p className="mt-2 text-sm text-[#667085]">
+                      Solicitado el {formatDateTime(payout.requested_at)}
                     </p>
                     {payout.review_notes ? (
-                      <p className="mt-2 text-sm text-intra-text-subtle">Nota: {payout.review_notes}</p>
+                      <p className="mt-2 text-sm text-[#667085]">Nota: {payout.review_notes}</p>
                     ) : null}
                   </div>
                   <span
