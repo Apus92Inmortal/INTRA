@@ -134,7 +134,7 @@ function DashboardShortcutCard({
   return (
     <Link
       href={href}
-      className={`group flex min-h-28 items-center gap-4 rounded-[var(--intra-radius-md)] p-4 text-left transition sm:p-5 ${cardClassName}`}
+      className={`group flex min-h-[108px] items-center gap-3 rounded-[var(--intra-radius-md)] p-3.5 text-left transition sm:min-h-28 sm:gap-4 sm:p-5 ${cardClassName}`}
     >
       <div className={`intra-icon-shell-emphasis rounded-[var(--intra-radius-xs)] ${iconShellClassName}`}>
         {icon}
