@@ -155,7 +155,7 @@ export default function PayoutRequestForm({
 
       {payoutAccounts.length === 0 ? (
         <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-sm sm:p-8">
-          <div className="grid gap-6 xl:grid-cols-[auto,1fr,auto] xl:items-center">
+          <div className="grid gap-6 xl:grid-cols-[auto,1fr,auto] xl:items-start">
             <SurfaceIcon tone="green">
               <Wallet className="h-6 w-6" strokeWidth={1.9} />
             </SurfaceIcon>
@@ -173,16 +173,16 @@ export default function PayoutRequestForm({
               </div>
             </div>
 
-            <div className="flex flex-col gap-4 sm:flex-row xl:w-[240px] xl:flex-col xl:self-center xl:items-stretch">
+            <div className="flex flex-col gap-3 sm:flex-row xl:justify-self-end xl:self-center">
               <Link
                 href="/app/wallet/payout/accounts"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] xl:w-full"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] sm:w-auto whitespace-nowrap"
               >
                 Agregar método de retiro
               </Link>
               <Link
                 href="/app/wallet/payout/accounts"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#E4E7EC] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB] xl:w-full"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-[#E4E7EC] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB] sm:w-auto whitespace-nowrap"
               >
                 Administrar cuentas
               </Link>
