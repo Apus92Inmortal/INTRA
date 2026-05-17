@@ -731,7 +731,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-[0.8fr_0.9fr_1.3fr] rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm sm:grid-cols-3">
+                <div className="grid grid-cols-[0.65fr_1.05fr_1.3fr] rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm sm:grid-cols-3">
                   <div className="flex flex-col px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Entregas</p>
                     <div className="mt-1 flex w-full justify-center">
