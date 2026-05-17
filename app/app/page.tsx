@@ -141,7 +141,7 @@ function DashboardShortcutCard({
       </div>
       <div className="min-w-0">
         <p className="intra-h4 text-white">{title}</p>
-        <p className={`mt-1 intra-body ${descriptionClassName}`}>{description}</p>
+        <p className={`mt-1 hidden intra-body sm:block ${descriptionClassName}`}>{description}</p>
       </div>
       <svg className={`ml-auto intra-icon-emphasis shrink-0 transition group-hover:translate-x-1 ${arrowClassName}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
