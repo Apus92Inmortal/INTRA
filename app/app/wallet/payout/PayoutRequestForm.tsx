@@ -190,7 +190,7 @@ export default function PayoutRequestForm({
         </section>
       ) : (
         <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-sm sm:p-8">
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr),auto] lg:items-start">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h2 className="text-[22px] font-semibold leading-tight text-[#0B2C4A]">Solicita tu retiro</h2>
               <p className="mt-2 hidden max-w-2xl text-sm leading-6 text-[#667085] sm:block">
@@ -204,7 +204,7 @@ export default function PayoutRequestForm({
 
             <Link
               href="/app/wallet/payout/accounts"
-              className="inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-2xl border border-[#D7E2ED] bg-[#F2F7FB] px-4 py-2.5 text-sm font-semibold text-[#0B2C4A] shadow-sm transition hover:bg-[#EAF2F8]"
+              className="intra-btn intra-btn-secondary inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-2xl border-[var(--intra-border)] bg-[var(--intra-bg-app)] px-4 py-2.5 text-sm font-semibold text-[var(--intra-blue)] shadow-sm transition hover:bg-[var(--intra-card)] lg:mt-0 lg:self-start"
             >
               <Building2 className="h-4 w-4" strokeWidth={1.9} />
               Cuentas
