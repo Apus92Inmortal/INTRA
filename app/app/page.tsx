@@ -731,14 +731,14 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-3 rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm">
-                  <div className="flex flex-col px-3 py-3 sm:px-4">
+                <div className="grid grid-cols-[0.8fr_0.9fr_1.3fr] rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm sm:grid-cols-3">
+                  <div className="flex flex-col px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Entregas</p>
                     <div className="mt-1 flex w-full justify-center">
                       <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.deliveriesCount}</p>
                     </div>
                   </div>
-                  <div className="flex flex-col border-l border-white/10 px-3 py-3 sm:px-4">
+                  <div className="flex flex-col border-l border-white/10 px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Promedio</p>
                     <div className="mt-1 flex w-full justify-center">
                       <p className="intra-on-dark-body-strong">{dashboard.monthlyRevenue.averageTicketLabel}</p>
@@ -747,7 +747,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   <div className="flex flex-col border-l border-white/10 px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Mejor ruta</p>
                     <div className="mt-1 flex w-full justify-center">
-                      <p className="whitespace-nowrap text-center text-[12px] font-bold leading-4 tracking-[-0.02em] text-white sm:text-[18px] sm:leading-6 sm:tracking-normal">
+                      <p className="intra-on-dark-body-strong whitespace-nowrap text-center">
                         {dashboard.monthlyRevenue.bestRouteLabel || "Sin datos"}
                       </p>
                     </div>
