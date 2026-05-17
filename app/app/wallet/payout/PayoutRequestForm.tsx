@@ -204,7 +204,7 @@ export default function PayoutRequestForm({
 
             <Link
               href="/app/wallet/payout/accounts"
-              className="intra-btn intra-btn-secondary inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-2xl border-[var(--intra-border)] bg-[var(--intra-bg-app)] px-4 py-2.5 text-sm font-semibold text-[var(--intra-blue)] shadow-sm transition hover:bg-[var(--intra-card)] lg:mt-0 lg:self-start"
+              className="intra-btn intra-btn-secondary inline-flex min-h-11 items-center justify-center gap-2 self-center rounded-2xl border-[var(--intra-border)] bg-[var(--intra-bg-app)] px-4 py-2.5 text-sm font-semibold text-[var(--intra-blue)] shadow-sm transition hover:bg-[var(--intra-card)] lg:mt-0 lg:self-start"
             >
               <Building2 className="h-4 w-4" strokeWidth={1.9} />
               Administrar cuentas
