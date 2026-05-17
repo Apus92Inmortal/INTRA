@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition, type FormEvent, type ReactNode } from "react"
-import { ArrowRight, Building2, FileText, ShieldCheck, Wallet } from "lucide-react"
+import { ArrowRight, Building2, FileText, Plus, ShieldCheck, Wallet } from "lucide-react"
 import { requestPayoutAction } from "@/app/app/wallet/actions"
 import {
   formatCop,
@@ -155,35 +155,34 @@ export default function PayoutRequestForm({
 
       {payoutAccounts.length === 0 ? (
         <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-sm sm:p-8">
-          <div className="grid gap-6 xl:grid-cols-[auto,1fr,auto] xl:items-start">
-            <SurfaceIcon tone="green">
-              <Wallet className="h-6 w-6" strokeWidth={1.9} />
-            </SurfaceIcon>
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-2xl">
+              <SurfaceIcon tone="green">
+                <Wallet className="h-6 w-6" strokeWidth={1.9} />
+              </SurfaceIcon>
 
-            <div>
-              <h2 className="text-[22px] font-semibold leading-tight text-[#0B2C4A]">
+              <h2 className="mt-6 text-[22px] font-semibold leading-tight text-[#0B2C4A]">
                 Aún no tienes un método de retiro registrado
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#667085]">
-                Para solicitar un retiro, primero debes agregar una cuenta bancaria o billetera digital donde recibir el pago.
-              </p>
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#EFFBF4] px-3 py-1.5 text-xs font-semibold text-[#1C7C45]">
                 <span className="h-2 w-2 rounded-full bg-[#2ECC71]" />
                 Retiro mínimo: {formatCop(minimumPayout)}
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row xl:justify-self-end xl:self-center">
+            <div className="flex flex-col gap-3 sm:flex-row xl:mt-[68px] xl:shrink-0 xl:justify-end">
               <Link
                 href="/app/wallet/payout/accounts"
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] sm:w-auto whitespace-nowrap"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] sm:w-auto whitespace-nowrap"
               >
+                <Plus className="h-4 w-4" strokeWidth={1.9} />
                 Agregar método de retiro
               </Link>
               <Link
                 href="/app/wallet/payout/accounts"
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-[#E4E7EC] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB] sm:w-auto whitespace-nowrap"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB] sm:w-auto whitespace-nowrap"
               >
+                <Building2 className="h-4 w-4" strokeWidth={1.9} />
                 Administrar cuentas
               </Link>
             </div>
