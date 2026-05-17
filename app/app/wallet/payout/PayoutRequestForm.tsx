@@ -76,7 +76,6 @@ export default function PayoutRequestForm({
   const [selectedAccount, setSelectedAccount] = useState(
     payoutAccounts.find((account) => account.is_default)?.id ?? payoutAccounts[0]?.id ?? ""
   )
-  const [note, setNote] = useState("")
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
   const defaultAccount = useMemo(
@@ -92,7 +91,6 @@ export default function PayoutRequestForm({
       const formData = new FormData()
       formData.set("amount", amount)
       formData.set("payoutAccountId", selectedAccount)
-      formData.set("note", note)
 
       const result = await requestPayoutAction(formData)
 
@@ -103,7 +101,6 @@ export default function PayoutRequestForm({
 
       setFeedback({ type: "success", message: result.message ?? "Solicitud enviada." })
       setAmount("")
-      setNote("")
       router.refresh()
     })
   }
@@ -244,17 +241,6 @@ export default function PayoutRequestForm({
                 </select>
               </label>
             </div>
-
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-[#0B2C4A]">Nota para revisión (opcional)</span>
-              <textarea
-                rows={3}
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Ej: procesar esta semana"
-                className="intra-input min-h-[110px] rounded-2xl border-[#E4E7EC] px-4 py-3"
-              />
-            </label>
 
             {feedback ? (
               <div
