@@ -84,21 +84,17 @@ function mergeMetadata(base: unknown, patch: JsonObject) {
   }
 }
 
-async function creditManualRefundToWallet(
+async function ensureWalletForUser(
   admin: ReturnType<typeof createAdminClient>,
-  input: {
-    userId: string
-    amount: number
-    reason: string
-  }
-): Promise<ActionResult> {
+  userId: string
+): Promise<{ success: true; walletId: string } | { success: false; error: string }> {
   const now = new Date().toISOString()
 
   const { data: wallet, error: walletError } = await admin
     .from("wallets")
     .upsert(
       {
-        user_id: input.userId,
+        user_id: userId,
         updated_at: now,
       },
       {
@@ -111,38 +107,26 @@ async function creditManualRefundToWallet(
   if (walletError || !wallet) {
     return {
       success: false,
-      error: walletError?.message ?? "No pudimos asegurar la wallet del cliente.",
+      error: walletError?.message ?? "No pudimos asegurar la wallet requerida.",
     }
   }
 
-  const { error: ledgerInsertError } = await admin.from("wallet_ledger").insert({
-    wallet_id: (wallet as WalletRow).id,
-    user_id: input.userId,
-    payment_id: null,
-    match_id: null,
-    payout_id: null,
-    entry_type: "refund_available_credit",
-    balance_type: "available",
-    direction: "credit",
-    amount: input.amount,
-    description: input.reason,
-    metadata: {
-      source: "admin_manual_refund",
-      reason: input.reason,
-    },
-  })
-
-  if (ledgerInsertError) {
-    return {
-      success: false,
-      error: ledgerInsertError.message,
-    }
+  return {
+    success: true,
+    walletId: (wallet as WalletRow).id,
   }
+}
+
+async function syncWalletSummary(
+  admin: ReturnType<typeof createAdminClient>,
+  userId: string
+): Promise<ActionResult> {
+  const now = new Date().toISOString()
 
   const { data: ledgerRows, error: ledgerRowsError } = await admin
     .from("wallet_ledger")
     .select("entry_type, balance_type, direction, amount")
-    .eq("user_id", input.userId)
+    .eq("user_id", userId)
 
   if (ledgerRowsError) {
     return {
@@ -190,7 +174,7 @@ async function creditManualRefundToWallet(
       total_withdrawn: summary.totalWithdrawn,
       updated_at: now,
     })
-    .eq("user_id", input.userId)
+    .eq("user_id", userId)
 
   if (walletUpdateError) {
     return {
@@ -447,18 +431,130 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
 
     if (action === "customer_refund") {
       const resolvedRefundAmount = refundAmount ?? 0
+      const travelerAmount = Number(payment.traveler_amount ?? payment.amount ?? 0)
+      const ledgerReason = resolutionNotes || `Devolución manual por disputa · ${shipment.tracking_code ?? resolvedMatchId}`
 
-      const refundResult = await creditManualRefundToWallet(admin, {
-        userId: shipment.owner_id,
-        amount: resolvedRefundAmount,
-        reason: resolutionNotes || `Devolución manual por disputa · ${shipment.tracking_code ?? resolvedMatchId}`,
-      })
+      const [customerWalletResult, travelerWalletResult, existingEntriesResult] = await Promise.all([
+        ensureWalletForUser(admin, shipment.owner_id),
+        ensureWalletForUser(admin, trip.traveler_id),
+        admin
+          .from("wallet_ledger")
+          .select("entry_type")
+          .eq("payment_id", payment.id),
+      ])
 
-      if (!refundResult.success) {
+      if (!customerWalletResult.success) {
+        return customerWalletResult
+      }
+
+      if (!travelerWalletResult.success) {
+        return travelerWalletResult
+      }
+
+      const customerWalletId = customerWalletResult.walletId
+      const travelerWalletId = travelerWalletResult.walletId
+
+      if (existingEntriesResult.error) {
         return {
           success: false,
-          error: refundResult.error ?? "No se pudo acreditar la devolución.",
+          error: existingEntriesResult.error.message,
         }
+      }
+
+      const existingEntryTypes = new Set((existingEntriesResult.data ?? []).map((row) => row.entry_type).filter(Boolean))
+      const ledgerRowsToInsert: Array<{
+        wallet_id: string
+        user_id: string
+        payment_id: string
+        match_id: string
+        payout_id: null
+        entry_type: string
+        balance_type: "available" | "pending"
+        direction: "credit" | "debit"
+        amount: number
+        description: string
+        metadata: Record<string, unknown>
+      }> = []
+
+      if (travelerAmount > 0 && existingEntryTypes.has("payment_hold") && !existingEntryTypes.has("refund_pending_debit")) {
+        ledgerRowsToInsert.push({
+          wallet_id: travelerWalletId,
+          user_id: trip.traveler_id,
+          payment_id: payment.id,
+          match_id: resolvedMatchId,
+          payout_id: null,
+          entry_type: "refund_pending_debit",
+          balance_type: "pending",
+          direction: "debit",
+          amount: travelerAmount,
+          description: "Reverso de retención temporal por disputa resuelta a favor del cliente",
+          metadata: {
+            source: "admin_dispute_customer_refund",
+            reason: ledgerReason,
+          },
+        })
+      }
+
+      if (travelerAmount > 0 && existingEntryTypes.has("release_available_credit") && !existingEntryTypes.has("refund_available_debit")) {
+        ledgerRowsToInsert.push({
+          wallet_id: travelerWalletId,
+          user_id: trip.traveler_id,
+          payment_id: payment.id,
+          match_id: resolvedMatchId,
+          payout_id: null,
+          entry_type: "refund_available_debit",
+          balance_type: "available",
+          direction: "debit",
+          amount: travelerAmount,
+          description: "Ajuste de saldo por disputa resuelta a favor del cliente",
+          metadata: {
+            source: "admin_dispute_customer_refund",
+            reason: ledgerReason,
+          },
+        })
+      }
+
+      if (!existingEntryTypes.has("refund_available_credit")) {
+        ledgerRowsToInsert.push({
+          wallet_id: customerWalletId,
+          user_id: shipment.owner_id,
+          payment_id: payment.id,
+          match_id: resolvedMatchId,
+          payout_id: null,
+          entry_type: "refund_available_credit",
+          balance_type: "available",
+          direction: "credit",
+          amount: resolvedRefundAmount,
+          description: ledgerReason,
+          metadata: {
+            source: "admin_dispute_customer_refund",
+            reason: ledgerReason,
+          },
+        })
+      }
+
+      if (ledgerRowsToInsert.length > 0) {
+        const { error: ledgerInsertError } = await admin.from("wallet_ledger").insert(ledgerRowsToInsert)
+
+        if (ledgerInsertError) {
+          return {
+            success: false,
+            error: ledgerInsertError.message,
+          }
+        }
+      }
+
+      const [customerSyncResult, travelerSyncResult] = await Promise.all([
+        syncWalletSummary(admin, shipment.owner_id),
+        syncWalletSummary(admin, trip.traveler_id),
+      ])
+
+      if (!customerSyncResult.success) {
+        return customerSyncResult
+      }
+
+      if (!travelerSyncResult.success) {
+        return travelerSyncResult
       }
 
       const [{ error: paymentUpdateError }, { error: matchUpdateError }] = await Promise.all([
@@ -497,7 +593,7 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
         customerTitle: "Tu disputa fue resuelta",
         customerMessage: `Acreditamos ${resolvedRefundAmount.toLocaleString("es-CO")} COP a tu wallet como devolución.`,
         travelerTitle: "Disputa resuelta a favor del cliente",
-        travelerMessage: "La administración resolvió la disputa a favor del cliente y acreditó una devolución a su wallet.",
+        travelerMessage: "La administración resolvió la disputa a favor del cliente, devolvió el saldo al cliente y retiró la retención del pago en tu wallet.",
       })
 
       revalidateAdminDisputePaths(resolvedMatchId)
