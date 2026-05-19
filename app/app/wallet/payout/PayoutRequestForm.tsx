@@ -8,7 +8,9 @@ import { requestPayoutAction } from "@/app/app/wallet/actions"
 import {
   formatCop,
   formatDateTime,
+  getCompactPayoutAccountLabel,
   getPayoutAccountDisplayName,
+  getPayoutInstitutionLabel,
   getPayoutStatusClasses,
   getPayoutStatusLabel,
   maskAccountNumber,
@@ -145,7 +147,7 @@ export default function PayoutRequestForm({
               <div>
                 <p className="text-sm font-medium text-[#667085]">Cuenta principal</p>
                 <p className="mt-2 text-lg font-semibold leading-snug text-[#0B2C4A]">
-                  {defaultAccount ? getPayoutAccountDisplayName(defaultAccount) : "Sin cuenta principal"}
+                  {defaultAccount ? getPayoutInstitutionLabel(defaultAccount) : "Sin cuenta principal"}
                 </p>
               </div>
             </div>
@@ -231,7 +233,18 @@ export default function PayoutRequestForm({
                 <select
                   value={selectedAccount}
                   onChange={(event) => setSelectedAccount(event.target.value)}
-                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4 md:hidden"
+                >
+                  {payoutAccounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {getCompactPayoutAccountLabel(account)}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedAccount}
+                  onChange={(event) => setSelectedAccount(event.target.value)}
+                  className="hidden intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4 md:block"
                 >
                   {payoutAccounts.map((account) => (
                     <option key={account.id} value={account.id}>

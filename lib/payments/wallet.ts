@@ -170,6 +170,22 @@ export function maskAccountNumber(accountNumber: string | null | undefined) {
   return `${"•".repeat(Math.max(cleaned.length - 4, 2))}${cleaned.slice(-4)}`
 }
 
+export function getPayoutInstitutionLabel(input: {
+  bank_name?: string | null
+  account_type?: string | null
+}) {
+  return input.bank_name?.trim() || getAccountTypeLabel(input.account_type ?? null)
+}
+
+export function getCompactPayoutAccountLabel(input: {
+  bank_name?: string | null
+  account_type?: string | null
+  account_number?: string | null
+}) {
+  const baseLabel = getPayoutInstitutionLabel(input)
+  return `${baseLabel} · ${maskAccountNumber(input.account_number)}`
+}
+
 export function getPaymentResultLabel(status: string | null) {
   switch (status) {
     case "held":
