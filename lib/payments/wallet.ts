@@ -139,6 +139,13 @@ export function getAccountTypeLabel(accountType: string | null) {
   }
 }
 
+export function getPayoutInstitutionLabel(input: {
+  bank_name?: string | null
+  account_type?: string | null
+}) {
+  return input.bank_name?.trim() || getAccountTypeLabel(input.account_type ?? null)
+}
+
 export function getPayoutAccountDisplayName(input: {
   bank_name?: string | null
   account_type?: string | null
@@ -154,6 +161,14 @@ export function getPayoutAccountDisplayName(input: {
   }
 
   return accountTypeLabel
+}
+
+export function getCompactPayoutAccountLabel(input: {
+  bank_name?: string | null
+  account_type?: string | null
+  account_number?: string | null
+}) {
+  return `${getPayoutInstitutionLabel(input)} · ${maskAccountNumber(input.account_number)}`
 }
 
 export function maskAccountNumber(accountNumber: string | null | undefined) {
