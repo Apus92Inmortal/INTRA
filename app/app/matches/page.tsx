@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { ArrowRight, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
@@ -506,41 +506,25 @@ export default async function MatchesPage() {
               title="Pendientes"
               value={pendingMatchesCount}
               tone="amber"
-              icon={
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 3h8M8 21h8M9 3v5l3 4-3 4v5m6-18v5l-3 4 3 4v5" />
-                </svg>
-              }
+              icon={<Clock3 className="h-5 w-5" strokeWidth={1.9} />}
             />
             <SummaryMetricCard
               title="Activos"
               value={acceptedMatchesCount}
               tone="green"
-              icon={
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              }
+              icon={<CheckCircle2 className="h-5 w-5" strokeWidth={1.9} />}
             />
             <SummaryMetricCard
               title="En tránsito"
               value={inTransitCount}
               tone="blue"
-              icon={
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17H6a2 2 0 01-2-2V7a2 2 0 012-2h9a2 2 0 012 2v3m-1 7h2m0 0a2 2 0 100-4 2 2 0 000 4zm-8 0a2 2 0 100-4 2 2 0 000 4zm8 0H9m8-6h2l2 3v3h-2" />
-                </svg>
-              }
+              icon={<Truck className="h-5 w-5" strokeWidth={1.9} />}
             />
             <SummaryMetricCard
               title="Mensajes nuevos"
               value={unreadMatchesCount}
               tone="slate"
-              icon={
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h8m-8 4h5m8-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              }
+              icon={<MessageCircle className="h-5 w-5" strokeWidth={1.9} />}
             />
           </section>
 
