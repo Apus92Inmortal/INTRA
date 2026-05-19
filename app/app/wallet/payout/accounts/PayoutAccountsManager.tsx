@@ -268,7 +268,7 @@ export default function PayoutAccountsManager({
                   value={form.brebKey}
                   onChange={(event) => setForm((current) => ({ ...current, brebKey: event.target.value }))}
                   className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
-                  placeholder="Correo, celular o identificador"
+                  placeholder="@tullave"
                 />
               </label>
             </div>
