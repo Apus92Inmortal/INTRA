@@ -1,9 +1,17 @@
 "use client";
 
+import {
+  AlertCircle,
+  BadgeCheck,
+  FileText,
+  Lock,
+  Send,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { getVerificationBadge } from "@/lib/trust";
 import { compressImageFile } from "@/lib/uploads";
 
 type VerificationPanelProps = {
@@ -35,41 +43,74 @@ function getFileExtension(file: File) {
 }
 
 type UploadFieldProps = {
-  label: string;
+  title: string;
+  helper: string;
   selectedFile: File | null;
   hasUploaded: boolean;
   disabled?: boolean;
+  icon: "document" | "selfie";
   onChange: (file: File | null) => void;
 };
 
 function UploadField({
-  label,
+  title,
+  helper,
   selectedFile,
   hasUploaded,
   disabled = false,
+  icon,
   onChange,
 }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const isReady = Boolean(selectedFile) || hasUploaded;
 
   return (
-    <div className={`rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4 ${disabled ? "opacity-75" : ""}`}>
-      <div>
-        <p className="text-sm font-semibold text-intra-blue">{label}</p>
-        <p className="mt-1 text-sm text-intra-text-subtle">
+    <div className={`rounded-[20px] border border-[#E4E7EC] bg-white p-4 ${disabled ? "opacity-80" : ""}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F9FAFB] text-[#667085]">
+            {icon === "document" ? (
+              <FileText className="h-4 w-4" strokeWidth={1.9} />
+            ) : (
+              <UserRound className="h-4 w-4" strokeWidth={1.9} />
+            )}
+          </div>
+          <div>
+            <p className="text-[14px] font-bold leading-5 text-[#0B2C4A]">{title}</p>
+            <p className="mt-1 text-[12px] leading-[18px] text-[#667085]">{helper}</p>
+          </div>
+        </div>
+
+        {isReady ? (
+          <span className="inline-flex rounded-full bg-[#EFFBF4] px-2.5 py-1 text-[12px] font-bold leading-4 text-[#1E8C4E]">
+            Cargado
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-4 rounded-[16px] border border-dashed border-[#E4E7EC] bg-[#FCFCFD] px-4 py-5 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F9FAFB] text-[#667085]">
+          {icon === "document" ? (
+            <FileText className="h-7 w-7" strokeWidth={1.8} />
+          ) : (
+            <UserRound className="h-7 w-7" strokeWidth={1.8} />
+          )}
+        </div>
+        <p className="mt-3 text-[12px] leading-[18px] text-[#667085]">
           {selectedFile
             ? selectedFile.name
             : hasUploaded
               ? "Ya hay un archivo cargado."
-              : "Sube una imagen clara en JPG o PNG."}
+              : "Sube una imagen clara para iniciar la revisión."}
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
         <label
-          className={`inline-flex min-h-11 items-center justify-center rounded-2xl border px-4 py-2 text-sm font-semibold transition ${
+          className={`inline-flex min-h-11 items-center justify-center rounded-2xl border px-4 py-2.5 text-[14px] font-semibold transition ${
             disabled
-              ? "cursor-not-allowed border-intra-border-soft bg-intra-bg-app text-intra-text-muted/70"
-              : "cursor-pointer border-intra-border bg-intra-card text-intra-blue hover:bg-intra-bg-app"
+              ? "cursor-not-allowed border-[#E4E7EC] bg-[#F9FAFB] text-[#98A2B3]"
+              : "cursor-pointer border-[#E4E7EC] bg-white text-[#0B2C4A] hover:bg-[#F9FAFB]"
           }`}
         >
           <input
@@ -80,7 +121,7 @@ function UploadField({
             disabled={disabled}
             onChange={(event) => onChange(event.target.files?.[0] ?? null)}
           />
-          {selectedFile ? "Cambiar archivo" : "Seleccionar archivo"}
+          Seleccionar archivo
         </label>
 
         {selectedFile && !disabled ? (
@@ -92,7 +133,7 @@ function UploadField({
                 inputRef.current.value = "";
               }
             }}
-            className="text-sm font-medium text-intra-text-subtle transition hover:text-intra-blue"
+            className="text-[12px] font-semibold text-[#667085] transition hover:text-[#0B2C4A]"
           >
             Quitar
           </button>
@@ -100,6 +141,35 @@ function UploadField({
       </div>
     </div>
   );
+}
+
+function getVerificationTone(status: string | null, hasDocumentPhoto: boolean, hasSelfie: boolean) {
+  switch (status) {
+    case "verified":
+      return {
+        badgeLabel: "Verificada",
+        badgeClasses: "bg-[#EFFBF4] text-[#1E8C4E]",
+        note: "Tu identidad ya fue validada manualmente por el equipo.",
+      };
+    case "pending":
+      return {
+        badgeLabel: "En revisión",
+        badgeClasses: "bg-[#FFF7E8] text-[#D4A017]",
+        note: "Ya recibimos tus archivos. El equipo los revisará manualmente.",
+      };
+    case "rejected":
+      return {
+        badgeLabel: "Requiere corrección",
+        badgeClasses: "bg-[#FEF3F2] text-[#D92D20]",
+        note: "Corrige los archivos y vuelve a enviarlos para continuar.",
+      };
+    default:
+      return {
+        badgeLabel: hasDocumentPhoto && hasSelfie ? "Lista para envío" : "Pendiente de envío",
+        badgeClasses: "bg-[#FFF7E8] text-[#D4A017]",
+        note: "Aún falta cargar tu documento y selfie para iniciar la revisión.",
+      };
+  }
 }
 
 export default function VerificationPanel({
@@ -112,8 +182,6 @@ export default function VerificationPanel({
   const supabase = createClient();
   const router = useRouter();
 
-  const badge = useMemo(() => getVerificationBadge(initialStatus), [initialStatus]);
-
   const [documentPhoto, setDocumentPhoto] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
   const [acceptConsent, setAcceptConsent] = useState(false);
@@ -123,6 +191,11 @@ export default function VerificationPanel({
 
   const isLocked = initialStatus === "pending" || initialStatus === "verified";
   const canSubmit = !loading && !isLocked && Boolean(documentPhoto) && Boolean(selfie) && acceptConsent;
+
+  const tone = useMemo(
+    () => getVerificationTone(initialStatus, hasDocumentPhoto, hasSelfie),
+    [initialStatus, hasDocumentPhoto, hasSelfie]
+  );
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -144,7 +217,9 @@ export default function VerificationPanel({
 
     if (isLocked) {
       setLoading(false);
-      setMessage("Tu verificación ya fue enviada y los archivos están bloqueados mientras el equipo la revisa.");
+      setMessage(
+        "Tu verificación ya fue enviada y los archivos están bloqueados mientras el equipo la revisa."
+      );
       setMessageType("error");
       return;
     }
@@ -226,111 +301,104 @@ export default function VerificationPanel({
   };
 
   return (
-    <section className="intra-card p-6 sm:p-8">
+    <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-intra-blue">Verificación de identidad</h2>
-          <p className="mt-1 text-sm text-intra-text-subtle">
-            Esta revisión es manual. Nos ayuda a subir la confianza y a liberar mejores límites de uso.
-          </p>
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FFF7E8] text-[#D4A017]">
+            <ShieldCheck className="h-5 w-5" strokeWidth={1.9} />
+          </div>
+          <div>
+            <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">Verificación de identidad</h2>
+            <p className="mt-1 max-w-[42ch] text-[14px] leading-[22px] text-[#667085]">
+              Sube tu documento y una selfie clara. Revisaremos la información manualmente para proteger la comunidad.
+            </p>
+          </div>
         </div>
 
-        <span className={`inline-flex min-w-[170px] justify-center whitespace-nowrap rounded-full px-5 py-1.5 text-xs font-semibold ${badge.classes}`}>
-          {badge.label}
+        <span className={`inline-flex w-fit rounded-full px-4 py-2 text-[12px] font-bold leading-4 ${tone.badgeClasses}`}>
+          {tone.badgeLabel}
         </span>
       </div>
 
-      <div className="mt-5 rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-        <p>{badge.description}</p>
-        {reviewedAt ? <p className="mt-2">Última revisión: <span className="font-medium text-intra-blue">{formatDate(reviewedAt)}</span></p> : null}
-        {initialRejectionReason ? (
-          <p className="mt-2 rounded-xl border border-intra-danger-border bg-intra-danger-soft px-3 py-2 text-intra-danger">
-            Motivo de rechazo: {initialRejectionReason}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
-          <div className="flex items-center justify-between gap-3">
-            <p className="font-semibold text-intra-blue">Documento</p>
-            <span
-              className={`inline-flex min-w-[92px] justify-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${
-                hasDocumentPhoto
-                  ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
-                  : "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
-              }`}
-            >
-              {hasDocumentPhoto ? "Cargado" : "Pendiente"}
-            </span>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
-          <div className="flex items-center justify-between gap-3">
-            <p className="font-semibold text-intra-blue">Selfie</p>
-            <span
-              className={`inline-flex min-w-[92px] justify-center whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${
-                hasSelfie
-                  ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
-                  : "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
-              }`}
-            >
-              {hasSelfie ? "Cargado" : "Pendiente"}
-            </span>
+      <div className="mt-5 rounded-[18px] border border-[#FDE7B2] bg-[#FFF9EC] px-4 py-3 text-[14px] leading-[22px] text-[#8A6C12]">
+        <div className="flex items-start gap-2.5">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
+          <div>
+            <p>{initialStatus === "pending" || initialStatus === "verified" ? tone.note : "Necesitamos tu documento y una selfie para continuar."}</p>
+            {reviewedAt ? (
+              <p className="mt-1 text-[12px] leading-[18px] text-[#667085]">
+                Última revisión: <span className="font-semibold text-[#0B2C4A]">{formatDate(reviewedAt)}</span>
+              </p>
+            ) : null}
           </div>
         </div>
       </div>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
+      {initialRejectionReason ? (
+        <div className="mt-4 rounded-[18px] border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-[14px] leading-[22px] text-intra-danger">
+          Motivo de rechazo: {initialRejectionReason}
+        </div>
+      ) : null}
+
+      <form onSubmit={onSubmit} className="mt-5 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <UploadField
-            label="Foto del documento"
+            title="Documento requerido"
+            helper="JPG o PNG"
             selectedFile={documentPhoto}
             hasUploaded={hasDocumentPhoto}
             disabled={isLocked}
+            icon="document"
             onChange={setDocumentPhoto}
           />
 
           <UploadField
-            label="Selfie"
+            title="Selfie requerida"
+            helper="JPG o PNG"
             selectedFile={selfie}
             hasUploaded={hasSelfie}
             disabled={isLocked}
+            icon="selfie"
             onChange={setSelfie}
           />
         </div>
 
-        <details className="rounded-2xl border border-intra-border-strong bg-intra-neutral-soft-alt" open={!isLocked}>
-          <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-intra-blue [&::-webkit-details-marker]:hidden">
-            Autorización para revisión manual
-          </summary>
-          <div className="border-t border-intra-border-strong px-4 py-3">
-            <label className={`flex items-start gap-3 text-sm leading-6 text-intra-text-subtle ${isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"}`}>
-              <input
-                type="checkbox"
-                checked={acceptConsent || isLocked}
-                disabled={isLocked}
-                onChange={(event) => setAcceptConsent(event.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-intra-border text-intra-blue focus:ring-intra-blue/20"
-              />
-              <span>
-                Acepto que el equipo revise manualmente estas evidencias para validar mi identidad dentro de INTRA. Si la imagen pesa demasiado, la comprimimos antes de subirla.
-              </span>
-            </label>
-          </div>
-        </details>
+        <div className="rounded-[20px] border border-[#E4E7EC] bg-white px-4 py-4">
+          <p className="text-[14px] font-bold leading-5 text-[#0B2C4A]">Autorización</p>
+          <label
+            className={`mt-3 flex items-start gap-3 text-[14px] leading-[22px] text-[#667085] ${
+              isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={acceptConsent || isLocked}
+              disabled={isLocked}
+              onChange={(event) => setAcceptConsent(event.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-[#D0D5DD] text-[#2ECC71] focus:ring-[#2ECC71]/20"
+            />
+            <span>
+              Acepto que INTRA revise manualmente estas evidencias para validar mi identidad.
+            </span>
+          </label>
+        </div>
 
         {isLocked ? (
-          <div className="rounded-2xl border border-intra-border-strong bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
-            {initialStatus === "verified"
-              ? "Tu identidad ya fue verificada. Los archivos quedaron bloqueados y no necesitas volver a enviarlos."
-              : "Tu verificación está en revisión. Mientras el equipo responde, los archivos y el envío quedan bloqueados para evitar duplicados."}
+          <div className="rounded-[18px] border border-[#E4E7EC] bg-[#F9FAFB] px-4 py-3 text-[14px] leading-[22px] text-[#667085]">
+            <div className="flex items-start gap-2.5">
+              <Lock className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
+              <p>
+                {initialStatus === "verified"
+                  ? "Tu identidad ya fue verificada. No necesitas volver a cargar archivos."
+                  : "Tu verificación está en revisión. Mientras el equipo responde, el envío queda bloqueado para evitar duplicados."}
+              </p>
+            </div>
           </div>
         ) : null}
 
         {message ? (
           <div
-            className={`rounded-2xl border px-4 py-3 text-sm ${
+            className={`rounded-[18px] border px-4 py-3 text-[14px] leading-[22px] ${
               messageType === "success"
                 ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                 : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
@@ -340,17 +408,33 @@ export default function VerificationPanel({
           </div>
         ) : null}
 
-        <button
-          type="submit"
-          disabled={!canSubmit}
-          className="intra-btn intra-btn-primary px-5 py-3 text-sm"
-        >
-          {loading
-            ? "Enviando verificación..."
-            : isLocked
-              ? "Verificación bloqueada"
-              : "Enviar verificación"}
-        </button>
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)] sm:items-center">
+          <button
+            type="submit"
+            disabled={!canSubmit}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-[14px] font-bold leading-5 text-white transition hover:bg-[#27AE60] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {initialStatus === "verified" ? (
+              <BadgeCheck className="h-4 w-4" strokeWidth={1.9} />
+            ) : (
+              <Send className="h-4 w-4" strokeWidth={1.9} />
+            )}
+            {loading
+              ? "Enviando a revisión..."
+              : isLocked
+                ? initialStatus === "verified"
+                  ? "Verificación completada"
+                  : "En revisión"
+                : "Enviar a revisión"}
+          </button>
+
+          <div className="rounded-[18px] border border-[#CFEAD7] bg-[#EFFBF4] px-4 py-3 text-[12px] leading-[18px] text-[#1E8C4E]">
+            <div className="flex items-start gap-2.5">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
+              <p>Tu información se revisa de forma segura y manual.</p>
+            </div>
+          </div>
+        </div>
       </form>
     </section>
   );
