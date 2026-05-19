@@ -263,7 +263,7 @@ export default function PayoutAccountsManager({
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Llave</span>
+                <span className="text-sm font-semibold text-[#0B2C4A]">Llave Bre-B</span>
                 <input
                   value={form.brebKey}
                   onChange={(event) => setForm((current) => ({ ...current, brebKey: event.target.value }))}
