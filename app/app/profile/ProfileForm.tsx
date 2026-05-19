@@ -106,7 +106,7 @@ export default function ProfileForm({
         <div>
           <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">Información personal</h2>
           <p className="mt-1 text-[14px] leading-[22px] text-[#667085]">
-            Tus datos se usan para tu cuenta y procesos en INTRA.
+            Tus datos se usan para tu cuenta en INTRA.
           </p>
         </div>
       </div>
