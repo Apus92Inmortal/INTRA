@@ -29,10 +29,6 @@ export const metadata: Metadata = {
       "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $20.000 COP.",
     images: ["/assets/ChatGPT-Image-1-feb-2026-12_09_59-a.m.png"],
   },
-  icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    shortcut: ["/favicon.svg"],
-  },
 };
 
 const atlasLandingHtml = String.raw`
