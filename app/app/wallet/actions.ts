@@ -86,7 +86,7 @@ function validatePayoutAccount(input: PayoutAccountInput) {
   }
 
   if ((input.accountType === "ahorros" || input.accountType === "corriente") && !input.bankName) {
-    return "El banco es obligatorio para cuentas bancarias."
+    return "La entidad bancaria es obligatoria para cuentas bancarias."
   }
 
   return null

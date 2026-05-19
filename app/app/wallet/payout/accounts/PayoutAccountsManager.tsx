@@ -274,7 +274,7 @@ export default function PayoutAccountsManager({
                   value={form.bankName}
                   onChange={(event) => setForm((current) => ({ ...current, bankName: event.target.value }))}
                   className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
-                  placeholder="Ej. Bancolombia"
+                  placeholder="Ej. Davivienda"
                 />
               </label>
             ) : null}
