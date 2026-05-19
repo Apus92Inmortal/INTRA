@@ -314,9 +314,13 @@ export default function VerificationPanel({
           </div>
           <div>
             <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">Verificación de identidad</h2>
-            <p className="mt-1 max-w-[42ch] text-[14px] leading-[22px] text-[#667085]">
-              Sube tu documento y una selfie clara. Revisaremos la información manualmente para proteger la comunidad.
+            <p className="mt-1 max-w-[40ch] text-[14px] leading-[22px] text-[#667085]">
+              Carga tu documento y selfie para iniciar la revisión.
             </p>
+            <div className="mt-2 inline-flex max-w-full items-center gap-2 rounded-full bg-[#F9FAFB] px-3 py-1.5 text-[12px] leading-[18px] text-[#667085]">
+              <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-[#1E8C4E]" strokeWidth={1.9} />
+              <span className="truncate sm:whitespace-nowrap">Revisión manual para proteger la comunidad</span>
+            </div>
           </div>
         </div>
 
@@ -440,7 +444,7 @@ export default function VerificationPanel({
           <div className="rounded-[18px] border border-[#CFEAD7] bg-[#EFFBF4] px-4 py-3 text-[12px] leading-[18px] text-[#1E8C4E]">
             <div className="flex items-start gap-2.5">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
-              <p>Tu información se revisa de forma segura y manual.</p>
+              <p>Tus archivos se protegen durante la revisión.</p>
             </div>
           </div>
         </div>
