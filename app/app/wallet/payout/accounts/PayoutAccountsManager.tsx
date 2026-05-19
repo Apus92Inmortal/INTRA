@@ -38,6 +38,7 @@ type FormState = {
   documentNumber: string
   accountType: string
   accountNumber: string
+  brebKey: string
   isDefault: boolean
 }
 
@@ -53,6 +54,7 @@ const EMPTY_FORM: FormState = {
   documentNumber: "",
   accountType: "",
   accountNumber: "",
+  brebKey: "",
   isDefault: true,
 }
 
@@ -120,7 +122,7 @@ export default function PayoutAccountsManager({
       formData.set("bankName", derivedBankName)
       formData.set("accountType", form.accountType)
       formData.set("accountNumber", form.accountNumber)
-      formData.set("brebKey", "")
+      formData.set("brebKey", form.brebKey)
       formData.set("isDefault", String(form.isDefault))
 
       const result = await savePayoutAccountAction(formData)
@@ -144,6 +146,7 @@ export default function PayoutAccountsManager({
       documentNumber: account.document_number ?? "",
       accountType: account.account_type ?? "",
       accountNumber: account.account_number ?? "",
+      brebKey: account.breb_key ?? "",
       isDefault: Boolean(account.is_default),
     })
   }
@@ -248,15 +251,27 @@ export default function PayoutAccountsManager({
               </label>
             </div>
 
-            <label className="block space-y-2">
-              <span className="text-sm font-semibold text-[#0B2C4A]">Número de cuenta o celular</span>
-              <input
-                value={form.accountNumber}
-                onChange={(event) => setForm((current) => ({ ...current, accountNumber: event.target.value }))}
-                className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
-                placeholder="Ej. 300 123 4567"
-              />
-            </label>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-[#0B2C4A]">Número de cuenta o celular</span>
+                <input
+                  value={form.accountNumber}
+                  onChange={(event) => setForm((current) => ({ ...current, accountNumber: event.target.value }))}
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  placeholder="Ej. 300 123 4567"
+                />
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-[#0B2C4A]">Llave</span>
+                <input
+                  value={form.brebKey}
+                  onChange={(event) => setForm((current) => ({ ...current, brebKey: event.target.value }))}
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  placeholder="Correo, celular o identificador"
+                />
+              </label>
+            </div>
 
             <div className="flex items-start gap-2 rounded-[16px] text-sm text-[#667085]">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#667085]" strokeWidth={1.9} />

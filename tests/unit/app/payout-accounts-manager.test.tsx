@@ -41,10 +41,8 @@ describe("PayoutAccountsManager", () => {
     expect(
       screen.getByLabelText("Número de cuenta o celular")
     ).toBeInTheDocument()
+    expect(screen.getByLabelText("Llave")).toBeInTheDocument()
 
-    expect(
-      screen.queryByText(/Llave BRE-B/i)
-    ).not.toBeInTheDocument()
     expect(screen.queryByText(/^Banco$/i)).not.toBeInTheDocument()
 
     expect(
