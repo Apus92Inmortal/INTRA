@@ -85,14 +85,6 @@ function validatePayoutAccount(input: PayoutAccountInput) {
     return "El número de cuenta o celular es obligatorio."
   }
 
-  if ((input.accountType === "ahorros" || input.accountType === "corriente") && !input.bankName) {
-    return "El banco es obligatorio para cuentas bancarias."
-  }
-
-  if ((input.accountType === "ahorros" || input.accountType === "corriente") && !input.brebKey) {
-    return "La llave BRE-B es obligatoria para cuentas bancarias."
-  }
-
   return null
 }
 
@@ -137,7 +129,7 @@ export async function savePayoutAccountAction(formData: FormData): Promise<Actio
           ? payload.accountType === "nequi"
             ? "Nequi"
             : "Daviplata"
-          : payload.bankName,
+          : payload.bankName || null,
       account_type: payload.accountType,
       account_number: payload.accountNumber,
       breb_key: payload.brebKey || null,
