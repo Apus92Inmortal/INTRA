@@ -85,6 +85,10 @@ function validatePayoutAccount(input: PayoutAccountInput) {
     return "El número de cuenta o celular es obligatorio."
   }
 
+  if ((input.accountType === "ahorros" || input.accountType === "corriente") && !input.bankName) {
+    return "El banco es obligatorio para cuentas bancarias."
+  }
+
   return null
 }
 

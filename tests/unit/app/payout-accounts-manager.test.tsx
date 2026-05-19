@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import PayoutAccountsManager from "@/app/app/wallet/payout/accounts/PayoutAccountsManager"
@@ -19,7 +20,9 @@ describe("PayoutAccountsManager", () => {
     vi.clearAllMocks()
   })
 
-  it("renders the simplified empty state with the requested fields", () => {
+  it("renders the simplified empty state with the requested fields", async () => {
+    const user = userEvent.setup()
+
     render(<PayoutAccountsManager accounts={[]} />)
 
     expect(
@@ -43,7 +46,11 @@ describe("PayoutAccountsManager", () => {
     ).toBeInTheDocument()
     expect(screen.getByLabelText("Llave Bre-B")).toBeInTheDocument()
 
-    expect(screen.queryByText(/^Banco$/i)).not.toBeInTheDocument()
+    expect(screen.queryByLabelText("Banco")).not.toBeInTheDocument()
+
+    await user.selectOptions(screen.getByLabelText("Tipo de cuenta"), "ahorros")
+
+    expect(screen.getByLabelText("Banco")).toBeInTheDocument()
 
     expect(
       screen.getByText("Usaremos esta información para enviarte tus retiros.")

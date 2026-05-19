@@ -37,6 +37,7 @@ type FormState = {
   accountHolderName: string
   documentNumber: string
   accountType: string
+  bankName: string
   accountNumber: string
   brebKey: string
   isDefault: boolean
@@ -53,6 +54,7 @@ const EMPTY_FORM: FormState = {
   accountHolderName: "",
   documentNumber: "",
   accountType: "",
+  bankName: "",
   accountNumber: "",
   brebKey: "",
   isDefault: true,
@@ -92,6 +94,7 @@ export default function PayoutAccountsManager({
   }))
 
   const accountsBadgeLabel = useMemo(() => getAccountsBadgeLabel(accounts.length), [accounts.length])
+  const isBankAccount = form.accountType === "ahorros" || form.accountType === "corriente"
 
   function resetForm() {
     setForm({
@@ -115,7 +118,7 @@ export default function PayoutAccountsManager({
           ? "Nequi"
           : form.accountType === "daviplata"
             ? "Daviplata"
-            : ""
+            : form.bankName
 
       formData.set("accountHolderName", form.accountHolderName)
       formData.set("documentNumber", form.documentNumber)
@@ -145,6 +148,10 @@ export default function PayoutAccountsManager({
       accountHolderName: account.account_holder_name ?? "",
       documentNumber: account.document_number ?? "",
       accountType: account.account_type ?? "",
+      bankName:
+        account.account_type === "ahorros" || account.account_type === "corriente"
+          ? account.bank_name ?? ""
+          : "",
       accountNumber: account.account_number ?? "",
       brebKey: account.breb_key ?? "",
       isDefault: Boolean(account.is_default),
@@ -217,7 +224,16 @@ export default function PayoutAccountsManager({
               <span className="text-sm font-semibold text-[#0B2C4A]">Tipo de cuenta</span>
               <select
                 value={form.accountType}
-                onChange={(event) => setForm((current) => ({ ...current, accountType: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    accountType: event.target.value,
+                    bankName:
+                      event.target.value === "ahorros" || event.target.value === "corriente"
+                        ? current.bankName
+                        : "",
+                  }))
+                }
                 className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
               >
                 <option value="">Selecciona una opción</option>
@@ -250,6 +266,18 @@ export default function PayoutAccountsManager({
                 />
               </label>
             </div>
+
+            {isBankAccount ? (
+              <label className="block space-y-2">
+                <span className="text-sm font-semibold text-[#0B2C4A]">Banco</span>
+                <input
+                  value={form.bankName}
+                  onChange={(event) => setForm((current) => ({ ...current, bankName: event.target.value }))}
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  placeholder="Ej. Bancolombia"
+                />
+              </label>
+            ) : null}
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <label className="space-y-2">
