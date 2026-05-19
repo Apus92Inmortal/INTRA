@@ -222,7 +222,7 @@ export default function ProfileForm({
             disabled={isBusy}
             type="button"
             onClick={onLogout}
-            className="inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#667085] transition hover:bg-[#F9FAFB] disabled:opacity-60 sm:self-auto"
+            className="inline-flex min-h-11 items-center justify-center gap-2 self-center rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#667085] transition hover:bg-[#F9FAFB] disabled:opacity-60 sm:self-auto"
           >
             <LogOut className="h-4 w-4" strokeWidth={1.9} />
             {loadingAction === "logout" ? "Cerrando sesión..." : "Cerrar sesión"}
