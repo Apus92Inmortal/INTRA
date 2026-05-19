@@ -3,6 +3,7 @@
 import {
   AlertCircle,
   BadgeCheck,
+  Clock3,
   FileText,
   Lock,
   Send,
@@ -149,24 +150,28 @@ function getVerificationTone(status: string | null, hasDocumentPhoto: boolean, h
       return {
         badgeLabel: "Verificada",
         badgeClasses: "bg-[#EFFBF4] text-[#1E8C4E]",
+        badgeIcon: "check" as const,
         note: "Tu identidad ya fue validada manualmente por el equipo.",
       };
     case "pending":
       return {
         badgeLabel: "En revisión",
         badgeClasses: "bg-[#FFF7E8] text-[#D4A017]",
+        badgeIcon: "clock" as const,
         note: "Ya recibimos tus archivos. El equipo los revisará manualmente.",
       };
     case "rejected":
       return {
         badgeLabel: "Requiere corrección",
         badgeClasses: "bg-[#FEF3F2] text-[#D92D20]",
+        badgeIcon: null,
         note: "Corrige los archivos y vuelve a enviarlos para continuar.",
       };
     default:
       return {
         badgeLabel: hasDocumentPhoto && hasSelfie ? "Lista para envío" : "Pendiente de envío",
         badgeClasses: "bg-[#FFF7E8] text-[#D4A017]",
+        badgeIcon: "clock" as const,
         note: "Aún falta cargar tu documento y selfie para iniciar la revisión.",
       };
   }
@@ -315,7 +320,11 @@ export default function VerificationPanel({
           </div>
         </div>
 
-        <span className={`inline-flex w-fit rounded-full px-4 py-2 text-[12px] font-bold leading-4 ${tone.badgeClasses}`}>
+        <span
+          className={`inline-flex w-fit items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-bold leading-4 ${tone.badgeClasses}`}
+        >
+          {tone.badgeIcon === "clock" ? <Clock3 className="h-3.5 w-3.5" strokeWidth={2} /> : null}
+          {tone.badgeIcon === "check" ? <BadgeCheck className="h-3.5 w-3.5" strokeWidth={2} /> : null}
           {tone.badgeLabel}
         </span>
       </div>
