@@ -46,11 +46,11 @@ describe("PayoutAccountsManager", () => {
     ).toBeInTheDocument()
     expect(screen.getByLabelText("Llave Bre-B")).toBeInTheDocument()
 
-    expect(screen.queryByLabelText("Banco")).not.toBeInTheDocument()
+    expect(screen.queryByLabelText("Entidad bancaria")).not.toBeInTheDocument()
 
     await user.selectOptions(screen.getByLabelText("Tipo de cuenta"), "ahorros")
 
-    expect(screen.getByLabelText("Banco")).toBeInTheDocument()
+    expect(screen.getByLabelText("Entidad bancaria")).toBeInTheDocument()
 
     expect(
       screen.getByText("Usaremos esta información para enviarte tus retiros.")

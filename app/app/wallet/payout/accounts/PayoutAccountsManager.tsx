@@ -269,7 +269,7 @@ export default function PayoutAccountsManager({
 
             {isBankAccount ? (
               <label className="block space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Banco</span>
+                <span className="text-sm font-semibold text-[#0B2C4A]">Entidad bancaria</span>
                 <input
                   value={form.bankName}
                   onChange={(event) => setForm((current) => ({ ...current, bankName: event.target.value }))}
