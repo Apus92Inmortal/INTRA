@@ -322,9 +322,6 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                 </div>
                 <div>
                   <h2 className="text-[22px] font-bold leading-tight text-intra-blue">Movimientos</h2>
-                  <p className="mt-1 text-[15px] text-intra-text-subtle">
-                    {getHistorySummary(totalCount)} · Página {currentPage} de {totalPages}
-                  </p>
                 </div>
               </div>
 
@@ -445,11 +442,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
               </>
             )}
 
-            <div className="mt-6 flex flex-col gap-4 border-t border-intra-border-soft pt-6 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-[15px] text-intra-text-subtle">
-                Mostrando {history.length === 0 ? 0 : from + 1} a {Math.min(from + history.length, totalCount)} de {totalCount}
-              </p>
-
+            <div className="mt-6 flex flex-col gap-4 border-t border-intra-border-soft pt-6 sm:flex-row sm:items-center sm:justify-end">
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   href={currentPage > 1 ? `/app/wallet/history?page=${currentPage - 1}` : "/app/wallet/history?page=1"}
