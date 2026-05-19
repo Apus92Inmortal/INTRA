@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition, type ReactNode } from "react"
 import {
+  Check,
   ChevronLeft,
   CreditCard,
   Info,
@@ -308,8 +309,9 @@ export default function PayoutAccountsManager({
               <button
                 type="submit"
                 disabled={isPending}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] disabled:opacity-60"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] disabled:opacity-60"
               >
+                {isPending ? null : <Check className="h-4 w-4" strokeWidth={2} />}
                 {isPending ? "Guardando..." : "Guardar método"}
               </button>
             </div>
