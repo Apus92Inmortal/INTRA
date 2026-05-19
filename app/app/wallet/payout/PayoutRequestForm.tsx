@@ -8,10 +8,10 @@ import { requestPayoutAction } from "@/app/app/wallet/actions"
 import {
   formatCop,
   formatDateTime,
-  getPayoutAccountDisplayName,
+  getCompactPayoutAccountLabel,
+  getPayoutInstitutionLabel,
   getPayoutStatusClasses,
   getPayoutStatusLabel,
-  maskAccountNumber,
 } from "@/lib/payments/wallet"
 
 type PayoutAccount = {
@@ -145,7 +145,7 @@ export default function PayoutRequestForm({
               <div>
                 <p className="text-sm font-medium text-[#667085]">Cuenta principal</p>
                 <p className="mt-2 text-lg font-semibold leading-snug text-[#0B2C4A]">
-                  {defaultAccount ? getPayoutAccountDisplayName(defaultAccount) : "Sin cuenta principal"}
+                  {defaultAccount ? getPayoutInstitutionLabel(defaultAccount) : "Sin cuenta principal"}
                 </p>
               </div>
             </div>
@@ -235,7 +235,7 @@ export default function PayoutRequestForm({
                 >
                   {payoutAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
-                      {`${getPayoutAccountDisplayName(account)} · ${maskAccountNumber(account.account_number)}${account.is_default ? " · principal" : ""}`}
+                      {getCompactPayoutAccountLabel(account)}
                     </option>
                   ))}
                 </select>
