@@ -307,12 +307,12 @@ export default function VerificationPanel({
 
   return (
     <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex items-start gap-4">
+      <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+        <div className="flex min-w-0 items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FFF7E8] text-[#D4A017]">
             <ShieldCheck className="h-5 w-5" strokeWidth={1.9} />
           </div>
-          <div>
+          <div className="min-w-0">
             <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">Verificación de identidad</h2>
             <p className="mt-1 max-w-[40ch] text-[14px] leading-[22px] text-[#667085]">
               Carga tu documento y selfie.
@@ -325,7 +325,7 @@ export default function VerificationPanel({
         </div>
 
         <span
-          className={`inline-flex w-fit self-start items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-bold leading-4 ${tone.badgeClasses}`}
+          className={`inline-flex w-fit self-start sm:justify-self-end items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-bold leading-4 ${tone.badgeClasses}`}
         >
           {tone.badgeIcon === "clock" ? <Clock3 className="h-3.5 w-3.5" strokeWidth={2} /> : null}
           {tone.badgeIcon === "check" ? <BadgeCheck className="h-3.5 w-3.5" strokeWidth={2} /> : null}
