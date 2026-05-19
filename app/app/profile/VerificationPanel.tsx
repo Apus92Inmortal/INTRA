@@ -194,7 +194,8 @@ export default function VerificationPanel({
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
 
-  const isLocked = initialStatus === "pending" || initialStatus === "verified";
+  const isVerified = initialStatus === "verified";
+  const isLocked = initialStatus === "pending" || isVerified;
   const canSubmit = !loading && !isLocked && Boolean(documentPhoto) && Boolean(selfie) && acceptConsent;
 
   const tone = useMemo(
@@ -309,7 +310,11 @@ export default function VerificationPanel({
     <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
         <div className="flex min-w-0 items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FFF7E8] text-[#D4A017]">
+          <div
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+              isVerified ? "bg-[#EFFBF4] text-[#1E8C4E]" : "bg-[#FFF7E8] text-[#D4A017]"
+            }`}
+          >
             <ShieldCheck className="h-5 w-5" strokeWidth={1.9} />
           </div>
           <div className="min-w-0">
@@ -317,6 +322,11 @@ export default function VerificationPanel({
             <p className="mt-1 max-w-[40ch] text-[14px] leading-[22px] text-[#667085]">
               Carga tu documento y selfie.
             </p>
+            {isVerified && reviewedAt ? (
+              <p className="mt-1 text-[12px] leading-[18px] text-[#667085]">
+                Última revisión: <span className="font-semibold text-[#0B2C4A]">{formatDate(reviewedAt)}</span>
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -329,19 +339,21 @@ export default function VerificationPanel({
         </span>
       </div>
 
-      <div className="mt-5 rounded-[18px] border border-[#FDE7B2] bg-[#FFF9EC] px-4 py-3 text-[14px] leading-[22px] text-[#8A6C12]">
-        <div className="flex items-start gap-2.5">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
-          <div>
-            <p>{initialStatus === "pending" || initialStatus === "verified" ? tone.note : "Necesitamos tu documento y una selfie para continuar."}</p>
-            {reviewedAt ? (
-              <p className="mt-1 text-[12px] leading-[18px] text-[#667085]">
-                Última revisión: <span className="font-semibold text-[#0B2C4A]">{formatDate(reviewedAt)}</span>
-              </p>
-            ) : null}
+      {!isVerified ? (
+        <div className="mt-5 rounded-[18px] border border-[#FDE7B2] bg-[#FFF9EC] px-4 py-3 text-[14px] leading-[22px] text-[#8A6C12]">
+          <div className="flex items-start gap-2.5">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
+            <div>
+              <p>{initialStatus === "pending" ? tone.note : "Necesitamos tu documento y una selfie para continuar."}</p>
+              {reviewedAt ? (
+                <p className="mt-1 text-[12px] leading-[18px] text-[#667085]">
+                  Última revisión: <span className="font-semibold text-[#0B2C4A]">{formatDate(reviewedAt)}</span>
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
 
       {initialRejectionReason ? (
         <div className="mt-4 rounded-[18px] border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-[14px] leading-[22px] text-intra-danger">
@@ -392,14 +404,12 @@ export default function VerificationPanel({
           </label>
         </div>
 
-        {isLocked ? (
+        {initialStatus === "pending" ? (
           <div className="rounded-[18px] border border-[#E4E7EC] bg-[#F9FAFB] px-4 py-3 text-[14px] leading-[22px] text-[#667085]">
             <div className="flex items-start gap-2.5">
               <Lock className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
               <p>
-                {initialStatus === "verified"
-                  ? "Tu identidad ya fue verificada. No necesitas volver a cargar archivos."
-                  : "Tu verificación está en revisión. Mientras el equipo responde, el envío queda bloqueado para evitar duplicados."}
+                Tu verificación está en revisión. Mientras el equipo responde, el envío queda bloqueado para evitar duplicados.
               </p>
             </div>
           </div>
