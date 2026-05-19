@@ -66,7 +66,7 @@ describe("PayoutAccountsManager", () => {
             bank_name: "Nequi",
             account_type: "nequi",
             account_number: "3001234567",
-            breb_key: null,
+            breb_key: "@anaperez",
             is_default: true,
           },
         ]}
@@ -76,6 +76,7 @@ describe("PayoutAccountsManager", () => {
     expect(screen.getByText("1 guardado")).toBeInTheDocument()
     expect(screen.getByText("Ana Pérez")).toBeInTheDocument()
     expect(screen.getByText("Principal")).toBeInTheDocument()
+    expect(screen.getByText("Llave Bre-B: @anaperez")).toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: "Editar" })
     ).toBeInTheDocument()

@@ -374,6 +374,9 @@ export default function PayoutAccountsManager({
                         <p className="mt-1 text-sm text-[#667085]">
                           {account.document_number || "Sin documento"} · {maskAccountNumber(account.account_number)}
                         </p>
+                        {account.breb_key ? (
+                          <p className="mt-1 text-sm text-[#667085]">Llave Bre-B: {account.breb_key}</p>
+                        ) : null}
                       </div>
                     </div>
 
