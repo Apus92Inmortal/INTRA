@@ -48,27 +48,25 @@ export default async function ProfilePage() {
     <>
       <AppNavbar />
 
-      <main className="intra-page-shell px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-6">
-            <h1 className="intra-page-title text-3xl">Mi perfil</h1>
-            <p className="mt-2 text-sm text-intra-text-subtle">
-              Edita tu información personal y mantén tus datos actualizados en INTRA.
+      <main className="intra-page-shell px-4 py-5 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5">
+          <header>
+            <h1 className="text-[28px] font-bold leading-[34px] text-[#0B2C4A]">Mi perfil</h1>
+            <p className="mt-1 text-[14px] leading-[22px] text-[#667085]">
+              Mantén tus datos actualizados y completa tu verificación para operar con más confianza en INTRA.
             </p>
-          </div>
+          </header>
 
-          <section className="grid gap-4 lg:grid-cols-2 lg:items-start">
-            <div className="intra-card p-6 sm:p-8">
-              <ProfileForm
-                initialFullName={profile?.full_name ?? ""}
-                initialPhone={profile?.phone ?? ""}
-                initialDocumentNumber={profile?.document_number ?? ""}
-                initialCityId={profile?.city_id ?? ""}
-                email={user.email ?? ""}
-                isEmailVerified={Boolean(user.email_confirmed_at)}
-                cities={cities ?? []}
-              />
-            </div>
+          <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.96fr)] lg:items-start">
+            <ProfileForm
+              initialFullName={profile?.full_name ?? ""}
+              initialPhone={profile?.phone ?? ""}
+              initialDocumentNumber={profile?.document_number ?? ""}
+              initialCityId={profile?.city_id ?? ""}
+              email={user.email ?? ""}
+              isEmailVerified={Boolean(user.email_confirmed_at)}
+              cities={cities ?? []}
+            />
 
             <div className="lg:sticky lg:top-24">
               <VerificationPanel
