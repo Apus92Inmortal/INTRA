@@ -2,13 +2,21 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useMemo, useState, useTransition } from "react"
+import { useMemo, useState, useTransition, type ReactNode } from "react"
+import {
+  Check,
+  ChevronLeft,
+  CreditCard,
+  Info,
+  PencilLine,
+  Trash2,
+  Wallet,
+} from "lucide-react"
 import {
   deletePayoutAccountAction,
   savePayoutAccountAction,
 } from "@/app/app/wallet/actions"
 import {
-  getPayoutAccountDisplayName,
   getAccountTypeLabel,
   maskAccountNumber,
 } from "@/lib/payments/wallet"
@@ -28,21 +36,48 @@ type FormState = {
   id?: string
   accountHolderName: string
   documentNumber: string
-  bankName: string
   accountType: string
+  bankName: string
   accountNumber: string
   brebKey: string
   isDefault: boolean
 }
 
+const ACCOUNT_OPTIONS = [
+  { value: "nequi", label: "Nequi" },
+  { value: "daviplata", label: "Daviplata" },
+  { value: "ahorros", label: "Cuenta de ahorros" },
+  { value: "corriente", label: "Cuenta corriente" },
+] as const
+
 const EMPTY_FORM: FormState = {
   accountHolderName: "",
   documentNumber: "",
+  accountType: "",
   bankName: "",
-  accountType: "nequi",
   accountNumber: "",
   brebKey: "",
   isDefault: true,
+}
+
+function SurfaceIcon({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EFFBF4] text-[#2ECC71]">
+      {children}
+    </div>
+  )
+}
+
+function getAccountsBadgeLabel(count: number) {
+  if (count === 0) {
+    return "0 guardados"
+  }
+
+  if (count === 1) {
+    return "1 guardado"
+  }
+
+  return `${count} guardados`
 }
 
 export default function PayoutAccountsManager({
@@ -58,10 +93,8 @@ export default function PayoutAccountsManager({
     isDefault: accounts.length === 0,
   }))
 
-  const isBankAccount = useMemo(
-    () => form.accountType === "ahorros" || form.accountType === "corriente",
-    [form.accountType]
-  )
+  const accountsBadgeLabel = useMemo(() => getAccountsBadgeLabel(accounts.length), [accounts.length])
+  const isBankAccount = form.accountType === "ahorros" || form.accountType === "corriente"
 
   function resetForm() {
     setForm({
@@ -79,9 +112,17 @@ export default function PayoutAccountsManager({
       if (form.id) {
         formData.set("id", form.id)
       }
+
+      const derivedBankName =
+        form.accountType === "nequi"
+          ? "Nequi"
+          : form.accountType === "daviplata"
+            ? "Daviplata"
+            : form.bankName
+
       formData.set("accountHolderName", form.accountHolderName)
       formData.set("documentNumber", form.documentNumber)
-      formData.set("bankName", form.bankName)
+      formData.set("bankName", derivedBankName)
       formData.set("accountType", form.accountType)
       formData.set("accountNumber", form.accountNumber)
       formData.set("brebKey", form.brebKey)
@@ -90,11 +131,11 @@ export default function PayoutAccountsManager({
       const result = await savePayoutAccountAction(formData)
 
       if (!result.success) {
-        setFeedback({ type: "error", message: result.error ?? "No pudimos guardar la cuenta." })
+        setFeedback({ type: "error", message: result.error ?? "No pudimos guardar el método." })
         return
       }
 
-      setFeedback({ type: "success", message: result.message ?? "Cuenta guardada." })
+      setFeedback({ type: "success", message: result.message ?? "Método guardado." })
       resetForm()
       router.refresh()
     })
@@ -106,8 +147,11 @@ export default function PayoutAccountsManager({
       id: account.id,
       accountHolderName: account.account_holder_name ?? "",
       documentNumber: account.document_number ?? "",
-      bankName: account.bank_name ?? "",
-      accountType: account.account_type ?? "nequi",
+      accountType: account.account_type ?? "",
+      bankName:
+        account.account_type === "ahorros" || account.account_type === "corriente"
+          ? account.bank_name ?? ""
+          : "",
       accountNumber: account.account_number ?? "",
       brebKey: account.breb_key ?? "",
       isDefault: Boolean(account.is_default),
@@ -128,11 +172,11 @@ export default function PayoutAccountsManager({
       const result = await deletePayoutAccountAction(formData)
 
       if (!result.success) {
-        setFeedback({ type: "error", message: result.error ?? "No pudimos eliminar la cuenta." })
+        setFeedback({ type: "error", message: result.error ?? "No pudimos eliminar el método." })
         return
       }
 
-      setFeedback({ type: "success", message: result.message ?? "Cuenta eliminada." })
+      setFeedback({ type: "success", message: result.message ?? "Método eliminado." })
       if (form.id === id) {
         resetForm()
       }
@@ -141,227 +185,254 @@ export default function PayoutAccountsManager({
   }
 
   return (
-    <div className="space-y-6">
-      <section className="intra-card p-6 shadow-sm sm:p-8">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="intra-page-title text-2xl sm:text-3xl">
-              Métodos de retiro
-            </h1>
-            <p className="mt-1 intra-body text-intra-text-muted sm:text-base">
-              Guarda tus métodos para recibir retiros por Nequi, Daviplata o transferencia bancaria.
-            </p>
+    <div className="space-y-5 text-[#0B2C4A]">
+      <header>
+        <h1 className="text-[28px] font-semibold leading-tight text-[#0B2C4A]">Métodos de retiro</h1>
+        <p className="mt-1 text-sm leading-6 text-[#667085] sm:text-[14px]">
+          Agrega tu cuenta para recibir tus retiros cuando tengas saldo disponible.
+        </p>
+      </header>
+
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)] xl:items-start">
+        <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-center gap-4">
+              <SurfaceIcon>
+                <Wallet className="h-5 w-5" strokeWidth={1.9} />
+              </SurfaceIcon>
+              <div>
+                <h2 className="text-[18px] font-semibold leading-tight text-[#0B2C4A]">Agregar método de retiro</h2>
+                {form.id ? (
+                  <p className="mt-1 text-sm text-[#667085]">Estás editando un método guardado.</p>
+                ) : null}
+              </div>
+            </div>
+
+            {form.id ? (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB]"
+              >
+                Cancelar edición
+              </button>
+            ) : null}
           </div>
-          {form.id ? (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-4 py-2.5 text-sm font-semibold"
-            >
-              Cancelar edición
-            </button>
-          ) : null}
-        </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-sm font-semibold text-intra-blue">Tipo de cuenta</span>
-            <select
-              value={form.accountType}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  accountType: event.target.value,
-                  bankName:
-                    event.target.value === "nequi"
-                      ? "Nequi"
-                      : event.target.value === "daviplata"
-                        ? "Daviplata"
-                        : current.bankName,
-                }))
-              }
-              className="intra-input"
-            >
-              <option value="nequi">Nequi</option>
-              <option value="daviplata">Daviplata</option>
-              <option value="ahorros">Cuenta de ahorros</option>
-              <option value="corriente">Cuenta corriente</option>
-            </select>
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-intra-blue">Titular</span>
-            <input
-              value={form.accountHolderName}
-              onChange={(event) => setForm((current) => ({ ...current, accountHolderName: event.target.value }))}
-              className="intra-input"
-              placeholder="Nombre completo"
-            />
-          </label>
-
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-intra-blue">Documento</span>
-            <input
-              value={form.documentNumber}
-              onChange={(event) => setForm((current) => ({ ...current, documentNumber: event.target.value }))}
-              className="intra-input"
-              placeholder="Cédula o NIT"
-            />
-          </label>
-
-          {isBankAccount ? (
-            <label className="space-y-2">
-              <span className="text-sm font-semibold text-intra-blue">Banco</span>
-              <input
-                value={form.bankName}
-                onChange={(event) => setForm((current) => ({ ...current, bankName: event.target.value }))}
-                className="intra-input"
-                placeholder="Bancolombia, Davivienda..."
-              />
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <label className="block space-y-2">
+              <span className="text-sm font-semibold text-[#0B2C4A]">Tipo de cuenta</span>
+              <select
+                value={form.accountType}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    accountType: event.target.value,
+                    bankName:
+                      event.target.value === "ahorros" || event.target.value === "corriente"
+                        ? current.bankName
+                        : "",
+                  }))
+                }
+                className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+              >
+                <option value="">Selecciona una opción</option>
+                {ACCOUNT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </label>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-[#0B2C4A]">Titular</span>
+                <input
+                  value={form.accountHolderName}
+                  onChange={(event) => setForm((current) => ({ ...current, accountHolderName: event.target.value }))}
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  placeholder="Nombre completo"
+                />
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-[#0B2C4A]">Documento</span>
+                <input
+                  value={form.documentNumber}
+                  onChange={(event) => setForm((current) => ({ ...current, documentNumber: event.target.value }))}
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  placeholder="Cédula o NIT"
+                />
+              </label>
+            </div>
+
+            {isBankAccount ? (
+              <label className="block space-y-2">
+                <span className="text-sm font-semibold text-[#0B2C4A]">Entidad bancaria</span>
+                <input
+                  value={form.bankName}
+                  onChange={(event) => setForm((current) => ({ ...current, bankName: event.target.value }))}
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  placeholder="Ej. Davivienda"
+                />
+              </label>
+            ) : null}
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-[#0B2C4A]">Número de cuenta o celular</span>
+                <input
+                  value={form.accountNumber}
+                  onChange={(event) => setForm((current) => ({ ...current, accountNumber: event.target.value }))}
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  placeholder="Ej. 300 123 4567"
+                />
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm font-semibold text-[#0B2C4A]">Llave Bre-B</span>
+                <input
+                  value={form.brebKey}
+                  onChange={(event) => setForm((current) => ({ ...current, brebKey: event.target.value }))}
+                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  placeholder="@tullave"
+                />
+              </label>
+            </div>
+
+            <div className="flex items-start gap-2 rounded-[16px] text-sm text-[#667085]">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#667085]" strokeWidth={1.9} />
+              <p>Usaremos esta información para enviarte tus retiros.</p>
+            </div>
+
+            <label className="flex items-start gap-3 rounded-[18px] border border-[#E4E7EC] bg-[#F9FCFA] px-4 py-3.5">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={form.isDefault}
+                onClick={() => setForm((current) => ({ ...current, isDefault: !current.isDefault }))}
+                className={`relative mt-0.5 inline-flex h-7 w-12 shrink-0 items-center rounded-full transition ${
+                  form.isDefault ? "bg-[#2ECC71]" : "bg-[#D0D5DD]"
+                }`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition ${
+                    form.isDefault ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+              <div>
+                <p className="text-sm font-semibold text-[#0B2C4A]">Usar como método principal</p>
+                <p className="mt-1 text-sm text-[#667085]">Será el método predeterminado para tus retiros.</p>
+              </div>
+            </label>
+
+            {feedback ? (
+              <div
+                className={`rounded-[16px] px-4 py-3 text-sm ${
+                  feedback.type === "error"
+                    ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+                    : "border border-[#B7E4C7] bg-[#EFFBF4] text-[#1C7C45]"
+                }`}
+              >
+                {feedback.message}
+              </div>
+            ) : null}
+
+            <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-[minmax(0,200px)_minmax(0,1fr)]">
+              <Link
+                href="/app/wallet/payout"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB]"
+              >
+                <ChevronLeft className="h-4 w-4" strokeWidth={1.9} />
+                Volver a retiros
+              </Link>
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] disabled:opacity-60"
+              >
+                {isPending ? null : <Check className="h-4 w-4" strokeWidth={2} />}
+                {isPending ? "Guardando..." : "Guardar método"}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-[18px] font-semibold leading-tight text-[#0B2C4A]">Métodos guardados</h2>
+            <span className="inline-flex rounded-full bg-[#F2F4F7] px-3 py-1 text-xs font-bold text-[#667085]">
+              {accountsBadgeLabel}
+            </span>
+          </div>
+
+          {accounts.length === 0 ? (
+            <div className="mt-5 flex min-h-[320px] flex-col items-center justify-center rounded-[20px] border border-dashed border-[#E4E7EC] bg-[#FCFDFD] px-6 py-10 text-center">
+              <SurfaceIcon>
+                <CreditCard className="h-5 w-5" strokeWidth={1.9} />
+              </SurfaceIcon>
+              <h3 className="mt-5 text-[18px] font-semibold leading-tight text-[#0B2C4A]">
+                Aún no tienes métodos guardados
+              </h3>
+              <p className="mt-3 max-w-[280px] text-sm leading-6 text-[#667085]">
+                Agrega tu primer método de retiro para poder solicitar pagos cuando tengas saldo disponible.
+              </p>
+            </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-intra-success-border bg-intra-success-soft px-4 py-3 text-sm text-intra-text-success">
-              Para {getAccountTypeLabel(form.accountType)}, usaremos el número de celular asociado.
+            <div className="mt-5 space-y-3">
+              {accounts.map((account) => (
+                <article key={account.id} className="rounded-[20px] border border-[#E4E7EC] bg-white p-4">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-semibold text-[#0B2C4A]">
+                            {getAccountTypeLabel(account.account_type)}
+                          </p>
+                          {account.is_default ? (
+                            <span className="inline-flex rounded-full bg-[#EFFBF4] px-2.5 py-1 text-xs font-bold text-[#1C7C45]">
+                              Principal
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-2 text-sm text-[#667085]">{account.account_holder_name || "Sin titular"}</p>
+                        <p className="mt-1 text-sm text-[#667085]">
+                          {account.document_number || "Sin documento"} · {maskAccountNumber(account.account_number)}
+                        </p>
+                        {account.breb_key ? (
+                          <p className="mt-1 text-sm text-[#667085]">Llave Bre-B: {account.breb_key}</p>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(account)}
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB]"
+                      >
+                        <PencilLine className="h-4 w-4" strokeWidth={1.9} />
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(account.id)}
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-danger-border bg-white px-4 py-2.5 text-sm font-semibold text-intra-danger transition hover:bg-intra-danger-soft"
+                      >
+                        <Trash2 className="h-4 w-4" strokeWidth={1.9} />
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
-
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-intra-blue">
-              {isBankAccount ? "Número de cuenta" : "Celular asociado"}
-            </span>
-            <input
-              value={form.accountNumber}
-              onChange={(event) => setForm((current) => ({ ...current, accountNumber: event.target.value }))}
-              className="intra-input"
-              placeholder={isBankAccount ? "000123456789" : "3001234567"}
-            />
-          </label>
-
-          {isBankAccount ? (
-            <label className="space-y-2 md:col-span-2">
-              <span className="text-sm font-semibold text-intra-blue">Llave BRE-B</span>
-              <input
-                value={form.brebKey}
-                onChange={(event) => setForm((current) => ({ ...current, brebKey: event.target.value }))}
-                className="intra-input"
-                placeholder="Ej: correo, celular o identificador BRE-B"
-              />
-              <p className="text-xs text-intra-text-muted">
-                Obligatoria para cuentas bancarias. Es la llave que usarán en operación para enviar el retiro.
-              </p>
-            </label>
-          ) : null}
-
-          <label className="md:col-span-2 flex items-center gap-3 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-            <input
-              type="checkbox"
-              checked={form.isDefault}
-              onChange={(event) => setForm((current) => ({ ...current, isDefault: event.target.checked }))}
-              className="h-4 w-4 rounded border-intra-border text-intra-blue"
-            />
-            Dejar como método principal para próximos retiros.
-          </label>
-
-          {feedback ? (
-            <div
-              className={`md:col-span-2 rounded-2xl px-4 py-3 text-sm ${
-                feedback.type === "error"
-                  ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-                  : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
-              }`}
-            >
-              {feedback.message}
-            </div>
-          ) : null}
-
-          <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="submit"
-              disabled={isPending}
-              className="intra-btn intra-btn-primary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold disabled:opacity-60"
-            >
-              {isPending ? "Guardando..." : form.id ? "Actualizar cuenta" : "Guardar cuenta"}
-            </button>
-            <Link
-              href="/app/wallet/payout"
-              className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold"
-            >
-              Ir a retiros
-            </Link>
-          </div>
-        </form>
-      </section>
-
-      <section className="intra-card p-6 shadow-sm sm:p-8">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="intra-h4">Métodos guardados</h2>
-            <p className="mt-1 text-sm text-intra-text-muted">
-              Elige cuál usarás por defecto cuando solicites retiros.
-            </p>
-          </div>
-          <span className="rounded-full bg-intra-bg-app px-3 py-1 text-xs font-semibold text-intra-text-subtle">
-            {accounts.length} guardadas
-          </span>
-        </div>
-
-        {accounts.length === 0 ? (
-          <div className="mt-5 rounded-2xl border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-sm text-intra-text-muted">
-            Aún no tienes cuentas de retiro. Agrega la primera para habilitar solicitudes de pago.
-          </div>
-        ) : (
-          <div className="mt-5 space-y-3">
-            {accounts.map((account) => (
-              <article
-                key={account.id}
-                className="rounded-2xl border border-intra-border-soft bg-intra-card p-4 transition hover:shadow-sm"
-              >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="space-y-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold text-intra-blue">
-                        {getAccountTypeLabel(account.account_type)}
-                      </p>
-                      {account.is_default ? (
-                        <span className="rounded-full bg-intra-success-soft px-2.5 py-1 text-xs font-semibold text-intra-text-success">
-                          Principal
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="text-sm text-intra-text-subtle">
-                      {account.account_holder_name || "Sin titular"}
-                    </p>
-                    <p className="text-sm text-intra-text-muted">
-                      {getPayoutAccountDisplayName(account)} · {maskAccountNumber(account.account_number)}
-                    </p>
-                    {account.breb_key ? (
-                      <p className="text-xs text-intra-text-muted">Llave BRE-B: {account.breb_key}</p>
-                    ) : null}
-                    <p className="text-xs text-intra-text-muted/70">Documento: {account.document_number || "Sin documento"}</p>
-                  </div>
-
-                  <div className="flex gap-2 sm:flex-col md:flex-row">
-                    <button
-                      type="button"
-                      onClick={() => handleEdit(account)}
-                      className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-4 py-2.5 text-sm font-semibold"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(account.id)}
-                      className="intra-btn min-h-11 rounded-2xl border border-intra-danger-border px-4 py-2.5 text-sm font-semibold text-intra-danger hover:bg-intra-danger-soft"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
+        </section>
+      </div>
     </div>
   )
 }

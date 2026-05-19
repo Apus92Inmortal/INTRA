@@ -22,8 +22,8 @@ export default async function WalletPayoutAccountsPage() {
   return (
     <>
       <AppNavbar />
-      <main className="intra-page-shell px-4 py-6 sm:px-6">
-        <div className="mx-auto max-w-5xl">
+      <main className="intra-page-shell px-4 py-4 sm:px-6 sm:py-5">
+        <div className="mx-auto max-w-6xl">
           <PayoutAccountsManager accounts={accounts ?? []} />
         </div>
       </main>
