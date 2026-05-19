@@ -208,21 +208,21 @@ export default function ProfileForm({
           </div>
         ) : null}
 
-        <button
-          disabled={isBusy}
-          type="submit"
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-[14px] font-bold leading-5 text-white transition hover:bg-[#27AE60] disabled:opacity-60"
-        >
-          <Save className="h-4 w-4" strokeWidth={1.9} />
-          {loadingAction === "save" ? "Guardando..." : "Guardar cambios"}
-        </button>
+        <div className="flex flex-col gap-3 border-t border-[#E4E7EC] pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            disabled={isBusy}
+            type="submit"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-[14px] font-bold leading-5 text-white transition hover:bg-[#27AE60] disabled:opacity-60"
+          >
+            <Save className="h-4 w-4" strokeWidth={1.9} />
+            {loadingAction === "save" ? "Guardando..." : "Guardar cambios"}
+          </button>
 
-        <div className="border-t border-[#E4E7EC] pt-4">
           <button
             disabled={isBusy}
             type="button"
             onClick={onLogout}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#667085] transition hover:bg-[#F9FAFB] disabled:opacity-60"
+            className="inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#667085] transition hover:bg-[#F9FAFB] disabled:opacity-60 sm:self-auto"
           >
             <LogOut className="h-4 w-4" strokeWidth={1.9} />
             {loadingAction === "logout" ? "Cerrando sesión..." : "Cerrar sesión"}
