@@ -317,10 +317,6 @@ export default function VerificationPanel({
             <p className="mt-1 max-w-[40ch] text-[14px] leading-[22px] text-[#667085]">
               Carga tu documento y selfie.
             </p>
-            <div className="mt-2 inline-flex max-w-full items-center gap-2 rounded-full bg-[#F9FAFB] px-3 py-1.5 text-[12px] leading-[18px] text-[#667085]">
-              <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-[#1E8C4E]" strokeWidth={1.9} />
-              <span className="truncate sm:whitespace-nowrap">Revisión manual para proteger la comunidad</span>
-            </div>
           </div>
         </div>
 
