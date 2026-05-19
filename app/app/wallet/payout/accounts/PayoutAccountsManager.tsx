@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition, type ReactNode } from "react"
 import {
   ChevronLeft,
-  ChevronRight,
   CreditCard,
   Info,
   PencilLine,
@@ -176,21 +175,11 @@ export default function PayoutAccountsManager({
 
   return (
     <div className="space-y-5 text-[#0B2C4A]">
-      <header className="space-y-3">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-[#667085]">
-          <Link href="/app/wallet" className="transition hover:text-[#0B2C4A]">
-            Wallet
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
-          <span className="text-[#0B2C4A]">Métodos de retiro</span>
-        </nav>
-
-        <div>
-          <h1 className="text-[28px] font-semibold leading-tight text-[#0B2C4A]">Métodos de retiro</h1>
-          <p className="mt-1 text-sm leading-6 text-[#667085] sm:text-[14px]">
-            Agrega tu cuenta para recibir tus retiros cuando tengas saldo disponible.
-          </p>
-        </div>
+      <header>
+        <h1 className="text-[28px] font-semibold leading-tight text-[#0B2C4A]">Métodos de retiro</h1>
+        <p className="mt-1 text-sm leading-6 text-[#667085] sm:text-[14px]">
+          Agrega tu cuenta para recibir tus retiros cuando tengas saldo disponible.
+        </p>
       </header>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)] xl:items-start">
