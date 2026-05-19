@@ -339,7 +339,7 @@ export default function VerificationPanel({
         </span>
       </div>
 
-      {!isVerified ? (
+      {initialStatus !== "rejected" && !isVerified ? (
         <div className="mt-5 rounded-[18px] border border-[#FDE7B2] bg-[#FFF9EC] px-4 py-3 text-[14px] leading-[22px] text-[#8A6C12]">
           <div className="flex items-start gap-2.5">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
