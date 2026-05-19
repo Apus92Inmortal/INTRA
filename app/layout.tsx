@@ -44,8 +44,9 @@ export const metadata: Metadata = {
     images: ["/logo.png"],
   },
   icons: {
-    icon: [{ url: "/atlas-reference/favicon-atlas.svg", type: "image/svg+xml" }],
-    shortcut: ["/atlas-reference/favicon-atlas.svg"],
+    icon: [{ url: "/favicon-intra.png", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
+    apple: [{ url: "/apple-icon.png", type: "image/png" }],
   },
 };
 
