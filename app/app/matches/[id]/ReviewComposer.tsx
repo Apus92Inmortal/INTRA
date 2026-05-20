@@ -52,17 +52,9 @@ export default function ReviewComposer({
 
   return (
     <section className="rounded-[24px] border border-[#e4e7ec] bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">
-          Califica tu experiencia
-        </h2>
-        {isSent ? (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#EFFBF4] px-3 py-1 text-[12px] font-semibold leading-[18px] text-[#1e8c4e]">
-            <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={2} />
-            Enviada
-          </span>
-        ) : null}
-      </div>
+      <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">
+        {isSent ? "Tu calificación" : "Califica tu experiencia"}
+      </h2>
 
       <p className="mt-3 text-[14px] font-normal leading-[22px] text-[#667085]">
         Para {otherUserName}.

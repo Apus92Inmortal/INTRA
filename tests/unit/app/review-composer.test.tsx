@@ -57,7 +57,9 @@ describe("ReviewComposer", () => {
       />
     );
 
+    expect(screen.getByRole("heading", { name: "Tu calificación" })).toBeVisible();
     expect(screen.getByText("Calificación enviada")).toBeVisible();
+    expect(screen.queryByText("Enviada")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Enviar calificación" })).not.toBeInTheDocument();
   });
 
