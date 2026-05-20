@@ -96,7 +96,9 @@ export default function ReviewComposer({
       </div>
 
       <p className="mt-4 text-[14px] font-normal leading-[22px] text-[#667085]">
-        Las calificaciones ayudan a mejorar la comunidad.
+        {isSent
+          ? "Gracias por calificar."
+          : "Las calificaciones ayudan a mejorar la comunidad."}
       </p>
 
       {isExpired && !isSent ? (
