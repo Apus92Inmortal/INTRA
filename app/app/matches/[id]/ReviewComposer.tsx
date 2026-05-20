@@ -2,64 +2,65 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { CheckCircle2, Star } from "lucide-react";
 import { createReviewAction } from "./actions";
 
 type Props = {
   matchId: string;
+  existingRating?: number | null;
+  isExpired: boolean;
   otherUserName: string;
 };
 
-export default function ReviewComposer({ matchId, otherUserName }: Props) {
+export default function ReviewComposer({
+  matchId,
+  existingRating = null,
+  isExpired,
+  otherUserName,
+}: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(existingRating ?? 0);
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
-  const [comment, setComment] = useState("");
+  const [sentRating, setSentRating] = useState(existingRating);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
+  const isSent = sentRating != null;
+  const isDisabled = isPending || isSent || isExpired;
   const displayedRating = useMemo(
-    () => hoveredRating ?? rating,
-    [hoveredRating, rating]
+    () => hoveredRating ?? sentRating ?? rating,
+    [hoveredRating, rating, sentRating]
   );
 
   function handleSubmit() {
+    if (rating < 1 || isDisabled) return;
+
     setError(null);
-    setSuccess(null);
 
     startTransition(async () => {
-      const result = await createReviewAction(matchId, rating, comment);
+      const result = await createReviewAction(matchId, rating);
 
       if (!result.success) {
-        setError(result.error || "No se pudo enviar la review");
+        setError(result.error || "No se pudo enviar la calificación");
         return;
       }
 
-      setSuccess("Gracias. Tu review ya quedó publicada.");
-      setComment("");
-      setRating(0);
+      setSentRating(rating);
       router.refresh();
     });
   }
 
   return (
-    <section className="rounded-2xl border border-intra-blue/10 bg-intra-card p-5 shadow-sm">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-intra-blue">
-            ¿Cómo fue tu experiencia con {otherUserName}?
-          </h2>
-          <p className="mt-1 text-sm text-intra-text-muted">
-            Tu calificación ayuda a generar confianza dentro de INTRA.
-          </p>
-        </div>
+    <section className="rounded-[24px] border border-[#e4e7ec] bg-white p-5 shadow-sm">
+      <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">
+        {isSent ? "Tu calificación" : "Califica tu experiencia"}
+      </h2>
 
-        <span className="inline-flex w-fit rounded-full bg-intra-neutral-pill px-3 py-1 text-xs font-semibold text-intra-blue">
-          Review pendiente
-        </span>
-      </div>
+      <p className="mt-3 text-[14px] font-normal leading-[22px] text-[#667085]">
+        Para {otherUserName}.
+      </p>
 
-      <div className="mt-4 flex items-center gap-2">
+      <div className="mt-5 grid grid-cols-5 gap-2" aria-label="Selector de calificación">
         {Array.from({ length: 5 }, (_, index) => {
           const value = index + 1;
           const isActive = value <= displayedRating;
@@ -68,55 +69,61 @@ export default function ReviewComposer({ matchId, otherUserName }: Props) {
             <button
               key={value}
               type="button"
-              onClick={() => setRating(value)}
-              onMouseEnter={() => setHoveredRating(value)}
+              onClick={() => {
+                if (!isDisabled) setRating(value);
+              }}
+              onMouseEnter={() => {
+                if (!isDisabled) setHoveredRating(value);
+              }}
               onMouseLeave={() => setHoveredRating(null)}
-              className={`min-h-11 min-w-11 rounded-2xl border px-3 py-2 text-2xl transition ${
+              disabled={isDisabled}
+              className={`flex min-h-[60px] flex-col items-center justify-center rounded-2xl border px-2 py-2 text-[12px] font-semibold leading-[18px] transition ${
                 isActive
-                  ? "border-intra-warning-border bg-intra-warning-soft text-intra-warning"
-                  : "border-intra-border bg-intra-card text-intra-text-muted/50 hover:border-intra-warning-border hover:text-intra-warning"
-              }`}
+                  ? "border-[#fbbf24] bg-[#FFF7ED] text-[#0B2C4A]"
+                  : "border-[#e4e7ec] bg-white text-[#667085] hover:border-[#fbbf24] hover:bg-[#FFF7ED]"
+              } disabled:cursor-not-allowed disabled:opacity-80`}
               aria-label={`Calificar con ${value} estrella${value === 1 ? "" : "s"}`}
+              aria-pressed={rating === value || sentRating === value}
             >
-              ★
+              <Star
+                className={`h-6 w-6 ${isActive ? "fill-[#fbbf24] text-[#fbbf24]" : "text-[#98A2B3]"}`}
+                strokeWidth={1.9}
+              />
+              <span className="mt-1">{value}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="mt-4">
-        <label className="block text-sm font-medium text-intra-text-muted" htmlFor="review-comment">
-          Comentario (opcional)
-        </label>
-        <textarea
-          id="review-comment"
-          value={comment}
-          onChange={(event) => {
-            if (event.target.value.length <= 300) {
-              setComment(event.target.value);
-            }
-          }}
-          rows={4}
-          placeholder="Cuéntale a la comunidad cómo fue la experiencia."
-          className="mt-2 w-full rounded-2xl border border-intra-border bg-intra-card px-4 py-3 text-sm text-intra-blue outline-none transition placeholder:text-intra-text-muted/70 focus:border-intra-blue focus:ring-2 focus:ring-intra-blue/10"
-        />
-        <div className="mt-2 flex items-center justify-between gap-3">
-          <p className="text-xs text-intra-text-muted/70">Máximo 300 caracteres.</p>
-          <p className="text-xs font-medium text-intra-text-muted">{comment.length}/300</p>
-        </div>
-      </div>
+      <p className="mt-4 text-[14px] font-normal leading-[22px] text-[#667085]">
+        {isSent
+          ? "Gracias por calificar."
+          : "Las calificaciones ayudan a mejorar la comunidad."}
+      </p>
 
-      {error ? <p className="mt-3 text-sm text-intra-danger">{error}</p> : null}
-      {success ? <p className="mt-3 text-sm text-intra-text-success">{success}</p> : null}
+      {isExpired && !isSent ? (
+        <p className="mt-3 rounded-2xl border border-[#e4e7ec] bg-[#f5f8fb] px-4 py-3 text-[12px] font-normal leading-[18px] text-[#667085]">
+          La ventana de calificación de 12 horas ya terminó.
+        </p>
+      ) : null}
 
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={isPending || rating < 1}
-        className="intra-btn intra-btn-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-      >
-        {isPending ? "Enviando..." : "Enviar review"}
-      </button>
+      {isSent ? (
+        <p className="mt-4 flex items-center gap-2 text-[14px] font-bold leading-5 text-[#1e8c4e]">
+          <CheckCircle2 className="h-4 w-4" strokeWidth={2} />
+          Calificación enviada
+        </p>
+      ) : (
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isPending || rating < 1 || isExpired}
+          className="mt-4 min-h-11 w-full rounded-2xl bg-[#2ECC71] px-5 py-2.5 text-[14px] font-bold leading-5 text-white transition hover:bg-[#27ae60] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isPending ? "Enviando..." : "Enviar calificación"}
+        </button>
+      )}
+
+      {error ? <p className="mt-3 text-[14px] leading-[22px] text-intra-danger">{error}</p> : null}
     </section>
   );
 }

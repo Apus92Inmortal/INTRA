@@ -2,6 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getReviewWindowState } from "@/lib/reviews";
+
+type ReviewPaymentRow = {
+  created_at: string | null;
+  delivered_at: string | null;
+  updated_at: string | null;
+};
 
 export async function acceptMatchAction(matchId: string) {
   try {
@@ -333,8 +340,7 @@ export async function confirmDeliveryFormAction(
 
 export async function createReviewAction(
   matchId: string,
-  rating: number,
-  comment?: string
+  rating: number
 ) {
   try {
     if (!matchId) {
@@ -345,16 +351,67 @@ export async function createReviewAction(
       return { success: false, error: "Selecciona una calificación entre 1 y 5 estrellas" };
     }
 
-    if ((comment ?? "").length > 300) {
-      return { success: false, error: "El comentario no puede superar 300 caracteres" };
+    const supabase = await createClient();
+
+    const { data: match, error: matchError } = await supabase
+      .from("matches")
+      .select(`
+        id,
+        status,
+        created_at,
+        shipments (id, status),
+        payments (delivered_at, updated_at, created_at)
+      `)
+      .eq("id", matchId)
+      .single();
+
+    if (matchError || !match) {
+      return {
+        success: false,
+        error: matchError?.message ?? "No se encontró el match",
+      };
     }
 
-    const supabase = await createClient();
+    const shipment = Array.isArray(match.shipments) ? match.shipments[0] : match.shipments;
+    const payments: ReviewPaymentRow[] = Array.isArray(match.payments)
+      ? (match.payments as ReviewPaymentRow[])
+      : [];
+    const latestPayment = payments
+      .filter(Boolean)
+      .sort((first, second) => {
+        const firstDate = new Date(first.created_at ?? first.updated_at ?? 0).getTime();
+        const secondDate = new Date(second.created_at ?? second.updated_at ?? 0).getTime();
+        return secondDate - firstDate;
+      })[0];
+    const isReviewStage =
+      match.status === "completed" ||
+      shipment?.status === "delivered" ||
+      Boolean(latestPayment?.delivered_at);
+
+    if (!isReviewStage) {
+      return {
+        success: false,
+        error: "Solo puedes calificar cuando el match esté completado",
+      };
+    }
+
+    const reviewWindow = getReviewWindowState(
+      latestPayment?.delivered_at ??
+        (match.status === "completed" ? latestPayment?.updated_at ?? match.created_at : null),
+      new Date()
+    );
+
+    if (reviewWindow.isExpired) {
+      return {
+        success: false,
+        error: "La ventana de calificación de 12 horas ya terminó",
+      };
+    }
 
     const { data, error } = await supabase.rpc("create_review", {
       p_match_id: matchId,
       p_rating: rating,
-      p_comment: comment?.trim() || null,
+      p_comment: null,
     });
 
     if (error) {
@@ -379,6 +436,7 @@ export async function createReviewAction(
     revalidatePath(`/app/matches/${matchId}`);
     revalidatePath(`/app/matches/${matchId}/chat`);
     revalidatePath("/app/matches");
+    revalidatePath("/app/profile");
     revalidatePath("/app");
 
     return { success: true };
