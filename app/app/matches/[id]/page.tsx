@@ -419,7 +419,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                           <p><span className="intra-body-strong">Peso:</span> {shipment?.weight_kg ?? 0} kg</p>
                         </div>
 
-                        {shipment?.id && ownerId ? (
+                        {shipment?.id && ownerId && !isReviewStage ? (
                           <div className="flex flex-col justify-center rounded-2xl border border-intra-warning-border bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-warning-soft)_100%)] p-4 shadow-sm">
                             <div className="flex items-center gap-2 text-intra-warning-text">
                               <div className="intra-icon-shell-body rounded-xl bg-intra-warning-soft-alt">
