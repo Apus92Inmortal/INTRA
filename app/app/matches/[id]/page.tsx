@@ -537,11 +537,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 </div>
               </div>
 
-              {!canOpenChat ? (
-                <div className="mt-6 rounded-2xl bg-intra-neutral-pill px-4 py-3 intra-body">
-                  El chat se activará automáticamente cuando el match sea aceptado.
-                </div>
-              ) : null}
             </div>
           </div>
         </div>
