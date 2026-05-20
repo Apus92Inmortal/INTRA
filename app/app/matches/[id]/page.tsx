@@ -68,18 +68,6 @@ function formatTimeLabel(timeString: string | null | undefined) {
   }).format(value);
 }
 
-function formatDateTimeLabel(dateString: string | null | undefined) {
-  if (!dateString) return null;
-
-  return new Intl.DateTimeFormat("es-CO", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(dateString));
-}
-
 function getCityName(city: CityRelation) {
   if (!city) return null;
   if (Array.isArray(city)) return city[0]?.name ?? null;
@@ -253,10 +241,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
         .eq("reviewer_id", user.id)
         .maybeSingle()
     : { data: null };
-  const reviewExpiresAtLabel = reviewWindow.expiresAt
-    ? formatDateTimeLabel(reviewWindow.expiresAt.toISOString())
-    : null;
-
   if (isReviewStage && !existingReview && reviewWindow.isReminderDue) {
     await supabase.rpc("ensure_review_reminder", {
       p_match_id: match.id,
@@ -475,7 +459,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       existingRating={existingReview?.rating ?? null}
                       isExpired={!existingReview && reviewWindow.isExpired}
                       otherUserName={otherUserName}
-                      expiresAtLabel={reviewExpiresAtLabel}
                     />
                   ) : (
                     <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">

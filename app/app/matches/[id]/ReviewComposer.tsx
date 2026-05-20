@@ -10,7 +10,6 @@ type Props = {
   existingRating?: number | null;
   isExpired: boolean;
   otherUserName: string;
-  expiresAtLabel?: string | null;
 };
 
 export default function ReviewComposer({
@@ -18,7 +17,6 @@ export default function ReviewComposer({
   existingRating = null,
   isExpired,
   otherUserName,
-  expiresAtLabel = null,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -130,12 +128,6 @@ export default function ReviewComposer({
           {isPending ? "Enviando..." : "Enviar calificación"}
         </button>
       )}
-
-      {!isExpired && !isSent && expiresAtLabel ? (
-        <p className="mt-3 text-[12px] font-normal leading-[18px] text-[#667085]">
-          Disponible hasta {expiresAtLabel}.
-        </p>
-      ) : null}
 
       {error ? <p className="mt-3 text-[14px] leading-[22px] text-intra-danger">{error}</p> : null}
     </section>
