@@ -3,13 +3,60 @@ export type RatingSummary = {
   totalReviews: number;
 };
 
+export const REVIEW_WINDOW_HOURS = 12;
+export const REVIEW_REMINDER_HOURS = 6;
+
+export type ReviewWindowState = {
+  completedAt: Date | null;
+  expiresAt: Date | null;
+  reminderAt: Date | null;
+  isExpired: boolean;
+  isReminderDue: boolean;
+};
+
 type ReviewAggregateRow = {
   reviewed_user_id: string;
   rating: number | null;
 };
 
+function parseDate(value: string | Date | null | undefined) {
+  if (!value) return null;
+
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function toRoundedAverage(total: number, count: number) {
   return Math.round((total / count) * 10) / 10;
+}
+
+export function getReviewWindowState(
+  completedAtValue: string | Date | null | undefined,
+  nowValue: string | Date = new Date()
+): ReviewWindowState {
+  const completedAt = parseDate(completedAtValue);
+  const now = parseDate(nowValue) ?? new Date();
+
+  if (!completedAt) {
+    return {
+      completedAt: null,
+      expiresAt: null,
+      reminderAt: null,
+      isExpired: false,
+      isReminderDue: false,
+    };
+  }
+
+  const expiresAt = new Date(completedAt.getTime() + REVIEW_WINDOW_HOURS * 60 * 60 * 1000);
+  const reminderAt = new Date(completedAt.getTime() + REVIEW_REMINDER_HOURS * 60 * 60 * 1000);
+
+  return {
+    completedAt,
+    expiresAt,
+    reminderAt,
+    isExpired: now.getTime() > expiresAt.getTime(),
+    isReminderDue: now.getTime() >= reminderAt.getTime() && now.getTime() <= expiresAt.getTime(),
+  };
 }
 
 export function formatRatingValue(value: number | null | undefined) {

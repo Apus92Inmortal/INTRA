@@ -16,8 +16,9 @@ import {
 } from "./actions";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
-import { fetchRatingSummaryMap } from "@/lib/reviews";
+import { fetchRatingSummaryMap, getReviewWindowState } from "@/lib/reviews";
 import SuspiciousReportForm from "./SuspiciousReportForm";
+import ReviewComposer from "./ReviewComposer";
 import { CheckCircle2, MessageCircle, PackageCheck, Route, ShieldAlert, Truck } from "lucide-react";
 
 type PageProps = {
@@ -65,6 +66,18 @@ function formatTimeLabel(timeString: string | null | undefined) {
     hour: "numeric",
     minute: "2-digit",
   }).format(value);
+}
+
+function formatDateTimeLabel(dateString: string | null | undefined) {
+  if (!dateString) return null;
+
+  return new Intl.DateTimeFormat("es-CO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(dateString));
 }
 
 function getCityName(city: CityRelation) {
@@ -173,7 +186,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
     ? await supabase
         .from("payments")
         .select(
-          "id, status, amount, gross_amount, traveler_amount, intra_fee, gateway_fee_estimated, dispute_status, dispute_deadline_at, auto_release_at, released_at, refunded_at, delivered_at, traveler_delivered_at"
+          "id, status, amount, gross_amount, traveler_amount, intra_fee, gateway_fee_estimated, dispute_status, dispute_deadline_at, auto_release_at, released_at, refunded_at, delivered_at, traveler_delivered_at, updated_at"
         )
         .eq("shipment_id", shipment.id)
         .order("created_at", { ascending: false })
@@ -224,6 +237,32 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const primaryPanelTitle = isTraveler ? "Envío solicitado" : "Viaje disponible";
   const otherUserAvgRating = otherUserId ? ratingSummaryMap[otherUserId]?.avgRating ?? null : null;
   const otherUserTotalReviews = otherUserId ? ratingSummaryMap[otherUserId]?.totalReviews ?? 0 : 0;
+  const reviewStageStartedAt =
+    payment?.delivered_at ??
+    (match.status === "completed" ? payment?.updated_at ?? match.created_at : null);
+  const reviewWindow = getReviewWindowState(reviewStageStartedAt, new Date());
+  const isReviewStage =
+    match.status === "completed" ||
+    shipment?.status === "delivered" ||
+    Boolean(payment?.delivered_at);
+  const { data: existingReview } = isReviewStage
+    ? await supabase
+        .from("reviews")
+        .select("id, rating")
+        .eq("match_id", match.id)
+        .eq("reviewer_id", user.id)
+        .maybeSingle()
+    : { data: null };
+  const reviewExpiresAtLabel = reviewWindow.expiresAt
+    ? formatDateTimeLabel(reviewWindow.expiresAt.toISOString())
+    : null;
+
+  if (isReviewStage && !existingReview && reviewWindow.isReminderDue) {
+    await supabase.rpc("ensure_review_reminder", {
+      p_match_id: match.id,
+    });
+  }
+
   const progressIndex = getProgressStepIndex({
     matchStatus: match.status,
     shipmentStatus: shipment?.status,
@@ -430,77 +469,87 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 </div>
 
                 <div className="space-y-5">
-                  <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
-                    <h2 className="intra-h3">Acciones del match</h2>
+                  {isReviewStage ? (
+                    <ReviewComposer
+                      matchId={match.id}
+                      existingRating={existingReview?.rating ?? null}
+                      isExpired={!existingReview && reviewWindow.isExpired}
+                      otherUserName={otherUserName}
+                      expiresAtLabel={reviewExpiresAtLabel}
+                    />
+                  ) : (
+                    <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
+                      <h2 className="intra-h3">Acciones del match</h2>
 
-                    <div className="mt-5 space-y-3">
-                      {canMarkInTransit && markInTransitSubmitAction ? (
-                        <form action={markInTransitSubmitAction}>
-                          <button
-                            type="submit"
-                            className={primaryActionButtonClass}
-                          >
-                            <PackageCheck className="intra-icon-body" strokeWidth={2.1} />
-                            Confirmar recogida
-                          </button>
-                        </form>
-                      ) : null}
+                      <div className="mt-5 space-y-3">
+                        {canMarkInTransit && markInTransitSubmitAction ? (
+                          <form action={markInTransitSubmitAction}>
+                            <button
+                              type="submit"
+                              className={primaryActionButtonClass}
+                            >
+                              <PackageCheck className="intra-icon-body" strokeWidth={2.1} />
+                              Confirmar recogida
+                            </button>
+                          </form>
+                        ) : null}
 
-                      {canMarkDelivered && markDeliveredSubmitAction ? (
-                        <form action={markDeliveredSubmitAction}>
-                          <button
-                            type="submit"
-                            className={primaryActionButtonClass}
-                          >
-                            <Truck className="intra-icon-body" strokeWidth={2.1} />
-                            Confirmar entrega
-                          </button>
-                        </form>
-                      ) : null}
+                        {canMarkDelivered && markDeliveredSubmitAction ? (
+                          <form action={markDeliveredSubmitAction}>
+                            <button
+                              type="submit"
+                              className={primaryActionButtonClass}
+                            >
+                              <Truck className="intra-icon-body" strokeWidth={2.1} />
+                              Confirmar entrega
+                            </button>
+                          </form>
+                        ) : null}
 
-                      {canConfirmDelivery && confirmDeliverySubmitAction ? (
-                        <form action={confirmDeliverySubmitAction}>
-                          <button
-                            type="submit"
-                            className={primaryActionButtonClass}
+                        {canConfirmDelivery && confirmDeliverySubmitAction ? (
+                          <form action={confirmDeliverySubmitAction}>
+                            <button
+                              type="submit"
+                              className={primaryActionButtonClass}
+                            >
+                              <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
+                              Confirmar recepción
+                            </button>
+                          </form>
+                        ) : canOpenChat ? (
+                          <Link
+                            href={`/app/matches/${match.id}/chat`}
+                            className={chatActionButtonClass}
                           >
-                            <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
-                            Confirmar recepción
-                          </button>
-                        </form>
-                      ) : canOpenChat ? (
-                        <Link
-                          href={`/app/matches/${match.id}/chat`}
-                          className={chatActionButtonClass}
-                        >
-                          <MessageCircle className="intra-icon-body" strokeWidth={2.1} />
-                          Abrir chat
-                        </Link>
-                      ) : (
-                        <MatchDetailActions
-                          matchId={match.id}
-                          status={match.status}
-                          canAccept={canAccept}
-                          canCancel={canCancel}
-                          onAccept={acceptMatchAction}
-                          onReject={rejectMatchAction}
-                          onCancel={cancelMatchAction}
-                        />
-                      )}
+                            <MessageCircle className="intra-icon-body" strokeWidth={2.1} />
+                            Abrir chat
+                          </Link>
+                        ) : (
+                          <MatchDetailActions
+                            matchId={match.id}
+                            status={match.status}
+                            canAccept={canAccept}
+                            canCancel={canCancel}
+                            onAccept={acceptMatchAction}
+                            onReject={rejectMatchAction}
+                            onCancel={cancelMatchAction}
+                          />
+                        )}
 
-                      {canOpenDispute && openDisputeSubmitAction ? (
-                        <form action={openDisputeSubmitAction}>
-                          <button
-                            type="submit"
-                            className={warningActionButtonClass}
-                          >
-                            <ShieldAlert className="intra-icon-body" strokeWidth={2.1} />
-                            Solicitar revisión
-                          </button>
-                        </form>
-                      ) : null}
-                    </div>
-                  </section>
+                        {canOpenDispute && openDisputeSubmitAction ? (
+                          <form action={openDisputeSubmitAction}>
+                            <button
+                              type="submit"
+                              className={warningActionButtonClass}
+                            >
+                              <ShieldAlert className="intra-icon-body" strokeWidth={2.1} />
+                              Solicitar revisión
+                            </button>
+                          </form>
+                        ) : null}
+                      </div>
+                    </section>
+                  )}
 
                 </div>
               </div>
