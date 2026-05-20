@@ -67,7 +67,7 @@ export default function ReviewComposer({
       </div>
 
       <p className="mt-3 text-[14px] font-normal leading-[22px] text-[#667085]">
-        Tu calificación para {otherUserName} será anónima.
+        Para {otherUserName}.
       </p>
 
       <div className="mt-5 grid grid-cols-5 gap-2" aria-label="Selector de calificación">
