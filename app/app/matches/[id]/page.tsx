@@ -5,6 +5,7 @@ import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import MatchDetailActions from "./MatchDetailActions";
 import MatchDetailRealtime from "./MatchDetailRealtime";
+import CancelMatchDialog from "./CancelMatchDialog";
 import {
   acceptMatchAction,
   rejectMatchAction,
@@ -278,6 +279,14 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const canCancel =
     (isOwner || isTraveler) &&
     (match.status === "pending" || match.status === "accepted");
+  const shipmentStatus = shipment?.status ?? null;
+  const canShowCancelMenu =
+    canCancel &&
+    (match.status === "pending" ||
+      (match.status === "accepted" &&
+        shipmentStatus !== "in_transit" &&
+        shipmentStatus !== "delivered" &&
+        shipmentStatus !== "cancelled"));
 
   const canOpenChat = match.status === "accepted";
 
@@ -364,7 +373,16 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 </div>
 
                 <div className="flex shrink-0 flex-col items-center gap-2 text-center">
-                  <TrackingCodeBadge code={matchCode} className="!bg-intra-blue hover:!bg-intra-blue" />
+                  <div className="flex items-center justify-center gap-2">
+                    <TrackingCodeBadge code={matchCode} className="!bg-intra-blue hover:!bg-intra-blue" />
+                    {canShowCancelMenu ? (
+                      <CancelMatchDialog
+                        matchId={match.id}
+                        status={match.status as "pending" | "accepted"}
+                        onCancel={cancelMatchAction}
+                      />
+                    ) : null}
+                  </div>
                   <span className="intra-caption">Creado: {formatDate(match.created_at)}</span>
                 </div>
               </div>
@@ -512,10 +530,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
                             matchId={match.id}
                             status={match.status}
                             canAccept={canAccept}
-                            canCancel={canCancel}
                             onAccept={acceptMatchAction}
                             onReject={rejectMatchAction}
-                            onCancel={cancelMatchAction}
                           />
                         )}
 
