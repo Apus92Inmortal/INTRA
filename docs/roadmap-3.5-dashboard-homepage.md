@@ -2,8 +2,15 @@
 
 ## Estado
 
-Pendiente de ejecución.
-Este documento define **cómo Joy debe migrar el boceto aprobado de `https://intra-dashboard.vercel.app` a la ruta real `/app` del proyecto INTRA**, manteniendo la UI del boceto **exactamente igual** y conectándola a datos reales de Supabase.
+Ejecutado / histórico.
+
+Este documento se conserva como referencia del alcance aprobado para la migración 3.5, pero ya no debe tratarse como pendiente activo.
+
+Estado real al 22 may 2026:
+
+- `/app` ya fue migrado a dashboard con datos reales en PR #7.
+- El dashboard tuvo refinamientos posteriores en PRs de UI/UX y responsive.
+- La documentación de pendientes vigente debe vivir en la lista consolidada de pre-lanzamiento, no en este roadmap histórico.
 
 ---
 
