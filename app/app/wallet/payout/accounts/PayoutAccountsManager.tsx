@@ -18,6 +18,8 @@ import {
 } from "@/app/app/wallet/actions"
 import {
   getAccountTypeLabel,
+  getPayoutAccountVerificationClasses,
+  getPayoutAccountVerificationLabel,
   maskAccountNumber,
 } from "@/lib/payments/wallet"
 
@@ -30,6 +32,9 @@ type PayoutAccount = {
   account_number: string | null
   breb_key: string | null
   is_default: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
+  verified_at?: string | null
 }
 
 type FormState = {
@@ -303,7 +308,7 @@ export default function PayoutAccountsManager({
 
             <div className="flex items-start gap-2 rounded-[16px] text-sm text-[#667085]">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#667085]" strokeWidth={1.9} />
-              <p>Usaremos esta información para enviarte tus retiros.</p>
+              <p>Usaremos esta informacion para revisar tu cuenta. Si editas un metodo verificado, volvera a revision.</p>
             </div>
 
             <label className="flex items-start gap-3 rounded-[18px] border border-[#E4E7EC] bg-[#F9FCFA] px-4 py-3.5">
@@ -397,6 +402,13 @@ export default function PayoutAccountsManager({
                               Principal
                             </span>
                           ) : null}
+                          <span
+                            className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${getPayoutAccountVerificationClasses(
+                              account.verification_status ?? null
+                            )}`}
+                          >
+                            {getPayoutAccountVerificationLabel(account.verification_status ?? null)}
+                          </span>
                         </div>
                         <p className="mt-2 text-sm text-[#667085]">{account.account_holder_name || "Sin titular"}</p>
                         <p className="mt-1 text-sm text-[#667085]">
@@ -404,6 +416,11 @@ export default function PayoutAccountsManager({
                         </p>
                         {account.breb_key ? (
                           <p className="mt-1 text-sm text-[#667085]">Llave Bre-B: {account.breb_key}</p>
+                        ) : null}
+                        {account.verification_notes ? (
+                          <p className="mt-2 rounded-2xl bg-[#F9FAFB] px-3 py-2 text-sm text-[#667085]">
+                            Nota INTRA: {account.verification_notes}
+                          </p>
                         ) : null}
                       </div>
                     </div>

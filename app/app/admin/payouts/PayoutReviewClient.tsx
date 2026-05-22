@@ -2,10 +2,13 @@
 
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition } from "react"
+import { reviewPayoutAccountAction } from "@/app/app/admin/actions"
 import { updatePayoutStatusAction } from "@/app/app/wallet/actions"
 import {
   formatCop,
   formatDateTime,
+  getPayoutAccountVerificationClasses,
+  getPayoutAccountVerificationLabel,
   getPayoutStatusClasses,
   getPayoutStatusLabel,
 } from "@/lib/payments/wallet"
@@ -24,6 +27,22 @@ type AdminPayout = {
   accountLabel: string
   accountNumber: string
   brebKey: string | null
+}
+
+type AdminPayoutAccount = {
+  id: string
+  travelerUserId: string
+  travelerName: string
+  accountHolderName: string
+  documentNumber: string
+  accountLabel: string
+  accountNumber: string
+  brebKey: string | null
+  isDefault: boolean | null
+  verificationStatus: string | null
+  verificationNotes: string | null
+  verifiedAt: string | null
+  createdAt: string | null
 }
 
 type ReviewedFilter = "all" | "approved" | "rejected" | "paid"
@@ -188,14 +207,35 @@ function ReviewedPayoutRow({
   )
 }
 
-export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[] }) {
+export default function PayoutReviewClient({
+  payouts,
+  payoutAccounts,
+}: {
+  payouts: AdminPayout[]
+  payoutAccounts: AdminPayoutAccount[]
+}) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [notesById, setNotesById] = useState<Record<string, string>>({})
+  const [accountNotesById, setAccountNotesById] = useState<Record<string, string>>({})
   const [referenceById, setReferenceById] = useState<Record<string, string>>({})
   const [search, setSearch] = useState("")
   const [reviewedFilter, setReviewedFilter] = useState<ReviewedFilter>("all")
+
+  const reviewablePayoutAccounts = useMemo(
+    () => payoutAccounts.filter((account) => account.verificationStatus !== "verified"),
+    [payoutAccounts]
+  )
+
+  const payoutAccountCounts = useMemo(
+    () => ({
+      pending: payoutAccounts.filter((account) => account.verificationStatus === "pending").length,
+      verified: payoutAccounts.filter((account) => account.verificationStatus === "verified").length,
+      rejected: payoutAccounts.filter((account) => account.verificationStatus === "rejected").length,
+    }),
+    [payoutAccounts]
+  )
 
   const pendingPayouts = useMemo(
     () => payouts.filter((payout) => payout.status === "pending"),
@@ -252,6 +292,27 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
     })
   }
 
+  function handlePayoutAccountReview(accountId: string, status: "verified" | "rejected") {
+    setFeedback(null)
+
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set("accountId", accountId)
+      formData.set("status", status)
+      formData.set("verificationNotes", accountNotesById[accountId] ?? "")
+
+      const result = await reviewPayoutAccountAction(formData)
+
+      if (!result.success) {
+        setFeedback({ type: "error", message: result.error ?? "No pudimos revisar la cuenta." })
+        return
+      }
+
+      setFeedback({ type: "success", message: result.message ?? "Cuenta revisada." })
+      router.refresh()
+    })
+  }
+
   return (
     <div className="space-y-6">
       <section className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm sm:p-8">
@@ -291,6 +352,119 @@ export default function PayoutReviewClient({ payouts }: { payouts: AdminPayout[]
             {feedback.message}
           </div>
         ) : null}
+      </section>
+
+      <section className="space-y-4">
+        <div className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-intra-blue">Cuentas de retiro</h3>
+              <p className="mt-1 text-sm text-intra-text-subtle">
+                Solo las cuentas verificadas pueden usarse para solicitar retiros.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+                <p className="font-semibold text-intra-blue">En revision</p>
+                <p className="mt-1 text-2xl font-bold text-intra-blue">{payoutAccountCounts.pending}</p>
+              </div>
+              <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+                <p className="font-semibold text-intra-blue">Verificadas</p>
+                <p className="mt-1 text-2xl font-bold text-intra-blue">{payoutAccountCounts.verified}</p>
+              </div>
+              <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
+                <p className="font-semibold text-intra-blue">Rechazadas</p>
+                <p className="mt-1 text-2xl font-bold text-intra-blue">{payoutAccountCounts.rejected}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {reviewablePayoutAccounts.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
+            No hay cuentas pendientes de revision.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {reviewablePayoutAccounts.map((account) => (
+              <article key={account.id} className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h4 className="text-lg font-semibold text-intra-blue">{account.accountHolderName}</h4>
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getPayoutAccountVerificationClasses(
+                          account.verificationStatus
+                        )}`}
+                      >
+                        {getPayoutAccountVerificationLabel(account.verificationStatus)}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 text-sm text-intra-text-subtle sm:grid-cols-2">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Usuario</p>
+                        <p className="mt-1 font-medium text-intra-blue">{account.travelerName}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Documento</p>
+                        <p className="mt-1 font-medium text-intra-blue">{account.documentNumber}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Cuenta</p>
+                        <p className="mt-1 font-medium text-intra-blue">{account.accountLabel}</p>
+                        <p className="text-intra-text-subtle">{account.accountNumber}</p>
+                        {account.brebKey ? <p className="text-intra-text-subtle">Llave BRE-B: {account.brebKey}</p> : null}
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Registrada</p>
+                        <p className="mt-1">{formatDateTime(account.createdAt)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full max-w-xl space-y-3">
+                    <label className="block space-y-2">
+                      <span className="text-sm font-semibold text-intra-blue">Notas de revision</span>
+                      <textarea
+                        rows={3}
+                        value={accountNotesById[account.id] ?? account.verificationNotes ?? ""}
+                        onChange={(event) =>
+                          setAccountNotesById((current) => ({
+                            ...current,
+                            [account.id]: event.target.value,
+                          }))
+                        }
+                        className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
+                        placeholder="Ej: titular coincide con documento"
+                      />
+                    </label>
+
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handlePayoutAccountReview(account.id, "verified")}
+                        className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+                      >
+                        Verificar cuenta
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isPending}
+                        onClick={() => handlePayoutAccountReview(account.id, "rejected")}
+                        className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
+                      >
+                        Rechazar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       {payouts.length === 0 ? (

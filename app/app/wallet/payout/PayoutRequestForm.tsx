@@ -3,13 +3,15 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition, type FormEvent, type ReactNode } from "react"
-import { ArrowRight, Building2, FileText, Plus, ShieldCheck, Wallet } from "lucide-react"
+import { AlertCircle, ArrowRight, Building2, FileText, Plus, ShieldCheck, Wallet } from "lucide-react"
 import { requestPayoutAction } from "@/app/app/wallet/actions"
 import {
   formatCop,
   formatDateTime,
   getCompactPayoutAccountLabel,
   getPayoutInstitutionLabel,
+  getPayoutAccountVerificationClasses,
+  getPayoutAccountVerificationLabel,
   getPayoutStatusClasses,
   getPayoutStatusLabel,
 } from "@/lib/payments/wallet"
@@ -22,6 +24,8 @@ type PayoutAccount = {
   account_number: string | null
   breb_key: string | null
   is_default: boolean | null
+  verification_status?: string | null
+  verification_notes?: string | null
 }
 
 type Payout = {
@@ -64,33 +68,68 @@ export default function PayoutRequestForm({
   payouts,
   minimumPayout,
   withdrawableBalance,
+  identityVerificationStatus,
+  payoutVerificationLevel,
 }: {
   payoutAccounts: PayoutAccount[]
   payouts: Payout[]
   minimumPayout: number
   withdrawableBalance: number
+  identityVerificationStatus: string | null
+  payoutVerificationLevel: string | null
 }) {
   const router = useRouter()
+  const initialPayoutAccount =
+    payoutAccounts.find((account) => account.is_default && account.verification_status === "verified")?.id ??
+    payoutAccounts.find((account) => account.verification_status === "verified")?.id ??
+    ""
   const [isPending, startTransition] = useTransition()
   const [amount, setAmount] = useState("")
-  const [selectedAccount, setSelectedAccount] = useState(
-    payoutAccounts.find((account) => account.is_default)?.id ?? payoutAccounts[0]?.id ?? ""
-  )
+  const [selectedAccount, setSelectedAccount] = useState(initialPayoutAccount)
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
-  const defaultAccount = useMemo(
-    () => payoutAccounts.find((account) => account.is_default) ?? payoutAccounts[0] ?? null,
+  const verifiedAccounts = useMemo(
+    () => payoutAccounts.filter((account) => account.verification_status === "verified"),
     [payoutAccounts]
   )
+
+  const defaultAccount = useMemo(
+    () =>
+      verifiedAccounts.find((account) => account.is_default) ??
+      verifiedAccounts[0] ??
+      payoutAccounts.find((account) => account.is_default) ??
+      payoutAccounts[0] ??
+      null,
+    [payoutAccounts, verifiedAccounts]
+  )
+  const normalizedSelectedAccount = verifiedAccounts.some((account) => account.id === selectedAccount)
+    ? selectedAccount
+    : verifiedAccounts[0]?.id ?? ""
+  const hasVerifiedIdentity = identityVerificationStatus === "verified"
+  const isPayoutVerified = payoutVerificationLevel === "payout_verified"
+  const hasVerifiedPayoutAccount = verifiedAccounts.length > 0
+  const canRequestPayout =
+    isPayoutVerified &&
+    hasVerifiedPayoutAccount &&
+    withdrawableBalance >= minimumPayout &&
+    Boolean(normalizedSelectedAccount)
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setFeedback(null)
 
+    if (!canRequestPayout) {
+      setFeedback({
+        type: "error",
+        message: "Completa la verificacion para retiros y usa una cuenta verificada antes de solicitar el pago.",
+      })
+      return
+    }
+
     startTransition(async () => {
       const formData = new FormData()
       formData.set("amount", amount)
-      formData.set("payoutAccountId", selectedAccount)
+      formData.set("payoutAccountId", normalizedSelectedAccount)
 
       const result = await requestPayoutAction(formData)
 
@@ -147,11 +186,35 @@ export default function PayoutRequestForm({
                 <p className="mt-2 text-lg font-semibold leading-snug text-[#0B2C4A]">
                   {defaultAccount ? getPayoutInstitutionLabel(defaultAccount) : "Sin cuenta principal"}
                 </p>
+                {defaultAccount?.verification_status ? (
+                  <span
+                    className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${getPayoutAccountVerificationClasses(
+                      defaultAccount.verification_status
+                    )}`}
+                  >
+                    {getPayoutAccountVerificationLabel(defaultAccount.verification_status)}
+                  </span>
+                ) : null}
               </div>
             </div>
           </article>
         </div>
       </section>
+
+      {!isPayoutVerified ? (
+        <section className="rounded-[20px] border border-[#FDE7B2] bg-[#FFF9EC] px-5 py-4 text-sm leading-6 text-[#8A6C12]">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="mt-1 h-4 w-4 shrink-0" strokeWidth={1.9} />
+            <div>
+              <p className="font-semibold text-[#0B2C4A]">Tu retiro aun no esta habilitado.</p>
+              <p>
+                Necesitas identidad verificada y una cuenta de retiro aprobada por INTRA. Estado de identidad:{" "}
+                {hasVerifiedIdentity ? "verificada" : "pendiente"}.
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {payoutAccounts.length === 0 ? (
         <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-sm sm:p-8">
@@ -229,11 +292,15 @@ export default function PayoutRequestForm({
               <label className="space-y-2">
                 <span className="text-sm font-semibold text-[#0B2C4A]">Cuenta de retiro</span>
                 <select
-                  value={selectedAccount}
+                  value={normalizedSelectedAccount}
                   onChange={(event) => setSelectedAccount(event.target.value)}
+                  disabled={!hasVerifiedPayoutAccount}
                   className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
                 >
-                  {payoutAccounts.map((account) => (
+                  {verifiedAccounts.length === 0 ? (
+                    <option value="">No tienes cuentas verificadas</option>
+                  ) : null}
+                  {verifiedAccounts.map((account) => (
                     <option key={account.id} value={account.id}>
                       {getCompactPayoutAccountLabel(account)}
                     </option>
@@ -257,7 +324,7 @@ export default function PayoutRequestForm({
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 type="submit"
-                disabled={isPending || payoutAccounts.length === 0}
+                disabled={isPending || !canRequestPayout}
                 className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] disabled:opacity-60"
               >
                 {isPending ? "Enviando..." : "Solicitar retiro"}

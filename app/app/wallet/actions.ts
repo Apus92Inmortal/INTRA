@@ -106,9 +106,10 @@ export async function savePayoutAccountAction(formData: FormData): Promise<Actio
     }
 
     const shouldBeDefault = payload.isDefault || (existingAccounts?.length ?? 0) === 0
+    const admin = createAdminClient()
 
     if (shouldBeDefault) {
-      const { error: resetDefaultError } = await supabase
+      const { error: resetDefaultError } = await admin
         .from("traveler_payout_accounts")
         .update({ is_default: false })
         .eq("traveler_user_id", user.id)
@@ -132,6 +133,10 @@ export async function savePayoutAccountAction(formData: FormData): Promise<Actio
       account_number: payload.accountNumber,
       breb_key: payload.brebKey || null,
       is_default: shouldBeDefault,
+      verification_status: "pending",
+      verified_at: null,
+      verified_by: null,
+      verification_notes: null,
     }
 
     if (payload.id) {
@@ -149,7 +154,7 @@ export async function savePayoutAccountAction(formData: FormData): Promise<Actio
         }
       }
 
-      const { error } = await supabase
+      const { error } = await admin
         .from("traveler_payout_accounts")
         .update(row)
         .eq("id", payload.id)
@@ -159,7 +164,7 @@ export async function savePayoutAccountAction(formData: FormData): Promise<Actio
         return { success: false, error: error.message }
       }
     } else {
-      const { error } = await supabase.from("traveler_payout_accounts").insert(row)
+      const { error } = await admin.from("traveler_payout_accounts").insert(row)
 
       if (error) {
         return { success: false, error: error.message }
@@ -226,7 +231,7 @@ export async function deletePayoutAccountAction(formData: FormData): Promise<Act
         .maybeSingle()
 
       if (fallbackAccount?.id) {
-        await supabase
+        await admin
           .from("traveler_payout_accounts")
           .update({ is_default: true })
           .eq("id", fallbackAccount.id)
@@ -319,73 +324,30 @@ export async function updatePayoutStatusAction(formData: FormData): Promise<Acti
     }
 
     const admin = createAdminClient()
-    const { data: payout, error: payoutError } = await admin
-      .from("payouts")
-      .select("id, wallet_id, traveler_user_id, amount, status")
-      .eq("id", payoutId)
-      .maybeSingle()
+    const { data, error } = await admin.rpc("admin_update_payout_status", {
+      p_payout_id: payoutId,
+      p_status: status,
+      p_review_notes: reviewNotes || null,
+      p_paid_reference: paidReference || null,
+      p_admin_id: user.id,
+    })
 
-    if (payoutError || !payout) {
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    if (
+      data &&
+      typeof data === "object" &&
+      "success" in data &&
+      data.success === false
+    ) {
       return {
         success: false,
-        error: payoutError?.message ?? "No encontramos el retiro solicitado.",
-      }
-    }
-
-    const patch: Record<string, string | null> = {
-      status,
-      review_notes: reviewNotes || null,
-    }
-
-    if (status === "approved" || status === "rejected") {
-      patch.reviewed_at = new Date().toISOString()
-    }
-
-    if (status === "paid") {
-      patch.reviewed_at = new Date().toISOString()
-      patch.paid_at = new Date().toISOString()
-      patch.paid_reference = paidReference || null
-    }
-
-    const { error: updateError } = await admin.from("payouts").update(patch).eq("id", payoutId)
-
-    if (updateError) {
-      return { success: false, error: updateError.message }
-    }
-
-    if (status === "paid" && payout.status !== "paid") {
-      const { data: wallet } = await admin
-        .from("wallets")
-        .select("id, available_balance, total_withdrawn")
-        .eq("id", payout.wallet_id)
-        .maybeSingle()
-
-      if (wallet?.id) {
-        const amount = Number(payout.amount ?? 0)
-
-        await admin.from("wallet_ledger").insert({
-          wallet_id: payout.wallet_id,
-          user_id: payout.traveler_user_id,
-          payout_id: payout.id,
-          entry_type: "payout_paid_debit",
-          balance_type: "available",
-          direction: "debit",
-          amount,
-          description: "Retiro pagado al usuario",
-          metadata: {
-            source: "admin_payout_review",
-            paid_reference: paidReference || null,
-          },
-        })
-
-        await admin
-          .from("wallets")
-          .update({
-            available_balance: Math.max(Number(wallet.available_balance ?? 0) - amount, 0),
-            total_withdrawn: Number(wallet.total_withdrawn ?? 0) + amount,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", wallet.id)
+        error:
+          typeof data.error === "string"
+            ? data.error
+            : "No pudimos actualizar el retiro.",
       }
     }
 
