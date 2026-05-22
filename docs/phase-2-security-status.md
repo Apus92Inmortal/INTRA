@@ -48,7 +48,7 @@ La Fase 2 queda cerrada a nivel funcional y de endurecimiento principal, con sal
 
 - Mantener vigilancia sobre variables privadas externas en Vercel / Supabase.
 - Si la `service_role` sale del entorno controlado o aparece uso nuevo, rotarla de inmediato.
-- Migrar `middleware.ts` a la convención `proxy` de Next.js 16 para eliminar deuda técnica pendiente.
+- La app ya tiene `proxy.ts`; si se toca auth/routing, validar en build/runtime que la convención activa de Next.js siga protegiendo `/app/*`.
 
 ## Decisión de roadmap
 
