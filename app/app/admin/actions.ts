@@ -562,6 +562,10 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
           .from("payments")
           .update({
             status: "refunded",
+            refund_status: "refunded",
+            refund_reason: resolutionNotes || "dispute_customer_refund",
+            refund_processed_at: now,
+            refund_admin_id: user.id,
             refunded_at: now,
             dispute_status: "resolved",
             dispute_resolved_at: now,
@@ -948,10 +952,67 @@ export async function reviewShipmentAlertAction(formData: FormData): Promise<Act
       }
 
       if (payment?.id && payment.status === "held") {
+        if (travelerId) {
+          const travelerWalletResult = await ensureWalletForUser(admin, travelerId)
+
+          if (!travelerWalletResult.success) {
+            return travelerWalletResult
+          }
+
+          const { data: existingEntries, error: existingEntriesError } = await admin
+            .from("wallet_ledger")
+            .select("entry_type")
+            .eq("payment_id", payment.id)
+
+          if (existingEntriesError) {
+            return { success: false, error: existingEntriesError.message }
+          }
+
+          const existingEntryTypes = new Set((existingEntries ?? []).map((row) => row.entry_type).filter(Boolean))
+          const travelerAmount = Number(payment.traveler_amount ?? payment.amount ?? 0)
+
+          if (
+            travelerAmount > 0 &&
+            existingEntryTypes.has("payment_hold") &&
+            !existingEntryTypes.has("refund_pending_debit")
+          ) {
+            const { error: ledgerInsertError } = await admin.from("wallet_ledger").insert({
+              wallet_id: travelerWalletResult.walletId,
+              user_id: travelerId,
+              payment_id: payment.id,
+              match_id: match?.id ?? null,
+              payout_id: null,
+              entry_type: "refund_pending_debit",
+              balance_type: "pending",
+              direction: "debit",
+              amount: travelerAmount,
+              description: "Reverso de retención temporal por revisión administrativa",
+              metadata: {
+                source: "admin_alert_resolution",
+                reason: action === "reject_shipment" ? "shipment_rejected_by_admin" : "match_cancelled_by_admin",
+                report_id: report.id,
+              },
+            })
+
+            if (ledgerInsertError) {
+              return { success: false, error: ledgerInsertError.message }
+            }
+
+            const syncResult = await syncWalletSummary(admin, travelerId)
+
+            if (!syncResult.success) {
+              return syncResult
+            }
+          }
+        }
+
         updates.push(
           admin
             .from("payments")
             .update({
+              refund_status: "manual_required",
+              refund_reason: action === "reject_shipment" ? "shipment_rejected_by_admin" : "match_cancelled_by_admin",
+              refund_requested_at: now,
               updated_at: now,
               metadata: mergeMetadata(payment.metadata, {
                 manual_refund_required: true,
