@@ -39,6 +39,22 @@ type PreferenceToggleProps = {
   onChange: (value: boolean) => void
 }
 
+const tripPublishErrorMessages: Record<string, string> = {
+  invalid_capacity: "La capacidad del viaje debe ser mayor a 0 kg.",
+  invalid_departure_date: "Elige una fecha de hoy en adelante.",
+  not_authenticated: "Inicia sesión para publicar tu viaje.",
+  route_required: "Selecciona ciudad de origen y destino.",
+  same_route: "El origen y destino no pueden ser iguales.",
+}
+
+function getTripPublishErrorMessage(error: unknown) {
+  if (typeof error !== "string") {
+    return "No se pudo publicar el viaje. Inténtalo nuevamente."
+  }
+
+  return tripPublishErrorMessages[error] ?? "No se pudo publicar el viaje. Inténtalo nuevamente."
+}
+
 function PreferenceToggle({ label, value, onChange }: PreferenceToggleProps) {
   return (
     <div className="rounded-2xl border border-intra-border-soft bg-intra-card px-2.5 py-2">
@@ -304,7 +320,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
     setLoading(false)
 
     if (error) {
-      setMsg("❌ Error publicando viaje: " + error.message)
+      setMsg("❌ Error publicando viaje: " + getTripPublishErrorMessage(error.message))
       return
     }
 
@@ -314,10 +330,7 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       "success" in data &&
       data.success === false
     ) {
-      setMsg(
-        "❌ Error publicando viaje: " +
-          (typeof data.error === "string" ? data.error : "No se pudo publicar el viaje.")
-      )
+      setMsg("❌ Error publicando viaje: " + getTripPublishErrorMessage(data.error))
       return
     }
 
