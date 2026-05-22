@@ -124,6 +124,32 @@ export function getPayoutStatusClasses(status: string | null) {
   }
 }
 
+export function getPayoutAccountVerificationLabel(status: string | null) {
+  switch (status) {
+    case "verified":
+      return "Verificada"
+    case "rejected":
+      return "Rechazada"
+    case "pending":
+      return "En revision"
+    default:
+      return "Sin revision"
+  }
+}
+
+export function getPayoutAccountVerificationClasses(status: string | null) {
+  switch (status) {
+    case "verified":
+      return "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+    case "rejected":
+      return "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+    case "pending":
+      return "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
+    default:
+      return "border-intra-border-soft bg-intra-bg-app text-intra-text-subtle"
+  }
+}
+
 export function getAccountTypeLabel(accountType: string | null) {
   switch (accountType) {
     case "ahorros":

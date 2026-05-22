@@ -12,7 +12,7 @@ export default async function WalletPayoutAccountsPage() {
     ? await supabase
         .from("traveler_payout_accounts")
         .select(
-          "id, account_holder_name, document_number, bank_name, account_type, account_number, breb_key, is_default"
+          "id, account_holder_name, document_number, bank_name, account_type, account_number, breb_key, is_default, verification_status, verification_notes, verified_at"
         )
         .eq("traveler_user_id", user.id)
         .order("is_default", { ascending: false })

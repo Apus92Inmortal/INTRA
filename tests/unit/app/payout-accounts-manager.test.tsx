@@ -53,7 +53,9 @@ describe("PayoutAccountsManager", () => {
     expect(screen.getByLabelText("Entidad bancaria")).toBeInTheDocument()
 
     expect(
-      screen.getByText("Usaremos esta información para enviarte tus retiros.")
+      screen.getByText(
+        "Usaremos esta informacion para revisar tu cuenta. Si editas un metodo verificado, volvera a revision."
+      )
     ).toBeInTheDocument()
 
     expect(screen.getByText("0 guardados")).toBeInTheDocument()
@@ -83,6 +85,7 @@ describe("PayoutAccountsManager", () => {
     expect(screen.getByText("1 guardado")).toBeInTheDocument()
     expect(screen.getByText("Ana Pérez")).toBeInTheDocument()
     expect(screen.getByText("Principal")).toBeInTheDocument()
+    expect(screen.getByText("Sin revision")).toBeInTheDocument()
     expect(screen.getByText("Llave Bre-B: @anaperez")).toBeInTheDocument()
     expect(
       screen.getByRole("button", { name: "Editar" })

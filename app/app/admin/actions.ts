@@ -53,6 +53,7 @@ type TripAdminRow = {
 }
 
 const ALLOWED_VERIFICATION_STATUSES = new Set(["verified", "rejected"])
+const ALLOWED_PAYOUT_ACCOUNT_STATUSES = new Set(["verified", "rejected"])
 const ALLOWED_DISPUTE_ACTIONS = new Set(["reviewing", "customer_refund", "traveler_release", "rejected"])
 const ALLOWED_ALERT_ACTIONS = new Set([
   "reviewing",
@@ -269,7 +270,7 @@ export async function reviewUserVerificationAction(formData: FormData): Promise<
     const admin = createAdminClient()
     const { data: verification, error: verificationError } = await admin
       .from("user_verifications")
-      .select("id")
+      .select("id, user_id")
       .eq("id", verificationId)
       .maybeSingle()
 
@@ -280,8 +281,23 @@ export async function reviewUserVerificationAction(formData: FormData): Promise<
       }
     }
 
+    const travelerUserId = typeof verification.user_id === "string" ? verification.user_id : null
+    const { count: verifiedAccountsCount } = travelerUserId
+      ? await admin
+          .from("traveler_payout_accounts")
+          .select("id", { count: "exact", head: true })
+          .eq("traveler_user_id", travelerUserId)
+          .eq("verification_status", "verified")
+      : { count: 0 }
+
     const patch = {
       verification_status: status,
+      verification_level:
+        status === "verified" && (verifiedAccountsCount ?? 0) > 0
+          ? "payout_verified"
+          : status === "verified"
+            ? "identity_verified"
+            : "basic_verified",
       rejection_reason: status === "rejected" ? rejectionReason : null,
       reviewed_at: new Date().toISOString(),
       reviewed_by: user.id,
@@ -297,6 +313,18 @@ export async function reviewUserVerificationAction(formData: FormData): Promise<
       return { success: false, error: updateError.message }
     }
 
+    await admin.from("app_audit_logs").insert({
+      actor_id: user.id,
+      event_type: "user_verification_reviewed",
+      entity_type: "user_verification",
+      entity_id: verificationId,
+      metadata: {
+        status,
+        verification_level: patch.verification_level,
+        user_id: travelerUserId,
+      },
+    })
+
     revalidatePath("/app/admin")
     revalidatePath("/app/admin/verifications")
     revalidatePath("/app/profile")
@@ -310,6 +338,128 @@ export async function reviewUserVerificationAction(formData: FormData): Promise<
     return {
       success: false,
       error: error instanceof Error ? error.message : "No pudimos actualizar la verificación.",
+    }
+  }
+}
+
+export async function reviewPayoutAccountAction(formData: FormData): Promise<ActionResult> {
+  try {
+    const { user } = await requireAdminUser()
+    const accountId = toTrimmedString(formData.get("accountId"))
+    const status = toTrimmedString(formData.get("status"))
+    const verificationNotes = toTrimmedString(formData.get("verificationNotes"))
+
+    if (!accountId) {
+      return { success: false, error: "No llego la cuenta de retiro a revisar." }
+    }
+
+    if (!ALLOWED_PAYOUT_ACCOUNT_STATUSES.has(status)) {
+      return { success: false, error: "Estado de cuenta no valido." }
+    }
+
+    if (status === "rejected" && !verificationNotes) {
+      return { success: false, error: "Escribe una nota para rechazar la cuenta." }
+    }
+
+    const admin = createAdminClient()
+    const { data: account, error: accountError } = await admin
+      .from("traveler_payout_accounts")
+      .select("id, traveler_user_id")
+      .eq("id", accountId)
+      .maybeSingle()
+
+    if (accountError || !account) {
+      return {
+        success: false,
+        error: accountError?.message ?? "No encontramos la cuenta de retiro.",
+      }
+    }
+
+    const now = new Date().toISOString()
+    const travelerUserId = account.traveler_user_id as string
+
+    const { error: updateError } = await admin
+      .from("traveler_payout_accounts")
+      .update({
+        verification_status: status,
+        verified_at: status === "verified" ? now : null,
+        verified_by: status === "verified" ? user.id : null,
+        verification_notes: verificationNotes || null,
+        updated_at: now,
+      })
+      .eq("id", accountId)
+
+    if (updateError) {
+      return { success: false, error: updateError.message }
+    }
+
+    const { data: verification } = await admin
+      .from("user_verifications")
+      .select("user_id, verification_status, verification_level")
+      .eq("user_id", travelerUserId)
+      .maybeSingle()
+
+    const { count: verifiedAccountsCount } = await admin
+      .from("traveler_payout_accounts")
+      .select("id", { count: "exact", head: true })
+      .eq("traveler_user_id", travelerUserId)
+      .eq("verification_status", "verified")
+
+    const hasVerifiedIdentity = verification?.verification_status === "verified"
+    const nextVerificationLevel =
+      hasVerifiedIdentity && (verifiedAccountsCount ?? 0) > 0
+        ? "payout_verified"
+        : hasVerifiedIdentity
+          ? "identity_verified"
+          : verification?.verification_level ?? "basic_verified"
+
+    const { error: verificationUpdateError } = await admin.from("user_verifications").upsert(
+      {
+        user_id: travelerUserId,
+        verification_level: nextVerificationLevel,
+        updated_at: now,
+      },
+      { onConflict: "user_id" }
+    )
+
+    if (verificationUpdateError) {
+      return { success: false, error: verificationUpdateError.message }
+    }
+
+    await admin.from("app_audit_logs").insert({
+      actor_id: user.id,
+      event_type: "payout_account_reviewed",
+      entity_type: "traveler_payout_account",
+      entity_id: accountId,
+      metadata: {
+        traveler_user_id: travelerUserId,
+        status,
+        verification_level: nextVerificationLevel,
+      },
+    })
+
+    revalidatePath("/app/admin")
+    revalidatePath("/app/admin/payouts")
+    revalidatePath("/app/wallet")
+    revalidatePath("/app/wallet/payout")
+    revalidatePath("/app/wallet/payout/accounts")
+    revalidatePath("/app/profile")
+
+    if (status === "verified" && !hasVerifiedIdentity) {
+      return {
+        success: true,
+        message: "Cuenta verificada. Falta aprobar identidad para habilitar retiros.",
+      }
+    }
+
+    return {
+      success: true,
+      message: status === "verified" ? "Cuenta de retiro verificada." : "Cuenta de retiro rechazada.",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "No pudimos revisar la cuenta de retiro.",
     }
   }
 }

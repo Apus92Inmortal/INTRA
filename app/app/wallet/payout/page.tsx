@@ -9,7 +9,7 @@ export default async function WalletPayoutPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const [walletRes, feeConfigRes, payoutAccountsRes, payoutsRes] = user
+  const [walletRes, feeConfigRes, payoutAccountsRes, payoutsRes, verificationRes] = user
     ? await Promise.all([
         supabase
           .from("wallets")
@@ -25,7 +25,9 @@ export default async function WalletPayoutPage() {
           .maybeSingle(),
         supabase
           .from("traveler_payout_accounts")
-          .select("id, account_holder_name, bank_name, account_type, account_number, breb_key, is_default")
+          .select(
+            "id, account_holder_name, bank_name, account_type, account_number, breb_key, is_default, verification_status, verification_notes"
+          )
           .eq("traveler_user_id", user.id)
           .order("is_default", { ascending: false })
           .order("created_at", { ascending: true }),
@@ -35,12 +37,18 @@ export default async function WalletPayoutPage() {
           .eq("traveler_user_id", user.id)
           .order("requested_at", { ascending: false })
           .limit(12),
+        supabase
+          .from("user_verifications")
+          .select("verification_status, verification_level")
+          .eq("user_id", user.id)
+          .maybeSingle(),
       ])
     : [
         { data: null },
         { data: null },
         { data: [] },
         { data: [] },
+        { data: null },
       ]
 
   const minimumPayout = Number(feeConfigRes.data?.minimum_payout_cop ?? 10000)
@@ -57,6 +65,8 @@ export default async function WalletPayoutPage() {
             payouts={payoutsRes.data ?? []}
             minimumPayout={minimumPayout}
             withdrawableBalance={withdrawableBalance}
+            identityVerificationStatus={verificationRes.data?.verification_status ?? null}
+            payoutVerificationLevel={verificationRes.data?.verification_level ?? null}
           />
         </div>
       </main>
