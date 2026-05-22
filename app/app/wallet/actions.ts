@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache"
 import { requireAdminUser } from "@/lib/auth/admin"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
-import { getOpenPayoutAmount } from "@/lib/payments/wallet"
 
 type ActionResult = {
   success: boolean
@@ -21,11 +20,6 @@ type PayoutAccountInput = {
   accountNumber: string
   brebKey: string
   isDefault: boolean
-}
-
-type PayoutAccountSummary = {
-  id: string
-  is_default: boolean | null
 }
 
 const ALLOWED_ACCOUNT_TYPES = new Set(["ahorros", "corriente", "nequi", "daviplata"])
@@ -255,7 +249,7 @@ export async function deletePayoutAccountAction(formData: FormData): Promise<Act
 
 export async function requestPayoutAction(formData: FormData): Promise<ActionResult> {
   try {
-    const { supabase, user } = await requireUser()
+    const { supabase } = await requireUser()
     const rawAmount = toTrimmedString(formData.get("amount"))
     const payoutAccountId = toTrimmedString(formData.get("payoutAccountId"))
     const note = toTrimmedString(formData.get("note"))
@@ -265,82 +259,29 @@ export async function requestPayoutAction(formData: FormData): Promise<ActionRes
       return { success: false, error: "Ingresa un monto válido." }
     }
 
-    const [{ data: wallet, error: walletError }, { data: feeConfig }, { data: payoutAccounts }, { data: payouts }] =
-      await Promise.all([
-        supabase.from("wallets").select("id, available_balance, pending_balance").eq("user_id", user.id).maybeSingle(),
-        supabase.from("fee_configs").select("minimum_payout_cop").eq("is_active", true).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
-        supabase
-          .from("traveler_payout_accounts")
-          .select("id, is_default")
-          .eq("traveler_user_id", user.id)
-          .order("is_default", { ascending: false })
-          .order("created_at", { ascending: true }),
-        supabase.from("payouts").select("status, amount").eq("traveler_user_id", user.id),
-      ])
-
-    if (walletError) {
-      return { success: false, error: walletError.message }
-    }
-
-    if (!wallet?.id) {
-      return {
-        success: false,
-        error: "Tu wallet se activa con tu primer movimiento aprobado. Aún no tienes saldo para retirar.",
-      }
-    }
-
-    const minimumPayout = Number(feeConfig?.minimum_payout_cop ?? 10000)
-
-    if (amount < minimumPayout) {
-      return {
-        success: false,
-        error: `El retiro mínimo es ${minimumPayout.toLocaleString("es-CO")} COP.`,
-      }
-    }
-
-    const reservedAmount = getOpenPayoutAmount(payouts)
-    const withdrawableBalance = Math.max(Number(wallet.available_balance ?? 0) - reservedAmount, 0)
-
-    if (amount > withdrawableBalance) {
-      return {
-        success: false,
-        error: "No puedes retirar más de tu saldo disponible para retiro.",
-      }
-    }
-
-    const selectedAccountList = (payoutAccounts ?? []) as PayoutAccountSummary[]
-
-    const selectedAccountId =
-      payoutAccountId || selectedAccountList.find((account: PayoutAccountSummary) => account.is_default)?.id || ""
-
-    if (!selectedAccountId) {
-      return { success: false, error: "Agrega una cuenta de retiro antes de solicitar el pago." }
-    }
-
-    const { data: selectedAccount, error: selectedAccountError } = await supabase
-      .from("traveler_payout_accounts")
-      .select("id")
-      .eq("id", selectedAccountId)
-      .eq("traveler_user_id", user.id)
-      .maybeSingle()
-
-    if (selectedAccountError || !selectedAccount) {
-      return {
-        success: false,
-        error: selectedAccountError?.message ?? "La cuenta de retiro no es válida.",
-      }
-    }
-
-    const { error: payoutError } = await supabase.from("payouts").insert({
-      traveler_user_id: user.id,
-      wallet_id: wallet.id,
-      payout_account_id: selectedAccountId,
-      amount,
-      review_notes: note || null,
+    const { data, error } = await supabase.rpc("request_payout", {
+      p_amount: amount,
+      p_payout_account_id: payoutAccountId || null,
+      p_note: note || null,
     })
 
-    if (payoutError) {
-      return { success: false, error: payoutError.message }
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    if (
+      data &&
+      typeof data === "object" &&
+      "success" in data &&
+      data.success === false
+    ) {
+      return {
+        success: false,
+        error:
+          typeof data.error === "string"
+            ? data.error
+            : "No pudimos crear la solicitud de retiro.",
+      }
     }
 
     revalidatePath("/app/wallet")

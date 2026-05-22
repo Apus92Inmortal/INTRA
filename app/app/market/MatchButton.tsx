@@ -28,36 +28,31 @@ export default function MatchButton({
     setLoading(true)
     setMsg(null)
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      setLoading(false)
-      setMsg("No autenticado")
-      return
-    }
-
-    const { error } = await supabase.from("matches").insert({
-      shipment_id: shipmentId,
-      trip_id: tripId,
-      requester_id: user.id,
-      status: "pending",
+    const { data, error } = await supabase.rpc("request_match", {
+      p_shipment_id: shipmentId,
+      p_trip_id: tripId,
     })
 
     setLoading(false)
 
-    if (error) {
-      const m = (error.message || "").toLowerCase()
+    const rpcError =
+      data && typeof data === "object" && "success" in data && data.success === false
+        ? typeof data.error === "string"
+          ? data.error
+          : "No se pudo solicitar el transporte."
+        : null
 
-      if (m.includes("duplicate") || m.includes("matches_unique")) {
+    if (error || rpcError) {
+      const errorMessage = error?.message ?? rpcError ?? ""
+      const m = errorMessage.toLowerCase()
+
+      if (m.includes("duplicate") || m.includes("matches_unique") || m.includes("match_already_requested")) {
         setMsg(null)
         setDone(true)
         return
       }
 
-      setMsg("❌ " + error.message)
+      setMsg("❌ " + errorMessage)
       return
     }
 

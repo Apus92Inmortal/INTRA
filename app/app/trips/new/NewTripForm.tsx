@@ -287,36 +287,37 @@ export default function NewTripForm({ cities }: { cities: City[] }) {
       return
     }
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      setLoading(false)
-      setMsg("❌ No estás autenticado.")
-      return
-    }
-
     const cap = parseNormalizedNumber(capacityKg)
 
-    const { error } = await supabase.from("trips").insert({
-      traveler_id: user.id,
-      origin_city_id: originCityId,
-      destination_city_id: destinationCityId,
-      departure_date: departureDate,
-      departure_time: departureTime,
-      capacity_kg: cap,
-      flight_number: flightNumber.trim().toUpperCase() || null,
-      accepts_fragile: acceptsFragile,
-      accepts_multiple_packages: acceptsMultiplePackages,
-      has_stopovers: hasStopovers,
+    const { data, error } = await supabase.rpc("create_trip", {
+      p_origin_city_id: originCityId,
+      p_destination_city_id: destinationCityId,
+      p_departure_date: departureDate,
+      p_departure_time: departureTime || null,
+      p_capacity_kg: cap,
+      p_flight_number: flightNumber.trim().toUpperCase() || null,
+      p_accepts_fragile: acceptsFragile,
+      p_accepts_multiple_packages: acceptsMultiplePackages,
+      p_has_stopovers: hasStopovers,
     })
 
     setLoading(false)
 
     if (error) {
       setMsg("❌ Error publicando viaje: " + error.message)
+      return
+    }
+
+    if (
+      data &&
+      typeof data === "object" &&
+      "success" in data &&
+      data.success === false
+    ) {
+      setMsg(
+        "❌ Error publicando viaje: " +
+          (typeof data.error === "string" ? data.error : "No se pudo publicar el viaje.")
+      )
       return
     }
 
