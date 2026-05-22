@@ -1,24 +1,26 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 
-function isAuthorized(request: NextRequest) {
+function getAuthorizationError(request: NextRequest) {
   const expected = process.env.INTERNAL_CRON_SECRET
 
   if (!expected) {
-    return true
+    return "missing_internal_cron_secret"
   }
 
   const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "")
   const header = request.headers.get("x-internal-cron-secret")
 
-  return bearer === expected || header === expected
+  return bearer === expected || header === expected ? null : "unauthorized"
 }
 
 export async function POST(request: NextRequest) {
-  if (!isAuthorized(request)) {
+  const authorizationError = getAuthorizationError(request)
+
+  if (authorizationError) {
     return NextResponse.json(
-      { success: false, error: "unauthorized" },
-      { status: 401 }
+      { success: false, error: authorizationError },
+      { status: authorizationError === "missing_internal_cron_secret" ? 500 : 401 }
     )
   }
 
