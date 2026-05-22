@@ -62,10 +62,14 @@ export async function POST(request: NextRequest) {
   ])
   const eventType = pickString(payload, [["event"], ["type"]])
 
-  const eventKey =
-    pickString(payload, [["data", "transaction", "id"], ["id"]]) ??
-    externalReference ??
+  const eventIdentity =
+    pickString(payload, [["id"], ["event_id"], ["data", "id"]]) ??
     crypto.createHash("sha256").update(JSON.stringify(payload)).digest("hex")
+  const eventKey = transactionId
+    ? ["wompi", transactionId, eventType ?? "transaction.updated", status ?? "unknown"].join(":")
+    : externalReference
+      ? ["wompi", externalReference, eventType ?? "transaction.updated", status ?? "unknown", eventIdentity].join(":")
+      : ["wompi", eventIdentity].join(":")
 
   try {
     const supabase = createAdminClient()
@@ -90,6 +94,7 @@ export async function POST(request: NextRequest) {
         {
           event_key: eventKey,
           event_type: eventType,
+          event_status: status,
           gateway_transaction_id: transactionId,
           external_reference: externalReference,
           payload,
@@ -134,6 +139,11 @@ export async function POST(request: NextRequest) {
     )
 
     if (rpcError) {
+      await supabase
+        .from("wompi_webhook_events")
+        .update({ processing_error: rpcError.message })
+        .eq("event_key", eventKey)
+
       return NextResponse.json(
         { success: false, error: rpcError.message },
         { status: 500 }
