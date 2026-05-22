@@ -160,11 +160,6 @@ export default function MatchChatClient({
   });
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const readColumn =
-    viewerRole === "traveler"
-      ? "last_read_by_traveler"
-      : "last_read_by_owner";
-
   const readState = useMemo(
     () => ({
       lastReadByOwner: latestTimestamp(
@@ -327,10 +322,10 @@ export default function MatchChatClient({
 
       markingReadRef.current = true;
 
-      const { error } = await supabase
-        .from("matches")
-        .update({ [readColumn]: readAt })
-        .eq("id", matchId);
+      const { error } = await supabase.rpc("mark_match_read", {
+        p_match_id: matchId,
+        p_read_at: readAt,
+      });
 
       if (error) {
         console.error("Error marking incoming message as read:", error.message);
@@ -355,7 +350,6 @@ export default function MatchChatClient({
     [
       markChatNotificationsAsRead,
       matchId,
-      readColumn,
       sendReadReceipt,
       supabase,
       viewerRole,
