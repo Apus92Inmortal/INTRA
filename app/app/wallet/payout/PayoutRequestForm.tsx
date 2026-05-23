@@ -328,28 +328,27 @@ export default function PayoutRequestForm({
               </label>
             </div>
 
-            <label className="flex items-start gap-3 rounded-[16px] border border-[#E4E7EC] bg-[#F9FAFB] px-4 py-3 text-sm leading-6 text-[#667085]">
+            <div className="flex items-start gap-3 rounded-[16px] border border-[#E4E7EC] bg-[#F9FAFB] px-4 py-3 text-sm leading-6 text-[#667085]">
               <input
+                id="payout-payment-policy-acceptance"
                 type="checkbox"
                 className="mt-1 h-4 w-4 rounded border-[#D0D5DD] text-[#1C7C45] focus:ring-[#1C7C45]"
                 checked={acceptedPaymentPolicy}
                 onChange={(event) => setAcceptedPaymentPolicy(event.target.checked)}
+                aria-describedby="payout-payment-policy-label"
               />
-              <span>
-                Acepto la{" "}
+              <span id="payout-payment-policy-label">
+                <label htmlFor="payout-payment-policy-acceptance">Acepto la </label>
                 <button
                   type="button"
-                  onClick={(event) => {
-                    event.preventDefault()
-                    setLegalModalKey("payments-policy")
-                  }}
+                  onClick={() => setLegalModalKey("payments-policy")}
                   className="font-semibold text-[#1C7C45] underline underline-offset-4"
                 >
                   Política de Pagos, Retenciones, Reembolsos y Disputas
                 </button>
                 .
               </span>
-            </label>
+            </div>
 
             {feedback ? (
               <div
