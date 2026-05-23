@@ -2,6 +2,11 @@
 
 import { revalidatePath } from "next/cache"
 import { requireAdminUser } from "@/lib/auth/admin"
+import { PAYMENTS_POLICY_DOCUMENT } from "@/lib/legal/documents"
+import {
+  PAYMENTS_POLICY_KEY,
+  WALLET_PAYOUT_ACCEPTANCE_FLOW,
+} from "@/lib/legal/policy-acceptance"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 
@@ -258,10 +263,45 @@ export async function requestPayoutAction(formData: FormData): Promise<ActionRes
     const rawAmount = toTrimmedString(formData.get("amount"))
     const payoutAccountId = toTrimmedString(formData.get("payoutAccountId"))
     const note = toTrimmedString(formData.get("note"))
+    const paymentPolicyAccepted = parseBoolean(formData.get("paymentPolicyAccepted"))
     const amount = Number(rawAmount.replace(/[^\d.-]/g, ""))
+
+    if (!paymentPolicyAccepted) {
+      return { success: false, error: "Debes aceptar la Política de Pagos para solicitar el retiro." }
+    }
 
     if (!Number.isFinite(amount) || amount <= 0) {
       return { success: false, error: "Ingresa un monto válido." }
+    }
+
+    const { data: acceptanceData, error: acceptanceError } = await supabase.rpc("record_policy_acceptance", {
+      p_policy_key: PAYMENTS_POLICY_KEY,
+      p_policy_version: PAYMENTS_POLICY_DOCUMENT.version,
+      p_acceptance_flow: WALLET_PAYOUT_ACCEPTANCE_FLOW,
+      p_user_agent: null,
+      p_metadata: {
+        payout_account_id: payoutAccountId || null,
+        requested_amount: amount,
+      },
+    })
+
+    if (acceptanceError) {
+      return { success: false, error: acceptanceError.message }
+    }
+
+    if (
+      acceptanceData &&
+      typeof acceptanceData === "object" &&
+      "success" in acceptanceData &&
+      acceptanceData.success === false
+    ) {
+      return {
+        success: false,
+        error:
+          "error" in acceptanceData && typeof acceptanceData.error === "string"
+            ? acceptanceData.error
+            : "No pudimos registrar la aceptación legal del retiro.",
+      }
     }
 
     const { data, error } = await supabase.rpc("request_payout", {

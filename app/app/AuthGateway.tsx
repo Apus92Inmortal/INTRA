@@ -9,6 +9,13 @@ import {
   getSignupEmailRedirectUrl,
   isUnconfirmedEmailMessage,
 } from "@/lib/auth-flows";
+import {
+  PRIVACY_POLICY_KEY,
+  PRIVACY_POLICY_VERSION,
+  REGISTRATION_ACCEPTANCE_FLOW,
+  TERMS_CONDITIONS_POLICY_KEY,
+  TERMS_CONDITIONS_VERSION,
+} from "@/lib/legal/policy-acceptance";
 import { getSafeInternalPath, isSafeInternalPath } from "@/lib/safe-next";
 
 type AuthTab = "login" | "register";
@@ -39,6 +46,7 @@ export default function AuthGateway({
   const [registerPhone, setRegisterPhone] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [acceptedBasePolicies, setAcceptedBasePolicies] = useState(false);
 
   const nextDestination = useMemo(() => getSafeInternalPath(nextPath), [nextPath]);
 
@@ -95,6 +103,12 @@ export default function AuthGateway({
     setMsg(null);
     setNeedsEmailVerification(false);
 
+    if (!acceptedBasePolicies) {
+      setLoading(false);
+      setMsg("❌ Debes aceptar los Términos y la Política de Privacidad para crear tu cuenta.");
+      return;
+    }
+
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: registerEmail,
       password: registerPassword,
@@ -103,6 +117,18 @@ export default function AuthGateway({
         data: {
           full_name: fullName.trim(),
           phone: registerPhone.trim(),
+          policy_acceptances: {
+            [TERMS_CONDITIONS_POLICY_KEY]: {
+              accepted: true,
+              version: TERMS_CONDITIONS_VERSION,
+              flow: REGISTRATION_ACCEPTANCE_FLOW,
+            },
+            [PRIVACY_POLICY_KEY]: {
+              accepted: true,
+              version: PRIVACY_POLICY_VERSION,
+              flow: REGISTRATION_ACCEPTANCE_FLOW,
+            },
+          },
         },
       },
     });
@@ -343,6 +369,29 @@ export default function AuthGateway({
                     </div>
                   </>
                 )}
+
+                {tab === "register" ? (
+                  <label className="flex items-start gap-3 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-3 text-sm leading-5 text-intra-text-subtle">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
+                      checked={acceptedBasePolicies}
+                      onChange={(event) => setAcceptedBasePolicies(event.target.checked)}
+                      required
+                    />
+                    <span>
+                      Acepto los{" "}
+                      <span className="font-semibold text-intra-text-success underline underline-offset-4">
+                        Términos y Condiciones
+                      </span>{" "}
+                      y la{" "}
+                      <span className="font-semibold text-intra-text-success underline underline-offset-4">
+                        Política de Privacidad
+                      </span>
+                      .
+                    </span>
+                  </label>
+                ) : null}
 
                 {msg ? (
                   <div className="intra-alert-danger">
