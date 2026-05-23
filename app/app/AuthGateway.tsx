@@ -10,6 +10,11 @@ import {
   isUnconfirmedEmailMessage,
 } from "@/lib/auth-flows";
 import {
+  PRIVACY_POLICY_DOCUMENT,
+  TERMS_CONDITIONS_DOCUMENT,
+} from "@/lib/legal/documents";
+import { LegalDocumentModal } from "@/components/legal-document-modal";
+import {
   PRIVACY_POLICY_KEY,
   PRIVACY_POLICY_VERSION,
   REGISTRATION_ACCEPTANCE_FLOW,
@@ -19,6 +24,15 @@ import {
 import { getSafeInternalPath, isSafeInternalPath } from "@/lib/safe-next";
 
 type AuthTab = "login" | "register";
+type RegistrationLegalModalKey = "terms-conditions" | "privacy-policy";
+
+const registrationLegalDocuments = {
+  "terms-conditions": TERMS_CONDITIONS_DOCUMENT,
+  "privacy-policy": PRIVACY_POLICY_DOCUMENT,
+} satisfies Record<
+  RegistrationLegalModalKey,
+  typeof TERMS_CONDITIONS_DOCUMENT | typeof PRIVACY_POLICY_DOCUMENT
+>;
 
 type AuthGatewayProps = {
   initialTab?: AuthTab;
@@ -46,7 +60,9 @@ export default function AuthGateway({
   const [registerPhone, setRegisterPhone] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
-  const [acceptedBasePolicies, setAcceptedBasePolicies] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [legalModalKey, setLegalModalKey] = useState<RegistrationLegalModalKey | null>(null);
 
   const nextDestination = useMemo(() => getSafeInternalPath(nextPath), [nextPath]);
 
@@ -103,9 +119,9 @@ export default function AuthGateway({
     setMsg(null);
     setNeedsEmailVerification(false);
 
-    if (!acceptedBasePolicies) {
+    if (!acceptedTerms || !acceptedPrivacy) {
       setLoading(false);
-      setMsg("❌ Debes aceptar los Términos y la Política de Privacidad para crear tu cuenta.");
+      setMsg("❌ Debes aceptar los Términos y Condiciones y la Política de Privacidad para crear tu cuenta.");
       return;
     }
 
@@ -177,6 +193,7 @@ export default function AuthGateway({
   };
 
   return (
+    <>
     <main className="intra-page-shell p-2 sm:p-3 lg:p-4">
       <div className="mx-auto flex min-h-[calc(100vh-1rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-1.5rem)] lg:h-[calc(100vh-2rem)] lg:min-h-0">
         <div className="grid w-full overflow-hidden rounded-[32px] bg-intra-card shadow-[var(--intra-shadow-hero)] lg:h-full lg:grid-cols-[1.05fr_0.95fr]">
@@ -371,26 +388,50 @@ export default function AuthGateway({
                 )}
 
                 {tab === "register" ? (
-                  <label className="flex items-start gap-3 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-3 text-sm leading-5 text-intra-text-subtle">
-                    <input
-                      type="checkbox"
-                      className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
-                      checked={acceptedBasePolicies}
-                      onChange={(event) => setAcceptedBasePolicies(event.target.checked)}
-                      required
-                    />
-                    <span>
-                      Acepto los{" "}
-                      <span className="font-semibold text-intra-text-success underline underline-offset-4">
-                        Términos y Condiciones
-                      </span>{" "}
-                      y la{" "}
-                      <span className="font-semibold text-intra-text-success underline underline-offset-4">
-                        Política de Privacidad
+                  <div className="space-y-2 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-3 text-sm leading-5 text-intra-text-subtle">
+                    <div className="flex items-start gap-3">
+                      <input
+                        id="terms-conditions-acceptance"
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
+                        checked={acceptedTerms}
+                        onChange={(event) => setAcceptedTerms(event.target.checked)}
+                        required
+                      />
+                      <span>
+                        Acepto los{" "}
+                        <button
+                          type="button"
+                          onClick={() => setLegalModalKey("terms-conditions")}
+                          className="font-semibold text-intra-text-success underline underline-offset-4"
+                        >
+                          Términos y Condiciones
+                        </button>
+                        .
                       </span>
-                      .
-                    </span>
-                  </label>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <input
+                        id="privacy-policy-acceptance"
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
+                        checked={acceptedPrivacy}
+                        onChange={(event) => setAcceptedPrivacy(event.target.checked)}
+                        required
+                      />
+                      <span>
+                        Acepto la{" "}
+                        <button
+                          type="button"
+                          onClick={() => setLegalModalKey("privacy-policy")}
+                          className="font-semibold text-intra-text-success underline underline-offset-4"
+                        >
+                          Política de Privacidad
+                        </button>
+                        .
+                      </span>
+                    </div>
+                  </div>
                 ) : null}
 
                 {msg ? (
@@ -442,5 +483,21 @@ export default function AuthGateway({
         </div>
       </div>
     </main>
+    <LegalDocumentModal
+      documentKey={legalModalKey}
+      documents={registrationLegalDocuments}
+      titleId="registration-legal-modal-title"
+      onClose={() => setLegalModalKey(null)}
+      onAcceptAndContinue={() => {
+        if (legalModalKey === "terms-conditions") {
+          setAcceptedTerms(true);
+        } else {
+          setAcceptedPrivacy(true);
+        }
+
+        setLegalModalKey(null);
+      }}
+    />
+    </>
   );
 }

@@ -10,7 +10,7 @@ export type LegalDocumentSection = {
 }
 
 export type LegalDocument = {
-  id: "shipping-policy" | "payments-policy"
+  id: "terms-conditions" | "privacy-policy" | "shipping-policy" | "payments-policy"
   title: string
   shortTitle: string
   version: string
@@ -18,6 +18,74 @@ export type LegalDocument = {
   intro: string
   acceptanceLabel: string
   sections: LegalDocumentSection[]
+}
+
+export const TERMS_CONDITIONS_DOCUMENT: LegalDocument = {
+  id: "terms-conditions",
+  title: "Términos y Condiciones",
+  shortTitle: "Términos y Condiciones",
+  version: "1.0",
+  updatedAtLabel: "23 de mayo de 2026",
+  intro:
+    "Estos términos regulan el acceso y uso de INTRA, incluyendo la creación de cuenta, publicación de envíos, aceptación de viajes, pagos y obligaciones generales de los usuarios.",
+  acceptanceLabel: "He leído y acepto los Términos y Condiciones.",
+  sections: [
+    {
+      title: "1. Uso de la plataforma",
+      paragraphs: [
+        "El usuario se compromete a usar INTRA de forma lícita, responsable y conforme a las reglas operativas publicadas por la plataforma.",
+        "La creación de cuenta y el uso de funcionalidades internas requieren información real, actualizada y verificable cuando sea solicitada.",
+      ],
+    },
+    {
+      title: "2. Responsabilidad del usuario",
+      paragraphs: [
+        "Cada usuario es responsable por la información que publica, las operaciones que solicita o acepta, la veracidad de sus datos y el cumplimiento de las políticas aplicables.",
+        "INTRA puede limitar, suspender o cancelar funcionalidades cuando detecte fraude, riesgo operativo, incumplimiento de políticas o uso indebido de la plataforma.",
+      ],
+    },
+    {
+      title: "3. Relación con políticas operativas",
+      paragraphs: [
+        "Estos términos se interpretan junto con la Política de Privacidad, la Política de Envíos y Artículos Prohibidos, la Política de Pagos, Retenciones, Reembolsos y Disputas y demás reglas vigentes de INTRA.",
+        "Cuando una funcionalidad requiera aceptación específica de una política operativa, esa aceptación podrá registrarse de forma independiente.",
+      ],
+    },
+  ],
+}
+
+export const PRIVACY_POLICY_DOCUMENT: LegalDocument = {
+  id: "privacy-policy",
+  title: "Política de Privacidad",
+  shortTitle: "Privacidad",
+  version: "1.0",
+  updatedAtLabel: "23 de mayo de 2026",
+  intro:
+    "Esta política describe el tratamiento de datos personales dentro de INTRA, incluyendo datos de cuenta, contacto, operación, pagos, seguridad y soporte.",
+  acceptanceLabel: "He leído y acepto la Política de Privacidad.",
+  sections: [
+    {
+      title: "1. Datos tratados",
+      paragraphs: [
+        "INTRA puede tratar datos de identificación, contacto, cuenta, actividad dentro de la plataforma, publicaciones, viajes, pagos, soporte, evidencias operativas y verificaciones necesarias para prestar el servicio.",
+        "Los datos se usan para habilitar la operación, mejorar seguridad, prevenir fraude, resolver disputas, cumplir obligaciones legales y administrar la relación con los usuarios.",
+      ],
+    },
+    {
+      title: "2. Protección y acceso",
+      paragraphs: [
+        "INTRA aplica controles razonables para proteger la información y limitar su acceso a finalidades operativas, técnicas, legales o de soporte.",
+        "El usuario puede solicitar revisión, actualización o eliminación de información conforme a las reglas aplicables y a las necesidades legales u operativas de conservación.",
+      ],
+    },
+    {
+      title: "3. Proveedores y operación",
+      paragraphs: [
+        "Algunas funcionalidades pueden requerir proveedores externos para autenticación, pagos, comunicaciones, almacenamiento, analítica, verificación o soporte operativo.",
+        "El uso de estos proveedores se limita a finalidades relacionadas con el funcionamiento de la plataforma y la protección de usuarios y operaciones.",
+      ],
+    },
+  ],
 }
 
 export const SHIPPING_POLICY_DOCUMENT: LegalDocument = {
