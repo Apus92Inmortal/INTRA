@@ -29,11 +29,7 @@ import {
   SHIPPING_POLICY_DOCUMENT,
   type LegalDocument,
 } from "@/lib/legal/documents"
-import {
-  PAYMENTS_POLICY_KEY,
-  SHIPPING_POLICY_KEY,
-  SHIPMENT_CHECKOUT_ACCEPTANCE_FLOW,
-} from "@/lib/legal/policy-acceptance"
+import { SHIPMENT_CHECKOUT_ACCEPTANCE_FLOW } from "@/lib/legal/policy-acceptance"
 import { useRouter, useSearchParams } from "next/navigation"
 
 export type RetryCheckoutData = {
@@ -88,20 +84,6 @@ type LegalModalKey = LegalDocument["id"]
 const legalDocuments: Record<LegalModalKey, LegalDocument> = {
   "shipping-policy": SHIPPING_POLICY_DOCUMENT,
   "payments-policy": PAYMENTS_POLICY_DOCUMENT,
-}
-
-type PolicyAcceptanceResponse = {
-  success?: boolean
-  error?: string
-}
-
-function parsePolicyAcceptanceResponse(data: unknown): PolicyAcceptanceResponse | null {
-  if (!data || typeof data !== "object") return null
-
-  return {
-    success: "success" in data ? data.success === true : undefined,
-    error: "error" in data && typeof data.error === "string" ? data.error : undefined,
-  }
 }
 
 function LegalModal({
@@ -440,49 +422,6 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
       return
     }
 
-    const acceptanceMetadata = {
-      shipment_id: view.shipmentId || null,
-      retry_payment_id: view.retryPaymentId || null,
-      route_category: view.routeCategory,
-      origin_city_id: view.originCityId,
-      destination_city_id: view.destinationCityId,
-    }
-
-    const policiesToRecord = [
-      ...(!view.isRetry
-        ? [{
-            key: SHIPPING_POLICY_KEY,
-            version: SHIPPING_POLICY_DOCUMENT.version,
-          }]
-        : []),
-      {
-        key: PAYMENTS_POLICY_KEY,
-        version: PAYMENT_CONDITIONS_VERSION,
-      },
-    ]
-
-    for (const policy of policiesToRecord) {
-      const { data, error } = await supabase.rpc("record_policy_acceptance", {
-        p_policy_key: policy.key,
-        p_policy_version: policy.version,
-        p_acceptance_flow: SHIPMENT_CHECKOUT_ACCEPTANCE_FLOW,
-        p_user_agent: typeof navigator === "undefined" ? null : navigator.userAgent,
-        p_metadata: acceptanceMetadata,
-      })
-
-      const acceptanceResult = parsePolicyAcceptanceResponse(data)
-
-      if (error || acceptanceResult?.success === false) {
-        setLoading(false)
-        setErrorMsg(
-          error?.message ??
-            acceptanceResult?.error ??
-            "No se pudo registrar la aceptación legal del checkout."
-        )
-        return
-      }
-    }
-
     let shipmentId = view.shipmentId
     let paymentId = ""
 
@@ -501,8 +440,11 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
           p_is_fragile: view.isFragile,
           p_is_urgent: view.isUrgent,
           p_is_high_value: view.isHighValue,
-          p_acceptance_flow: "shipment_checkout",
+          p_acceptance_flow: SHIPMENT_CHECKOUT_ACCEPTANCE_FLOW,
           p_user_agent: typeof navigator === "undefined" ? null : navigator.userAgent,
+          p_shipping_policy_version: SHIPPING_POLICY_DOCUMENT.version,
+          p_payment_policy_accepted: acceptedPaymentConditions,
+          p_payment_policy_version: PAYMENT_CONDITIONS_VERSION,
         }
       )
 
