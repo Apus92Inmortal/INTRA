@@ -651,7 +651,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
             <div className="mt-3 space-y-2">
               {!view.isRetry ? (
-                <div className="flex items-start gap-3 rounded-[20px] border border-intra-border-soft bg-intra-card p-3 text-sm text-intra-text-subtle">
+                <div className="flex items-start gap-3 text-sm text-intra-text-subtle">
                   <input
                     id="shipment-declaration-acceptance"
                     type="checkbox"
@@ -673,7 +673,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 </div>
               ) : null}
 
-              <div className="flex items-start gap-3 rounded-[20px] border border-intra-border-soft bg-intra-card p-3 text-sm text-intra-text-subtle">
+              <div className="flex items-start gap-3 text-sm text-intra-text-subtle">
                 <input
                   id="payment-conditions-acceptance"
                   type="checkbox"
