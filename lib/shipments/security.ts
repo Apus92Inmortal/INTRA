@@ -1,7 +1,13 @@
 export const SHIPMENT_DECLARATION_VERSION = "1.0"
+export const SHIPMENT_MAX_WEIGHT_KG = 10
+export const UNVERIFIED_DECLARED_VALUE_LIMIT_COP = 300000
+export const VERIFIED_DECLARED_VALUE_LIMIT_COP = 2000000
 
 export const SHIPMENT_DECLARATION_TEXT =
   "Declaro que el contenido de este envío es lícito, corresponde a la información registrada y no contiene artículos prohibidos por la ley colombiana (armas, drogas, explosivos, dinero en efectivo, mercancía ilegal o falsificada, materiales peligrosos). Entiendo que mi identidad verificada queda asociada a este envío y que cualquier falsedad será mi responsabilidad exclusiva."
+
+export const SHIPMENT_DECLARATION_SUMMARY =
+  "Confirmo que el contenido del envío es lícito, coincide con la información registrada y no contiene artículos prohibidos. Entiendo que soy responsable por la veracidad de esta información."
 
 export type CreateShipmentDraftResult = {
   success: boolean
@@ -45,14 +51,16 @@ export function getCreateShipmentDraftErrorMessage(errorCode: string | null | un
       return "Agrega una descripción más clara del contenido para continuar."
     case "invalid_weight":
       return "El peso del envío no es válido."
+    case "weight_limit_exceeded":
+      return `El peso máximo permitido por envío en esta versión es ${SHIPMENT_MAX_WEIGHT_KG} kg.`
     case "invalid_declared_value":
       return "El valor declarado no es válido."
     case "declaration_required":
       return "Debes aceptar la declaración responsable para continuar."
     case "declared_value_limit_exceeded":
-      return "Como tu cuenta aún no está verificada, el valor declarado máximo por envío es $200.000 COP."
+      return "El valor declarado supera el límite permitido para tu cuenta. Cuentas no verificadas: $300.000 COP. Cuentas verificadas: $2.000.000 COP."
     case "active_shipment_limit_exceeded":
-      return "Las cuentas sin verificar solo pueden tener 3 envíos activos al mismo tiempo."
+      return "Las cuentas sin verificar solo pueden tener 1 envío activo al mismo tiempo."
     case "weekly_shipment_limit_exceeded":
       return "Las cuentas sin verificar pueden crear hasta 5 envíos por semana."
     case "route_not_available":

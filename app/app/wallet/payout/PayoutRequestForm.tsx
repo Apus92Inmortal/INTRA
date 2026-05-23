@@ -151,7 +151,7 @@ export default function PayoutRequestForm({
           <div>
             <h1 className="text-[28px] font-semibold leading-tight text-[#0B2C4A]">Solicitar retiro</h1>
             <p className="mt-2 hidden max-w-2xl text-sm leading-6 text-[#667085] sm:block sm:text-[14px]">
-              Mueve el saldo disponible de tu wallet a una cuenta bancaria o billetera digital.
+              Una vez solicitado, el retiro puede tardar entre 24 y 72 horas hábiles.
             </p>
           </div>
 
