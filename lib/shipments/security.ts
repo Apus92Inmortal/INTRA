@@ -6,6 +6,9 @@ export const VERIFIED_DECLARED_VALUE_LIMIT_COP = 2000000
 export const SHIPMENT_DECLARATION_TEXT =
   "Declaro que el contenido de este envío es lícito, corresponde a la información registrada y no contiene artículos prohibidos por la ley colombiana (armas, drogas, explosivos, dinero en efectivo, mercancía ilegal o falsificada, materiales peligrosos). Entiendo que mi identidad verificada queda asociada a este envío y que cualquier falsedad será mi responsabilidad exclusiva."
 
+export const SHIPMENT_DECLARATION_SUMMARY =
+  "Confirmo que el contenido del envío es lícito, coincide con la información registrada y no contiene artículos prohibidos. Entiendo que soy responsable por la veracidad de esta información."
+
 export type CreateShipmentDraftResult = {
   success: boolean
   error?: string

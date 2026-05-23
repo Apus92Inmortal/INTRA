@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useMemo, useState } from "react"
+import Link from "next/link"
 import {
   createClient,
   hasSupabaseEnv,
@@ -16,6 +17,7 @@ import {
 import {
   getCreateShipmentDraftErrorMessage,
   parseCreateShipmentDraftResult,
+  SHIPMENT_DECLARATION_SUMMARY,
   SHIPMENT_DECLARATION_TEXT,
   SHIPMENT_DECLARATION_VERSION,
 } from "@/lib/shipments/security"
@@ -431,7 +433,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 3l7 4v5c0 4.97-3.05 7.97-7 9-3.95-1.03-7-4.03-7-9V7l7-4Z" />
                   </svg>
                 }
-                detail={`Liberación ${autoReleaseHours}h si no hay disputa · ventana de disputa ${disputeWindowHours}h.`}
+                detail="El saldo se libera cuando el cierre sea correcto y no exista disputa."
               />
             </div>
 
@@ -462,7 +464,15 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             {!view.isRetry ? (
               <div className="mt-2.5 rounded-[24px] border border-intra-success-border bg-intra-success-soft p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-success">Declaración responsable</p>
-                <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{SHIPMENT_DECLARATION_TEXT}</p>
+                <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{SHIPMENT_DECLARATION_SUMMARY}</p>
+                <details className="mt-2 text-sm text-intra-text-subtle">
+                  <summary className="cursor-pointer text-[12px] font-semibold text-intra-text-success">
+                    Ver declaración completa
+                  </summary>
+                  <p className="mt-2 rounded-2xl border border-intra-success-border bg-intra-card/70 p-3 text-[12px] leading-5">
+                    {SHIPMENT_DECLARATION_TEXT}
+                  </p>
+                </details>
                 <label className="mt-4 flex items-start gap-3 text-sm text-intra-text-subtle">
                   <input
                     type="checkbox"
@@ -471,7 +481,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     onChange={(event) => setAcceptedDeclaration(event.target.checked)}
                   />
                   <span>
-                    Confirmo que leí y acepto esta declaración para crear el envío y preparar el pago seguro.
+                    Acepto esta declaración para crear el envío y continuar con el pago seguro.
                   </span>
                 </label>
               </div>
@@ -491,8 +501,14 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 <span className="font-semibold text-intra-blue">Incluida</span>
               </div>
               <p className="text-[12px] leading-5 text-intra-text-subtle">
-                Tu pago será procesado de forma segura. El valor mostrado ya incluye la tarifa operativa aplicable.
+                Pago protegido con retención temporal hasta que el proceso cierre correctamente.
               </p>
+              <Link
+                href="/app/legal/pagos"
+                className="inline-flex text-[12px] font-semibold text-intra-text-success hover:underline"
+              >
+                Ver condiciones de pago
+              </Link>
             </div>
 
             <div className="mt-3 rounded-[24px] bg-intra-blue px-3.5 py-4 text-intra-card">

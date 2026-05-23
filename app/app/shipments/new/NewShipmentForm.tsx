@@ -968,7 +968,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   ${(paymentQuote.amount ?? 0).toLocaleString("es-CO")}
                 </p>
                 <p className="mt-2 text-[11px] leading-4 text-intra-text-subtle">
-                  Pago protegido con retención temporal. El valor mostrado ya incluye la tarifa operativa aplicable. Si no hay disputa, el saldo podrá liberarse al viajero en 24-48h después del cierre correcto del proceso.
+                  Pago protegido. Total con tarifa operativa incluida.
                 </p>
               </div>
             </div>

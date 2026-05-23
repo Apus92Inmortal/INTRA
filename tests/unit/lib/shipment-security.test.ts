@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   getCreateShipmentDraftErrorMessage,
   parseCreateShipmentDraftResult,
+  SHIPMENT_DECLARATION_SUMMARY,
   SHIPMENT_DECLARATION_TEXT,
   SHIPMENT_DECLARATION_VERSION,
   SHIPMENT_MAX_WEIGHT_KG,
@@ -13,6 +14,7 @@ describe("shipment security helpers", () => {
   it("exposes the current declaration contract", () => {
     expect(SHIPMENT_DECLARATION_VERSION).toBe("1.0")
     expect(SHIPMENT_DECLARATION_TEXT).toContain("artículos prohibidos")
+    expect(SHIPMENT_DECLARATION_SUMMARY).toContain("veracidad")
     expect(SHIPMENT_MAX_WEIGHT_KG).toBe(10)
     expect(UNVERIFIED_DECLARED_VALUE_LIMIT_COP).toBe(300000)
     expect(VERIFIED_DECLARED_VALUE_LIMIT_COP).toBe(2000000)
