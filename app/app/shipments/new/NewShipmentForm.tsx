@@ -29,6 +29,11 @@ import {
   sanitizeDecimalInput,
   sanitizeIntegerInput,
 } from "@/lib/forms/numeric"
+import {
+  SHIPMENT_MAX_WEIGHT_KG,
+  UNVERIFIED_DECLARED_VALUE_LIMIT_COP,
+  VERIFIED_DECLARED_VALUE_LIMIT_COP,
+} from "@/lib/shipments/security"
 import { createClient } from "@/lib/supabase/client"
 
 type City = {
@@ -45,6 +50,11 @@ type RoutePricing = {
   routeCategory: RouteCategory
   travelerPrice: number
   customerPrice: number
+}
+
+type VerificationState = {
+  loaded: boolean
+  isVerifiedV1: boolean
 }
 
 type FormErrors = {
@@ -114,6 +124,14 @@ function PreferenceToggle({ label, value, onChange, icon: Icon }: PreferenceTogg
       </div>
     </div>
   )
+}
+
+function formatCop(value: number) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(value)
 }
 
 function RouteGraphic({
@@ -186,6 +204,10 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
   const [routePricing, setRoutePricing] = useState<RoutePricing | null>(null)
   const [routeLoading, setRouteLoading] = useState(false)
+  const [verificationState, setVerificationState] = useState<VerificationState>({
+    loaded: false,
+    isVerifiedV1: false,
+  })
   const quoteLoading = false
 
   const cityOptions = useMemo(() => cities, [cities])
@@ -193,6 +215,46 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
 
   const originCity = originCityId ? citiesById.get(originCityId) ?? null : null
   const destinationCity = destinationCityId ? citiesById.get(destinationCityId) ?? null : null
+  const declaredValueLimit = verificationState.isVerifiedV1
+    ? VERIFIED_DECLARED_VALUE_LIMIT_COP
+    : UNVERIFIED_DECLARED_VALUE_LIMIT_COP
+
+  useEffect(() => {
+    let cancelled = false
+
+    const fetchVerificationState = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        if (!cancelled) {
+          setVerificationState({ loaded: true, isVerifiedV1: false })
+        }
+        return
+      }
+
+      const [profileRes, verificationRes] = await Promise.all([
+        supabase.from("profiles").select("phone").eq("id", user.id).maybeSingle(),
+        supabase.from("user_verifications").select("verification_status").eq("user_id", user.id).maybeSingle(),
+      ])
+
+      if (!cancelled) {
+        setVerificationState({
+          loaded: true,
+          isVerifiedV1: Boolean(user.email_confirmed_at) &&
+            Boolean(profileRes.data?.phone?.trim()) &&
+            verificationRes.data?.verification_status === "verified",
+        })
+      }
+    }
+
+    fetchVerificationState()
+
+    return () => {
+      cancelled = true
+    }
+  }, [supabase])
 
   const getInlineErrors = (
     overrides?: Partial<{
@@ -230,6 +292,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.weightKg = "El peso es obligatorio."
     } else if (weight < 0.1) {
       nextErrors.weightKg = "Ingresa un peso válido de al menos 0.1 kg."
+    } else if (weight > SHIPMENT_MAX_WEIGHT_KG) {
+      nextErrors.weightKg = `El peso máximo permitido por envío es ${SHIPMENT_MAX_WEIGHT_KG} kg.`
     }
 
     const declared = parseNormalizedNumber(nextDeclaredValueCop)
@@ -237,6 +301,10 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.declaredValueCop = "El valor declarado es obligatorio."
     } else if (declared < 0) {
       nextErrors.declaredValueCop = "Ingresa un valor declarado válido."
+    } else if (!verificationState.loaded && declared > UNVERIFIED_DECLARED_VALUE_LIMIT_COP) {
+      nextErrors.declaredValueCop = "Estamos validando tu nivel de cuenta antes de permitir este valor declarado."
+    } else if (declared > declaredValueLimit) {
+      nextErrors.declaredValueCop = `El valor declarado máximo para tu cuenta es ${formatCop(declaredValueLimit)}.`
     }
 
     return nextErrors
@@ -325,6 +393,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   const travelerRouteAmount = routePricing?.travelerPrice ?? null
   const customerRouteAmount = routePricing?.customerPrice ?? null
   const routeCategory = routePricing?.routeCategory ?? null
+  const routeCategoryLabel =
+    routeCategory === "short" ? "Corta" : routeCategory === "medium" ? "Media" : routeCategory === "long" ? "Larga" : "disponible"
   const paymentQuote: PaymentQuote | null = routeCategory
     ? buildFixedRouteQuote(routeCategory)
     : null
@@ -383,12 +453,18 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.weightKg = "El peso es obligatorio."
     } else if (weight < 0.1) {
       nextErrors.weightKg = "Ingresa un peso válido de al menos 0.1 kg."
+    } else if (weight > SHIPMENT_MAX_WEIGHT_KG) {
+      nextErrors.weightKg = `El peso máximo permitido por envío es ${SHIPMENT_MAX_WEIGHT_KG} kg.`
     }
 
     if (declared === null) {
       nextErrors.declaredValueCop = "El valor declarado es obligatorio."
     } else if (declared < 0) {
       nextErrors.declaredValueCop = "Valor declarado inválido."
+    } else if (!verificationState.loaded && declared > UNVERIFIED_DECLARED_VALUE_LIMIT_COP) {
+      nextErrors.declaredValueCop = "Estamos validando tu nivel de cuenta antes de permitir este valor declarado."
+    } else if (declared > declaredValueLimit) {
+      nextErrors.declaredValueCop = `El valor declarado máximo para tu cuenta es ${formatCop(declaredValueLimit)}.`
     }
 
     if (routePricing === null) {
@@ -469,7 +545,10 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     Boolean(description.trim()) &&
     parseNormalizedNumber(weightKg) !== null &&
     parseNormalizedNumber(weightKg)! >= 0.1 &&
+    parseNormalizedNumber(weightKg)! <= SHIPMENT_MAX_WEIGHT_KG &&
     parseNormalizedNumber(declaredValueCop) !== null &&
+    verificationState.loaded &&
+    parseNormalizedNumber(declaredValueCop)! <= declaredValueLimit &&
     routePricing !== null &&
     Boolean(paymentQuote?.success)
 
@@ -651,7 +730,9 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   />
                   {errors.weightKg ? (
                     <p className="mt-1 text-[10px] text-intra-danger">{errors.weightKg}</p>
-                  ) : null}
+                  ) : (
+                    <p className="mt-1 text-[10px] text-intra-text-muted">Máximo {SHIPMENT_MAX_WEIGHT_KG} kg por envío.</p>
+                  )}
                 </div>
 
                 <div className="min-w-0">
@@ -675,7 +756,11 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   />
                   {errors.declaredValueCop ? (
                     <p className="mt-1 text-[10px] text-intra-danger">{errors.declaredValueCop}</p>
-                  ) : null}
+                  ) : (
+                    <p className="mt-1 text-[10px] text-intra-text-muted">
+                      Límite actual: {formatCop(declaredValueLimit)}.
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -863,28 +948,16 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 <div>
                   <p className="text-[13px] font-semibold text-intra-blue">Resumen del servicio</p>
                   <p className="mt-0.5 text-[11px] text-intra-text-subtle">
-                    Pago seguro con tarifa calculada para esta ruta.
+                    Pago seguro con tarifa operativa incluida.
                   </p>
                 </div>
               </div>
 
               <div className="mt-3 space-y-2 text-[12px] text-intra-text-subtle">
                 <div className="flex items-center justify-between gap-3">
-                  <span>Valor del transporte</span>
+                  <span>Tarifa operativa incluida</span>
                   <span className="font-semibold text-intra-blue">
-                    ${travelerRouteAmount.toLocaleString("es-CO")}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span>Servicio de plataforma</span>
-                  <span className="font-semibold text-intra-blue">
-                    ${(paymentQuote.intra_fee ?? 0).toLocaleString("es-CO")}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span>Procesamiento de pago</span>
-                  <span className="font-semibold text-intra-blue">
-                    ${(paymentQuote.gateway_fee_estimated ?? 0).toLocaleString("es-CO")}
+                    Ruta {routeCategoryLabel.toLowerCase()}
                   </span>
                 </div>
               </div>
@@ -895,7 +968,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   ${(paymentQuote.amount ?? 0).toLocaleString("es-CO")}
                 </p>
                 <p className="mt-2 text-[11px] leading-4 text-intra-text-subtle">
-                  Pago seguro con retención temporal. El dinero se libera al viajero cuando confirmes la entrega. Si no lo haces, se liberará automáticamente en 48h.
+                  Pago protegido con retención temporal. El valor mostrado ya incluye la tarifa operativa aplicable. Si no hay disputa, el saldo podrá liberarse al viajero en 24-48h después del cierre correcto del proceso.
                 </p>
               </div>
             </div>

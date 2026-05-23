@@ -190,10 +190,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
     [searchParams, initialRetryData]
   )
 
-  const travelerAmount = view.quote?.traveler_amount ?? null
   const totalAmount = view.quote?.amount ?? null
-  const gatewayFeeEstimated = view.quote?.gateway_fee_estimated ?? null
-  const intraFee = view.quote?.intra_fee ?? null
   const autoReleaseHours = view.quote?.auto_release_hours ?? 48
   const disputeWindowHours = view.quote?.dispute_window_hours ?? 24
 
@@ -276,6 +273,8 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
           p_is_fragile: view.isFragile,
           p_is_urgent: view.isUrgent,
           p_is_high_value: view.isHighValue,
+          p_acceptance_flow: "shipment_checkout",
+          p_user_agent: typeof navigator === "undefined" ? null : navigator.userAgent,
         }
       )
 
@@ -432,7 +431,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 3l7 4v5c0 4.97-3.05 7.97-7 9-3.95-1.03-7-4.03-7-9V7l7-4Z" />
                   </svg>
                 }
-                detail={`Auto liberación ${autoReleaseHours}h · disputa ${disputeWindowHours}h.`}
+                detail={`Liberación ${autoReleaseHours}h si no hay disputa · ventana de disputa ${disputeWindowHours}h.`}
               />
             </div>
 
@@ -488,17 +487,12 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
             <div className="mt-2.5 space-y-2 rounded-[24px] bg-intra-bg-app p-3">
               <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
-                <span>Valor del transporte</span>
-                <span className="font-semibold text-intra-blue">{formatCurrency(travelerAmount)}</span>
+                <span>Tarifa operativa incluida</span>
+                <span className="font-semibold text-intra-blue">Incluida</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
-                <span>Servicio de plataforma</span>
-                <span className="font-semibold text-intra-blue">{formatCurrency(intraFee)}</span>
-              </div>
-              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
-                <span>Procesamiento de pago</span>
-                <span className="font-semibold text-intra-blue">{formatCurrency(gatewayFeeEstimated)}</span>
-              </div>
+              <p className="text-[12px] leading-5 text-intra-text-subtle">
+                Tu pago será procesado de forma segura. El valor mostrado ya incluye la tarifa operativa aplicable.
+              </p>
             </div>
 
             <div className="mt-3 rounded-[24px] bg-intra-blue px-3.5 py-4 text-intra-card">

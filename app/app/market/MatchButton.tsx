@@ -52,6 +52,11 @@ export default function MatchButton({
         return
       }
 
+      if (m.includes("active_match_limit_exceeded")) {
+        setMsg("❌ Las cuentas sin verificar solo pueden tener 1 match activo al mismo tiempo.")
+        return
+      }
+
       setMsg("❌ " + errorMessage)
       return
     }
