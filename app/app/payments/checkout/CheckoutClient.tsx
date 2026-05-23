@@ -347,6 +347,9 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
     [searchParams, initialRetryData]
   )
 
+  const travelerAmount = view.quote?.traveler_amount ?? null
+  const intraFee = view.quote?.intra_fee ?? null
+  const gatewayFee = view.quote?.gateway_fee_estimated ?? null
   const totalAmount = view.quote?.amount ?? null
   const autoReleaseHours = view.quote?.auto_release_hours ?? 48
   const disputeWindowHours = view.quote?.dispute_window_hours ?? 24
@@ -638,7 +641,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                   />
                   <span className="leading-6">
                     <span className="whitespace-nowrap sm:hidden">
-                      Acepto{" "}
+                      Acepto la{" "}
                       <button
                         type="button"
                         onClick={() => setLegalModalKey("shipping-policy")}
@@ -672,7 +675,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 />
                 <span className="leading-6">
                   <span className="whitespace-nowrap sm:hidden">
-                    Acepto{" "}
+                    Acepto la{" "}
                     <button
                       type="button"
                       onClick={() => setLegalModalKey("payments-policy")}
@@ -707,12 +710,17 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
             <div className="mt-2.5 space-y-2 rounded-[24px] bg-intra-bg-app p-3">
               <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
-                <span>Tarifa operativa incluida</span>
-                <span className="font-semibold text-intra-blue">Incluida</span>
+                <span>Valor del transporte</span>
+                <span className="font-semibold text-intra-blue">{formatCurrency(travelerAmount)}</span>
               </div>
-              <p className="text-[12px] leading-5 text-intra-text-subtle">
-                Pago protegido con retención temporal hasta que el proceso cierre correctamente.
-              </p>
+              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
+                <span>Servicio de plataforma</span>
+                <span className="font-semibold text-intra-blue">{formatCurrency(intraFee)}</span>
+              </div>
+              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
+                <span>Procesamiento de pago</span>
+                <span className="font-semibold text-intra-blue">{formatCurrency(gatewayFee)}</span>
+              </div>
             </div>
 
             <div className="mt-3 rounded-[24px] bg-intra-blue px-3.5 py-4 text-intra-card">
