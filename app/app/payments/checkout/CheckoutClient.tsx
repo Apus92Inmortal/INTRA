@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react"
 import { useMemo, useState } from "react"
-import Link from "next/link"
 import {
   createClient,
   hasSupabaseEnv,
@@ -21,7 +20,7 @@ import {
   SHIPMENT_DECLARATION_TEXT,
   SHIPMENT_DECLARATION_VERSION,
 } from "@/lib/shipments/security"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export type RetryCheckoutData = {
   retryPaymentId: string
@@ -66,6 +65,107 @@ type CheckoutViewModel = {
   declared: number | null
   routeCategory: RouteCategory | null
   quote: PaymentQuote | null
+}
+
+const PAYMENT_CONDITIONS_VERSION = "1.0"
+
+const PAYMENT_CONDITIONS_SECTIONS = [
+  {
+    title: "Pago protegido",
+    body:
+      "El pago queda retenido temporalmente mientras se completa el proceso. El saldo del viajero podrá liberarse entre 24 y 48 horas después del cierre correcto, siempre que no existan disputas, bloqueos o revisiones activas.",
+  },
+  {
+    title: "Tarifa operativa",
+    body:
+      "El valor final mostrado ya incluye la tarifa operativa aplicable por uso de la plataforma, procesamiento del servicio y herramientas de protección operativa.",
+  },
+  {
+    title: "Disputas y revisiones",
+    body:
+      "El cliente podrá reportar una disputa dentro de las 24 horas siguientes a la entrega o finalización reportada del proceso. Las revisiones operativas pueden tomar hasta 72 horas hábiles.",
+  },
+  {
+    title: "Reembolsos",
+    body:
+      "Algunos reembolsos pueden excluir costos operativos, financieros, tributarios o cargos de terceros que no sean reversados a INTRA por los proveedores involucrados.",
+  },
+  {
+    title: "Retiros de wallet",
+    body:
+      "Los retiros aprobados normalmente se procesan entre 24 y 72 horas hábiles, dependiendo de validaciones operativas y disponibilidad bancaria.",
+  },
+]
+
+type LegalModalContent =
+  | {
+      kind: "declaration"
+      title: string
+      version: string
+      body: string
+    }
+  | {
+      kind: "payment"
+      title: string
+      version: string
+      sections: typeof PAYMENT_CONDITIONS_SECTIONS
+    }
+
+function LegalModal({
+  content,
+  onClose,
+}: {
+  content: LegalModalContent | null
+  onClose: () => void
+}) {
+  if (!content) {
+    return null
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="checkout-legal-modal-title"
+    >
+      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col rounded-[24px] bg-intra-card shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-intra-border-soft px-5 py-4">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-intra-text-success">
+              Documento legal v{content.version}
+            </p>
+            <h2 id="checkout-legal-modal-title" className="mt-1 text-lg font-bold text-intra-blue">
+              {content.title}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-intra-border-soft bg-intra-bg-app text-sm font-bold text-intra-blue transition hover:bg-intra-success-soft"
+            aria-label="Cerrar ventana legal"
+          >
+            X
+          </button>
+        </div>
+
+        <div className="overflow-y-auto px-5 py-4">
+          {content.kind === "declaration" ? (
+            <p className="text-sm leading-7 text-intra-text-subtle">{content.body}</p>
+          ) : (
+            <div className="space-y-4">
+              {content.sections.map((section) => (
+                <section key={section.title}>
+                  <h3 className="text-sm font-bold text-intra-blue">{section.title}</h3>
+                  <p className="mt-1 text-sm leading-7 text-intra-text-subtle">{section.body}</p>
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function formatCurrency(value: number | null) {
@@ -181,12 +281,13 @@ function buildCheckoutViewModel(
 
 export default function CheckoutClient({ initialRetryData = null }: CheckoutClientProps) {
   const router = useRouter()
-  const pathname = usePathname()
   const searchParams = useSearchParams()
 
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [acceptedDeclaration, setAcceptedDeclaration] = useState(false)
+  const [acceptedPaymentConditions, setAcceptedPaymentConditions] = useState(false)
+  const [legalModalContent, setLegalModalContent] = useState<LegalModalContent | null>(null)
 
   const view = useMemo(
     () => buildCheckoutViewModel(searchParams, initialRetryData),
@@ -196,13 +297,6 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   const totalAmount = view.quote?.amount ?? null
   const autoReleaseHours = view.quote?.auto_release_hours ?? 48
   const disputeWindowHours = view.quote?.dispute_window_hours ?? 24
-  const legalConditionsHref = useMemo(() => {
-    const queryString = searchParams.toString()
-    const returnTo = `${pathname}${queryString ? `?${queryString}` : ""}`
-    const params = new URLSearchParams({ returnTo })
-
-    return `/app/legal/pagos?${params.toString()}`
-  }, [pathname, searchParams])
 
   async function handlePayment() {
     setLoading(true)
@@ -244,6 +338,18 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
       return
     }
 
+    if (!view.isRetry && !acceptedDeclaration) {
+      setLoading(false)
+      setErrorMsg("Debes aceptar la declaración responsable para continuar.")
+      return
+    }
+
+    if (!acceptedPaymentConditions) {
+      setLoading(false)
+      setErrorMsg("Debes aceptar las condiciones de pago protegido para continuar.")
+      return
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 250))
 
     const supabase = createClient()
@@ -263,12 +369,6 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
     let paymentId = ""
 
     if (!view.isRetry) {
-      if (!acceptedDeclaration) {
-        setLoading(false)
-        setErrorMsg("Debes aceptar la declaración responsable para continuar.")
-        return
-      }
-
       const { data: createDraftData, error: createDraftError } = await supabase.rpc(
         "create_shipment_with_payment_draft",
         {
@@ -340,6 +440,9 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             sandbox: process.env.NEXT_PUBLIC_WOMPI_SANDBOX === "true",
             auto_release_hours: quote.auto_release_hours ?? autoReleaseHours,
             dispute_window_hours: quote.dispute_window_hours ?? disputeWindowHours,
+            payment_conditions_accepted: acceptedPaymentConditions,
+            payment_conditions_version: PAYMENT_CONDITIONS_VERSION,
+            payment_conditions_flow: "shipment_checkout",
             retry_of_payment_id: view.retryPaymentId || null,
           },
         })
@@ -360,6 +463,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   }
 
   return (
+    <>
     <main className="intra-page-shell px-4 py-3 sm:px-6 lg:px-8 lg:py-3">
       <div className="mx-auto max-w-6xl">
         <div className="mb-3 flex flex-col gap-1 lg:mb-3.5">
@@ -473,25 +577,33 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               <div className="mt-2.5 rounded-[24px] border border-intra-success-border bg-intra-success-soft p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-success">Declaración responsable</p>
                 <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{SHIPMENT_DECLARATION_SUMMARY}</p>
-                <details className="mt-2 text-sm text-intra-text-subtle">
-                  <summary className="cursor-pointer text-[12px] font-semibold text-intra-text-success">
-                    Ver declaración completa
-                  </summary>
-                  <p className="mt-2 rounded-2xl border border-intra-success-border bg-intra-card/70 p-3 text-[12px] leading-5">
-                    {SHIPMENT_DECLARATION_TEXT}
-                  </p>
-                </details>
-                <label className="mt-4 flex items-start gap-3 text-sm text-intra-text-subtle">
+                <div className="mt-4 flex items-start gap-3 text-sm text-intra-text-subtle">
                   <input
+                    id="shipment-declaration-acceptance"
                     type="checkbox"
                     className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
                     checked={acceptedDeclaration}
                     onChange={(event) => setAcceptedDeclaration(event.target.checked)}
                   />
-                  <span>
-                    Acepto esta declaración para crear el envío y continuar con el pago seguro.
+                  <span className="leading-6">
+                    Acepto la{" "}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setLegalModalContent({
+                          kind: "declaration",
+                          title: "Declaración del envío y restricciones aplicables",
+                          version: SHIPMENT_DECLARATION_VERSION,
+                          body: SHIPMENT_DECLARATION_TEXT,
+                        })
+                      }
+                      className="font-semibold text-intra-text-success underline underline-offset-4"
+                    >
+                      declaración del envío y restricciones aplicables
+                    </button>
+                    .
                   </span>
-                </label>
+                </div>
               </div>
             ) : null}
           </div>
@@ -511,12 +623,34 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               <p className="text-[12px] leading-5 text-intra-text-subtle">
                 Pago protegido con retención temporal hasta que el proceso cierre correctamente.
               </p>
-              <Link
-                href={legalConditionsHref}
-                className="inline-flex text-[12px] font-semibold text-intra-text-success hover:underline"
-              >
-                Ver condiciones de pago
-              </Link>
+            </div>
+
+            <div className="mt-3 flex items-start gap-3 rounded-[20px] border border-intra-border-soft bg-intra-card p-3 text-sm text-intra-text-subtle">
+              <input
+                id="payment-conditions-acceptance"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
+                checked={acceptedPaymentConditions}
+                onChange={(event) => setAcceptedPaymentConditions(event.target.checked)}
+              />
+              <span className="leading-6">
+                Acepto las{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setLegalModalContent({
+                      kind: "payment",
+                      title: "Condiciones de pago protegido, retenciones y disputas",
+                      version: PAYMENT_CONDITIONS_VERSION,
+                      sections: PAYMENT_CONDITIONS_SECTIONS,
+                    })
+                  }
+                  className="font-semibold text-intra-text-success underline underline-offset-4"
+                >
+                  condiciones de pago protegido, retenciones y disputas
+                </button>
+                .
+              </span>
             </div>
 
             <div className="mt-3 rounded-[24px] bg-intra-blue px-3.5 py-4 text-intra-card">
@@ -545,5 +679,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
         </section>
       </div>
     </main>
+    <LegalModal content={legalModalContent} onClose={() => setLegalModalContent(null)} />
+    </>
   )
 }
