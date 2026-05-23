@@ -5,8 +5,6 @@ import { useMemo, useState } from "react"
 import {
   CheckCircle2,
   FileText,
-  Minus,
-  Plus,
   ShieldCheck,
   X,
 } from "lucide-react"
@@ -89,15 +87,11 @@ const legalDocuments: Record<LegalModalKey, LegalDocument> = {
 
 function LegalModal({
   documentKey,
-  accepted,
   onClose,
-  onAcceptedChange,
   onAcceptAndContinue,
 }: {
   documentKey: LegalModalKey | null
-  accepted: boolean
   onClose: () => void
-  onAcceptedChange: (accepted: boolean) => void
   onAcceptAndContinue: () => void
 }) {
   if (!documentKey) {
@@ -105,7 +99,6 @@ function LegalModal({
   }
 
   const content = legalDocuments[documentKey]
-  const totalPages = Math.max(content.sections.length, 1)
 
   return (
     <div
@@ -126,9 +119,6 @@ function LegalModal({
             >
               {content.title}
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-intra-text-subtle">
-              {content.intro}
-            </p>
           </div>
           <button
             type="button"
@@ -144,12 +134,6 @@ function LegalModal({
           <div className="flex flex-wrap items-center gap-3 border-b border-intra-border-soft px-4 py-3 text-sm text-intra-blue">
             <FileText className="h-4 w-4 shrink-0 text-intra-text-subtle" />
             <span className="min-w-0 flex-1 truncate font-semibold">{content.shortTitle}</span>
-            <span className="text-intra-text-subtle">1 / {totalPages}</span>
-            <div className="ml-auto flex items-center gap-3 text-intra-blue">
-              <Minus className="h-4 w-4" aria-hidden="true" />
-              <span className="tabular-nums">100%</span>
-              <Plus className="h-4 w-4" aria-hidden="true" />
-            </div>
           </div>
 
           <div className="min-h-[310px] flex-1 overflow-y-auto bg-white px-5 py-5 sm:max-h-[50vh] sm:px-10 sm:py-7">
@@ -210,18 +194,8 @@ function LegalModal({
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5">
-          <label className="flex min-w-0 flex-1 items-start gap-3 text-sm text-intra-text-subtle">
-            <input
-              type="checkbox"
-              className="mt-1 h-4 w-4 shrink-0 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
-              checked={accepted}
-              onChange={(event) => onAcceptedChange(event.target.checked)}
-            />
-            <span className="leading-6">{content.acceptanceLabel}</span>
-          </label>
-
-          <div className="flex shrink-0 gap-3 sm:justify-end">
+        <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-8 sm:py-5">
+          <div className="flex gap-3 sm:justify-end">
             <button
               type="button"
               onClick={onClose}
@@ -766,16 +740,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
     </main>
     <LegalModal
       documentKey={legalModalKey}
-      accepted={legalModalKey === "shipping-policy" ? acceptedDeclaration : acceptedPaymentConditions}
       onClose={() => setLegalModalKey(null)}
-      onAcceptedChange={(accepted) => {
-        if (legalModalKey === "shipping-policy") {
-          setAcceptedDeclaration(accepted)
-          return
-        }
-
-        setAcceptedPaymentConditions(accepted)
-      }}
       onAcceptAndContinue={() => {
         if (legalModalKey === "shipping-policy") {
           setAcceptedDeclaration(true)
