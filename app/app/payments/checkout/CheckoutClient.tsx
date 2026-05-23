@@ -649,25 +649,6 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               ))}
             </div>
 
-          </div>
-
-          <aside className="rounded-[24px] border border-intra-border-soft bg-intra-card p-3.5 shadow-sm sm:p-4 lg:sticky lg:top-16">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-intra-text-muted">
-                Resumen de pago
-              </p>
-            </div>
-
-            <div className="mt-2.5 space-y-2 rounded-[24px] bg-intra-bg-app p-3">
-              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
-                <span>Tarifa operativa incluida</span>
-                <span className="font-semibold text-intra-blue">Incluida</span>
-              </div>
-              <p className="text-[12px] leading-5 text-intra-text-subtle">
-                Pago protegido con retención temporal hasta que el proceso cierre correctamente.
-              </p>
-            </div>
-
             <div className="mt-3 space-y-2">
               {!view.isRetry ? (
                 <div className="flex items-start gap-3 rounded-[20px] border border-intra-border-soft bg-intra-card p-3 text-sm text-intra-text-subtle">
@@ -712,6 +693,25 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                   .
                 </span>
               </div>
+            </div>
+
+          </div>
+
+          <aside className="rounded-[24px] border border-intra-border-soft bg-intra-card p-3.5 shadow-sm sm:p-4 lg:sticky lg:top-16">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-intra-text-muted">
+                Resumen de pago
+              </p>
+            </div>
+
+            <div className="mt-2.5 space-y-2 rounded-[24px] bg-intra-bg-app p-3">
+              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
+                <span>Tarifa operativa incluida</span>
+                <span className="font-semibold text-intra-blue">Incluida</span>
+              </div>
+              <p className="text-[12px] leading-5 text-intra-text-subtle">
+                Pago protegido con retención temporal hasta que el proceso cierre correctamente.
+              </p>
             </div>
 
             <div className="mt-3 rounded-[24px] bg-intra-blue px-3.5 py-4 text-intra-card">
