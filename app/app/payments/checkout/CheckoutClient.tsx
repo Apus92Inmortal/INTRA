@@ -136,7 +136,7 @@ function LegalModal({
             <span className="min-w-0 flex-1 truncate font-semibold">{content.shortTitle}</span>
           </div>
 
-          <div className="min-h-[310px] flex-1 overflow-y-auto bg-white px-5 py-5 sm:max-h-[50vh] sm:px-10 sm:py-7">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-white px-5 py-5 sm:max-h-[50vh] sm:px-10 sm:py-7">
             <div className="mx-auto max-w-3xl space-y-5">
               {content.sections.map((section) => (
                 <section key={section.title} className="border-b border-intra-border-soft pb-5 last:border-b-0">
@@ -185,7 +185,7 @@ function LegalModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle">
+          <div className="flex shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle">
             <ShieldCheck className="h-4 w-4 shrink-0 text-intra-text-success" />
             <span>
               Documento v{content.version}. Última actualización:{" "}
