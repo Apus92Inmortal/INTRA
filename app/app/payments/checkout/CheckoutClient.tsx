@@ -185,7 +185,7 @@ function LegalModal({
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle">
+          <div className="hidden shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle sm:flex">
             <ShieldCheck className="h-4 w-4 shrink-0 text-intra-text-success" />
             <span>
               Documento v{content.version}. Última actualización:{" "}
@@ -194,19 +194,27 @@ function LegalModal({
           </div>
         </div>
 
+        <div className="mx-5 mt-3 flex items-center justify-center gap-2 rounded-[14px] bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle sm:hidden">
+          <ShieldCheck className="h-4 w-4 shrink-0 text-intra-text-success" />
+          <span>
+            Documento v{content.version}. Última actualización:{" "}
+            <span className="font-semibold text-intra-text-success">{content.updatedAtLabel}</span>
+          </span>
+        </div>
+
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-8 sm:py-5">
-          <div className="flex gap-3 sm:justify-end">
+          <div className="flex justify-center gap-3 sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card px-5 py-2 text-sm font-bold text-intra-blue transition hover:bg-intra-bg-app sm:flex-none"
+              className="hidden min-h-11 flex-1 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card px-5 py-2 text-sm font-bold text-intra-blue transition hover:bg-intra-bg-app sm:inline-flex sm:flex-none"
             >
               Cerrar
             </button>
             <button
               type="button"
               onClick={onAcceptAndContinue}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-2xl bg-intra-green px-5 py-2 text-sm font-bold text-intra-card transition hover:bg-intra-green-hover sm:flex-none"
+              className="inline-flex min-h-11 w-full max-w-[19rem] items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-intra-green px-8 py-2 text-sm font-bold text-intra-card transition hover:bg-intra-green-hover sm:w-auto sm:max-w-none sm:flex-none sm:px-5"
             >
               <CheckCircle2 className="h-4 w-4" />
               Acepto y continúo
