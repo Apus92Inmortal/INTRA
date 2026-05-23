@@ -660,15 +660,27 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     onChange={(event) => setAcceptedDeclaration(event.target.checked)}
                   />
                   <span className="leading-6">
-                    Acepto la{" "}
-                    <button
-                      type="button"
-                      onClick={() => setLegalModalKey("shipping-policy")}
-                      className="font-semibold text-intra-text-success underline underline-offset-4"
-                    >
-                      Política de Envíos y Artículos Prohibidos
-                    </button>
-                    .
+                    <span className="whitespace-nowrap sm:hidden">
+                      Acepto{" "}
+                      <button
+                        type="button"
+                        onClick={() => setLegalModalKey("shipping-policy")}
+                        className="font-semibold text-intra-text-success underline underline-offset-4"
+                      >
+                        Política de envíos
+                      </button>
+                    </span>
+                    <span className="hidden sm:inline">
+                      Acepto la{" "}
+                      <button
+                        type="button"
+                        onClick={() => setLegalModalKey("shipping-policy")}
+                        className="font-semibold text-intra-text-success underline underline-offset-4"
+                      >
+                        Política de Envíos y Artículos Prohibidos
+                      </button>
+                      .
+                    </span>
                   </span>
                 </div>
               ) : null}
@@ -682,15 +694,27 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                   onChange={(event) => setAcceptedPaymentConditions(event.target.checked)}
                 />
                 <span className="leading-6">
-                  Acepto la{" "}
-                  <button
-                    type="button"
-                    onClick={() => setLegalModalKey("payments-policy")}
-                    className="font-semibold text-intra-text-success underline underline-offset-4"
-                  >
-                    Política de Pagos, Retenciones, Reembolsos y Disputas
-                  </button>
-                  .
+                  <span className="whitespace-nowrap sm:hidden">
+                    Acepto{" "}
+                    <button
+                      type="button"
+                      onClick={() => setLegalModalKey("payments-policy")}
+                      className="font-semibold text-intra-text-success underline underline-offset-4"
+                    >
+                      Política de pagos
+                    </button>
+                  </span>
+                  <span className="hidden sm:inline">
+                    Acepto la{" "}
+                    <button
+                      type="button"
+                      onClick={() => setLegalModalKey("payments-policy")}
+                      className="font-semibold text-intra-text-success underline underline-offset-4"
+                    >
+                      Política de Pagos, Retenciones, Reembolsos y Disputas
+                    </button>
+                    .
+                  </span>
                 </span>
               </div>
             </div>
