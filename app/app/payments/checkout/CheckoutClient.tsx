@@ -185,21 +185,16 @@ function LegalModal({
             </div>
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle sm:flex">
+          <div className="flex shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle">
             <ShieldCheck className="h-4 w-4 shrink-0 text-intra-text-success" />
-            <span>
-              Documento v{content.version}. Última actualización:{" "}
-              <span className="font-semibold text-intra-text-success">{content.updatedAtLabel}</span>
+            <span className="flex min-w-0 flex-col leading-5 sm:inline sm:leading-normal">
+              <span>Documento v{content.version}.</span>
+              <span>
+                Última actualización:{" "}
+                <span className="font-semibold text-intra-text-success">{content.updatedAtLabel}</span>
+              </span>
             </span>
           </div>
-        </div>
-
-        <div className="mx-5 mt-3 flex items-center justify-center gap-2 rounded-[14px] bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle sm:hidden">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-intra-text-success" />
-          <span>
-            Documento v{content.version}. Última actualización:{" "}
-            <span className="font-semibold text-intra-text-success">{content.updatedAtLabel}</span>
-          </span>
         </div>
 
         <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-8 sm:py-5">
