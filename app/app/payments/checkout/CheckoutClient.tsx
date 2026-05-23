@@ -21,7 +21,7 @@ import {
   SHIPMENT_DECLARATION_TEXT,
   SHIPMENT_DECLARATION_VERSION,
 } from "@/lib/shipments/security"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 export type RetryCheckoutData = {
   retryPaymentId: string
@@ -181,6 +181,7 @@ function buildCheckoutViewModel(
 
 export default function CheckoutClient({ initialRetryData = null }: CheckoutClientProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
 
   const [loading, setLoading] = useState(false)
@@ -195,6 +196,13 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   const totalAmount = view.quote?.amount ?? null
   const autoReleaseHours = view.quote?.auto_release_hours ?? 48
   const disputeWindowHours = view.quote?.dispute_window_hours ?? 24
+  const legalConditionsHref = useMemo(() => {
+    const queryString = searchParams.toString()
+    const returnTo = `${pathname}${queryString ? `?${queryString}` : ""}`
+    const params = new URLSearchParams({ returnTo })
+
+    return `/app/legal/pagos?${params.toString()}`
+  }, [pathname, searchParams])
 
   async function handlePayment() {
     setLoading(true)
@@ -504,7 +512,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 Pago protegido con retención temporal hasta que el proceso cierre correctamente.
               </p>
               <Link
-                href="/app/legal/pagos"
+                href={legalConditionsHref}
                 className="inline-flex text-[12px] font-semibold text-intra-text-success hover:underline"
               >
                 Ver condiciones de pago

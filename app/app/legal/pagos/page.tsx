@@ -7,6 +7,7 @@ import {
   Wallet,
 } from "lucide-react"
 import { AppNavbar } from "@/components/app-navbar"
+import { getSafeInternalPath } from "@/lib/safe-next"
 import { SHIPMENT_DECLARATION_TEXT } from "@/lib/shipments/security"
 
 const sections = [
@@ -37,7 +38,16 @@ const sections = [
   },
 ]
 
-export default function PaymentLegalPage() {
+type PaymentLegalPageProps = {
+  searchParams?: Promise<{
+    returnTo?: string
+  }>
+}
+
+export default async function PaymentLegalPage({ searchParams }: PaymentLegalPageProps) {
+  const params = await searchParams
+  const checkoutHref = getSafeInternalPath(params?.returnTo, "/app/payments/checkout")
+
   return (
     <>
       <AppNavbar />
@@ -45,7 +55,7 @@ export default function PaymentLegalPage() {
       <main className="intra-page-shell px-4 py-5 sm:px-6 sm:py-6">
         <div className="mx-auto max-w-4xl space-y-4">
           <Link
-            href="/app/payments/checkout"
+            href={checkoutHref}
             className="inline-flex items-center gap-2 text-sm font-semibold text-intra-text-success hover:underline"
           >
             <ArrowLeft className="h-4 w-4" />
