@@ -24,7 +24,6 @@ import {
 import {
   getCreateShipmentDraftErrorMessage,
   parseCreateShipmentDraftResult,
-  SHIPMENT_DECLARATION_SUMMARY,
   SHIPMENT_DECLARATION_VERSION,
 } from "@/lib/shipments/security"
 import {
@@ -650,32 +649,6 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               ))}
             </div>
 
-            {!view.isRetry ? (
-              <div className="mt-2.5 rounded-[24px] border border-intra-success-border bg-intra-success-soft p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-success">Declaración responsable</p>
-                <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{SHIPMENT_DECLARATION_SUMMARY}</p>
-                <div className="mt-4 flex items-start gap-3 text-sm text-intra-text-subtle">
-                  <input
-                    id="shipment-declaration-acceptance"
-                    type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
-                    checked={acceptedDeclaration}
-                    onChange={(event) => setAcceptedDeclaration(event.target.checked)}
-                  />
-                  <span className="leading-6">
-                    Acepto la declaración del envío y la{" "}
-                    <button
-                      type="button"
-                      onClick={() => setLegalModalKey("shipping-policy")}
-                      className="font-semibold text-intra-text-success underline underline-offset-4"
-                    >
-                      Política de Envíos y Artículos Prohibidos
-                    </button>
-                    .
-                  </span>
-                </div>
-              </div>
-            ) : null}
           </div>
 
           <aside className="rounded-[24px] border border-intra-border-soft bg-intra-card p-3.5 shadow-sm sm:p-4 lg:sticky lg:top-16">
@@ -695,25 +668,50 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               </p>
             </div>
 
-            <div className="mt-3 flex items-start gap-3 rounded-[20px] border border-intra-border-soft bg-intra-card p-3 text-sm text-intra-text-subtle">
-              <input
-                id="payment-conditions-acceptance"
-                type="checkbox"
-                className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
-                checked={acceptedPaymentConditions}
-                onChange={(event) => setAcceptedPaymentConditions(event.target.checked)}
-              />
-              <span className="leading-6">
-                Acepto la{" "}
-                <button
-                  type="button"
-                  onClick={() => setLegalModalKey("payments-policy")}
-                  className="font-semibold text-intra-text-success underline underline-offset-4"
-                >
-                  Política de Pagos, Retenciones, Reembolsos y Disputas
-                </button>
-                .
-              </span>
+            <div className="mt-3 space-y-2">
+              {!view.isRetry ? (
+                <div className="flex items-start gap-3 rounded-[20px] border border-intra-border-soft bg-intra-card p-3 text-sm text-intra-text-subtle">
+                  <input
+                    id="shipment-declaration-acceptance"
+                    type="checkbox"
+                    className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
+                    checked={acceptedDeclaration}
+                    onChange={(event) => setAcceptedDeclaration(event.target.checked)}
+                  />
+                  <span className="leading-6">
+                    Acepto la{" "}
+                    <button
+                      type="button"
+                      onClick={() => setLegalModalKey("shipping-policy")}
+                      className="font-semibold text-intra-text-success underline underline-offset-4"
+                    >
+                      Política de Envíos y Artículos Prohibidos
+                    </button>
+                    .
+                  </span>
+                </div>
+              ) : null}
+
+              <div className="flex items-start gap-3 rounded-[20px] border border-intra-border-soft bg-intra-card p-3 text-sm text-intra-text-subtle">
+                <input
+                  id="payment-conditions-acceptance"
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
+                  checked={acceptedPaymentConditions}
+                  onChange={(event) => setAcceptedPaymentConditions(event.target.checked)}
+                />
+                <span className="leading-6">
+                  Acepto la{" "}
+                  <button
+                    type="button"
+                    onClick={() => setLegalModalKey("payments-policy")}
+                    className="font-semibold text-intra-text-success underline underline-offset-4"
+                  >
+                    Política de Pagos, Retenciones, Reembolsos y Disputas
+                  </button>
+                  .
+                </span>
+              </div>
             </div>
 
             <div className="mt-3 rounded-[24px] bg-intra-blue px-3.5 py-4 text-intra-card">
