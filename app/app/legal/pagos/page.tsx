@@ -8,35 +8,10 @@ import {
 } from "lucide-react"
 import { AppNavbar } from "@/components/app-navbar"
 import { getSafeInternalPath } from "@/lib/safe-next"
-import { SHIPMENT_DECLARATION_TEXT } from "@/lib/shipments/security"
-
-const sections = [
-  {
-    title: "Valor final y tarifa operativa",
-    body:
-      "El valor final mostrado al usuario incluye la tarifa operativa aplicable al uso de la plataforma, procesamiento del servicio y herramientas de protección operativa.",
-  },
-  {
-    title: "Pago protegido",
-    body:
-      "El pago queda retenido temporalmente mientras se completa el proceso. El saldo del viajero podrá liberarse entre 24 y 48 horas después del cierre correcto, siempre que no existan disputas, bloqueos o revisiones activas.",
-  },
-  {
-    title: "Disputas y revisiones",
-    body:
-      "El cliente podrá reportar una disputa dentro de las 24 horas siguientes a la entrega o finalización reportada del proceso. Las revisiones operativas pueden tomar hasta 72 horas hábiles.",
-  },
-  {
-    title: "Reembolsos",
-    body:
-      "Algunos reembolsos pueden excluir costos operativos, financieros, tributarios o cargos de terceros que no sean reversados a INTRA por los proveedores involucrados.",
-  },
-  {
-    title: "Retiros de wallet",
-    body:
-      "Los retiros aprobados normalmente se procesan entre 24 y 72 horas hábiles, dependiendo de validaciones operativas y disponibilidad bancaria.",
-  },
-]
+import {
+  PAYMENTS_POLICY_DOCUMENT,
+  SHIPPING_POLICY_DOCUMENT,
+} from "@/lib/legal/documents"
 
 type PaymentLegalPageProps = {
   searchParams?: Promise<{
@@ -73,20 +48,38 @@ export default async function PaymentLegalPage({ searchParams }: PaymentLegalPag
                 </p>
                 <h1 className="mt-2 text-2xl font-bold sm:text-3xl">Pago protegido</h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-intra-card/70">
-                  Resumen de las condiciones aplicables al pago, liberación, disputas, reembolsos y retiros dentro de INTRA.
+                  {PAYMENTS_POLICY_DOCUMENT.intro}
                 </p>
               </div>
             </div>
           </section>
 
           <section className="grid gap-3">
-            {sections.map((section) => (
+            {PAYMENTS_POLICY_DOCUMENT.sections.map((section) => (
               <article
                 key={section.title}
                 className="rounded-[22px] border border-intra-border-soft bg-intra-card p-4 shadow-sm sm:p-5"
               >
                 <h2 className="text-base font-bold text-intra-blue">{section.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{section.body}</p>
+                <div className="mt-2 space-y-2">
+                  {section.paragraphs?.map((paragraph) => (
+                    <p key={paragraph} className="text-sm leading-6 text-intra-text-subtle">
+                      {paragraph}
+                    </p>
+                  ))}
+                  {section.groups?.map((group) => (
+                    <div key={group.title} className="rounded-2xl bg-intra-bg-app p-3">
+                      <h3 className="text-sm font-bold text-intra-blue">{group.title}</h3>
+                      <div className="mt-2 space-y-2">
+                        {group.paragraphs?.map((paragraph) => (
+                          <p key={paragraph} className="text-sm leading-6 text-intra-text-subtle">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </article>
             ))}
           </section>
@@ -95,8 +88,8 @@ export default async function PaymentLegalPage({ searchParams }: PaymentLegalPag
             <div className="flex items-start gap-3">
               <FileText className="mt-0.5 h-5 w-5 shrink-0 text-intra-text-success" />
               <div>
-                <h2 className="text-base font-bold text-intra-blue">Declaración responsable</h2>
-                <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{SHIPMENT_DECLARATION_TEXT}</p>
+                <h2 className="text-base font-bold text-intra-blue">{SHIPPING_POLICY_DOCUMENT.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{SHIPPING_POLICY_DOCUMENT.intro}</p>
               </div>
             </div>
           </section>

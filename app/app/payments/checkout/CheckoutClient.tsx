@@ -3,6 +3,14 @@
 import type { ReactNode } from "react"
 import { useMemo, useState } from "react"
 import {
+  CheckCircle2,
+  FileText,
+  Minus,
+  Plus,
+  ShieldCheck,
+  X,
+} from "lucide-react"
+import {
   createClient,
   hasSupabaseEnv,
   missingEnvMessage,
@@ -17,9 +25,13 @@ import {
   getCreateShipmentDraftErrorMessage,
   parseCreateShipmentDraftResult,
   SHIPMENT_DECLARATION_SUMMARY,
-  SHIPMENT_DECLARATION_TEXT,
   SHIPMENT_DECLARATION_VERSION,
 } from "@/lib/shipments/security"
+import {
+  PAYMENTS_POLICY_DOCUMENT,
+  SHIPPING_POLICY_DOCUMENT,
+  type LegalDocument,
+} from "@/lib/legal/documents"
 import { useRouter, useSearchParams } from "next/navigation"
 
 export type RetryCheckoutData = {
@@ -67,101 +79,166 @@ type CheckoutViewModel = {
   quote: PaymentQuote | null
 }
 
-const PAYMENT_CONDITIONS_VERSION = "1.0"
+const PAYMENT_CONDITIONS_VERSION = PAYMENTS_POLICY_DOCUMENT.version
 
-const PAYMENT_CONDITIONS_SECTIONS = [
-  {
-    title: "Pago protegido",
-    body:
-      "El pago queda retenido temporalmente mientras se completa el proceso. El saldo del viajero podrá liberarse entre 24 y 48 horas después del cierre correcto, siempre que no existan disputas, bloqueos o revisiones activas.",
-  },
-  {
-    title: "Tarifa operativa",
-    body:
-      "El valor final mostrado ya incluye la tarifa operativa aplicable por uso de la plataforma, procesamiento del servicio y herramientas de protección operativa.",
-  },
-  {
-    title: "Disputas y revisiones",
-    body:
-      "El cliente podrá reportar una disputa dentro de las 24 horas siguientes a la entrega o finalización reportada del proceso. Las revisiones operativas pueden tomar hasta 72 horas hábiles.",
-  },
-  {
-    title: "Reembolsos",
-    body:
-      "Algunos reembolsos pueden excluir costos operativos, financieros, tributarios o cargos de terceros que no sean reversados a INTRA por los proveedores involucrados.",
-  },
-  {
-    title: "Retiros de wallet",
-    body:
-      "Los retiros aprobados normalmente se procesan entre 24 y 72 horas hábiles, dependiendo de validaciones operativas y disponibilidad bancaria.",
-  },
-]
+type LegalModalKey = LegalDocument["id"]
 
-type LegalModalContent =
-  | {
-      kind: "declaration"
-      title: string
-      version: string
-      body: string
-    }
-  | {
-      kind: "payment"
-      title: string
-      version: string
-      sections: typeof PAYMENT_CONDITIONS_SECTIONS
-    }
+const legalDocuments: Record<LegalModalKey, LegalDocument> = {
+  "shipping-policy": SHIPPING_POLICY_DOCUMENT,
+  "payments-policy": PAYMENTS_POLICY_DOCUMENT,
+}
 
 function LegalModal({
-  content,
+  documentKey,
+  accepted,
   onClose,
+  onAcceptedChange,
+  onAcceptAndContinue,
 }: {
-  content: LegalModalContent | null
+  documentKey: LegalModalKey | null
+  accepted: boolean
   onClose: () => void
+  onAcceptedChange: (accepted: boolean) => void
+  onAcceptAndContinue: () => void
 }) {
-  if (!content) {
+  if (!documentKey) {
     return null
   }
 
+  const content = legalDocuments[documentKey]
+  const totalPages = Math.max(content.sections.length, 1)
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 px-4 py-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-3 py-4 sm:px-5 sm:py-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="checkout-legal-modal-title"
     >
-      <div className="flex max-h-[88vh] w-full max-w-2xl flex-col rounded-[24px] bg-intra-card shadow-2xl">
-        <div className="flex items-start justify-between gap-4 border-b border-intra-border-soft px-5 py-4">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-intra-text-success">
-              Documento legal v{content.version}
-            </p>
-            <h2 id="checkout-legal-modal-title" className="mt-1 text-lg font-bold text-intra-blue">
+      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[22px] bg-intra-card shadow-2xl">
+        <div className="flex items-start gap-4 px-5 pb-4 pt-5 sm:px-8 sm:pt-7">
+          <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success sm:flex">
+            <FileText className="h-8 w-8" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2
+              id="checkout-legal-modal-title"
+              className="text-xl font-extrabold leading-7 text-intra-blue sm:text-3xl sm:leading-9"
+            >
               {content.title}
             </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-intra-text-subtle">
+              {content.intro}
+            </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-intra-border-soft bg-intra-bg-app text-sm font-bold text-intra-blue transition hover:bg-intra-success-soft"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-intra-blue transition hover:bg-intra-success-soft"
             aria-label="Cerrar ventana legal"
           >
-            X
+            <X className="h-6 w-6" />
           </button>
         </div>
 
-        <div className="overflow-y-auto px-5 py-4">
-          {content.kind === "declaration" ? (
-            <p className="text-sm leading-7 text-intra-text-subtle">{content.body}</p>
-          ) : (
-            <div className="space-y-4">
+        <div className="mx-5 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-intra-border-soft bg-intra-card sm:mx-8">
+          <div className="flex flex-wrap items-center gap-3 border-b border-intra-border-soft px-4 py-3 text-sm text-intra-blue">
+            <FileText className="h-4 w-4 shrink-0 text-intra-text-subtle" />
+            <span className="min-w-0 flex-1 truncate font-semibold">{content.shortTitle}</span>
+            <span className="text-intra-text-subtle">1 / {totalPages}</span>
+            <div className="ml-auto flex items-center gap-3 text-intra-blue">
+              <Minus className="h-4 w-4" aria-hidden="true" />
+              <span className="tabular-nums">100%</span>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+            </div>
+          </div>
+
+          <div className="min-h-[310px] flex-1 overflow-y-auto bg-white px-5 py-5 sm:max-h-[50vh] sm:px-10 sm:py-7">
+            <div className="mx-auto max-w-3xl space-y-5">
               {content.sections.map((section) => (
-                <section key={section.title}>
-                  <h3 className="text-sm font-bold text-intra-blue">{section.title}</h3>
-                  <p className="mt-1 text-sm leading-7 text-intra-text-subtle">{section.body}</p>
+                <section key={section.title} className="border-b border-intra-border-soft pb-5 last:border-b-0">
+                  <h3 className="text-base font-extrabold leading-6 text-intra-blue sm:text-lg">
+                    {section.title}
+                  </h3>
+                  <div className="mt-3 space-y-3">
+                    {section.paragraphs?.map((paragraph) => (
+                      <p key={paragraph} className="text-sm leading-7 text-intra-text-subtle">
+                        {paragraph}
+                      </p>
+                    ))}
+                    {section.bullets ? (
+                      <ul className="space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle">
+                        {section.bullets.map((bullet) => (
+                          <li key={bullet} className="list-disc">
+                            {bullet}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {section.groups?.map((group) => (
+                      <div key={group.title} className="rounded-2xl bg-intra-bg-app p-4">
+                        <h4 className="text-sm font-bold text-intra-blue">{group.title}</h4>
+                        <div className="mt-2 space-y-2">
+                          {group.paragraphs?.map((paragraph) => (
+                            <p key={paragraph} className="text-sm leading-6 text-intra-text-subtle">
+                              {paragraph}
+                            </p>
+                          ))}
+                          {group.bullets ? (
+                            <ul className="space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle">
+                              {group.bullets.map((bullet) => (
+                                <li key={bullet} className="list-disc">
+                                  {bullet}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </section>
               ))}
             </div>
-          )}
+          </div>
+
+          <div className="flex items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-intra-text-success" />
+            <span>
+              Documento v{content.version}. Última actualización:{" "}
+              <span className="font-semibold text-intra-text-success">{content.updatedAtLabel}</span>
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5">
+          <label className="flex min-w-0 flex-1 items-start gap-3 text-sm text-intra-text-subtle">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 shrink-0 rounded border-intra-border text-intra-text-success focus:ring-intra-text-success"
+              checked={accepted}
+              onChange={(event) => onAcceptedChange(event.target.checked)}
+            />
+            <span className="leading-6">{content.acceptanceLabel}</span>
+          </label>
+
+          <div className="flex shrink-0 gap-3 sm:justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card px-5 py-2 text-sm font-bold text-intra-blue transition hover:bg-intra-bg-app sm:flex-none"
+            >
+              Cerrar
+            </button>
+            <button
+              type="button"
+              onClick={onAcceptAndContinue}
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-2xl bg-intra-green px-5 py-2 text-sm font-bold text-intra-card transition hover:bg-intra-green-hover sm:flex-none"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Acepto y continúo
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -287,7 +364,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [acceptedDeclaration, setAcceptedDeclaration] = useState(false)
   const [acceptedPaymentConditions, setAcceptedPaymentConditions] = useState(false)
-  const [legalModalContent, setLegalModalContent] = useState<LegalModalContent | null>(null)
+  const [legalModalKey, setLegalModalKey] = useState<LegalModalKey | null>(null)
 
   const view = useMemo(
     () => buildCheckoutViewModel(searchParams, initialRetryData),
@@ -346,7 +423,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
     if (!acceptedPaymentConditions) {
       setLoading(false)
-      setErrorMsg("Debes aceptar las condiciones de pago protegido para continuar.")
+      setErrorMsg("Debes aceptar la política de pagos para continuar.")
       return
     }
 
@@ -586,20 +663,13 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     onChange={(event) => setAcceptedDeclaration(event.target.checked)}
                   />
                   <span className="leading-6">
-                    Acepto la{" "}
+                    Acepto la declaración del envío y la{" "}
                     <button
                       type="button"
-                      onClick={() =>
-                        setLegalModalContent({
-                          kind: "declaration",
-                          title: "Declaración del envío y restricciones aplicables",
-                          version: SHIPMENT_DECLARATION_VERSION,
-                          body: SHIPMENT_DECLARATION_TEXT,
-                        })
-                      }
+                      onClick={() => setLegalModalKey("shipping-policy")}
                       className="font-semibold text-intra-text-success underline underline-offset-4"
                     >
-                      declaración del envío y restricciones aplicables
+                      Política de Envíos y Artículos Prohibidos
                     </button>
                     .
                   </span>
@@ -634,20 +704,13 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 onChange={(event) => setAcceptedPaymentConditions(event.target.checked)}
               />
               <span className="leading-6">
-                Acepto las{" "}
+                Acepto la{" "}
                 <button
                   type="button"
-                  onClick={() =>
-                    setLegalModalContent({
-                      kind: "payment",
-                      title: "Condiciones de pago protegido, retenciones y disputas",
-                      version: PAYMENT_CONDITIONS_VERSION,
-                      sections: PAYMENT_CONDITIONS_SECTIONS,
-                    })
-                  }
+                  onClick={() => setLegalModalKey("payments-policy")}
                   className="font-semibold text-intra-text-success underline underline-offset-4"
                 >
-                  condiciones de pago protegido, retenciones y disputas
+                  Política de Pagos, Retenciones, Reembolsos y Disputas
                 </button>
                 .
               </span>
@@ -679,7 +742,28 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
         </section>
       </div>
     </main>
-    <LegalModal content={legalModalContent} onClose={() => setLegalModalContent(null)} />
+    <LegalModal
+      documentKey={legalModalKey}
+      accepted={legalModalKey === "shipping-policy" ? acceptedDeclaration : acceptedPaymentConditions}
+      onClose={() => setLegalModalKey(null)}
+      onAcceptedChange={(accepted) => {
+        if (legalModalKey === "shipping-policy") {
+          setAcceptedDeclaration(accepted)
+          return
+        }
+
+        setAcceptedPaymentConditions(accepted)
+      }}
+      onAcceptAndContinue={() => {
+        if (legalModalKey === "shipping-policy") {
+          setAcceptedDeclaration(true)
+        } else {
+          setAcceptedPaymentConditions(true)
+        }
+
+        setLegalModalKey(null)
+      }}
+    />
     </>
   )
 }
