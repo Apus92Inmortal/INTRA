@@ -106,7 +106,7 @@ export default async function PaymentLegalPage({ searchParams }: PaymentLegalPag
               <Wallet className="h-5 w-5 text-intra-text-success" />
               <p className="mt-3 text-sm font-semibold text-intra-blue">Retiros</p>
               <p className="mt-1 text-sm leading-6 text-intra-text-subtle">
-                Los retiros aprobados se procesan normalmente entre 24 y 72 horas hábiles.
+                Una vez solicitado, el retiro puede tardar entre 24 y 72 horas hábiles.
               </p>
             </div>
           </section>

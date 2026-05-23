@@ -316,7 +316,7 @@ export const PAYMENTS_POLICY_DOCUMENT: LegalDocument = {
       paragraphs: [
         "Los retiros podrán requerir cuenta verificada, validación de identidad, cumplimiento de políticas, revisión administrativa y verificaciones antifraude.",
         "Los retiros solo podrán enviarse a una cuenta verificada del viajero o un mecanismo de retiro validado por INTRA.",
-        "El usuario podrá solicitar retiros conforme a los mecanismos habilitados por la plataforma. Los retiros aprobados normalmente se procesan entre 24 y 72 horas hábiles, dependiendo de validaciones operativas y disponibilidad bancaria.",
+        "El usuario podrá solicitar retiros conforme a los mecanismos habilitados por la plataforma. Una vez solicitado, el retiro puede tardar entre 24 y 72 horas hábiles.",
         "INTRA podrá rechazar solicitudes, mantener fondos retenidos operativamente, solicitar información adicional o mantener operaciones en revisión por razones de seguridad y cumplimiento.",
       ],
     },
@@ -364,4 +364,3 @@ export const PAYMENTS_POLICY_DOCUMENT: LegalDocument = {
     },
   ],
 }
-
