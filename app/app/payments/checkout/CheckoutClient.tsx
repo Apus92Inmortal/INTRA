@@ -185,9 +185,9 @@ function LegalModal({
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-xs text-intra-text-subtle">
+          <div className="flex h-10 shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-0 text-xs text-intra-text-subtle sm:h-auto sm:py-3">
             <ShieldCheck className="h-4 w-4 shrink-0 text-intra-text-success" />
-            <span className="flex min-w-0 flex-col leading-5 sm:inline sm:leading-normal">
+            <span className="flex min-w-0 flex-col leading-4 sm:inline sm:leading-normal">
               <span>Documento v{content.version}.</span>
               <span>
                 Última actualización:{" "}
