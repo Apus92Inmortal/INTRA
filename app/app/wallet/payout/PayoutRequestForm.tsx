@@ -15,6 +15,8 @@ import {
   getPayoutStatusClasses,
   getPayoutStatusLabel,
 } from "@/lib/payments/wallet"
+import { PAYMENTS_POLICY_DOCUMENT } from "@/lib/legal/documents"
+import { LegalDocumentModal } from "@/components/legal-document-modal"
 
 type PayoutAccount = {
   id: string
@@ -37,6 +39,12 @@ type Payout = {
   reviewed_at: string | null
   review_notes: string | null
 }
+
+type LegalModalKey = "payments-policy"
+
+const legalDocuments = {
+  "payments-policy": PAYMENTS_POLICY_DOCUMENT,
+} satisfies Record<LegalModalKey, typeof PAYMENTS_POLICY_DOCUMENT>
 
 function SurfaceIcon({
   children,
@@ -87,6 +95,7 @@ export default function PayoutRequestForm({
   const [amount, setAmount] = useState("")
   const [selectedAccount, setSelectedAccount] = useState(initialPayoutAccount)
   const [acceptedPaymentPolicy, setAcceptedPaymentPolicy] = useState(false)
+  const [legalModalKey, setLegalModalKey] = useState<LegalModalKey | null>(null)
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
   const verifiedAccounts = useMemo(
@@ -328,9 +337,16 @@ export default function PayoutRequestForm({
               />
               <span>
                 Acepto la{" "}
-                <span className="font-semibold text-[#1C7C45] underline underline-offset-4">
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault()
+                    setLegalModalKey("payments-policy")
+                  }}
+                  className="font-semibold text-[#1C7C45] underline underline-offset-4"
+                >
                   Política de Pagos, Retenciones, Reembolsos y Disputas
-                </span>
+                </button>
                 .
               </span>
             </label>
@@ -418,6 +434,17 @@ export default function PayoutRequestForm({
           </div>
         )}
       </section>
+
+      <LegalDocumentModal
+        documentKey={legalModalKey}
+        documents={legalDocuments}
+        titleId="payout-legal-modal-title"
+        onClose={() => setLegalModalKey(null)}
+        onAcceptAndContinue={() => {
+          setAcceptedPaymentPolicy(true)
+          setLegalModalKey(null)
+        }}
+      />
     </div>
   )
 }
