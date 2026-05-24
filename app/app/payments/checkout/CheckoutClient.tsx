@@ -300,6 +300,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
           p_is_high_value: view.isHighValue,
           p_acceptance_flow: SHIPMENT_CHECKOUT_ACCEPTANCE_FLOW,
           p_user_agent: typeof navigator === "undefined" ? null : navigator.userAgent,
+          p_ip_address: null,
           p_shipping_policy_version: SHIPPING_POLICY_DOCUMENT.version,
           p_payment_policy_accepted: acceptedPaymentConditions,
           p_payment_policy_version: PAYMENT_CONDITIONS_VERSION,
