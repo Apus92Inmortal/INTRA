@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import {
   CheckCircle2,
   FileText,
@@ -14,6 +15,50 @@ type LegalDocumentModalProps<DocumentKey extends LegalDocument["id"]> = {
   titleId: string
   onClose: () => void
   onAcceptAndContinue: () => void
+}
+
+function renderTextBlocks(paragraphs: string[] | undefined, paragraphClassName: string, listClassName: string) {
+  if (!paragraphs?.length) {
+    return null
+  }
+
+  const blocks: ReactNode[] = []
+  let bullets: string[] = []
+
+  function flushBullets(index: number) {
+    if (bullets.length === 0) {
+      return
+    }
+
+    blocks.push(
+      <ul key={`bullets-${index}`} className={listClassName}>
+        {bullets.map((bullet, bulletIndex) => (
+          <li key={`${bullet}-${bulletIndex}`} className="list-disc">
+            {bullet}
+          </li>
+        ))}
+      </ul>
+    )
+    bullets = []
+  }
+
+  paragraphs.forEach((paragraph, index) => {
+    if (paragraph.startsWith("- ")) {
+      bullets.push(paragraph.slice(2))
+      return
+    }
+
+    flushBullets(index)
+    blocks.push(
+      <p key={`${paragraph}-${index}`} className={paragraphClassName}>
+        {paragraph}
+      </p>
+    )
+  })
+
+  flushBullets(paragraphs.length)
+
+  return blocks
 }
 
 export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
@@ -73,11 +118,11 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
                     {section.title}
                   </h3>
                   <div className="mt-3 space-y-3">
-                    {section.paragraphs?.map((paragraph) => (
-                      <p key={paragraph} className="text-sm leading-7 text-intra-text-subtle">
-                        {paragraph}
-                      </p>
-                    ))}
+                    {renderTextBlocks(
+                      section.paragraphs,
+                      "text-sm leading-7 text-intra-text-subtle",
+                      "space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle"
+                    )}
                     {section.bullets ? (
                       <ul className="space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle">
                         {section.bullets.map((bullet) => (
@@ -91,11 +136,11 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
                       <div key={group.title} className="rounded-2xl bg-intra-bg-app p-4">
                         <h4 className="text-sm font-bold text-intra-blue">{group.title}</h4>
                         <div className="mt-2 space-y-2">
-                          {group.paragraphs?.map((paragraph) => (
-                            <p key={paragraph} className="text-sm leading-6 text-intra-text-subtle">
-                              {paragraph}
-                            </p>
-                          ))}
+                          {renderTextBlocks(
+                            group.paragraphs,
+                            "text-sm leading-6 text-intra-text-subtle",
+                            "space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle"
+                          )}
                           {group.bullets ? (
                             <ul className="space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle">
                               {group.bullets.map((bullet) => (
