@@ -1,24 +1,28 @@
 export type LegalDocumentSection = {
-  title: string
-  paragraphs?: string[]
-  bullets?: string[]
+  title: string;
+  paragraphs?: string[];
+  bullets?: string[];
   groups?: {
-    title: string
-    paragraphs?: string[]
-    bullets?: string[]
-  }[]
-}
+    title: string;
+    paragraphs?: string[];
+    bullets?: string[];
+  }[];
+};
 
 export type LegalDocument = {
-  id: "terms-conditions" | "privacy-policy" | "shipping-policy" | "payments-policy"
-  title: string
-  shortTitle: string
-  version: string
-  updatedAtLabel: string
-  intro: string
-  acceptanceLabel: string
-  sections: LegalDocumentSection[]
-}
+  id:
+    | "terms-conditions"
+    | "privacy-policy"
+    | "shipping-policy"
+    | "payments-policy";
+  title: string;
+  shortTitle: string;
+  version: string;
+  updatedAtLabel: string;
+  intro: string;
+  acceptanceLabel: string;
+  sections: LegalDocumentSection[];
+};
 
 export const TERMS_CONDITIONS_DOCUMENT: LegalDocument = {
   id: "terms-conditions",
@@ -29,126 +33,292 @@ export const TERMS_CONDITIONS_DOCUMENT: LegalDocument = {
   intro:
     "Estos términos regulan el acceso y uso de INTRA, incluyendo la creación de cuenta, publicación de envíos, aceptación de viajes, pagos y obligaciones generales de los usuarios.",
   acceptanceLabel: "He leído y acepto los Términos y Condiciones.",
-  sections: [
+    sections: [
     {
-      title: "1. Objeto",
-      paragraphs: [
-        "Estos Términos y Condiciones regulan el acceso, registro, navegación y uso de INTRA, una plataforma tecnológica que facilita la conexión entre usuarios que desean enviar artículos y usuarios viajeros o transportadores independientes dispuestos a transportar dichos artículos.",
-        "INTRA actúa como plataforma de intermediación tecnológica y operación digital. INTRA no es empresa transportadora, operador postal, entidad financiera, aseguradora, banco, fiduciaria ni custodio financiero regulado.",
-        "El uso de la plataforma implica la aceptación de estos términos, de las políticas operativas aplicables y de cualquier documento legal o regla adicional que INTRA publique o solicite aceptar dentro de sus flujos.",
-      ],
+      "title": "1. ¿Qué es INTRA?",
+      "paragraphs": [
+        "INTRA es una plataforma tecnológica digital que conecta:",
+        "- personas que necesitan enviar artículos entre ciudades (“Remitente” o “Cliente”),",
+        "- con personas que ya realizarán un viaje y desean transportar envíos de manera independiente (“Viajero” o “Transportador Independiente”).",
+        "INTRA facilita herramientas tecnológicas como:",
+        "- publicación de viajes y envíos,",
+        "- coincidencias (“matches”),",
+        "- chat entre usuarios,",
+        "- pagos digitales,",
+        "- evidencias,",
+        "- reputación,",
+        "- verificaciones,",
+        "- soporte operativo y gestión de disputas.",
+        "INTRA no es:",
+        "- una empresa transportadora tradicional,",
+        "- una empresa de mensajería,",
+        "- un operador logístico,",
+        "- ni una aseguradora.",
+        "El transporte es realizado directamente entre usuarios independientes que utilizan la plataforma."
+      ]
     },
     {
-      title: "2. Alcance del servicio",
-      paragraphs: [
-        "INTRA permite crear cuentas, publicar envíos, buscar rutas, aceptar o gestionar viajes, coordinar matches, realizar pagos operativos, solicitar retiros, gestionar evidencias y usar herramientas de soporte, seguridad y comunicación.",
-        "Las funcionalidades disponibles pueden variar según el tipo de usuario, nivel de verificación, ubicación, disponibilidad operativa, estado de cuenta, cumplimiento de políticas y configuración técnica vigente.",
-        "INTRA podrá modificar, suspender, limitar o retirar funcionalidades cuando existan razones técnicas, legales, comerciales, de seguridad, prevención de fraude o mejora del servicio.",
-      ],
+      "title": "2. Roles dentro de la plataforma",
+      "groups": [
+        {
+          "title": "2.1 Remitente o Cliente",
+          "paragraphs": [
+            "Es la persona que publica un envío y solicita que otro usuario lo transporte."
+          ]
+        },
+        {
+          "title": "2.2 Viajero o Transportador Independiente",
+          "paragraphs": [
+            "Es la persona que publica un viaje y acepta transportar un envío de manera independiente.",
+            "El viajero no es empleado, representante ni contratista laboral de INTRA."
+          ]
+        },
+        {
+          "title": "2.3 INTRA",
+          "paragraphs": [
+            "INTRA actúa únicamente como plataforma tecnológica intermediaria que facilita la conexión y coordinación operativa entre usuarios."
+          ]
+        }
+      ]
     },
     {
-      title: "3. Registro y cuenta de usuario",
-      paragraphs: [
-        "Para usar determinadas funcionalidades, el usuario deberá crear una cuenta con información real, completa, verificable y actualizada.",
-        "El usuario es responsable de mantener la confidencialidad de sus credenciales, dispositivos, sesiones y métodos de autenticación.",
-        "INTRA podrá exigir validaciones adicionales de identidad, teléfono, correo, documentos, actividad, cuenta bancaria, método de retiro o cualquier otra información necesaria para proteger la operación.",
-        "INTRA podrá rechazar registros, suspender cuentas o limitar funcionalidades cuando existan datos falsos, inconsistentes, incompletos, duplicados, fraudulentos o asociados a riesgo operativo.",
-      ],
+      "title": "3. Creación de cuenta",
+      "paragraphs": [
+        "Para utilizar INTRA, el usuario debe:",
+        "- crear una cuenta válida,",
+        "- proporcionar información real y actualizada,",
+        "- mantener segura su contraseña,",
+        "- utilizar únicamente cuentas propias.",
+        "El usuario es responsable de toda actividad realizada desde su cuenta.",
+        "INTRA podrá solicitar validaciones de identidad, documentos, fotografías u otros mecanismos de verificación para fines de seguridad, prevención de fraude y cumplimiento operativo."
+      ]
     },
     {
-      title: "4. Tipos de usuario",
-      paragraphs: [
-        "Dentro de INTRA pueden existir usuarios remitentes o clientes, usuarios viajeros o transportadores independientes, administradores, operadores de soporte y otros perfiles que la plataforma habilite.",
-        "Un mismo usuario podrá cumplir distintos roles si la plataforma lo permite y si cumple las verificaciones o requisitos aplicables.",
-        "Cada rol tendrá responsabilidades, permisos, límites operativos y obligaciones específicas conforme a estos términos y a las políticas relacionadas.",
-      ],
+      "title": "4. Uso permitido de la plataforma",
+      "paragraphs": [
+        "El usuario se compromete a:",
+        "- utilizar INTRA de buena fe,",
+        "- publicar información real,",
+        "- mantener una conducta respetuosa,",
+        "- no utilizar la plataforma para actividades ilegales,",
+        "- no manipular pagos, reputaciones o matches.",
+        "Está prohibido:",
+        "- crear cuentas falsas,",
+        "- usar identidades de terceros,",
+        "- publicar información engañosa,",
+        "- intentar evadir pagos o comisiones,",
+        "- utilizar la plataforma para actividades ilícitas o fraudulentas."
+      ]
     },
     {
-      title: "5. Uso permitido",
-      paragraphs: [
-        "El usuario se compromete a usar INTRA de forma lícita, responsable, transparente y conforme a la legislación aplicable, estos términos y las políticas vigentes.",
-        "El usuario no podrá usar la plataforma para fraude, suplantación, lavado de activos, financiación de actividades ilícitas, transporte de artículos prohibidos, evasión de controles, manipulación de pagos, acoso, abuso, spam, ingeniería social o cualquier actividad ilegal o riesgosa.",
-        "También está prohibido interferir con la seguridad, estabilidad, disponibilidad, integridad o funcionamiento técnico de la plataforma.",
-      ],
+      "title": "5. Publicación de envíos",
+      "paragraphs": [
+        "El remitente deberá publicar información real sobre:",
+        "- origen y destino,",
+        "- contenido del paquete,",
+        "- peso aproximado,",
+        "- valor declarado,",
+        "- características relevantes del envío.",
+        "El remitente es responsable por:",
+        "- la legalidad del contenido,",
+        "- el correcto embalaje,",
+        "- la exactitud de la información publicada,",
+        "- cualquier omisión relevante sobre el artículo transportado.",
+        "INTRA podrá establecer:",
+        "- límites máximos de valor declarado,",
+        "- categorías restringidas,",
+        "- condiciones especiales para determinados artículos,",
+        "- restricciones operativas por seguridad o cumplimiento.",
+        "Los artículos no declarados, mal declarados o reportados de manera engañosa serán responsabilidad exclusiva del remitente."
+      ]
     },
     {
-      title: "6. Publicación y gestión de envíos",
-      paragraphs: [
-        "El remitente es responsable por la información publicada sobre cada envío, incluyendo descripción, contenido declarado, peso, valor, origen, destino, restricciones, estado del paquete y cualquier dato relevante para el transporte.",
-        "El remitente declara que el contenido del envío es lícito, corresponde a lo informado y no contiene artículos prohibidos, peligrosos, restringidos o no declarados.",
-        "INTRA podrá rechazar, cancelar, bloquear o revisar envíos cuando existan inconsistencias, sospechas, incumplimientos, riesgo para usuarios o posible violación de políticas.",
-      ],
+      "title": "6. Publicación de viajes",
+      "paragraphs": [
+        "El viajero deberá publicar información real sobre:",
+        "- ruta,",
+        "- fecha,",
+        "- capacidad disponible,",
+        "- restricciones o preferencias aplicables.",
+        "El viajero se compromete a:",
+        "- actuar de buena fe,",
+        "- transportar únicamente artículos permitidos,",
+        "- cumplir las normas legales aplicables,",
+        "- mantener comunicación razonable durante el proceso."
+      ]
     },
     {
-      title: "7. Obligaciones del viajero o transportador independiente",
-      paragraphs: [
-        "El viajero deberá actuar de buena fe, revisar la información disponible antes de aceptar un envío, cumplir las reglas operativas y reportar inconsistencias, riesgos o incidentes.",
-        "El viajero podrá rechazar transportar un paquete cuando detecte señales de riesgo, diferencias frente a lo declarado, embalaje inadecuado, posible contenido prohibido o cualquier situación que comprometa su seguridad o la operación.",
-        "El viajero es responsable por el manejo razonable del paquete una vez lo recibe, por reportar novedades y por cumplir los procesos de recogida, transporte y entrega definidos por INTRA.",
-      ],
+      "title": "7. Match entre usuarios",
+      "paragraphs": [
+        "Cuando un envío y un viaje sean compatibles, INTRA podrá permitir un match entre las partes.",
+        "El match no obliga automáticamente a aceptar el transporte.",
+        "Cada usuario podrá:",
+        "- aceptar,",
+        "- rechazar,",
+        "- cancelar solicitudes,",
+        "según las reglas operativas de la plataforma.",
+        "Una vez aceptado el match, ambas partes podrán utilizar herramientas como el chat y seguimiento operativo."
+      ]
     },
     {
-      title: "8. Pagos, wallet, retiros y retenciones",
-      paragraphs: [
-        "Los pagos, retenciones operativas, liberación de fondos, wallet, retiros, reembolsos y disputas se rigen por la Política de Pagos, Retenciones, Reembolsos y Disputas.",
-        "INTRA podrá usar pasarelas, proveedores financieros, servicios de verificación y herramientas internas para procesar o administrar pagos y movimientos operativos.",
-        "El usuario entiende que ciertos fondos pueden quedar retenidos temporalmente por validaciones operativas, disputas, prevención de fraude, evidencias pendientes, revisión manual o reglas de liberación aplicables.",
-      ],
+      "title": "8. Artículos prohibidos o restringidos",
+      "paragraphs": [
+        "Está prohibido utilizar INTRA para transportar artículos ilegales, peligrosos o restringidos.",
+        "Entre ellos:",
+        "- armas,",
+        "- explosivos,",
+        "- sustancias ilícitas,",
+        "- dinero en efectivo,",
+        "- animales vivos,",
+        "- mercancía ilegal,",
+        "- artículos peligrosos,",
+        "- elementos prohibidos por la legislación colombiana.",
+        "INTRA podrá:",
+        "- bloquear publicaciones,",
+        "- cancelar operaciones,",
+        "- suspender cuentas,",
+        "- reportar actividades sospechosas a las autoridades competentes.",
+        "INTRA publicará una Política de Envíos y Artículos Prohibidos que hará parte integral de la operación de la plataforma."
+      ]
     },
     {
-      title: "9. Evidencias, chats y soporte",
-      paragraphs: [
-        "INTRA podrá solicitar, conservar y revisar evidencias relacionadas con publicaciones, matches, recogidas, entregas, pagos, retiros, disputas, soporte, verificaciones y seguridad.",
-        "Las evidencias pueden incluir fotografías, mensajes, datos de actividad, registros técnicos, confirmaciones, códigos, soportes documentales y comunicaciones entre usuarios o con soporte.",
-        "El usuario acepta que estas evidencias podrán utilizarse para resolver disputas, prevenir fraude, validar operaciones, mejorar seguridad, cumplir obligaciones legales y proteger a los usuarios.",
-      ],
+      "title": "9. Pagos, retenciones y liberación de fondos",
+      "paragraphs": [
+        "INTRA podrá utilizar pasarelas de pago autorizadas para procesar transacciones dentro de la plataforma.",
+        "Dependiendo del flujo operativo:",
+        "- el dinero podrá permanecer retenido temporalmente,",
+        "- liberarse al viajero una vez confirmado el avance correcto del proceso,",
+        "- o mantenerse en revisión en caso de disputa o riesgo operativo.",
+        "Los tiempos de:",
+        "- liberación,",
+        "- revisión,",
+        "- reembolso,",
+        "- disputa,",
+        "- validación,",
+        "podrán variar según cada caso.",
+        "INTRA podrá suspender temporalmente movimientos financieros cuando detecte:",
+        "- fraude,",
+        "- inconsistencias,",
+        "- actividad sospechosa,",
+        "- reclamos activos,",
+        "- riesgos operativos o legales.",
+        "INTRA contará con una Política de Pagos, Retenciones, Reembolsos y Disputas que hará parte integral de la operación de la plataforma."
+      ]
     },
     {
-      title: "10. Seguridad, fraude y cumplimiento",
-      paragraphs: [
-        "INTRA podrá aplicar controles de seguridad, análisis de riesgo, validaciones antifraude, límites operativos, revisiones manuales, bloqueos preventivos, suspensión de funcionalidades o cierre de cuenta cuando lo considere necesario.",
-        "INTRA podrá reportar operaciones o usuarios a autoridades competentes cuando existan indicios de actividad ilegal, fraude, riesgo regulatorio, afectación a terceros o requerimiento legal.",
-        "El usuario se compromete a colaborar con solicitudes razonables de verificación, soporte, disputa o cumplimiento.",
-      ],
+      "title": "10. Evidencias y verificaciones",
+      "paragraphs": [
+        "INTRA podrá solicitar evidencias relacionadas con:",
+        "- recogida,",
+        "- entrega,",
+        "- identidad,",
+        "- estado del paquete,",
+        "- comprobantes o soportes operativos.",
+        "Las evidencias podrán incluir:",
+        "- fotografías,",
+        "- documentos,",
+        "- confirmaciones digitales,",
+        "- registros de actividad dentro de la plataforma.",
+        "Cualquier implementación futura relacionada con ubicación o seguimiento operativo deberá informarse expresamente en las políticas correspondientes."
+      ]
     },
     {
-      title: "11. Limitación de responsabilidad",
-      paragraphs: [
-        "INTRA facilita herramientas tecnológicas y procesos operativos, pero no garantiza que todos los usuarios actúen correctamente ni que toda operación esté libre de riesgo.",
-        "INTRA no será responsable por información falsa suministrada por usuarios, artículos no declarados, incumplimientos de terceros, eventos fuera de su control, fallas de proveedores externos, fuerza mayor, caso fortuito o uso indebido de la plataforma.",
-        "Nada en estos términos limita responsabilidades que no puedan excluirse conforme a la legislación aplicable.",
-      ],
+      "title": "11. Disputas",
+      "paragraphs": [
+        "En caso de inconvenientes entre usuarios, INTRA podrá abrir procesos internos de revisión operativa.",
+        "Las partes deberán colaborar entregando información y evidencias cuando sea solicitado.",
+        "INTRA podrá tomar medidas temporales mientras se analiza un caso, incluyendo:",
+        "- congelar fondos,",
+        "- limitar funciones,",
+        "- suspender cuentas,",
+        "- cancelar operaciones."
+      ]
     },
     {
-      title: "12. Suspensión, terminación y restricciones",
-      paragraphs: [
-        "INTRA podrá limitar, suspender o terminar cuentas, envíos, matches, pagos, retiros o funcionalidades cuando detecte incumplimiento de términos, políticas, fraude, riesgo operativo, uso abusivo, información falsa o requerimientos legales.",
-        "La suspensión o terminación podrá ser temporal o permanente, y podrá incluir bloqueo de operaciones en curso, revisión de fondos, conservación de evidencias y medidas de prevención adicionales.",
-      ],
+      "title": "12. Reseñas y reputación",
+      "paragraphs": [
+        "Los usuarios podrán calificarse mutuamente al finalizar procesos.",
+        "Las reseñas deben:",
+        "- ser honestas,",
+        "- respetuosas,",
+        "- basadas en experiencias reales.",
+        "Está prohibido:",
+        "- manipular reputaciones,",
+        "- publicar contenido ofensivo,",
+        "- amenazar usuarios mediante reseñas.",
+        "INTRA podrá moderar, ocultar o eliminar contenido que incumpla estas reglas."
+      ]
     },
     {
-      title: "13. Propiedad intelectual y contenido",
-      paragraphs: [
-        "La plataforma, marca, interfaz, textos, diseños, flujos, software, bases de datos, procesos y elementos visuales de INTRA son propiedad de INTRA o de sus licenciantes, salvo que se indique lo contrario.",
-        "El usuario conserva sus derechos sobre el contenido que aporta, pero autoriza a INTRA a usarlo en la medida necesaria para operar la plataforma, prestar soporte, resolver disputas, prevenir fraude y cumplir obligaciones legales.",
-      ],
+      "title": "13. Suspensión o cancelación de cuentas",
+      "paragraphs": [
+        "INTRA podrá suspender o cancelar cuentas cuando detecte:",
+        "- incumplimientos de estos términos,",
+        "- fraude,",
+        "- riesgos de seguridad,",
+        "- comportamiento abusivo,",
+        "- actividades ilegales,",
+        "- uso indebido de la plataforma.",
+        "La suspensión podrá ser temporal o permanente."
+      ]
     },
     {
-      title: "14. Modificaciones",
-      paragraphs: [
-        "INTRA podrá actualizar estos términos por cambios legales, operativos, técnicos, comerciales, de seguridad o por nuevas funcionalidades.",
-        "Cuando existan cambios relevantes, INTRA podrá solicitar aceptación expresa de una nueva versión antes de permitir el uso de determinadas funcionalidades.",
-      ],
+      "title": "14. Responsabilidad y limitación de responsabilidad",
+      "paragraphs": [
+        "INTRA actúa como plataforma tecnológica intermediaria entre usuarios independientes.",
+        "INTRA no garantiza:",
+        "- disponibilidad permanente de viajeros,",
+        "- éxito de un match,",
+        "- entrega efectiva de un envío,",
+        "- comportamiento de los usuarios,",
+        "- ausencia total de riesgos operativos.",
+        "Cada usuario actúa bajo su propia responsabilidad.",
+        "La responsabilidad relacionada con:",
+        "- pérdida,",
+        "- daño,",
+        "- robo,",
+        "- retrasos,",
+        "- fraude,",
+        "- incumplimientos entre usuarios,",
+        "- artículos mal declarados,",
+        "- contenido prohibido,",
+        "deberá ser revisada y ajustada conforme a validación legal especializada y a la regulación colombiana aplicable.",
+        "INTRA podrá establecer límites operativos, restricciones y procedimientos internos para reducir riesgos operativos y financieros dentro de la plataforma."
+      ]
     },
     {
-      title: "15. Legislación aplicable",
-      paragraphs: [
-        "Estos términos se interpretan conforme a la legislación de la República de Colombia.",
-        "Cualquier ajuste legal definitivo, cláusula especializada o requisito regulatorio deberá validarse con asesoría legal antes de publicación final.",
-      ],
+      "title": "15. Disponibilidad del servicio",
+      "paragraphs": [
+        "INTRA podrá:",
+        "- actualizar funcionalidades,",
+        "- modificar procesos,",
+        "- realizar mantenimientos,",
+        "- limitar temporalmente funciones,",
+        "- suspender servicios por seguridad o mejoras técnicas."
+      ]
     },
+    {
+      "title": "16. Actualización de términos y políticas",
+      "paragraphs": [
+        "INTRA podrá actualizar estos términos y políticas cuando existan cambios relevantes legales, operativos o técnicos.",
+        "Cuando existan modificaciones importantes, la plataforma podrá solicitar una nueva aceptación explícita de la versión correspondiente antes de continuar utilizando determinadas funcionalidades."
+      ]
+    },
+    {
+      "title": "17. Protección de datos",
+      "paragraphs": [
+        "El tratamiento de datos personales se realizará conforme a la Política de Privacidad y a la normativa colombiana aplicable."
+      ]
+    },
+    {
+      "title": "18. Legislación aplicable y jurisdicción",
+      "paragraphs": [
+        "Estos términos se rigen por las leyes de la República de Colombia.",
+        "Cualquier controversia relacionada con el uso de la plataforma será tratada bajo jurisdicción colombiana."
+      ]
+    }
   ],
-}
+};
 
 export const PRIVACY_POLICY_DOCUMENT: LegalDocument = {
   id: "privacy-policy",
@@ -159,128 +329,297 @@ export const PRIVACY_POLICY_DOCUMENT: LegalDocument = {
   intro:
     "Esta política describe el tratamiento de datos personales dentro de INTRA, incluyendo datos de cuenta, contacto, operación, pagos, seguridad y soporte.",
   acceptanceLabel: "He leído y acepto la Política de Privacidad.",
-  sections: [
+    sections: [
     {
-      title: "1. Objetivo",
-      paragraphs: [
-        "Esta Política de Privacidad explica cómo INTRA recolecta, usa, almacena, consulta, protege, comparte y conserva datos personales y datos operativos relacionados con el uso de la plataforma.",
-        "La política aplica a usuarios registrados, visitantes, remitentes, viajeros, administradores, operadores, prospectos, usuarios de soporte y cualquier persona que interactúe con INTRA.",
-        "El tratamiento de datos se realiza para habilitar la operación, proteger a los usuarios, prevenir fraude, resolver disputas, procesar pagos y cumplir obligaciones legales.",
-      ],
+      "title": "1. Responsable del tratamiento de datos",
+      "paragraphs": [
+        "INTRA es responsable del tratamiento de los datos personales recolectados a través de la plataforma.",
+        "La plataforma opera como un servicio digital que conecta usuarios para coordinar envíos entre ciudades mediante viajeros independientes.",
+        "INTRA realizará el tratamiento de datos personales conforme a la autorización previa, expresa e informada otorgada por el titular, de acuerdo con la legislación colombiana aplicable.",
+        "El canal oficial de contacto para temas relacionados con privacidad y tratamiento de datos es soporte@intra.com.co o el mecanismo formal que INTRA habilite dentro de la plataforma.",
+        "Canal oficial para consultas, reclamos, actualización, rectificación, eliminación o revocatoria de datos personales: soporte@intra.com.co",
+        "Este canal funcionará mediante correo electrónico oficial, formulario o mecanismo formal habilitado por INTRA."
+      ]
     },
     {
-      title: "2. Responsable del tratamiento",
-      paragraphs: [
-        "INTRA actúa como responsable del tratamiento de los datos personales recolectados directamente dentro de la plataforma, salvo los casos en que un proveedor externo actúe como responsable independiente conforme a sus propias políticas.",
-        "Los canales de contacto, soporte o ejercicio de derechos podrán publicarse dentro de la plataforma o en los medios oficiales que INTRA habilite para tal fin.",
+      "title": "2. Categorías de datos que puede recolectar INTRA",
+      "paragraphs": [
+        "INTRA podrá recolectar información necesaria para operar la plataforma de forma segura, funcional y conforme a obligaciones legales y operativas."
       ],
+      "groups": [
+        {
+          "title": "2.1 Datos personales generales",
+          "paragraphs": [
+            "INTRA podrá recolectar:",
+            "- nombre,",
+            "- apellido,",
+            "- correo electrónico,",
+            "- número telefónico,",
+            "- ciudad,",
+            "- información básica de identificación y contacto."
+          ]
+        },
+        {
+          "title": "2.2 Datos de cuenta",
+          "paragraphs": [
+            "INTRA podrá almacenar:",
+            "- credenciales de acceso,",
+            "- contraseña cifrada,",
+            "- fecha de registro,",
+            "- estado de cuenta,",
+            "- historial básico de actividad,",
+            "- configuraciones relacionadas con autenticación y seguridad."
+          ]
+        },
+        {
+          "title": "2.3 Datos operativos de envíos y viajes",
+          "paragraphs": [
+            "INTRA podrá almacenar información relacionada con:",
+            "Envíos:",
+            "- origen,",
+            "- destino,",
+            "- contenido declarado,",
+            "- peso,",
+            "- valor declarado,",
+            "- evidencias,",
+            "- estado del envío,",
+            "- historial operativo.",
+            "Viajes:",
+            "- rutas,",
+            "- fechas,",
+            "- capacidad disponible,",
+            "- preferencias operativas,",
+            "- historial de actividad y matches."
+          ]
+        },
+        {
+          "title": "2.4 Datos financieros operativos",
+          "paragraphs": [
+            "INTRA podrá almacenar información relacionada con:",
+            "- estado de pagos,",
+            "- referencias de transacción,",
+            "- pagos retenidos,",
+            "- wallet,",
+            "- retiros,",
+            "- historial financiero operativo,",
+            "- estados de liberación, revisión o disputa.",
+            "Los pagos podrán ser procesados por proveedores externos como Wompi u otras pasarelas autorizadas.",
+            "INTRA no almacena directamente información sensible completa de tarjetas bancarias o medios de pago procesados por la pasarela.",
+            "La información sensible relacionada con tarjetas y medios de pago será gestionada directamente por los proveedores de pago autorizados conforme a sus propias políticas y estándares de seguridad."
+          ]
+        },
+        {
+          "title": "2.5 Datos técnicos y antifraude",
+          "paragraphs": [
+            "INTRA podrá recolectar información técnica y de seguridad como:",
+            "- dirección IP,",
+            "- navegador,",
+            "- dispositivo,",
+            "- sistema operativo,",
+            "- registros de acceso,",
+            "- logs de actividad,",
+            "- eventos de autenticación,",
+            "- información antifraude,",
+            "- información relacionada con seguridad operativa."
+          ]
+        },
+        {
+          "title": "2.6 Datos sensibles o de especial protección",
+          "paragraphs": [
+            "Dependiendo de las funcionalidades implementadas, INTRA podrá solicitar información relacionada con:",
+            "- documentos de identidad,",
+            "- fotografías,",
+            "- verificaciones de identidad,",
+            "- validaciones biométricas,",
+            "- verificación facial,",
+            "- evidencias relacionadas con seguridad o disputas.",
+            "Este tipo de información podrá considerarse dato sensible o de especial protección cuando así lo determine la legislación aplicable.",
+            "Cuando la ley lo requiera, INTRA solicitará autorización especial, reforzada o explícita para el tratamiento de este tipo de datos.",
+            "INTRA procurará limitar la recolección de datos sensibles a lo estrictamente necesario para:",
+            "- seguridad,",
+            "- prevención de fraude,",
+            "- validación de identidad,",
+            "- resolución de disputas,",
+            "- cumplimiento operativo y legal."
+          ]
+        },
+        {
+          "title": "2.7 Datos financieros y operativos delicados",
+          "paragraphs": [
+            "INTRA podrá almacenar información relacionada con:",
+            "- cuentas de retiro,",
+            "- entidad financiera,",
+            "- nombre del titular,",
+            "- referencias de transacción,",
+            "- estados de pagos,",
+            "- wallet,",
+            "- retiros,",
+            "- historial financiero operativo.",
+            "Aunque esta información no necesariamente constituye dato sensible según la legislación aplicable, INTRA la tratará como información de acceso restringido y aplicará medidas reforzadas de seguridad y control de acceso.",
+            "Los pagos podrán ser procesados por proveedores externos como Wompi u otras pasarelas autorizadas.",
+            "INTRA no almacena directamente información sensible completa de tarjetas bancarias o medios de pago procesados por la pasarela.",
+            "La información sensible relacionada con tarjetas y medios de pago será gestionada directamente por los proveedores de pago autorizados conforme a sus propias políticas y estándares de seguridad."
+          ]
+        }
+      ]
     },
     {
-      title: "3. Datos que puede recolectar INTRA",
-      paragraphs: [
-        "INTRA puede recolectar datos de identificación, contacto, cuenta, autenticación, teléfono, correo electrónico, nombre, documento, dirección, ciudad, país, rol dentro de la plataforma y datos necesarios para verificar identidad o seguridad.",
-        "También puede recolectar datos de publicaciones, envíos, viajes, matches, chats, evidencias, fotografías, confirmaciones, códigos, pagos, wallet, retiros, cuentas de retiro, soporte, disputas, auditoría y actividad dentro de la plataforma.",
-        "INTRA puede recolectar datos técnicos como dirección IP, navegador, dispositivo, sistema operativo, identificadores de sesión, fecha y hora de acceso, eventos de seguridad, logs, cookies o tecnologías similares cuando sean necesarias para operar y proteger la plataforma.",
-      ],
+      "title": "3. Finalidad del tratamiento de datos",
+      "paragraphs": [
+        "INTRA podrá utilizar los datos personales para:",
+        "- operar correctamente la plataforma,",
+        "- crear y administrar cuentas,",
+        "- permitir matches entre usuarios,",
+        "- verificar identidad,",
+        "- procesar pagos y retiros,",
+        "- prevenir fraude,",
+        "- gestionar disputas,",
+        "- enviar notificaciones,",
+        "- brindar soporte,",
+        "- cumplir obligaciones legales,",
+        "- mejorar seguridad y funcionamiento del sistema,",
+        "- generar auditoría y trazabilidad operativa."
+      ]
     },
     {
-      title: "4. Datos sensibles y verificaciones",
-      paragraphs: [
-        "En algunos flujos, INTRA puede solicitar datos o evidencias sensibles o de especial protección, como documentos de identidad, fotografías, información asociada a seguridad, verificaciones antifraude o datos financieros operativos.",
-        "Estos datos se tratan únicamente cuando sean necesarios para verificación, seguridad, prevención de fraude, cumplimiento legal, gestión de pagos, retiros, soporte o resolución de disputas.",
-        "El usuario no debe cargar datos sensibles innecesarios dentro de campos abiertos, chats o descripciones de envío.",
-      ],
+      "title": "4. Comunicaciones operativas y comerciales",
+      "groups": [
+        {
+          "title": "4.1 Comunicaciones operativas",
+          "paragraphs": [
+            "INTRA podrá enviar comunicaciones necesarias para:",
+            "- acceso a la cuenta,",
+            "- autenticación,",
+            "- seguridad,",
+            "- envíos,",
+            "- viajes,",
+            "- pagos,",
+            "- wallet,",
+            "- soporte,",
+            "- disputas,",
+            "- alertas operativas,",
+            "- funcionamiento de la plataforma.",
+            "Estas comunicaciones hacen parte de la operación normal del servicio."
+          ]
+        },
+        {
+          "title": "4.2 Comunicaciones comerciales o marketing",
+          "paragraphs": [
+            "En caso de implementar campañas comerciales, promociones o comunicaciones de marketing, INTRA podrá solicitar una autorización independiente o separada cuando la legislación aplicable lo requiera.",
+            "El usuario podrá gestionar o revocar dichas autorizaciones conforme a los mecanismos habilitados por la plataforma."
+          ]
+        }
+      ]
     },
     {
-      title: "5. Finalidades del tratamiento",
-      paragraphs: [
-        "INTRA podrá tratar datos personales para crear y administrar cuentas, autenticar usuarios, operar envíos, coordinar matches, procesar pagos, habilitar retiros, gestionar wallet, verificar identidad, prevenir fraude, resolver disputas, prestar soporte y enviar comunicaciones operativas.",
-        "También podrá usar datos para mejorar la plataforma, analizar desempeño, generar métricas internas, mantener seguridad, auditar operaciones, cumplir obligaciones legales y atender requerimientos de autoridades competentes.",
-      ],
+      "title": "5. Compartición de información",
+      "paragraphs": [
+        "INTRA podrá compartir información cuando sea necesario para operar correctamente la plataforma.",
+        "Esto puede incluir:",
+        "- proveedores tecnológicos,",
+        "- servicios cloud o infraestructura,",
+        "- pasarelas de pago como Wompi,",
+        "- herramientas de verificación,",
+        "- proveedores de seguridad,",
+        "- autoridades competentes cuando exista obligación legal,",
+        "- usuarios involucrados en un envío o match cuando sea necesario para coordinar la operación.",
+        "INTRA no vende datos personales de los usuarios."
+      ]
     },
     {
-      title: "6. Base de autorización",
-      paragraphs: [
-        "El tratamiento de datos se fundamenta en la autorización otorgada por el usuario, la necesidad de ejecutar la relación contractual o precontractual, el cumplimiento de obligaciones legales, el interés legítimo en proteger la plataforma y la necesidad de prevenir fraude o riesgos operativos.",
-        "Cuando una finalidad requiera una autorización específica, INTRA podrá solicitar aceptación expresa dentro del flujo correspondiente.",
-      ],
+      "title": "6. Transferencia o almacenamiento internacional de datos",
+      "paragraphs": [
+        "Algunos proveedores tecnológicos, servicios cloud, pasarelas de pago o herramientas de infraestructura utilizadas por INTRA podrán operar dentro o fuera de Colombia.",
+        "Como consecuencia, cierta información podrá almacenarse o procesarse en servidores ubicados en otros países.",
+        "La legalidad, requisitos y mecanismos aplicables para transferencia internacional de datos deberán ser revisados y validados conforme a la normativa colombiana aplicable."
+      ]
     },
     {
-      title: "7. Proveedores y terceros",
-      paragraphs: [
-        "INTRA podrá compartir o permitir acceso limitado a datos personales con proveedores de autenticación, hosting, infraestructura, almacenamiento, pasarelas de pago, verificación, comunicaciones, analítica, soporte, seguridad, cumplimiento, auditoría o herramientas operativas.",
-        "El acceso de proveedores se limita a las finalidades necesarias para prestar sus servicios y operar INTRA.",
-        "Algunos proveedores pueden tener sus propias políticas de privacidad y actuar como responsables independientes respecto de ciertos datos, especialmente en pagos, autenticación o verificaciones externas.",
-      ],
+      "title": "7. Conservación de la información",
+      "paragraphs": [
+        "INTRA podrá conservar información:",
+        "- mientras exista la cuenta activa,",
+        "- mientras sea necesaria para operar la plataforma,",
+        "- durante procesos de disputa,",
+        "- por razones de seguridad,",
+        "- auditoría,",
+        "- prevención de fraude,",
+        "- cumplimiento legal o regulatorio.",
+        "La eliminación de ciertos datos podrá estar limitada por obligaciones legales, regulatorias o de seguridad."
+      ]
     },
     {
-      title: "8. Pagos, wallet y retiros",
-      paragraphs: [
-        "Para procesar pagos, wallet, retiros, reembolsos, disputas y movimientos operativos, INTRA puede tratar datos financieros operativos, datos de cuenta de retiro, referencias de pago, estados de transacción, historial de movimientos y evidencias relacionadas.",
-        "INTRA no almacena directamente información completa de tarjetas bancarias cuando el procesamiento lo realiza una pasarela de pago autorizada.",
-        "Los proveedores de pago pueden tratar datos conforme a sus propias condiciones, políticas y estándares de seguridad.",
-      ],
+      "title": "8. Derechos del titular de datos",
+      "paragraphs": [
+        "Conforme a la legislación colombiana aplicable, el usuario podrá:",
+        "- conocer sus datos personales,",
+        "- solicitar actualización o corrección,",
+        "- solicitar eliminación cuando proceda,",
+        "- revocar autorizaciones cuando legalmente sea posible,",
+        "- presentar consultas o reclamos relacionados con sus datos personales.",
+        "Las solicitudes podrán realizarse mediante el canal oficial definido por INTRA:",
+        "Canal de contacto: soporte@intra.com.co",
+        "Los tiempos de respuesta para consultas, reclamos y solicitudes deberán ajustarse a la legislación colombiana aplicable y quedan pendientes de validación legal especializada."
+      ]
     },
     {
-      title: "9. Chats, evidencias y soporte",
-      paragraphs: [
-        "Los mensajes, archivos, fotografías, soportes y evidencias cargadas dentro de INTRA pueden ser tratados para operar envíos, validar entregas, resolver disputas, prevenir fraude, prestar soporte, mejorar seguridad y cumplir obligaciones legales.",
-        "INTRA podrá revisar estos datos cuando exista una disputa, reporte, incidente, riesgo operativo, solicitud de soporte, investigación interna o requerimiento legal.",
-      ],
+      "title": "9. Seguridad de la información",
+      "paragraphs": [
+        "INTRA implementará medidas razonables de seguridad para proteger la información contra:",
+        "- accesos no autorizados,",
+        "- pérdida,",
+        "- alteración,",
+        "- uso indebido,",
+        "- divulgación no autorizada.",
+        "Sin embargo, ningún sistema tecnológico puede garantizar seguridad absoluta.",
+        "El usuario también es responsable de proteger el acceso a su cuenta y credenciales."
+      ]
     },
     {
-      title: "10. Seguridad y conservación",
-      paragraphs: [
-        "INTRA implementa medidas razonables de seguridad técnicas, administrativas y organizacionales para proteger los datos contra acceso no autorizado, pérdida, alteración, uso indebido o divulgación no autorizada.",
-        "Los datos se conservarán durante el tiempo necesario para cumplir las finalidades descritas, operar la cuenta, resolver disputas, prevenir fraude, atender soporte, cumplir obligaciones legales, conservar evidencia y proteger derechos de INTRA o de terceros.",
-        "Algunos datos podrán conservarse incluso después del cierre de cuenta cuando exista obligación legal, disputa, investigación, riesgo de fraude, auditoría o necesidad legítima de conservación.",
-      ],
+      "title": "10. Menores de edad",
+      "paragraphs": [
+        "INTRA está dirigida únicamente a personas mayores de edad con capacidad legal para utilizar la plataforma.",
+        "No está permitido crear cuentas utilizando información falsa sobre edad o identidad."
+      ]
     },
     {
-      title: "11. Derechos del titular",
-      paragraphs: [
-        "El usuario puede solicitar acceso, actualización, corrección, supresión, revocatoria de autorización o información sobre el uso de sus datos, conforme a la legislación aplicable.",
-        "Algunas solicitudes podrán estar limitadas por obligaciones legales, necesidad de conservación, seguridad, prevención de fraude, disputas activas, operaciones pendientes o requerimientos contractuales.",
-        "INTRA podrá solicitar verificación de identidad antes de atender una solicitud relacionada con datos personales.",
-      ],
+      "title": "11. Cookies y tecnologías similares",
+      "paragraphs": [
+        "INTRA podrá utilizar cookies, sesiones u otras tecnologías similares para:",
+        "- autenticación,",
+        "- seguridad,",
+        "- funcionamiento técnico,",
+        "- análisis operativo,",
+        "- mejora de experiencia de usuario.",
+        "La configuración específica podrá ampliarse posteriormente en una política complementaria si aplica."
+      ]
     },
     {
-      title: "12. Comunicaciones",
-      paragraphs: [
-        "INTRA podrá enviar comunicaciones transaccionales, operativas, de seguridad, soporte, verificación, pagos, retiros, cambios de políticas, alertas, notificaciones y mensajes relacionados con el uso de la plataforma.",
-        "Cuando se envíen comunicaciones comerciales o promocionales, INTRA habilitará los mecanismos de consentimiento o retiro que correspondan según la legislación aplicable.",
-      ],
+      "title": "12. Actualización de la política",
+      "paragraphs": [
+        "INTRA podrá actualizar esta Política de Privacidad cuando existan cambios:",
+        "- legales,",
+        "- regulatorios,",
+        "- operativos,",
+        "- técnicos,",
+        "- o relacionados con nuevas funcionalidades.",
+        "Cuando existan cambios relevantes, INTRA podrá solicitar una nueva aceptación explícita de la versión correspondiente."
+      ]
     },
     {
-      title: "13. Menores de edad",
-      paragraphs: [
-        "INTRA no está dirigida a menores de edad. El usuario declara que cuenta con la edad y capacidad legal necesarias para registrarse y usar la plataforma.",
-        "Si INTRA detecta una cuenta asociada a un menor de edad sin autorización válida, podrá suspenderla o eliminarla conforme a sus procesos internos.",
-      ],
-    },
-    {
-      title: "14. Transferencias internacionales",
-      paragraphs: [
-        "Algunos proveedores de infraestructura, almacenamiento, autenticación, pagos, soporte, analítica o seguridad pueden estar ubicados fuera de Colombia o tratar datos en otros países.",
-        "El usuario entiende que sus datos pueden ser transferidos o transmitidos internacionalmente cuando sea necesario para prestar el servicio, operar la plataforma, proteger la seguridad o cumplir obligaciones aplicables.",
-      ],
-    },
-    {
-      title: "15. Actualizaciones",
-      paragraphs: [
-        "INTRA podrá actualizar esta política por cambios legales, técnicos, operativos, comerciales, de seguridad, proveedores, funcionalidades o prácticas de tratamiento.",
-        "Cuando existan cambios relevantes, INTRA podrá solicitar una nueva aceptación expresa de la versión correspondiente.",
-      ],
-    },
-    {
-      title: "16. Legislación aplicable",
-      paragraphs: [
-        "Esta política se interpreta conforme a la legislación de la República de Colombia en materia de protección de datos personales.",
-        "Cualquier ajuste legal definitivo, aviso de privacidad especializado o requisito regulatorio deberá validarse con asesoría legal antes de publicación final.",
-      ],
-    },
+      "title": "13. Legislación aplicable",
+      "paragraphs": [
+        "Esta política se interpreta conforme a la legislación de la República de Colombia.",
+        "La aplicación específica de:",
+        "- Ley 1581 de 2012,",
+        "- Decreto 1377 de 2013,",
+        "- normas de Habeas Data,",
+        "- y demás regulación aplicable,",
+        "deberá ser validada mediante revisión legal especializada antes de publicación definitiva."
+      ]
+    }
   ],
-}
+};
 
 export const SHIPPING_POLICY_DOCUMENT: LegalDocument = {
   id: "shipping-policy",
@@ -439,7 +778,7 @@ export const SHIPPING_POLICY_DOCUMENT: LegalDocument = {
       ],
     },
   ],
-}
+};
 
 export const PAYMENTS_POLICY_DOCUMENT: LegalDocument = {
   id: "payments-policy",
@@ -625,4 +964,4 @@ export const PAYMENTS_POLICY_DOCUMENT: LegalDocument = {
       ],
     },
   ],
-}
+};
