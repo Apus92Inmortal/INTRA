@@ -15,6 +15,8 @@ import {
   getPayoutStatusClasses,
   getPayoutStatusLabel,
 } from "@/lib/payments/wallet"
+import { PAYMENTS_POLICY_DOCUMENT } from "@/lib/legal/documents"
+import { LegalDocumentModal } from "@/components/legal-document-modal"
 
 type PayoutAccount = {
   id: string
@@ -37,6 +39,12 @@ type Payout = {
   reviewed_at: string | null
   review_notes: string | null
 }
+
+type LegalModalKey = "payments-policy"
+
+const legalDocuments = {
+  "payments-policy": PAYMENTS_POLICY_DOCUMENT,
+} satisfies Record<LegalModalKey, typeof PAYMENTS_POLICY_DOCUMENT>
 
 function SurfaceIcon({
   children,
@@ -86,6 +94,8 @@ export default function PayoutRequestForm({
   const [isPending, startTransition] = useTransition()
   const [amount, setAmount] = useState("")
   const [selectedAccount, setSelectedAccount] = useState(initialPayoutAccount)
+  const [acceptedPaymentPolicy, setAcceptedPaymentPolicy] = useState(false)
+  const [legalModalKey, setLegalModalKey] = useState<LegalModalKey | null>(null)
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
 
   const verifiedAccounts = useMemo(
@@ -126,10 +136,19 @@ export default function PayoutRequestForm({
       return
     }
 
+    if (!acceptedPaymentPolicy) {
+      setFeedback({
+        type: "error",
+        message: "Debes aceptar la Política de Pagos para solicitar el retiro.",
+      })
+      return
+    }
+
     startTransition(async () => {
       const formData = new FormData()
       formData.set("amount", amount)
       formData.set("payoutAccountId", normalizedSelectedAccount)
+      formData.set("paymentPolicyAccepted", String(acceptedPaymentPolicy))
 
       const result = await requestPayoutAction(formData)
 
@@ -309,6 +328,28 @@ export default function PayoutRequestForm({
               </label>
             </div>
 
+            <div className="flex items-start gap-3 rounded-[16px] border border-[#E4E7EC] bg-[#F9FAFB] px-4 py-3 text-sm leading-6 text-[#667085]">
+              <input
+                id="payout-payment-policy-acceptance"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-[#D0D5DD] text-[#1C7C45] focus:ring-[#1C7C45]"
+                checked={acceptedPaymentPolicy}
+                onChange={(event) => setAcceptedPaymentPolicy(event.target.checked)}
+                aria-describedby="payout-payment-policy-label"
+              />
+              <span id="payout-payment-policy-label">
+                <label htmlFor="payout-payment-policy-acceptance">Acepto la </label>
+                <button
+                  type="button"
+                  onClick={() => setLegalModalKey("payments-policy")}
+                  className="font-semibold text-[#1C7C45] underline underline-offset-4"
+                >
+                  Política de Pagos, Retenciones, Reembolsos y Disputas
+                </button>
+                .
+              </span>
+            </div>
+
             {feedback ? (
               <div
                 className={`rounded-[16px] px-4 py-3 text-sm ${
@@ -324,7 +365,7 @@ export default function PayoutRequestForm({
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 type="submit"
-                disabled={isPending || !canRequestPayout}
+                disabled={isPending || !canRequestPayout || !acceptedPaymentPolicy}
                 className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] disabled:opacity-60"
               >
                 {isPending ? "Enviando..." : "Solicitar retiro"}
@@ -392,6 +433,17 @@ export default function PayoutRequestForm({
           </div>
         )}
       </section>
+
+      <LegalDocumentModal
+        documentKey={legalModalKey}
+        documents={legalDocuments}
+        titleId="payout-legal-modal-title"
+        onClose={() => setLegalModalKey(null)}
+        onAcceptAndContinue={() => {
+          setAcceptedPaymentPolicy(true)
+          setLegalModalKey(null)
+        }}
+      />
     </div>
   )
 }

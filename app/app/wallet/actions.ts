@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache"
 import { requireAdminUser } from "@/lib/auth/admin"
+import { PAYMENTS_POLICY_DOCUMENT } from "@/lib/legal/documents"
+import { WALLET_PAYOUT_ACCEPTANCE_FLOW } from "@/lib/legal/policy-acceptance"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 
@@ -258,7 +260,12 @@ export async function requestPayoutAction(formData: FormData): Promise<ActionRes
     const rawAmount = toTrimmedString(formData.get("amount"))
     const payoutAccountId = toTrimmedString(formData.get("payoutAccountId"))
     const note = toTrimmedString(formData.get("note"))
+    const paymentPolicyAccepted = parseBoolean(formData.get("paymentPolicyAccepted"))
     const amount = Number(rawAmount.replace(/[^\d.-]/g, ""))
+
+    if (!paymentPolicyAccepted) {
+      return { success: false, error: "Debes aceptar la Política de Pagos para solicitar el retiro." }
+    }
 
     if (!Number.isFinite(amount) || amount <= 0) {
       return { success: false, error: "Ingresa un monto válido." }
@@ -268,6 +275,9 @@ export async function requestPayoutAction(formData: FormData): Promise<ActionRes
       p_amount: amount,
       p_payout_account_id: payoutAccountId || null,
       p_note: note || null,
+      p_payment_policy_accepted: paymentPolicyAccepted,
+      p_payment_policy_version: PAYMENTS_POLICY_DOCUMENT.version,
+      p_payment_policy_acceptance_flow: WALLET_PAYOUT_ACCEPTANCE_FLOW,
     })
 
     if (error) {
