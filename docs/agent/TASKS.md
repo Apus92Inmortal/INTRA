@@ -12,45 +12,57 @@
 
 ## P0 - Critico
 
-No hay P0 activo registrado en esta memoria inicial.
+### Frente A: Seguridad operativa del envio
 
-## P1 - Alto
+Prioridad: Critica
+Area: Matches / Shipments / Evidencias / Disputas / Admin
+
+Resumen:
+
+- Este frente agrupa paquete sospechoso, evidencias y disputa.
+- Es el siguiente frente real recomendado porque conecta confianza, trazabilidad, admin, pagos y wallet.
+- No debe tocar pagos, RLS, RPCs, Storage o migraciones sin alcance tecnico explicito y revision previa de `DB_NOTES.md`.
 
 ### TASK-003: Completar flujo de paquete sospechoso
 
 Estado: TODO
-Prioridad: Alta
-Area: Matches / Shipments / Seguridad operativa
+Prioridad: Critica
+Area: Matches / Shipments / Seguridad operativa / Admin
 
 Criterios de aceptacion:
 
 - El flujo queda definido con estados, permisos, copy y acciones permitidas.
-- Se valida impacto sobre cliente, viajero, admin y soporte.
+- Cliente, viajero y admin ven el estado operativo del reporte sin depender de contexto de chat.
+- La alerta puede revisarse, cerrarse o escalarse a disputa desde admin.
 - No se cambia RLS, pagos ni estados criticos sin revisar `DB_NOTES.md` y matriz legal.
 
 ### TASK-004: Completar flujo de evidencias
 
 Estado: TODO
-Prioridad: Alta
-Area: Matches / Shipments / Storage
+Prioridad: Critica
+Area: Matches / Shipments / Storage / Admin
 
 Criterios de aceptacion:
 
-- Queda definido como se suben, ven y protegen evidencias.
-- Se aclara si requiere Supabase Storage, tabla nueva o policies.
+- El viajero puede subir evidencia de recogida, estado del paquete y entrega cuando aplique.
+- Cliente, viajero y admin pueden consultar evidencias segun permisos.
+- Se valida uso del bucket `shipment-evidence`, signed URLs o descarga segura segun corresponda.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa
 
 Estado: TODO
-Prioridad: Alta
+Prioridad: Critica
 Area: Disputas / Pagos / Wallet / Admin
 
 Criterios de aceptacion:
 
 - El flujo respeta ventana de disputa y copy aprobado en la matriz legal operativa.
-- Queda claro que puede hacer cliente, viajero y admin.
+- La disputa queda visible con motivo, estado y siguiente paso para cliente/viajero.
+- Admin puede revisar el caso con contexto de match, pago, alerta y evidencia.
 - Se valida impacto en `payments`, `wallets`, `wallet_ledger`, refunds y payouts antes de implementar.
+
+## P1 - Alto
 
 ### TASK-006: Corregir eventos que no actualizan en vivo
 
@@ -62,60 +74,48 @@ Criterios de aceptacion:
 
 - Identificar pantallas donde los cambios obligan a refrescar.
 - Definir estrategia de realtime operativo o invalidacion/refetch.
-- Validar matches, notificaciones, pagos, wallet y chat segun aplique.
-
-## P2 - Medio
-
-### TASK-002: Revisar proximo frente funcional con Atlas/Aldo
-
-Estado: TODO
-Prioridad: Media
-Area: Planificacion tecnica
-
-Criterios de aceptacion:
-
-- El siguiente bloque queda definido con objetivo, alcance, riesgos y criterios de aceptacion.
-- `CURRENT_SESSION.md` queda actualizado con el foco de trabajo.
-
-Notas:
-
-- Esta sigue siendo la tarea activa de planeacion: elegir cual de los frentes P1/P2 se implementa primero.
+- Validar matches, notificaciones, pagos, evidencias, alertas, wallet, dashboard `/app`, detalle de match y chat segun aplique.
 
 ### TASK-007: Mejorar pantalla payment / checkout UI/UX
 
 Estado: TODO
-Prioridad: Media
+Prioridad: Alta
 Area: Pagos / UI
 
 Criterios de aceptacion:
 
 - Mejorar claridad visual sin cambiar reglas de pago.
+- Cubrir estados `pending`, `processing`, `failed`, retry y continuidad hacia Wompi.
 - Respetar copy legal y matriz operativa vigente.
 - Validar mobile y viewports base si se toca UI.
 
 ### TASK-008: Mejorar pantalla payment / success UI/UX
 
 Estado: TODO
-Prioridad: Media
+Prioridad: Alta
 Area: Pagos / UI
 
 Criterios de aceptacion:
 
 - Mejorar confirmacion, siguiente paso y estados post-pago.
+- Diferenciar pago aprobado/en retencion, pendiente de confirmacion, fallido y retry.
 - No cambiar estados de pago ni reglas de liberacion.
 - Validar mobile y viewports base si se toca UI.
 
 ### TASK-009: Mejorar UI/UX del chat de cada match
 
 Estado: TODO
-Prioridad: Media
+Prioridad: Alta
 Area: Matches / Chat / UI
 
 Criterios de aceptacion:
 
 - Mejorar lectura, estados y experiencia operativa del chat.
 - Respetar roles contextuales del match.
+- Incluir acceso claro a detalle, evidencia o disputa cuando aplique.
 - Revisar realtime si el chat depende de actualizaciones en vivo.
+
+## P2 - Medio / Futuro
 
 ### TASK-010: Evaluar mover verificacion fuera del perfil
 
@@ -132,6 +132,18 @@ Criterios de aceptacion:
 ---
 
 ## Done Log
+
+### TASK-002: Revisar proximo frente funcional con Atlas/Aldo
+
+Estado: DONE
+Fecha: 2026-05-25
+Resumen:
+
+- Se inicio una nueva sesion tecnica leyendo la memoria operativa del repo.
+- Se auditaron los frentes actuales desde el flujo real de cliente, viajero y admin.
+- Se confirmo que Market esta fusionado con `/app` y que `/app/market` es un redirect tecnico heredado.
+- Se priorizo como siguiente frente real el Frente A: seguridad operativa del envio.
+- Se propuso un primer PR documental para dejar memoria y priorizacion alineadas antes de implementar.
 
 ### TASK-001: Mantener memoria operativa del repo
 

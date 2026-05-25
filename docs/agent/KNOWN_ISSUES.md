@@ -50,8 +50,18 @@ Riesgo: Alto
 
 Descripcion:
 
-Aldo reporto que algunos eventos no se actualizan en vivo y obligan a refrescar paginas.
+Aldo reporto que algunos eventos no se actualizan en vivo y obligan a refrescar paginas. La auditoria inicial detecto que el realtime existente cubre parte de `matches`, `shipments`, `messages` y `notifications`, pero no queda uniforme para pagos, evidencias, alertas de paquete sospechoso y otros estados operativos.
+
+Casos a revisar:
+
+- Dashboard `/app`.
+- Detalle de match.
+- Admin de disputas/alertas.
+- Pagos post-checkout.
+- Evidencias de recogida/entrega/estado.
+- Alertas en `shipment_report_events`.
+- Estado de envio y match despues de acciones remotas.
 
 Recomendacion:
 
-Antes de tocar pantallas operativas, identificar donde falta realtime/refetch y definir una estrategia consistente para matches, notificaciones, pagos, wallet y chat segun aplique.
+Antes de tocar pantallas operativas, identificar donde falta realtime/refetch y definir una estrategia consistente para matches, notificaciones, pagos, evidencias, alertas, wallet y chat segun aplique. Usar `router.refresh()` con throttling donde sea suficiente, `postgres_changes` para eventos criticos y fallback polling solo donde haga falta resiliencia.

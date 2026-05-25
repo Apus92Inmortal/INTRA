@@ -35,7 +35,8 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 ## Areas existentes
 
 - App autenticada: `/app`
-- Market: `/app/market`
+- Market integrado: `/app`
+- Redirect tecnico heredado: `/app/market` redirige a `/app`; no debe reconstruirse como pantalla independiente.
 - Envios: `/app/shipments/new`
 - Viajes: `/app/trips/new`
 - Matches: `/app/matches`
@@ -57,3 +58,4 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 - Fase 2 de seguridad quedo cerrada con salvedades.
 - La migracion 3.5 del dashboard interno figura como historica, no como pendiente activo.
 - El theme base aprobado para publicar viaje sirve como referencia visual para futuras pantallas.
+- Market fue fusionado con `/app` como decision de producto; cualquier mejora debe mantener la experiencia integrada de dashboard, oportunidades y matches.

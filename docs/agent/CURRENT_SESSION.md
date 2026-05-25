@@ -6,29 +6,26 @@
 
 ## Objetivo de la sesion
 
-Cerrar la sesion tecnica actual de INTRA y dejar la memoria operativa actualizada despues de los merges documentales.
+Iniciar nueva sesion tecnica de INTRA, auditar los frentes funcionales pendientes y dejar la memoria operativa alineada con el siguiente frente real de trabajo.
 
 ## Archivos tocados hoy
 
-- `AGENTS.md`
-- `docs/agent/START_HERE.md`
 - `docs/agent/PROJECT_STATE.md`
 - `docs/agent/TASKS.md`
 - `docs/agent/CURRENT_SESSION.md`
-- `docs/agent/DECISIONS.md`
 - `docs/agent/KNOWN_ISSUES.md`
 
 ## Cambios realizados
 
-- Se cerro la sesion de memoria operativa posterior a los merges.
-- Se registro que PR #102 creo la memoria operativa del repo.
-- Se registro que PR #103 normalizo Markdown y `.gitattributes`.
-- Se registro que PR #104 actualizo la memoria despues de los merges.
-- `TASK-001` quedo en Done Log.
-- `TASK-002` quedo como tarea activa de planeacion para escoger el siguiente frente funcional.
-- Se registraron los pendientes funcionales anotados por Aldo como tareas P1/P2.
-- Se agrego la decision de producto sobre `/app/market`.
-- Se registro el riesgo activo de eventos que no actualizan en vivo.
+- Se leyo la memoria operativa del repo en el orden solicitado.
+- Se audito el flujo real de INTRA desde cliente, viajero y admin sin tocar codigo de app.
+- Se confirmo que `/app/market` esta fusionado con `/app` y que solo queda como redirect tecnico heredado.
+- Se actualizo `PROJECT_STATE.md` para que Market no figure como pantalla independiente.
+- Se priorizo el Frente A como P0: seguridad operativa del envio, agrupando paquete sospechoso, evidencias y disputa.
+- Se movio `TASK-002` a Done Log porque la planeacion del siguiente frente quedo realizada.
+- Se dejaron como P1 realtime operativo, payment checkout UI/UX, payment success UI/UX y chat UI/UX.
+- Se dejo verificacion al inicio del registro como P2/futuro.
+- Se amplio el riesgo de realtime para incluir pagos, evidencias, alertas y estados operativos.
 
 ## Decisiones tomadas
 
@@ -39,19 +36,15 @@ Cerrar la sesion tecnica actual de INTRA y dejar la memoria operativa actualizad
 - `TASKS.md`, `DECISIONS.md`, `KNOWN_ISSUES.md` y `DB_NOTES.md` conservan historia util del proyecto.
 - La skill de sesion debe servir para INTRA y para otros proyectos con estructura similar.
 - `/app/market` no debe reconstruirse como pantalla independiente porque Market fue fusionado con `/app` como decision de producto.
+- El siguiente frente real recomendado es seguridad operativa del envio: paquete sospechoso, evidencias y disputa.
 
 ## Pendiente para la proxima sesion
 
-- Elegir el siguiente frente funcional entre los pendientes registrados.
-- Completar flujo de paquete sospechoso.
-- Completar flujo de evidencias.
-- Completar flujo de disputa.
-- Mejorar pantalla payment / checkout UI/UX.
-- Mejorar pantalla payment / success UI/UX.
-- Corregir eventos que no se actualizan en vivo y obligan a refrescar paginas.
-- Evaluar a futuro si la verificacion debe salir del perfil y moverse al inicio del registro.
-- Definir realtime operativo para que cambios aparezcan sin refrescar.
-- Mejorar UI/UX del chat de cada match.
+- Implementar el primer PR funcional del Frente A sin convertirlo en PR gigante.
+- Candidato recomendado: integrar evidencias base en match detail sin cambiar DB.
+- Mantener paquete sospechoso y disputa como PRs separados si el alcance crece.
+- Definir realtime operativo despues de cerrar el flujo base de evidencias/alertas/disputa.
+- Mantener payment UI y chat UI como frentes posteriores, sin tocar Wompi ni reglas de pago en PRs visuales.
 
 ## Riesgos detectados
 
@@ -61,11 +54,13 @@ Cerrar la sesion tecnica actual de INTRA y dejar la memoria operativa actualizad
 - `supabase/schema.sql` puede no reflejar exactamente todas las migraciones aplicadas.
 - Cambios en RLS, RPCs, pagos, wallet, refunds o payouts requieren revision previa de `DECISIONS.md` y `DB_NOTES.md`.
 - Cambios en UI deben respetar documentos visuales aprobados y validar mobile/viewports.
-- Realtime incompleto puede producir estados viejos hasta que el usuario refresque.
+- Realtime incompleto puede producir estados viejos hasta que el usuario refresque, especialmente en pagos, evidencias, alertas y estados operativos de match/envio.
+- Evidencias usan Storage y deben mantener policies seguras antes de ampliar lectura/visor.
+- Disputas y alertas pueden afectar pagos/wallet, por lo que no deben mezclarse con cambios visuales sin analisis.
 
 ## Proximo paso recomendado
 
-Priorizar con Atlas/Aldo cual frente funcional se implementa primero. Recomendacion tecnica: empezar por realtime operativo o por flujo de evidencias/disputa, porque impactan confianza, pagos y operacion post-match.
+Abrir el primer PR funcional pequeno del Frente A: integrar evidencias base en match detail usando tabla y bucket existentes, sin migraciones iniciales salvo que el analisis puntual demuestre lo contrario.
 
 ## Debe leer el proximo agente
 
