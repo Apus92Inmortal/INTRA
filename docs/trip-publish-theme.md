@@ -429,7 +429,11 @@ Usar:
 
 ## Definición corta del theme para el equipo
 
-> INTRA usa un theme claro, premium y operativo: fondos azul-gris suaves, cards blancas con bordes sutiles, azul oscuro como identidad principal, verde como señal de acción/éxito, badges de estado muy claros, layouts compactos de dos columnas con resumen vivo y microdetalles visuales inspirados en viaje/aviación para transmitir confianza y orden.
+> INTRA usa un theme claro, premium y operativo: fondos azul-gris suaves,
+> cards blancas con bordes sutiles, azul oscuro como identidad principal,
+> verde como señal de acción/éxito, badges de estado muy claros, layouts
+> compactos de dos columnas con resumen vivo y microdetalles visuales
+> inspirados en viaje/aviación para transmitir confianza y orden.
 
 ---
 
