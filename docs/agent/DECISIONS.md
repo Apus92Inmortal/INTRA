@@ -51,3 +51,19 @@ La continuidad del proyecto no debe depender de memoria conversacional. Cualquie
 Impacto:
 
 Al iniciar una sesion se leen estos archivos. Al cerrar una sesion se actualizan `CURRENT_SESSION.md`, `TASKS.md` y, si aplica, `DECISIONS.md`, `KNOWN_ISSUES.md` o `DB_NOTES.md`.
+
+## DEC-004: Market fusionado con `/app`
+
+Fecha: 2026-05-25
+
+Decision:
+
+`/app/market` no debe reconstruirse como pantalla independiente porque Market fue fusionado con `/app` como decision de producto.
+
+Motivo:
+
+El flujo principal de descubrimiento/operacion del market debe mantenerse alineado con la experiencia integrada de `/app`, evitando duplicar pantallas o bifurcar comportamiento.
+
+Impacto:
+
+No crear una nueva reconstruccion aislada de `/app/market` sin aprobacion explicita. Cualquier mejora relacionada con market debe revisar primero la integracion actual con `/app`, dashboard, matches y oportunidades operativas.
