@@ -6,26 +6,26 @@
 
 ## Objetivo de la sesion
 
-Iniciar nueva sesion tecnica de INTRA, auditar los frentes funcionales pendientes y dejar la memoria operativa alineada con el siguiente frente real de trabajo.
+Documentar el diseno funcional/tecnico del sistema de evidencias de INTRA antes de tocar codigo, DB, Storage o RLS.
 
 ## Archivos tocados hoy
 
-- `docs/agent/PROJECT_STATE.md`
 - `docs/agent/TASKS.md`
 - `docs/agent/CURRENT_SESSION.md`
-- `docs/agent/KNOWN_ISSUES.md`
+- `docs/agent/DB_NOTES.md`
+- `docs/shipment-evidence-system.md`
 
 ## Cambios realizados
 
-- Se leyo la memoria operativa del repo en el orden solicitado.
-- Se audito el flujo real de INTRA desde cliente, viajero y admin sin tocar codigo de app.
-- Se confirmo que `/app/market` esta fusionado con `/app` y que solo queda como redirect tecnico heredado.
-- Se actualizo `PROJECT_STATE.md` para que Market no figure como pantalla independiente.
-- Se priorizo el Frente A como P0: seguridad operativa del envio, agrupando paquete sospechoso, evidencias y disputa.
-- Se movio `TASK-002` a Done Log porque la planeacion del siguiente frente quedo realizada.
-- Se dejaron como P1 realtime operativo, payment checkout UI/UX, payment success UI/UX y chat UI/UX.
-- Se dejo verificacion al inicio del registro como P2/futuro.
-- Se amplio el riesgo de realtime para incluir pagos, evidencias, alertas y estados operativos.
+- Se creo `docs/shipment-evidence-system.md` con el diseno del sistema de evidencias.
+- Se dejo documentada la regla oficial: evidencia prueba, paquete sospechoso alerta, disputa decide.
+- Se documento que la evidencia inicial del cliente sera obligatoria.
+- Se documento que el viajero debe ver la foto inicial desde `/app` antes de solicitar match.
+- Se documento que la evidencia no libera pagos por si sola y no reemplaza confirmacion del cliente.
+- Se documento que paquete sospechoso es una alerta independiente que puede usar evidencias.
+- Se documento que disputa es un caso formal que puede usar evidencias, reporte sospechoso, chat, match, pago e historial.
+- Se actualizo `TASKS.md` con criterios mas precisos para `TASK-004`.
+- Se agrego nota en `DB_NOTES.md` sobre la migracion futura requerida para `customer_initial_photo`.
 
 ## Decisiones tomadas
 
@@ -37,14 +37,14 @@ Iniciar nueva sesion tecnica de INTRA, auditar los frentes funcionales pendiente
 - La skill de sesion debe servir para INTRA y para otros proyectos con estructura similar.
 - `/app/market` no debe reconstruirse como pantalla independiente porque Market fue fusionado con `/app` como decision de producto.
 - El siguiente frente real recomendado es seguridad operativa del envio: paquete sospechoso, evidencias y disputa.
+- La evidencia inicial debe tener tipo semantico propio; no se recomienda guardarla como `package_state`.
 
 ## Pendiente para la proxima sesion
 
-- Implementar el primer PR funcional del Frente A sin convertirlo en PR gigante.
-- Candidato recomendado: integrar evidencias base en match detail sin cambiar DB.
-- Mantener paquete sospechoso y disputa como PRs separados si el alcance crece.
-- Definir realtime operativo despues de cerrar el flujo base de evidencias/alertas/disputa.
-- Mantener payment UI y chat UI como frentes posteriores, sin tocar Wompi ni reglas de pago en PRs visuales.
+- Crear PR funcional pequeno para migracion de tipos de evidencia.
+- Ampliar `shipment_evidence.evidence_type` antes de implementar `customer_initial_photo`.
+- Luego implementar evidencia inicial obligatoria en checkout sin tocar reglas de Wompi, wallet, payouts, refunds o auto-release.
+- Despues mostrar foto inicial en `/app` sin reconstruir `/app/market`.
 
 ## Riesgos detectados
 
@@ -57,10 +57,12 @@ Iniciar nueva sesion tecnica de INTRA, auditar los frentes funcionales pendiente
 - Realtime incompleto puede producir estados viejos hasta que el usuario refresque, especialmente en pagos, evidencias, alertas y estados operativos de match/envio.
 - Evidencias usan Storage y deben mantener policies seguras antes de ampliar lectura/visor.
 - Disputas y alertas pueden afectar pagos/wallet, por lo que no deben mezclarse con cambios visuales sin analisis.
+- El enum actual de `shipment_evidence.evidence_type` solo acepta `pickup`, `delivery` y `package_state`; usar `package_state` para evidencia inicial ensuciaria semantica.
+- El viajero antes del match no es participante del shipment; mostrar evidencia inicial en `/app` requiere signed URLs server-side o una decision explicita de RLS.
 
 ## Proximo paso recomendado
 
-Abrir el primer PR funcional pequeno del Frente A: integrar evidencias base en match detail usando tabla y bucket existentes, sin migraciones iniciales salvo que el analisis puntual demuestre lo contrario.
+Abrir PR pequeno de migracion para ampliar tipos de evidencia sin tocar UI ni pagos. Despues implementar evidencia inicial obligatoria en checkout.
 
 ## Debe leer el proximo agente
 

@@ -41,6 +41,16 @@
 - Las policies deben limitar acceso a usuarios relacionados y admins.
 - No asociar liberacion de pagos solo a carga de evidencia sin regla operativa aprobada.
 
+## Evidencias de envio
+
+- Tabla existente: `shipment_evidence`.
+- Bucket existente: `shipment-evidence`.
+- Tipos permitidos actualmente por constraint: `pickup`, `delivery`, `package_state`.
+- La evidencia inicial obligatoria del cliente requiere un tipo semantico propio como `customer_initial_photo`.
+- Para no ensuciar semantica, no se recomienda guardar evidencia inicial como `package_state`.
+- Antes de implementar evidencia inicial obligatoria, crear migracion pequena para ampliar `shipment_evidence.evidence_type` o reemplazar el constraint de forma controlada.
+- Si se muestra evidencia inicial al viajero antes del match desde `/app`, preferir signed URLs generadas server-side para viajeros con viaje compatible y envio payment-ready antes de ampliar RLS.
+
 ## Pagos y wallet
 
 - Wompi checkout procesa el pago del cliente.

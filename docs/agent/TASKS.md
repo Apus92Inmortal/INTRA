@@ -44,9 +44,13 @@ Area: Matches / Shipments / Storage / Admin
 
 Criterios de aceptacion:
 
+- La separacion conceptual queda respetada: evidencia prueba, paquete sospechoso alerta, disputa decide.
+- La evidencia inicial del cliente queda definida como obligatoria antes de publicar/activar el envio.
 - El viajero puede subir evidencia de recogida, estado del paquete y entrega cuando aplique.
+- El viajero puede ver la evidencia inicial desde `/app` antes de solicitar match.
 - Cliente, viajero y admin pueden consultar evidencias segun permisos.
 - Se valida uso del bucket `shipment-evidence`, signed URLs o descarga segura segun corresponda.
+- Se documenta que `customer_initial_photo` requiere migracion futura porque el enum actual solo acepta `pickup`, `delivery` y `package_state`.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa
@@ -132,6 +136,19 @@ Criterios de aceptacion:
 ---
 
 ## Done Log
+
+### TASK-DOC-001: Disenar sistema de evidencias del Frente A
+
+Estado: DONE
+Fecha: 2026-05-25
+Resumen:
+
+- Se documento el diseno funcional/tecnico del sistema de evidencias en `docs/shipment-evidence-system.md`.
+- Se establecio la regla oficial: evidencia prueba, paquete sospechoso alerta, disputa decide.
+- Se definio que la evidencia inicial del cliente sera obligatoria.
+- Se documento que el viajero debe ver la foto inicial desde `/app` antes de solicitar match.
+- Se registro que la evidencia no libera pagos, no reemplaza confirmacion del cliente y no cambia Wompi, wallet, payouts, refunds ni auto-release.
+- Se dejo la salvedad tecnica de migracion futura para ampliar `shipment_evidence.evidence_type`.
 
 ### TASK-002: Revisar proximo frente funcional con Atlas/Aldo
 
