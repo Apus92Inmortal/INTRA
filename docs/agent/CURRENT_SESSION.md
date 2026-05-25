@@ -6,7 +6,7 @@
 
 ## Objetivo de la sesion
 
-Crear memoria operativa versionada para INTRA y una skill reutilizable para inicio/cierre de sesiones.
+Cerrar la sesion tecnica actual de INTRA y dejar la memoria operativa actualizada despues de los merges documentales.
 
 ## Archivos tocados hoy
 
@@ -17,21 +17,18 @@ Crear memoria operativa versionada para INTRA y una skill reutilizable para inic
 - `docs/agent/CURRENT_SESSION.md`
 - `docs/agent/DECISIONS.md`
 - `docs/agent/KNOWN_ISSUES.md`
-- `docs/agent/DB_NOTES.md`
-- `docs/agent/RELEASE_CHECKLIST.md`
-- `.agents/skills/project-session-memory/SKILL.md`
 
 ## Cambios realizados
 
-- Se creo `AGENTS.md` como puerta de entrada operativa del repo.
-- Se creo `docs/agent/` como memoria extendida versionada.
-- Se separo la memoria por estado, tareas, decisiones, riesgos, DB y release.
-- Se agrego `TASKS.md` con estados `TODO`, `IN_PROGRESS`, `BLOCKED`, `REVIEW` y `DONE`, mas `Done Log`.
-- Se agrego checklist de release con validaciones tecnicas, funcionales, visuales y de secretos.
-- Se agrego una skill reutilizable para inicio/cierre de sesiones.
-- PR #102 quedo mergeado a `main` con la memoria operativa base.
-- PR #103 quedo mergeado a `main` con limpieza Markdown y normalizacion de LF.
-- `TASK-001` quedo movida a Done Log.
+- Se cerro la sesion de memoria operativa posterior a los merges.
+- Se registro que PR #102 creo la memoria operativa del repo.
+- Se registro que PR #103 normalizo Markdown y `.gitattributes`.
+- Se registro que PR #104 actualizo la memoria despues de los merges.
+- `TASK-001` quedo en Done Log.
+- `TASK-002` quedo como tarea activa de planeacion para escoger el siguiente frente funcional.
+- Se registraron los pendientes funcionales anotados por Aldo como tareas P1/P2.
+- Se agrego la decision de producto sobre `/app/market`.
+- Se registro el riesgo activo de eventos que no actualizan en vivo.
 
 ## Decisiones tomadas
 
@@ -41,21 +38,34 @@ Crear memoria operativa versionada para INTRA y una skill reutilizable para inic
 - `CURRENT_SESSION.md` se puede reescribir por sesion.
 - `TASKS.md`, `DECISIONS.md`, `KNOWN_ISSUES.md` y `DB_NOTES.md` conservan historia util del proyecto.
 - La skill de sesion debe servir para INTRA y para otros proyectos con estructura similar.
+- `/app/market` no debe reconstruirse como pantalla independiente porque Market fue fusionado con `/app` como decision de producto.
 
 ## Pendiente para la proxima sesion
 
-- Definir con Atlas/Aldo el siguiente frente funcional de INTRA antes de tocar codigo.
-- Actualizar `CURRENT_SESSION.md` con el foco del siguiente bloque cuando se apruebe la tarea.
+- Elegir el siguiente frente funcional entre los pendientes registrados.
+- Completar flujo de paquete sospechoso.
+- Completar flujo de evidencias.
+- Completar flujo de disputa.
+- Mejorar pantalla payment / checkout UI/UX.
+- Mejorar pantalla payment / success UI/UX.
+- Corregir eventos que no se actualizan en vivo y obligan a refrescar paginas.
+- Evaluar a futuro si la verificacion debe salir del perfil y moverse al inicio del registro.
+- Definir realtime operativo para que cambios aparezcan sin refrescar.
+- Mejorar UI/UX del chat de cada match.
 
 ## Riesgos detectados
 
 - Si la memoria no se actualiza al cierre, el repo volvera a depender del chat.
 - Si `TASKS.md` se convierte en backlog libre sin estados, perdera valor operativo.
 - Si un PR documental incluye secretos por accidente, no debe mergearse hasta limpiar el historial afectado.
+- `supabase/schema.sql` puede no reflejar exactamente todas las migraciones aplicadas.
+- Cambios en RLS, RPCs, pagos, wallet, refunds o payouts requieren revision previa de `DECISIONS.md` y `DB_NOTES.md`.
+- Cambios en UI deben respetar documentos visuales aprobados y validar mobile/viewports.
+- Realtime incompleto puede producir estados viejos hasta que el usuario refresque.
 
 ## Proximo paso recomendado
 
-Definir la siguiente tarea funcional de INTRA con objetivo, alcance, riesgos y criterios de aceptacion antes de modificar codigo.
+Priorizar con Atlas/Aldo cual frente funcional se implementa primero. Recomendacion tecnica: empezar por realtime operativo o por flujo de evidencias/disputa, porque impactan confianza, pagos y operacion post-match.
 
 ## Debe leer el proximo agente
 
@@ -63,3 +73,5 @@ Definir la siguiente tarea funcional de INTRA con objetivo, alcance, riesgos y c
 2. `docs/agent/START_HERE.md`
 3. `docs/agent/TASKS.md`
 4. `docs/agent/CURRENT_SESSION.md`
+5. `docs/agent/DECISIONS.md`
+6. `docs/agent/KNOWN_ISSUES.md`

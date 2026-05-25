@@ -42,3 +42,16 @@ La estructura `docs/agent/` solo sera util si se actualiza al cerrar sesiones te
 Recomendacion:
 
 Cuando el usuario pida cerrar sesion, usar la skill `project-session-memory` y actualizar los archivos antes de reportar cierre.
+
+## ISSUE-004: Eventos operativos no siempre actualizan en vivo
+
+Estado: Abierto
+Riesgo: Alto
+
+Descripcion:
+
+Aldo reporto que algunos eventos no se actualizan en vivo y obligan a refrescar paginas.
+
+Recomendacion:
+
+Antes de tocar pantallas operativas, identificar donde falta realtime/refetch y definir una estrategia consistente para matches, notificaciones, pagos, wallet y chat segun aplique.
