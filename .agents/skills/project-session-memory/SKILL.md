@@ -66,9 +66,11 @@ When the user says to close, pause, hand off, finish the session, or leave memor
    - date
    - objective
    - files touched
+   - changes made
    - decisions
    - pending items
    - risks
+   - recommended next step
    - what the next agent must read
 3. Update `docs/agent/TASKS.md`:
    - move completed tasks to Done Log only when actually completed

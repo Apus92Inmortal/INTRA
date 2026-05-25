@@ -8,6 +8,7 @@
 - [ ] `docs/agent/DB_NOTES.md` actualizado si hubo cambios de DB.
 - [ ] Migraciones revisadas si hubo cambios de Supabase.
 - [ ] RLS revisado si hubo cambios de permisos.
+- [ ] Confirmado que no hay secretos, tokens, credenciales, datos bancarios reales ni URLs privadas con credenciales en el diff.
 
 ## Validacion tecnica
 
@@ -22,7 +23,10 @@
 - [ ] Flujo feliz validado.
 - [ ] Empty states validados.
 - [ ] Error states validados cuando aplique.
+- [ ] Flujo cliente/viajero revisado cuando el cambio toque roles, matches, envios, viajes, pagos o wallet.
 - [ ] Mobile revisado cuando toque UI.
+- [ ] Viewport 1440x800 revisado cuando toque UI.
+- [ ] Viewport 1366x650 revisado cuando toque UI.
 - [ ] Copy legal revisado cuando toque pagos, disputa, wallet o politicas.
 
 ## Antes de produccion
@@ -33,3 +37,10 @@
 - [ ] Aprobacion explicita para merge.
 - [ ] Aprobacion explicita para deploy.
 - [ ] Estado final reportado: local, rama, main o produccion.
+
+## Checks criticos por area
+
+- [ ] Supabase: revisar migraciones, RLS, RPCs y policies de Storage.
+- [ ] Pagos: revisar Wompi, `payments`, wallet, ledger, refunds y payouts.
+- [ ] Seguridad: revisar auth, permisos cruzados, rutas protegidas y datos sensibles.
+- [ ] UI: revisar Manual UI/UX vigente, mobile y viewports base.
