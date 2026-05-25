@@ -16,29 +16,7 @@ No hay P0 activo registrado en esta memoria inicial.
 
 ## P1 - Alto
 
-### TASK-001: Mantener memoria operativa del repo
-
-Estado: REVIEW
-Prioridad: Alta
-Area: Documentacion operativa / continuidad de agentes
-
-Archivos relacionados:
-
-- `AGENTS.md`
-- `docs/agent/*`
-- `.agents/skills/project-session-memory/SKILL.md`
-
-Criterios de aceptacion:
-
-- Existe estructura `docs/agent/`.
-- Existe archivo de entrada `START_HERE.md`.
-- Existen archivos para estado, tareas, decisiones, issues, DB y checklist de release.
-- Existe skill reutilizable para inicio/cierre de sesion.
-- La memoria queda versionada en el repo.
-
-Notas:
-
-- La estructura ya fue creada. Queda pendiente aprobacion humana y push/PR si corresponde.
+No hay P1 activo registrado despues del merge de la memoria operativa.
 
 ## P2 - Medio
 
@@ -53,9 +31,25 @@ Criterios de aceptacion:
 - El siguiente bloque queda definido con objetivo, alcance, riesgos y criterios de aceptacion.
 - `CURRENT_SESSION.md` queda actualizado con el foco de trabajo.
 
+Notas:
+
+- Esta es la siguiente tarea activa despues de cerrar la memoria operativa del repo.
+
 ---
 
 ## Done Log
+
+### TASK-001: Mantener memoria operativa del repo
+
+Estado: DONE
+Fecha: 2026-05-25
+Resumen:
+
+- Se creo `AGENTS.md` como entrada operativa del repo.
+- Se creo `docs/agent/` con estado, tareas, sesion, decisiones, riesgos, DB notes y checklist de release.
+- Se agrego `.agents/skills/project-session-memory/SKILL.md` para inicio/cierre de sesiones.
+- PR #102 fue mergeado a `main` con la memoria operativa base.
+- PR #103 fue mergeado a `main` con limpieza Markdown y normalizacion de LF.
 
 ### TASK-HIST-001: Matriz legal operativa v1
 

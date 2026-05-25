@@ -29,6 +29,9 @@ Crear memoria operativa versionada para INTRA y una skill reutilizable para inic
 - Se agrego `TASKS.md` con estados `TODO`, `IN_PROGRESS`, `BLOCKED`, `REVIEW` y `DONE`, mas `Done Log`.
 - Se agrego checklist de release con validaciones tecnicas, funcionales, visuales y de secretos.
 - Se agrego una skill reutilizable para inicio/cierre de sesiones.
+- PR #102 quedo mergeado a `main` con la memoria operativa base.
+- PR #103 quedo mergeado a `main` con limpieza Markdown y normalizacion de LF.
+- `TASK-001` quedo movida a Done Log.
 
 ## Decisiones tomadas
 
@@ -41,11 +44,8 @@ Crear memoria operativa versionada para INTRA y una skill reutilizable para inic
 
 ## Pendiente para la proxima sesion
 
-- Confirmar con Aldo/Cristhian si esta estructura queda aprobada como estandar.
-- Revisar y aprobar PR #102.
-- Mergear PR #102 a `main` solo con aprobacion explicita.
-- Mover `TASK-001` a Done Log despues del merge.
-- Definir el siguiente frente funcional de INTRA antes de tocar codigo.
+- Definir con Atlas/Aldo el siguiente frente funcional de INTRA antes de tocar codigo.
+- Actualizar `CURRENT_SESSION.md` con el foco del siguiente bloque cuando se apruebe la tarea.
 
 ## Riesgos detectados
 
@@ -55,7 +55,7 @@ Crear memoria operativa versionada para INTRA y una skill reutilizable para inic
 
 ## Proximo paso recomendado
 
-Revisar PR #102, confirmar que no contiene secretos ni datos sensibles y aprobar merge a `main` si la estructura queda aceptada.
+Definir la siguiente tarea funcional de INTRA con objetivo, alcance, riesgos y criterios de aceptacion antes de modificar codigo.
 
 ## Debe leer el proximo agente
 
