@@ -50,7 +50,7 @@ Criterios de aceptacion:
 - El viajero puede ver la evidencia inicial desde `/app` antes de solicitar match.
 - Cliente, viajero y admin pueden consultar evidencias segun permisos.
 - Se valida uso del bucket `shipment-evidence`, signed URLs o descarga segura segun corresponda.
-- Se documenta que `customer_initial_photo` requiere migracion futura porque el enum actual solo acepta `pickup`, `delivery` y `package_state`.
+- PR B prepara migracion aditiva para que `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo` sean tipos validos sin perder compatibilidad con `pickup`, `delivery` y `package_state`.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa
