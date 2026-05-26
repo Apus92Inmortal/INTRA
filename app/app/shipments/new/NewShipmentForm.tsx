@@ -795,6 +795,20 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
             </div>
           </section>
 
+          <div className="mt-3 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3.5 py-3">
+            <div className="flex items-start gap-3">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-intra-card text-intra-text-success shadow-sm">
+                <PackageCheck className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-[12px] font-semibold text-intra-blue">Foto inicial obligatoria</p>
+                <p className="mt-0.5 text-[11px] leading-4 text-intra-text-subtle">
+                  En el checkout subirás una foto clara del paquete cerrado para que el viajero pueda verificar su estado antes de aceptar transportarlo.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {msg ? (
             <div
               className={`mt-3 rounded-2xl border px-3.5 py-2 text-sm ${

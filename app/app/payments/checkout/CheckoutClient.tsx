@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   createClient,
   hasSupabaseEnv,
@@ -25,6 +25,7 @@ import {
 import { LegalDocumentModal } from "@/components/legal-document-modal"
 import { SHIPMENT_CHECKOUT_ACCEPTANCE_FLOW } from "@/lib/legal/policy-acceptance"
 import { useRouter, useSearchParams } from "next/navigation"
+import { compressImageFile } from "@/lib/uploads"
 
 export type RetryCheckoutData = {
   retryPaymentId: string
@@ -42,6 +43,8 @@ export type RetryCheckoutData = {
   isUrgent: boolean
   isHighValue: boolean
   routeCategory: RouteCategory | null
+  hasInitialEvidence: boolean
+  canReuseExistingPayment: boolean
 }
 
 type CheckoutClientProps = {
@@ -69,9 +72,18 @@ type CheckoutViewModel = {
   declared: number | null
   routeCategory: RouteCategory | null
   quote: PaymentQuote | null
+  hasInitialEvidence: boolean
+  canReuseExistingPayment: boolean
+}
+
+type PreparedCheckoutDraft = {
+  shipmentId: string
+  paymentId: string
 }
 
 const PAYMENT_CONDITIONS_VERSION = PAYMENTS_POLICY_DOCUMENT.version
+const INITIAL_EVIDENCE_BUCKET = "shipment-evidence"
+const CUSTOMER_INITIAL_EVIDENCE_TYPE = "customer_initial_photo"
 
 type LegalModalKey = "shipping-policy" | "payments-policy"
 
@@ -144,6 +156,55 @@ function buildReference(shipmentId: string) {
   return `intra-shipment-${shipmentId}-${randomPart}`
 }
 
+function getFileExtension(file: File) {
+  const parts = file.name.split(".")
+  return parts.length > 1 ? parts.pop()?.toLowerCase() ?? "bin" : "bin"
+}
+
+async function uploadCustomerInitialEvidence({
+  supabase,
+  userId,
+  shipmentId,
+  file,
+}: {
+  supabase: ReturnType<typeof createClient>
+  userId: string
+  shipmentId: string
+  file: File
+}) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("La evidencia inicial debe ser una imagen.")
+  }
+
+  const compressedFile = await compressImageFile(file)
+  const path = `${userId}/${shipmentId}/${Date.now()}-${CUSTOMER_INITIAL_EVIDENCE_TYPE}.${getFileExtension(compressedFile)}`
+
+  const upload = await supabase.storage.from(INITIAL_EVIDENCE_BUCKET).upload(path, compressedFile, {
+    upsert: false,
+    contentType: compressedFile.type || undefined,
+  })
+
+  if (upload.error) {
+    throw new Error(upload.error.message)
+  }
+
+  const { error: insertError } = await supabase.from("shipment_evidence").insert({
+    shipment_id: shipmentId,
+    match_id: null,
+    uploaded_by: userId,
+    evidence_type: CUSTOMER_INITIAL_EVIDENCE_TYPE,
+    file_path: path,
+    file_name: compressedFile.name,
+    mime_type: compressedFile.type || null,
+    note: "Foto inicial del paquete subida antes de iniciar pago.",
+  })
+
+  if (insertError) {
+    await supabase.storage.from(INITIAL_EVIDENCE_BUCKET).remove([path])
+    throw new Error(insertError.message)
+  }
+}
+
 function buildCheckoutViewModel(
   searchParams: ReturnType<typeof useSearchParams>,
   initialRetryData?: RetryCheckoutData | null
@@ -162,6 +223,8 @@ function buildCheckoutViewModel(
   const isFragile = fromRetry?.isFragile ?? searchParams.get("isFragile") === "true"
   const isUrgent = fromRetry?.isUrgent ?? searchParams.get("isUrgent") === "true"
   const isHighValue = fromRetry?.isHighValue ?? searchParams.get("isHighValue") === "true"
+  const hasInitialEvidence = fromRetry?.hasInitialEvidence ?? false
+  const canReuseExistingPayment = fromRetry?.canReuseExistingPayment ?? false
   const weight = weightKgRaw.trim() ? Number(weightKgRaw) : null
   const declared = declaredValueRaw.trim() ? Number(declaredValueRaw) : null
   const routeCategory = isRouteCategory(routeCategoryParam) ? routeCategoryParam : null
@@ -188,18 +251,28 @@ function buildCheckoutViewModel(
     declared,
     routeCategory,
     quote,
+    hasInitialEvidence,
+    canReuseExistingPayment,
   }
 }
 
 export default function CheckoutClient({ initialRetryData = null }: CheckoutClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const initialEvidenceRequired = searchParams.get("evidenceRequired") === "1"
 
   const [loading, setLoading] = useState(false)
-  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [errorMsg, setErrorMsg] = useState<string | null>(
+    initialEvidenceRequired
+      ? "Antes de abrir Wompi debes subir la foto inicial del paquete."
+      : null
+  )
   const [acceptedDeclaration, setAcceptedDeclaration] = useState(false)
   const [acceptedPaymentConditions, setAcceptedPaymentConditions] = useState(false)
   const [legalModalKey, setLegalModalKey] = useState<LegalModalKey | null>(null)
+  const [initialEvidenceFile, setInitialEvidenceFile] = useState<File | null>(null)
+  const [initialEvidenceUploaded, setInitialEvidenceUploaded] = useState(false)
+  const [preparedDraft, setPreparedDraft] = useState<PreparedCheckoutDraft | null>(null)
 
   const view = useMemo(
     () => buildCheckoutViewModel(searchParams, initialRetryData),
@@ -212,6 +285,27 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   const totalAmount = view.quote?.amount ?? null
   const autoReleaseHours = view.quote?.auto_release_hours ?? 48
   const disputeWindowHours = view.quote?.dispute_window_hours ?? 24
+  const initialEvidenceReady = view.hasInitialEvidence || initialEvidenceUploaded
+  const initialEvidencePreviewUrl = useMemo(
+    () => initialEvidenceFile ? URL.createObjectURL(initialEvidenceFile) : null,
+    [initialEvidenceFile]
+  )
+
+  useEffect(() => {
+    return () => {
+      if (initialEvidencePreviewUrl) {
+        URL.revokeObjectURL(initialEvidencePreviewUrl)
+      }
+    }
+  }, [initialEvidencePreviewUrl])
+
+  function handleInitialEvidenceFileChange(file: File | null) {
+    setInitialEvidenceFile(file)
+
+    if (file) {
+      setErrorMsg(null)
+    }
+  }
 
   async function handlePayment() {
     setLoading(true)
@@ -265,6 +359,12 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
       return
     }
 
+    if (!initialEvidenceReady && !initialEvidenceFile) {
+      setLoading(false)
+      setErrorMsg("Sube una foto clara del paquete cerrado antes de iniciar el pago.")
+      return
+    }
+
     await new Promise((resolve) => setTimeout(resolve, 250))
 
     const supabase = createClient()
@@ -280,10 +380,10 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
       return
     }
 
-    let shipmentId = view.shipmentId
-    let paymentId = ""
+    let shipmentId = preparedDraft?.shipmentId ?? view.shipmentId
+    let paymentId = preparedDraft?.paymentId ?? (view.canReuseExistingPayment ? view.retryPaymentId : "")
 
-    if (!view.isRetry) {
+    if (!view.isRetry && !preparedDraft) {
       const { data: createDraftData, error: createDraftError } = await supabase.rpc(
         "create_shipment_with_payment_draft",
         {
@@ -326,12 +426,40 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
       shipmentId = createDraftResult.shipment_id
       paymentId = createDraftResult.payment_id
+      setPreparedDraft({ shipmentId, paymentId })
     }
 
     if (!shipmentId) {
       setLoading(false)
       setErrorMsg("No encontramos el envío para reintentar el pago.")
       return
+    }
+
+    if (!initialEvidenceReady) {
+      if (!initialEvidenceFile) {
+        setLoading(false)
+        setErrorMsg("Sube una foto clara del paquete cerrado antes de iniciar el pago.")
+        return
+      }
+
+      try {
+        await uploadCustomerInitialEvidence({
+          supabase,
+          userId: user.id,
+          shipmentId,
+          file: initialEvidenceFile,
+        })
+        setInitialEvidenceUploaded(true)
+        setInitialEvidenceFile(null)
+      } catch (error) {
+        setLoading(false)
+        setErrorMsg(
+          error instanceof Error
+            ? `No se pudo guardar la evidencia inicial: ${error.message}`
+            : "No se pudo guardar la evidencia inicial."
+        )
+        return
+      }
     }
 
     if (!paymentId) {
@@ -490,6 +618,43 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                   {item.label}: {item.active ? "Sí" : "No"}
                 </span>
               ))}
+            </div>
+
+            <div className="mt-3 rounded-[24px] border border-intra-border-soft bg-intra-bg-app p-3 sm:p-3.5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-intra-blue">Foto inicial del paquete</p>
+                  <p className="mt-1 text-xs leading-5 text-intra-text-subtle">
+                    Sube una foto clara del paquete cerrado para que el viajero pueda verificar su estado antes de aceptar transportarlo.
+                  </p>
+                  {initialEvidenceReady ? (
+                    <div className="mt-3 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3 py-2 text-xs font-semibold text-intra-text-success">
+                      Foto inicial registrada. No necesitas subir otra para este intento.
+                    </div>
+                  ) : (
+                    <label className="mt-3 block text-xs font-semibold text-intra-text-muted">
+                      Imagen obligatoria
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="mt-2 block w-full rounded-2xl border border-intra-border-strong bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                        onChange={(event) => handleInitialEvidenceFileChange(event.target.files?.[0] ?? null)}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {initialEvidencePreviewUrl ? (
+                  <div className="h-28 w-full overflow-hidden rounded-2xl border border-intra-border-soft bg-intra-card sm:w-36">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={initialEvidencePreviewUrl}
+                      alt="Vista previa de la foto inicial del paquete"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
+              </div>
             </div>
 
             <div className="mt-3 space-y-2">

@@ -6,32 +6,28 @@
 
 ## Objetivo de la sesion
 
-Aplicar y verificar en Supabase real la migracion PR B del sistema de evidencias antes de iniciar PR C.
+Implementar PR C: evidencia inicial obligatoria del cliente en checkout usando arquitectura checkout-gate.
 
 ## Archivos tocados hoy
 
-- `supabase/migrations/202605252230_extend_shipment_evidence_types.sql`
+- `app/app/shipments/new/NewShipmentForm.tsx`
+- `app/app/payments/checkout/CheckoutClient.tsx`
+- `app/app/payments/checkout/page.tsx`
+- `app/app/payments/checkout/wompi/page.tsx`
 - `docs/agent/TASKS.md`
 - `docs/agent/CURRENT_SESSION.md`
-- `docs/agent/DB_NOTES.md`
 
 ## Cambios realizados
 
-- Se leyo la memoria operativa del repo y el diseno vigente de evidencias.
-- Se audito la constraint actual de `shipment_evidence.evidence_type`.
-- Se confirmo que la constraint esperada es `shipment_evidence_evidence_type_check`.
-- Se confirmo que la migracion original solo permite `pickup`, `delivery` y `package_state`.
-- Se creo migracion aditiva para permitir tambien `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo`.
-- Se mantuvo compatibilidad con los tipos legacy usados por `EvidenceUploader.tsx`.
-- Se actualizo `DB_NOTES.md` para registrar el alcance de PR B.
-- Se actualizo `TASKS.md` con nota de avance para `TASK-004`.
-- PR #108 fue mergeado a `main` con commit `e7e72ba`.
-- Se verifico que la migracion no estaba aplicada automaticamente en Supabase real.
-- Se aplico manualmente solo `supabase/migrations/202605252230_extend_shipment_evidence_types.sql` en Supabase real.
-- Se reparo el historial remoto de migraciones para marcar `202605252230` como aplicada.
-- Se verifico que la constraint remota sigue llamandose `shipment_evidence_evidence_type_check`.
-- Se verifico que la constraint remota acepta `pickup`, `delivery`, `package_state`, `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo`.
-- Se comparo el conteo de policies antes y despues; no hubo cambios en RLS ni Storage policies.
+- Se agrego aviso en `NewShipmentForm` indicando que la foto inicial sera obligatoria antes de pagar.
+- Se agrego bloque "Foto inicial del paquete" en checkout con input obligatorio y preview.
+- `CheckoutClient` ahora crea el draft, sube la foto al bucket `shipment-evidence`, registra `shipment_evidence` con `customer_initial_photo` y solo despues permite redirigir a Wompi.
+- Si falla upload o insert, no se redirige a Wompi y se permite reintento.
+- Si falla el insert despues del upload, se borra el archivo best-effort para reducir huerfanos.
+- En reintentos, si ya existe `customer_initial_photo`, no se exige nueva foto.
+- Si el pago pendiente ya existe y tiene evidencia inicial, el checkout puede reabrir ese pago sin crear otro.
+- `/app/payments/checkout/wompi` valida server-side que el payment tenga evidencia inicial antes de abrir Wompi.
+- No se tocaron Wompi internals, wallet, payouts, refunds, auto-release, RLS, Storage policies ni funciones `security definer`.
 
 ## Decisiones tomadas
 
@@ -46,11 +42,12 @@ Aplicar y verificar en Supabase real la migracion PR B del sistema de evidencias
 - La evidencia inicial debe tener tipo semantico propio; no se recomienda guardarla como `package_state`.
 - PR B debe limitarse a preparar tipos de evidencia; no implementa evidencia inicial obligatoria ni cambia reglas de pagos.
 - PR C no debe iniciar hasta confirmar que los nuevos tipos estan aplicados en Supabase real; esa verificacion ya quedo OK.
+- PR C usa checkout-gate: el draft puede existir si falla evidencia, pero Wompi queda bloqueado hasta registrar `customer_initial_photo`.
 
 ## Pendiente para la proxima sesion
 
-- Iniciar PR C para implementar evidencia inicial obligatoria en checkout sin tocar reglas de Wompi, wallet, payouts, refunds o auto-release.
-- Despues mostrar foto inicial en `/app` sin reconstruir `/app/market`.
+- Revisar/aprobar PR C antes de mergear.
+- Despues implementar visualizacion de foto inicial en `/app` sin reconstruir `/app/market`.
 
 ## Riesgos detectados
 
@@ -67,10 +64,11 @@ Aplicar y verificar en Supabase real la migracion PR B del sistema de evidencias
 - El viajero antes del match no es participante del shipment; mostrar evidencia inicial en `/app` requiere signed URLs server-side o una decision explicita de RLS.
 - Si el nombre real de la constraint en una base remota fue modificado manualmente, la migracion podria no reemplazarla; la auditoria local espera `shipment_evidence_evidence_type_check`.
 - Aunque la migracion ya fue aplicada en Supabase real, PR C debe seguir sin tocar pagos, wallet, Wompi, RLS, Storage policies ni auto-release.
+- Pueden existir drafts sin evidencia si falla la carga despues de crear shipment/payment; el guard bloquea Wompi y permite reintento.
 
 ## Proximo paso recomendado
 
-Iniciar PR C para evidencia inicial obligatoria del cliente, usando `customer_initial_photo` y manteniendo pagos, wallet, Wompi, RLS, Storage policies y auto-release fuera de alcance.
+Validar PR C en navegador y abrir PR si checks locales quedan limpios.
 
 ## Debe leer el proximo agente
 

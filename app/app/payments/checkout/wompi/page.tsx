@@ -23,6 +23,7 @@ type PaymentRow = {
   status: string | null
   external_reference: string | null
   currency: string | null
+  shipment_id: string | null
 }
 
 function buildOrigin(host: string, proto: string) {
@@ -42,13 +43,22 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
   const paymentRes = user && paymentId
     ? await supabase
         .from("payments")
-        .select("id, amount, status, external_reference, currency")
+        .select("id, amount, status, external_reference, currency, shipment_id")
         .eq("id", paymentId)
         .eq("user_id", user.id)
         .maybeSingle()
     : { data: null }
 
   const payment = (paymentRes.data ?? null) as PaymentRow | null
+  const initialEvidenceRes = payment?.shipment_id
+    ? await supabase
+        .from("shipment_evidence")
+        .select("id")
+        .eq("shipment_id", payment.shipment_id)
+        .eq("evidence_type", "customer_initial_photo")
+        .limit(1)
+    : { data: [] }
+  const hasInitialEvidence = Boolean(initialEvidenceRes.data?.[0]?.id)
   const amount = Number(payment?.amount ?? 0)
   const host = headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "localhost:3000"
   const proto = headerStore.get("x-forwarded-proto") ?? "https"
@@ -56,11 +66,16 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
 
   const canStartCheckout =
     payment &&
+    hasInitialEvidence &&
     payment.external_reference &&
     Number.isFinite(amount) &&
     amount > 0 &&
     (payment.status === "pending" || payment.status === "processing")
   const retryHref = payment ? `/app/payments/checkout?retryPaymentId=${payment.id}` : "/app/payments/checkout"
+
+  if (payment?.shipment_id && !hasInitialEvidence) {
+    redirect(`/app/payments/checkout?shipmentId=${payment.shipment_id}&evidenceRequired=1`)
+  }
 
   if (canStartCheckout) {
     const amountInCents = wompiAmountToCents(amount)
