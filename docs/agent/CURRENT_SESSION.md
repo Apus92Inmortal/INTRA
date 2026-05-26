@@ -2,17 +2,20 @@
 
 ## Fecha
 
-2026-05-25
+2026-05-26
 
 ## Objetivo de la sesion
 
-Implementar PR D: mostrar la foto inicial `customer_initial_photo` al viajero en oportunidades compatibles dentro de `/app`.
+Cerrar PR D: mostrar la foto inicial `customer_initial_photo` al viajero en oportunidades compatibles dentro de `/app`.
 
-## Rama
+## Estado final
 
-- `feat/traveler-initial-photo-card`
+- PR: #111
+- Merge commit: `a14a641`
+- Estado: mergeado a `main`
+- Produccion: deploy automatico completado por Vercel
 
-## Archivos tocados hoy
+## Archivos tocados en PR D
 
 - `app/app/_lib/dashboard-queries.ts`
 - `app/app/_lib/dashboard-types.ts`
@@ -22,11 +25,11 @@ Implementar PR D: mostrar la foto inicial `customer_initial_photo` al viajero en
 
 ## Cambios realizados
 
-- Las oportunidades compatibles de `/app` ahora se calculan con viajes abiertos del usuario para alinear la elegibilidad visual con la accion de solicitar match.
+- Las oportunidades compatibles de `/app` ahora se calculan con viajes abiertos del usuario para alinear elegibilidad visual y accion de solicitar match.
 - Se agrego carga server-side de la evidencia `customer_initial_photo` solo para shipments elegibles: usuario autenticado, envio `open`, payment-ready, usuario no owner y viaje abierto compatible.
-- Se generan signed URLs de corta duracion para el bucket privado `shipment-evidence`.
+- Se generan signed URLs de 600 segundos para el bucket privado `shipment-evidence`.
 - La card de oportunidades recibe solo URL firmada y alt text; no recibe `file_path`, bucket path ni id interno de evidencia.
-- `CompactCompatibleShipmentCard` muestra una miniatura compacta de la foto inicial o un estado neutro discreto si no hay URL disponible.
+- `CompactCompatibleShipmentCard` muestra una miniatura compacta de la foto inicial o estado neutro discreto si no hay URL disponible.
 - No se tocaron RLS, Storage policies, Wompi, pagos, wallet, payouts, refunds, auto-release, migraciones ni `/app/market`.
 
 ## Validacion corrida
@@ -36,26 +39,24 @@ Implementar PR D: mostrar la foto inicial `customer_initial_photo` al viajero en
 - `npx tsc --noEmit`
 - `npm run test:unit`
 - `npm run build`
-- Smoke HTTP de `/app/market`: sigue protegido/redirigido por auth hacia `/app` como destino de retorno.
+- Smoke HTTP de `/app/market`
+- QA autenticado manual por Aldo: 8/8 PASS
+- Checks post-merge en `main`: `detect-impact` pass, `validate` pass
+- Vercel deployment automatico post-merge: completado
 
-## Pendiente para la proxima sesion
+## Decision / nota operativa
 
-- Validar en entorno con datos reales/autenticados:
-  - viajero con viaje abierto compatible ve la foto;
-  - usuario sin viaje compatible no recibe URL;
-  - owner no ve su propio envio como oportunidad;
-  - shipment sin payment-ready no aparece.
-- Validar visualmente `/app` autenticado en 1440x800 y 1366x650 antes de abrir PR.
+- PR #111 quedo validado por QA autenticado antes de merge por uso de `createAdminClient()` para firmar evidencia inicial.
+- La regla vigente se mantiene: la excepcion pre-match para ver evidencia inicial vive server-side con elegibilidad estricta y signed URLs; no requiere ampliar RLS ni Storage policies.
 
-## Riesgos detectados
+## Riesgos abiertos
 
-- Si `SUPABASE_SERVICE_ROLE_KEY` falta en el entorno runtime, la app cae de forma segura a estado sin miniatura firmada.
-- Las URLs firmadas viven 10 minutos; si la pagina queda abierta mas tiempo, la miniatura puede expirar hasta refrescar.
-- La validacion manual completa requiere sesion autenticada con datos compatibles.
+- Las signed URLs vencen a los 10 minutos; si el viajero deja `/app` abierto mucho tiempo, puede requerir refresh.
+- Realtime de evidencias sigue pendiente para frentes posteriores.
 
 ## Proximo paso recomendado
 
-Completar validacion manual autenticada y abrir PR si las pruebas visuales quedan correctas.
+PR E - integrar evidencias de recogida y entrega en match detail.
 
 ## Debe leer el proximo agente
 
@@ -66,3 +67,4 @@ Completar validacion manual autenticada y abrir PR si las pruebas visuales queda
 5. `docs/agent/DECISIONS.md`
 6. `docs/agent/KNOWN_ISSUES.md`
 7. `docs/agent/DB_NOTES.md`
+8. `docs/shipment-evidence-system.md`
