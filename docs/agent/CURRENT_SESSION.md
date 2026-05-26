@@ -6,26 +6,25 @@
 
 ## Objetivo de la sesion
 
-Documentar el diseno funcional/tecnico del sistema de evidencias de INTRA antes de tocar codigo, DB, Storage o RLS.
+Preparar PR B del sistema de evidencias: migracion minima y aditiva para ampliar `shipment_evidence.evidence_type` sin tocar UI, pagos, wallet, Wompi, RLS, Storage policies ni auto-release.
 
 ## Archivos tocados hoy
 
+- `supabase/migrations/202605252230_extend_shipment_evidence_types.sql`
 - `docs/agent/TASKS.md`
 - `docs/agent/CURRENT_SESSION.md`
 - `docs/agent/DB_NOTES.md`
-- `docs/shipment-evidence-system.md`
 
 ## Cambios realizados
 
-- Se creo `docs/shipment-evidence-system.md` con el diseno del sistema de evidencias.
-- Se dejo documentada la regla oficial: evidencia prueba, paquete sospechoso alerta, disputa decide.
-- Se documento que la evidencia inicial del cliente sera obligatoria.
-- Se documento que el viajero debe ver la foto inicial desde `/app` antes de solicitar match.
-- Se documento que la evidencia no libera pagos por si sola y no reemplaza confirmacion del cliente.
-- Se documento que paquete sospechoso es una alerta independiente que puede usar evidencias.
-- Se documento que disputa es un caso formal que puede usar evidencias, reporte sospechoso, chat, match, pago e historial.
-- Se actualizo `TASKS.md` con criterios mas precisos para `TASK-004`.
-- Se agrego nota en `DB_NOTES.md` sobre la migracion futura requerida para `customer_initial_photo`.
+- Se leyo la memoria operativa del repo y el diseno vigente de evidencias.
+- Se audito la constraint actual de `shipment_evidence.evidence_type`.
+- Se confirmo que la constraint esperada es `shipment_evidence_evidence_type_check`.
+- Se confirmo que la migracion original solo permite `pickup`, `delivery` y `package_state`.
+- Se creo migracion aditiva para permitir tambien `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo`.
+- Se mantuvo compatibilidad con los tipos legacy usados por `EvidenceUploader.tsx`.
+- Se actualizo `DB_NOTES.md` para registrar el alcance de PR B.
+- Se actualizo `TASKS.md` con nota de avance para `TASK-004`.
 
 ## Decisiones tomadas
 
@@ -38,12 +37,12 @@ Documentar el diseno funcional/tecnico del sistema de evidencias de INTRA antes 
 - `/app/market` no debe reconstruirse como pantalla independiente porque Market fue fusionado con `/app` como decision de producto.
 - El siguiente frente real recomendado es seguridad operativa del envio: paquete sospechoso, evidencias y disputa.
 - La evidencia inicial debe tener tipo semantico propio; no se recomienda guardarla como `package_state`.
+- PR B debe limitarse a preparar tipos de evidencia; no implementa evidencia inicial obligatoria ni cambia reglas de pagos.
 
 ## Pendiente para la proxima sesion
 
-- Crear PR funcional pequeno para migracion de tipos de evidencia.
-- Ampliar `shipment_evidence.evidence_type` antes de implementar `customer_initial_photo`.
-- Luego implementar evidencia inicial obligatoria en checkout sin tocar reglas de Wompi, wallet, payouts, refunds o auto-release.
+- Abrir PR B si la validacion local queda limpia.
+- Despues de mergear PR B, implementar evidencia inicial obligatoria en checkout sin tocar reglas de Wompi, wallet, payouts, refunds o auto-release.
 - Despues mostrar foto inicial en `/app` sin reconstruir `/app/market`.
 
 ## Riesgos detectados
@@ -59,6 +58,7 @@ Documentar el diseno funcional/tecnico del sistema de evidencias de INTRA antes 
 - Disputas y alertas pueden afectar pagos/wallet, por lo que no deben mezclarse con cambios visuales sin analisis.
 - El enum actual de `shipment_evidence.evidence_type` solo acepta `pickup`, `delivery` y `package_state`; usar `package_state` para evidencia inicial ensuciaria semantica.
 - El viajero antes del match no es participante del shipment; mostrar evidencia inicial en `/app` requiere signed URLs server-side o una decision explicita de RLS.
+- Si el nombre real de la constraint en una base remota fue modificado manualmente, la migracion podria no reemplazarla; la auditoria local espera `shipment_evidence_evidence_type_check`.
 
 ## Proximo paso recomendado
 
