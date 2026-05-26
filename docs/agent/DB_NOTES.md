@@ -48,7 +48,9 @@
 - Tipos legacy permitidos por constraint: `pickup`, `delivery`, `package_state`.
 - La evidencia inicial obligatoria del cliente requiere un tipo semantico propio como `customer_initial_photo`.
 - Para no ensuciar semantica, no se recomienda guardar evidencia inicial como `package_state`.
-- PR B prepara una migracion pequena y aditiva para ampliar `shipment_evidence.evidence_type` con `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo`, manteniendo compatibilidad con los tipos legacy.
+- PR #108 agrego una migracion pequena y aditiva para ampliar `shipment_evidence.evidence_type` con `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo`, manteniendo compatibilidad con los tipos legacy.
+- Migracion remota aplicada y verificada en Supabase real: `202605252230_extend_shipment_evidence_types.sql`.
+- Constraint remota verificada: `shipment_evidence_evidence_type_check`.
 - Si se muestra evidencia inicial al viajero antes del match desde `/app`, preferir signed URLs generadas server-side para viajeros con viaje compatible y envio payment-ready antes de ampliar RLS.
 
 ## Pagos y wallet
