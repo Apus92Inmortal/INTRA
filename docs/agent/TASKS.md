@@ -51,6 +51,7 @@ Criterios de aceptacion:
 - Cliente, viajero y admin pueden consultar evidencias segun permisos.
 - Se valida uso del bucket `shipment-evidence`, signed URLs o descarga segura segun corresponda.
 - PR B dejo aplicada y verificada la migracion aditiva para que `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo` sean tipos validos sin perder compatibilidad con `pickup`, `delivery` y `package_state`.
+- PR C implementa checkout-gate para exigir `customer_initial_photo` antes de abrir Wompi, sin tocar reglas de pago ni policies.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa

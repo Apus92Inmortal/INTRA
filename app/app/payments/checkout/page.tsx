@@ -8,6 +8,7 @@ type CheckoutPageProps = {
   searchParams?: Promise<{
     retryPaymentId?: string
     shipmentId?: string
+    evidenceRequired?: string
   }>
 }
 
@@ -23,6 +24,13 @@ function isRetryablePaymentStatus(status: string | null | undefined) {
 
   const normalized = status.trim().toLowerCase()
   return ["failed", "cancelled", "canceled", "rejected", "declined", "voided", "error"].includes(normalized)
+}
+
+function isReusablePaymentStatus(status: string | null | undefined) {
+  if (!status) return false
+
+  const normalized = status.trim().toLowerCase()
+  return normalized === "pending" || normalized === "processing"
 }
 
 type RetryShipmentRow = {
@@ -43,6 +51,20 @@ type RetryShipmentRow = {
 function toStringValue(value: number | string | null | undefined) {
   if (value === null || value === undefined) return ""
   return String(value)
+}
+
+async function hasCustomerInitialEvidence(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  shipmentId: string
+) {
+  const evidenceRes = await supabase
+    .from("shipment_evidence")
+    .select("id")
+    .eq("shipment_id", shipmentId)
+    .eq("evidence_type", "customer_initial_photo")
+    .limit(1)
+
+  return Boolean(evidenceRes.data?.[0]?.id)
 }
 
 async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheckoutData | null> {
@@ -71,8 +93,9 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
     : isRetryablePaymentStatus(gatewayStatus)
     ? gatewayStatus
     : null
+  const canReuseExistingPayment = isReusablePaymentStatus(paymentStatus)
 
-  if (!payment?.shipment_id || !retryStatus) {
+  if (!payment?.shipment_id || (!retryStatus && !canReuseExistingPayment)) {
     return null
   }
 
@@ -104,6 +127,8 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
     return null
   }
 
+  const hasInitialEvidence = await hasCustomerInitialEvidence(supabase, shipment.id)
+
   const routePriceRes = await supabase
     .from("route_prices")
     .select("route_category")
@@ -134,6 +159,8 @@ async function loadRetryCheckoutData(retryPaymentId: string): Promise<RetryCheck
     isUrgent: shipment.is_urgent === true,
     isHighValue: shipment.is_high_value === true,
     routeCategory,
+    hasInitialEvidence,
+    canReuseExistingPayment,
   }
 }
 
@@ -175,6 +202,8 @@ async function loadShipmentCheckoutData(shipmentId: string): Promise<RetryChecko
     return null
   }
 
+  const hasInitialEvidence = await hasCustomerInitialEvidence(supabase, shipment.id)
+
   const routePriceRes = await supabase
     .from("route_prices")
     .select("route_category")
@@ -205,6 +234,8 @@ async function loadShipmentCheckoutData(shipmentId: string): Promise<RetryChecko
     isUrgent: shipment.is_urgent === true,
     isHighValue: shipment.is_high_value === true,
     routeCategory,
+    hasInitialEvidence,
+    canReuseExistingPayment: false,
   }
 }
 
