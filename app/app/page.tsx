@@ -258,6 +258,31 @@ function CustomerRatingBadge({
   return <RatingSummaryBadge avgRating={avgRating} totalReviews={totalReviews} />;
 }
 
+function InitialPhotoPreview({ shipment }: { shipment: DashboardCompatibleShipmentCard }) {
+  return (
+    <div className="mt-3 flex items-center gap-3 rounded-2xl border border-intra-border-soft bg-intra-card px-3 py-2 shadow-sm">
+      {shipment.initialPhotoUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element -- signed evidence URLs should not pass through the image optimizer cache.
+        <img
+          src={shipment.initialPhotoUrl}
+          alt={shipment.initialPhotoAlt}
+          className="h-14 w-14 shrink-0 rounded-xl border border-intra-border-soft object-cover"
+        />
+      ) : (
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-dashed border-intra-border-soft bg-intra-neutral-soft-alt">
+          <PackageCheck className="h-5 w-5 text-intra-text-muted" />
+        </div>
+      )}
+      <div className="min-w-0">
+        <p className="intra-caption-strong text-intra-blue">Foto inicial del paquete</p>
+        <p className="line-clamp-1 intra-caption">
+          {shipment.initialPhotoUrl ? "Visible antes de solicitar match" : "No disponible por ahora"}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function CompactCompatibleShipmentCard({
   shipment,
 }: {
@@ -285,6 +310,7 @@ function CompactCompatibleShipmentCard({
               <span className="intra-body-strong">Descripción:</span> {shipment.description}
             </p>
           ) : null}
+          <InitialPhotoPreview shipment={shipment} />
           <div className="mt-3 lg:hidden">
             <CustomerRatingBadge
               avgRating={shipment.customerAvgRating}

@@ -59,6 +59,9 @@ export type DashboardCompatibleShipmentCard = {
   description: string | null;
   weightLabel: string;
   travelerEarningsLabel: string | null;
+  initialPhotoUrl: string | null;
+  initialPhotoAlt: string;
+  hasInitialPhoto: boolean;
   customerName: string;
   customerAvgRating: number | null;
   customerTotalReviews: number;

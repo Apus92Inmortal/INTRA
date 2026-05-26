@@ -141,6 +141,11 @@ type CompatibleShipmentRow = {
   destination_city: CityRelation;
 };
 
+type ShipmentInitialEvidenceRow = {
+  shipment_id: string;
+  file_path: string | null;
+};
+
 type RoutePriceRow = {
   id: string;
   origin_city_id: string;
@@ -148,6 +153,10 @@ type RoutePriceRow = {
   route_category: string;
   is_active: boolean;
 };
+
+const INITIAL_EVIDENCE_BUCKET = "shipment-evidence";
+const CUSTOMER_INITIAL_EVIDENCE_TYPE = "customer_initial_photo";
+const INITIAL_EVIDENCE_SIGNED_URL_TTL_SECONDS = 600;
 
 function normalizeCity(city: CityRelation): CityRow | null {
   if (!city) return null;
@@ -358,6 +367,53 @@ function normalizeShipmentRelation(
   return Array.isArray(value) ? (value[0] ?? null) : value;
 }
 
+async function getInitialEvidenceSignedUrlByShipmentId(shipmentIds: string[]) {
+  const signedUrlByShipmentId = new Map<string, string>();
+
+  if (shipmentIds.length === 0) {
+    return signedUrlByShipmentId;
+  }
+
+  try {
+    const adminSupabase = createAdminClient();
+    const { data, error } = await adminSupabase
+      .from("shipment_evidence")
+      .select("shipment_id, file_path")
+      .in("shipment_id", shipmentIds)
+      .eq("evidence_type", CUSTOMER_INITIAL_EVIDENCE_TYPE)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return signedUrlByShipmentId;
+    }
+
+    const evidenceByShipmentId = new Map<string, string>();
+    for (const evidence of ((data ?? []) as ShipmentInitialEvidenceRow[]).filter(Boolean)) {
+      if (!evidence.shipment_id || !evidence.file_path || evidenceByShipmentId.has(evidence.shipment_id)) {
+        continue;
+      }
+
+      evidenceByShipmentId.set(evidence.shipment_id, evidence.file_path);
+    }
+
+    await Promise.all(
+      Array.from(evidenceByShipmentId.entries()).map(async ([shipmentId, filePath]) => {
+        const { data: signedUrlData, error: signedUrlError } = await adminSupabase.storage
+          .from(INITIAL_EVIDENCE_BUCKET)
+          .createSignedUrl(filePath, INITIAL_EVIDENCE_SIGNED_URL_TTL_SECONDS);
+
+        if (!signedUrlError && signedUrlData?.signedUrl) {
+          signedUrlByShipmentId.set(shipmentId, signedUrlData.signedUrl);
+        }
+      })
+    );
+  } catch {
+    return signedUrlByShipmentId;
+  }
+
+  return signedUrlByShipmentId;
+}
+
 export async function getDashboardData(): Promise<DashboardData | null> {
   const supabase = await createClient();
 
@@ -436,6 +492,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
 
   const shipmentIds = shipments.map((shipment) => shipment.id);
   const tripIds = trips.map((trip) => trip.id);
+  const openMatchingTrips = trips.filter((trip) => trip.status === "open");
 
   const [shipmentMatchesRes, tripMatchesRes, paymentsRes, routePricesRes] = await Promise.all([
     shipmentIds.length
@@ -654,10 +711,10 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   );
 
   let compatibleShipmentRows: CompatibleShipmentRow[] = [];
-  if (trips.length > 0) {
+  if (openMatchingTrips.length > 0) {
     const validTripRoutes = Array.from(
       new Set(
-        trips
+        openMatchingTrips
           .map((trip) =>
             trip.origin_city_id && trip.destination_city_id
               ? `${trip.origin_city_id}:${trip.destination_city_id}`
@@ -767,11 +824,23 @@ export async function getDashboardData(): Promise<DashboardData | null> {
       })
   );
 
+  const initialEvidenceEligibleShipmentIds = compatibleShipmentRows
+    .filter((shipment) =>
+      openMatchingTrips.some(
+        (trip) =>
+          trip.origin_city_id === shipment.origin_city_id &&
+          trip.destination_city_id === shipment.destination_city_id
+      )
+    )
+    .map((shipment) => shipment.id);
+
+  const initialEvidenceSignedUrlByShipmentId =
+    await getInitialEvidenceSignedUrlByShipmentId(initialEvidenceEligibleShipmentIds);
+
   const compatibleShipments: DashboardCompatibleShipmentCard[] = compatibleShipmentRows
     .map((shipment) => {
-      const matchingTrip = trips.find(
+      const matchingTrip = openMatchingTrips.find(
         (trip) =>
-          trip.status === "open" &&
           trip.origin_city_id === shipment.origin_city_id &&
           trip.destination_city_id === shipment.destination_city_id
       );
@@ -780,6 +849,9 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         ? `${shipment.origin_city_id}:${shipment.destination_city_id}`
         : null;
       const travelerAmount = routePriceKey ? compatibleTravelerAmountByKey.get(routePriceKey) ?? null : null;
+      const initialPhotoUrl = matchingTrip
+        ? initialEvidenceSignedUrlByShipmentId.get(shipment.id) ?? null
+        : null;
 
       return {
         id: shipment.id,
@@ -788,6 +860,9 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         description: shipment.description?.trim() || null,
         weightLabel: shipment.weight_kg ? `${shipment.weight_kg} kg` : "Peso por confirmar",
         travelerEarningsLabel: travelerAmount ? formatCurrency(travelerAmount) : null,
+        initialPhotoUrl,
+        initialPhotoAlt: `Foto inicial del paquete ${getShipmentKindLabel(shipment.kind)}`,
+        hasInitialPhoto: Boolean(initialPhotoUrl),
         customerName: counterpartNameById.get(shipment.owner_id) ?? "Usuario INTRA",
         customerAvgRating: counterpartRatingSummaryMap[shipment.owner_id]?.avgRating ?? null,
         customerTotalReviews: counterpartRatingSummaryMap[shipment.owner_id]?.totalReviews ?? 0,
