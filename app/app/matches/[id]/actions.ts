@@ -10,6 +10,36 @@ type ReviewPaymentRow = {
   updated_at: string | null;
 };
 
+async function hasShipmentEvidence(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  shipmentId: string,
+  evidenceType: "pickup_photo" | "delivery_photo"
+) {
+  const { data, error } = await supabase
+    .from("shipment_evidence")
+    .select("id")
+    .eq("shipment_id", shipmentId)
+    .eq("evidence_type", evidenceType)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  if (!data) {
+    return {
+      success: false,
+      error:
+        evidenceType === "pickup_photo"
+          ? "Debes subir evidencia de recogida antes de marcar el paquete como recogido."
+          : "Debes subir evidencia de entrega antes de reportar la entrega.",
+    };
+  }
+
+  return { success: true };
+}
+
 export async function acceptMatchAction(matchId: string) {
   try {
     if (!matchId) {
@@ -144,6 +174,11 @@ export async function markInTransitAction(shipmentId: string) {
     }
 
     const supabase = await createClient();
+    const evidenceCheck = await hasShipmentEvidence(supabase, shipmentId, "pickup_photo");
+
+    if (!evidenceCheck.success) {
+      return { success: false, error: evidenceCheck.error };
+    }
 
     const { error } = await supabase.rpc("mark_shipment_in_transit", {
       p_shipment_id: shipmentId,
@@ -172,6 +207,11 @@ export async function markDeliveredAction(shipmentId: string) {
     }
 
     const supabase = await createClient();
+    const evidenceCheck = await hasShipmentEvidence(supabase, shipmentId, "delivery_photo");
+
+    if (!evidenceCheck.success) {
+      return { success: false, error: evidenceCheck.error };
+    }
 
     const { error } = await supabase.rpc("mark_shipment_delivered", {
       p_shipment_id: shipmentId,

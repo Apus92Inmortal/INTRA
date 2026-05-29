@@ -38,6 +38,8 @@ PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]
 - Las imagenes se muestran con signed URLs server-side de 600 segundos desde el bucket privado `shipment-evidence`.
 - El viajero ya no puede marcar recogida sin subir `pickup_photo`: el boton abre modal, exige foto y descripcion, guarda evidencia y luego cambia estado.
 - El viajero ya no puede reportar entrega sin subir `delivery_photo`: el boton abre modal, exige foto y descripcion, guarda evidencia y luego cambia estado.
+- Las server actions `markInTransitAction` y `markDeliveredAction` ahora validan evidencia obligatoria antes de llamar los RPCs de cambio de estado.
+- El CTA externo de entrega en `/app/matches` ya no ejecuta cambio de estado directo; redirige al detalle del match para completar evidencia en modal.
 - Se agrego modal para ver imagen grande desde miniaturas del match detail y desde la foto inicial visible en `/app`.
 - En estados `completed` / `delivered`, el panel queda en modo lectura para este PR.
 - `EvidenceUploader` quedo acotado a `pickup_photo` y `delivery_photo`, con validacion de imagen y limpieza best-effort si el upload pasa pero el insert falla.
@@ -53,6 +55,22 @@ PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]
 - `npm run test:unit`
 - `npm run build`
 - `npm run test:e2e`
+- GitHub check `detect-impact`
+- GitHub check `validate`
+- Vercel Preview deployment actualizado
+
+## Validacion pendiente tras bloqueo server-side de evidencias
+
+- `git diff --check`
+- `npm run lint`
+- `npx tsc --noEmit`
+- `npm run test:unit`
+- `npm run build`
+- `npm run test:e2e`
+
+## Validacion pendiente tras ultimo ajuste
+
+- Push al PR #112
 - GitHub check `detect-impact`
 - GitHub check `validate`
 - Vercel Preview deployment actualizado

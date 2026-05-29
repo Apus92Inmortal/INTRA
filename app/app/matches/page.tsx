@@ -9,7 +9,7 @@ import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import MatchActions from "./MatchActions";
 import MatchesRealtime from "./MatchesRealtime";
 import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
-import { cancelMatchAction, confirmDeliveryAction, markDeliveredAction } from "./[id]/actions";
+import { cancelMatchAction, confirmDeliveryAction } from "./[id]/actions";
 import { fetchRatingSummaryMap } from "@/lib/reviews";
 
 type CityRow = {
@@ -707,22 +707,12 @@ export default async function MatchesPage() {
                                   payment?.status === "held" &&
                                   payment?.dispute_status !== "open" &&
                                   !payment?.traveler_delivered_at && (
-                                    <form
-                                      action={async () => {
-                                        "use server";
-                                        await markDeliveredAction(shipment.id);
-                                        revalidatePath("/app/matches");
-                                        revalidatePath(`/app/matches/${match.id}`);
-                                        revalidatePath("/app");
-                                      }}
+                                    <Link
+                                      href={`/app/matches/${match.id}`}
+                                      className="intra-btn intra-btn-primary min-h-11 w-full px-4 py-3"
                                     >
-                                      <button
-                                        type="submit"
-                                        className="intra-btn intra-btn-primary min-h-11 w-full px-4 py-3"
-                                      >
-                                        Paquete entregado
-                                      </button>
-                                    </form>
+                                      Reportar entrega
+                                    </Link>
                                   )}
 
                                 {shipment?.status === "in_transit" &&
