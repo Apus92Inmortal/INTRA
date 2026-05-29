@@ -1,0 +1,72 @@
+"use client";
+
+import type { ReactNode } from "react";
+import { useState } from "react";
+import { X, ZoomIn } from "lucide-react";
+
+type EvidenceImagePreviewProps = {
+  src: string | null;
+  alt: string;
+  children: ReactNode;
+  modalTitle?: string;
+};
+
+export function EvidenceImagePreview({
+  src,
+  alt,
+  children,
+  modalTitle = "Evidencia del envío",
+}: EvidenceImagePreviewProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (!src) {
+    return <>{children}</>;
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="group relative block text-left"
+        aria-label={`Abrir ${alt}`}
+      >
+        {children}
+        <span className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-intra-blue/90 text-intra-card opacity-0 shadow-sm transition group-hover:opacity-100 group-focus-visible:opacity-100">
+          <ZoomIn className="h-4 w-4" strokeWidth={2} />
+        </span>
+      </button>
+
+      {isOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-intra-blue/80 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={modalTitle}
+        >
+          <div className="relative flex max-h-[92vh] w-full max-w-5xl flex-col rounded-2xl border border-intra-border bg-intra-card shadow-2xl">
+            <div className="flex items-center justify-between gap-3 border-b border-intra-border px-4 py-3">
+              <p className="min-w-0 text-sm font-semibold text-intra-blue">{modalTitle}</p>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-intra-border bg-intra-card text-intra-blue transition hover:bg-intra-neutral-soft-alt"
+                aria-label="Cerrar imagen"
+              >
+                <X className="h-5 w-5" strokeWidth={2.2} />
+              </button>
+            </div>
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-intra-neutral-soft-alt p-3 sm:p-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt={alt}
+                className="max-h-[78vh] max-w-full rounded-xl object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}

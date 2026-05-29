@@ -23,7 +23,7 @@ import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 import { fetchRatingSummaryMap, getReviewWindowState } from "@/lib/reviews";
 import SuspiciousReportForm from "./SuspiciousReportForm";
 import ReviewComposer from "./ReviewComposer";
-import { CheckCircle2, MessageCircle, PackageCheck, Route, ShieldAlert, Truck } from "lucide-react";
+import { CheckCircle2, MessageCircle, PackageCheck, Route, ShieldAlert } from "lucide-react";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -293,7 +293,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
       }
 
       shipmentEvidenceByType.set(row.evidence_type, {
-        id: row.id,
         evidenceType: row.evidence_type,
         signedUrl: null,
         note: row.note,
@@ -391,19 +390,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
     payment?.status === "held" &&
     payment?.dispute_status !== "open";
 
-  const hasOpenDispute = payment?.dispute_status === "open";
   const canUploadPickupEvidence =
-    isTraveler &&
-    match.status === "accepted" &&
-    (shipment?.status === "matched" || shipment?.status === "in_transit") &&
-    !hasOpenDispute &&
+    canMarkInTransit &&
     !shipmentEvidenceByType.has("pickup_photo");
   const canUploadDeliveryEvidence =
-    isTraveler &&
-    match.status === "accepted" &&
-    shipment?.status === "in_transit" &&
-    payment?.status === "held" &&
-    !hasOpenDispute &&
+    canMarkDelivered &&
     !shipmentEvidenceByType.has("delivery_photo");
 
   const markInTransitSubmitAction =
@@ -549,7 +540,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     )}
                   </section>
 
-                  {shipment?.id ? (
+                  {shipment?.id && markInTransitSubmitAction && markDeliveredSubmitAction ? (
                     <ShipmentEvidencePanel
                       shipmentId={shipment.id}
                       matchId={match.id}
@@ -559,6 +550,8 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       deliveryEvidence={shipmentEvidenceByType.get("delivery_photo") ?? null}
                       canUploadPickup={canUploadPickupEvidence}
                       canUploadDelivery={canUploadDeliveryEvidence}
+                      pickupAction={markInTransitSubmitAction}
+                      deliveryAction={markDeliveredSubmitAction}
                     />
                   ) : null}
 
@@ -577,30 +570,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       <h2 className="intra-h3">Acciones del match</h2>
 
                       <div className="mt-5 space-y-3">
-                        {canMarkInTransit && markInTransitSubmitAction ? (
-                          <form action={markInTransitSubmitAction}>
-                            <button
-                              type="submit"
-                              className={primaryActionButtonClass}
-                            >
-                              <PackageCheck className="intra-icon-body" strokeWidth={2.1} />
-                              Confirmar recogida
-                            </button>
-                          </form>
-                        ) : null}
-
-                        {canMarkDelivered && markDeliveredSubmitAction ? (
-                          <form action={markDeliveredSubmitAction}>
-                            <button
-                              type="submit"
-                              className={primaryActionButtonClass}
-                            >
-                              <Truck className="intra-icon-body" strokeWidth={2.1} />
-                              Confirmar entrega
-                            </button>
-                          </form>
-                        ) : null}
-
                         {canConfirmDelivery && confirmDeliverySubmitAction ? (
                           <form action={confirmDeliverySubmitAction}>
                             <button

@@ -13,28 +13,32 @@ PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]
 - Rama local: `feat/match-detail-operational-evidence`
 - Estado: PR abierto contra `main`, pendiente de QA autenticado/visual antes de merge
 - PR: #112 - https://github.com/Apus92Inmortal/INTRA/pull/112
-- Preview Vercel: https://intra-nntolgso0-aldo-antonio-altamar-cervantes-projects.vercel.app
+- Preview Vercel: pendiente de nuevo deploy tras ajustes QA
 - Main: no tocado
 - Produccion: no tocada
 
 ## Archivos tocados
 
 - `app/app/matches/[id]/page.tsx`
+- `app/app/page.tsx`
 - `app/app/matches/[id]/EvidenceUploader.tsx`
 - `app/app/matches/[id]/ShipmentEvidencePanel.tsx`
+- `components/evidence-image-preview.tsx`
 - `docs/agent/TASKS.md`
 - `docs/agent/CURRENT_SESSION.md`
 
 ## Cambios realizados
 
 - Se agrego panel compacto `Evidencias del envio` en el detalle del match.
-- El panel muestra la ultima evidencia por tipo para:
-  - `customer_initial_photo`
-  - `pickup_photo`
-  - `delivery_photo`
+- El panel ahora muestra una sola evidencia principal progresiva:
+  - `customer_initial_photo` antes de recogida.
+  - `pickup_photo` despues de recoger.
+  - `delivery_photo` despues de entregar.
+- Las evidencias anteriores quedan en historial compacto para no competir visualmente.
 - Las imagenes se muestran con signed URLs server-side de 600 segundos desde el bucket privado `shipment-evidence`.
-- El viajero puede subir `pickup_photo` cuando el match esta `accepted`, el shipment esta `matched` o `in_transit`, y no hay disputa abierta.
-- El viajero puede subir `delivery_photo` cuando el match esta `accepted`, el shipment esta `in_transit`, el payment esta `held`, y no hay disputa abierta.
+- El viajero ya no puede marcar recogida sin subir `pickup_photo`: el boton abre modal, exige foto y descripcion, guarda evidencia y luego cambia estado.
+- El viajero ya no puede reportar entrega sin subir `delivery_photo`: el boton abre modal, exige foto y descripcion, guarda evidencia y luego cambia estado.
+- Se agrego modal para ver imagen grande desde miniaturas del match detail y desde la foto inicial visible en `/app`.
 - En estados `completed` / `delivered`, el panel queda en modo lectura para este PR.
 - `EvidenceUploader` quedo acotado a `pickup_photo` y `delivery_photo`, con validacion de imagen y limpieza best-effort si el upload pasa pero el insert falla.
 - No se implemento realtime de evidencias.
@@ -49,9 +53,13 @@ PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]
 - `npm run test:unit`
 - `npm run build`
 - `npm run test:e2e`
+
+## Validacion pendiente tras ajustes QA
+
+- Push al PR #112
 - GitHub check `detect-impact`
 - GitHub check `validate`
-- Vercel Preview deployment
+- Vercel Preview deployment actualizado
 
 ## Validacion pendiente
 

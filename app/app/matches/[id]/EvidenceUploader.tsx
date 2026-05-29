@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { compressImageFile } from "@/lib/uploads";
 
@@ -12,7 +13,9 @@ type EvidenceUploaderProps = {
   evidenceType: "pickup_photo" | "delivery_photo";
   title: string;
   description: string;
+  triggerLabel: string;
   submitLabel: string;
+  completeAction: () => Promise<void>;
 };
 
 const EVIDENCE_BUCKET = "shipment-evidence";
@@ -29,17 +32,30 @@ export default function EvidenceUploader({
   evidenceType,
   title,
   description,
+  triggerLabel,
   submitLabel,
+  completeAction,
 }: EvidenceUploaderProps) {
   const router = useRouter();
   const supabase = createClient();
 
+  const [isOpen, setIsOpen] = useState(false);
   const [note, setNote] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
   const inputId = useMemo(() => `${evidenceType}-${matchId}`, [evidenceType, matchId]);
+
+  const closeModal = () => {
+    if (loading) {
+      return;
+    }
+
+    setIsOpen(false);
+    setMessage(null);
+    setMessageType(null);
+  };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -80,6 +96,13 @@ export default function EvidenceUploader({
       return;
     }
 
+    if (note.trim().length < 4) {
+      setLoading(false);
+      setMessage("Agrega una descripción corta de la evidencia.");
+      setMessageType("error");
+      return;
+    }
+
     let path: string | null = null;
 
     try {
@@ -102,7 +125,7 @@ export default function EvidenceUploader({
         file_path: path,
         file_name: compressedFile.name,
         mime_type: compressedFile.type || null,
-        note: note.trim() || null,
+        note: note.trim(),
       });
 
       if (error) {
@@ -112,10 +135,13 @@ export default function EvidenceUploader({
         throw new Error(error.message);
       }
 
+      await completeAction();
+
       setMessage("Evidencia de soporte cargada correctamente.");
       setMessageType("success");
       setFile(null);
       setNote("");
+      setIsOpen(false);
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "No se pudo cargar la evidencia.");
@@ -126,57 +152,88 @@ export default function EvidenceUploader({
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3 rounded-2xl border border-intra-border bg-intra-card p-4">
-      <div>
-        <h3 className="text-sm font-semibold text-intra-blue">{title}</h3>
-        <p className="mt-1 text-xs text-intra-text-muted">
-          {description}
-        </p>
-      </div>
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="intra-btn intra-btn-primary min-h-11 w-full px-5 py-3 text-sm"
+      >
+        {triggerLabel}
+      </button>
 
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <label className="block text-sm font-medium text-intra-text-muted">
-          Imagen
-          <input
-            id={inputId}
-            type="file"
-            accept="image/*"
-            className="mt-2 block w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          />
-        </label>
-      </div>
-
-      <label className="block text-sm font-medium text-intra-text-muted">
-        Nota opcional
-        <textarea
-          value={note}
-          onChange={(event) => setNote(event.target.value)}
-          rows={3}
-          className="mt-2 w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
-          placeholder="Ej. paquete recibido sin novedad, sellado, entregado a las 5:20 pm..."
-        />
-      </label>
-
-      {message ? (
+      {isOpen ? (
         <div
-          className={`rounded-2xl border px-4 py-3 text-xs ${
-            messageType === "success"
-              ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
-              : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-          }`}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-intra-blue/75 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
         >
-          {message}
+          <form
+            onSubmit={onSubmit}
+            className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-2xl border border-intra-border bg-intra-card shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-intra-border px-5 py-4">
+              <div className="min-w-0">
+                <h3 className="text-base font-semibold text-intra-blue">{title}</h3>
+                <p className="mt-1 text-xs leading-5 text-intra-text-muted">{description}</p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={loading}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-intra-border bg-intra-card text-intra-blue transition hover:bg-intra-neutral-soft-alt disabled:cursor-not-allowed disabled:opacity-60"
+                aria-label="Cerrar"
+              >
+                <X className="h-5 w-5" strokeWidth={2.2} />
+              </button>
+            </div>
+
+            <div className="space-y-4 px-5 py-5">
+              <label className="block text-sm font-medium text-intra-text-muted">
+                Foto obligatoria
+                <input
+                  id={inputId}
+                  type="file"
+                  accept="image/*"
+                  className="mt-2 block w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                />
+              </label>
+
+              <label className="block text-sm font-medium text-intra-text-muted">
+                Descripción
+                <textarea
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  rows={4}
+                  className="mt-2 w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  placeholder="Ej. paquete recibido sin novedad, sellado, entregado a las 5:20 pm..."
+                />
+              </label>
+
+              {message ? (
+                <div
+                  className={`rounded-2xl border px-4 py-3 text-xs ${
+                    messageType === "success"
+                      ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                      : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+                  }`}
+                >
+                  {message}
+                </div>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="intra-btn intra-btn-primary min-h-11 w-full px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? "Guardando evidencia..." : submitLabel}
+              </button>
+            </div>
+          </form>
         </div>
       ) : null}
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="intra-btn min-h-11 bg-intra-blue px-5 py-3 text-sm text-intra-card hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {loading ? "Subiendo evidencia..." : submitLabel}
-      </button>
-    </form>
+    </>
   );
 }

@@ -53,7 +53,7 @@ Criterios de aceptacion:
 - PR B dejo aplicada y verificada la migracion aditiva para que `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo` sean tipos validos sin perder compatibilidad con `pickup`, `delivery` y `package_state`.
 - PR C implementa checkout-gate para exigir `customer_initial_photo` antes de abrir Wompi, sin tocar reglas de pago ni policies.
 - PR D quedo mergeado a `main`: muestra miniatura firmada de `customer_initial_photo` en oportunidades compatibles de `/app`, con QA autenticado 8/8 PASS y sin tocar RLS, Storage policies ni pagos.
-- PR E en rama local `feat/match-detail-operational-evidence`: integra panel de evidencias en `/app/matches/[id]`, muestra `customer_initial_photo`, permite al viajero subir `pickup_photo` y `delivery_photo` donde aplica, y no toca pagos, RLS, Storage policies ni migraciones.
+- PR E en rama `feat/match-detail-operational-evidence` y PR #112: integra panel progresivo de evidencias en `/app/matches/[id]`, muestra `customer_initial_photo`, exige `pickup_photo` para marcar recogida, exige `delivery_photo` para reportar entrega, agrega visor grande de miniaturas, y no toca pagos, RLS, Storage policies ni migraciones.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa

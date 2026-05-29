@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Briefcase, Calendar, CircleDollarSign, Clock3, PackageCheck, Route, ShieldCheck } from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
+import { EvidenceImagePreview } from "@/components/evidence-image-preview";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import WelcomeModal from "@/components/WelcomeModal";
@@ -262,12 +263,18 @@ function InitialPhotoPreview({ shipment }: { shipment: DashboardCompatibleShipme
   return (
     <div className="mt-3 flex items-center gap-3 rounded-2xl border border-intra-border-soft bg-intra-card px-3 py-2 shadow-sm">
       {shipment.initialPhotoUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element -- signed evidence URLs should not pass through the image optimizer cache.
-        <img
+        <EvidenceImagePreview
           src={shipment.initialPhotoUrl}
           alt={shipment.initialPhotoAlt}
-          className="h-14 w-14 shrink-0 rounded-xl border border-intra-border-soft object-cover"
-        />
+          modalTitle="Foto inicial del paquete"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element -- signed evidence URLs should not pass through the image optimizer cache. */}
+          <img
+            src={shipment.initialPhotoUrl}
+            alt={shipment.initialPhotoAlt}
+            className="h-14 w-14 shrink-0 rounded-xl border border-intra-border-soft object-cover"
+          />
+        </EvidenceImagePreview>
       ) : (
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-dashed border-intra-border-soft bg-intra-neutral-soft-alt">
           <PackageCheck className="h-5 w-5 text-intra-text-muted" />
