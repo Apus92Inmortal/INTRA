@@ -11,8 +11,9 @@ PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]
 ## Estado actual
 
 - Rama local: `feat/match-detail-operational-evidence`
-- Estado: implementado localmente, pendiente de validacion completa y aprobacion para abrir PR
-- PR: no creado todavia
+- Estado: PR abierto contra `main`, pendiente de QA autenticado/visual antes de merge
+- PR: #112 - https://github.com/Apus92Inmortal/INTRA/pull/112
+- Preview Vercel: https://intra-nntolgso0-aldo-antonio-altamar-cervantes-projects.vercel.app
 - Main: no tocado
 - Produccion: no tocada
 
@@ -48,6 +49,9 @@ PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]
 - `npm run test:unit`
 - `npm run build`
 - `npm run test:e2e`
+- GitHub check `detect-impact`
+- GitHub check `validate`
+- Vercel Preview deployment
 
 ## Validacion pendiente
 
