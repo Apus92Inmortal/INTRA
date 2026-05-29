@@ -2,35 +2,43 @@
 
 ## Fecha
 
-2026-05-26
+2026-05-29
 
 ## Objetivo de la sesion
 
-Cerrar PR D: mostrar la foto inicial `customer_initial_photo` al viajero en oportunidades compatibles dentro de `/app`.
+PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]`.
 
-## Estado final
+## Estado actual
 
-- PR: #111
-- Merge commit: `a14a641`
-- Estado: mergeado a `main`
-- Produccion: deploy automatico completado por Vercel
+- Rama local: `feat/match-detail-operational-evidence`
+- Estado: implementado localmente, pendiente de validacion completa y aprobacion para abrir PR
+- PR: no creado todavia
+- Main: no tocado
+- Produccion: no tocada
 
-## Archivos tocados en PR D
+## Archivos tocados
 
-- `app/app/_lib/dashboard-queries.ts`
-- `app/app/_lib/dashboard-types.ts`
-- `app/app/page.tsx`
+- `app/app/matches/[id]/page.tsx`
+- `app/app/matches/[id]/EvidenceUploader.tsx`
+- `app/app/matches/[id]/ShipmentEvidencePanel.tsx`
 - `docs/agent/TASKS.md`
 - `docs/agent/CURRENT_SESSION.md`
 
 ## Cambios realizados
 
-- Las oportunidades compatibles de `/app` ahora se calculan con viajes abiertos del usuario para alinear elegibilidad visual y accion de solicitar match.
-- Se agrego carga server-side de la evidencia `customer_initial_photo` solo para shipments elegibles: usuario autenticado, envio `open`, payment-ready, usuario no owner y viaje abierto compatible.
-- Se generan signed URLs de 600 segundos para el bucket privado `shipment-evidence`.
-- La card de oportunidades recibe solo URL firmada y alt text; no recibe `file_path`, bucket path ni id interno de evidencia.
-- `CompactCompatibleShipmentCard` muestra una miniatura compacta de la foto inicial o estado neutro discreto si no hay URL disponible.
-- No se tocaron RLS, Storage policies, Wompi, pagos, wallet, payouts, refunds, auto-release, migraciones ni `/app/market`.
+- Se agrego panel compacto `Evidencias del envio` en el detalle del match.
+- El panel muestra la ultima evidencia por tipo para:
+  - `customer_initial_photo`
+  - `pickup_photo`
+  - `delivery_photo`
+- Las imagenes se muestran con signed URLs server-side de 600 segundos desde el bucket privado `shipment-evidence`.
+- El viajero puede subir `pickup_photo` cuando el match esta `accepted`, el shipment esta `matched` o `in_transit`, y no hay disputa abierta.
+- El viajero puede subir `delivery_photo` cuando el match esta `accepted`, el shipment esta `in_transit`, el payment esta `held`, y no hay disputa abierta.
+- En estados `completed` / `delivered`, el panel queda en modo lectura para este PR.
+- `EvidenceUploader` quedo acotado a `pickup_photo` y `delivery_photo`, con validacion de imagen y limpieza best-effort si el upload pasa pero el insert falla.
+- No se implemento realtime de evidencias.
+- No se implemento paquete sospechoso adicional.
+- No se implemento expediente admin.
 
 ## Validacion corrida
 
@@ -39,24 +47,36 @@ Cerrar PR D: mostrar la foto inicial `customer_initial_photo` al viajero en opor
 - `npx tsc --noEmit`
 - `npm run test:unit`
 - `npm run build`
-- Smoke HTTP de `/app/market`
-- QA autenticado manual por Aldo: 8/8 PASS
-- Checks post-merge en `main`: `detect-impact` pass, `validate` pass
-- Vercel deployment automatico post-merge: completado
+- `npm run test:e2e`
 
-## Decision / nota operativa
+## Validacion pendiente
 
-- PR #111 quedo validado por QA autenticado antes de merge por uso de `createAdminClient()` para firmar evidencia inicial.
-- La regla vigente se mantiene: la excepcion pre-match para ver evidencia inicial vive server-side con elegibilidad estricta y signed URLs; no requiere ampliar RLS ni Storage policies.
+- Smoke manual autenticado `/app/matches/[id]` como cliente y viajero: bloqueado en runtime local por falta de sesiones autenticadas/datos de prueba aprobados.
+- Validacion visual autenticada 1440x800 y 1366x650: bloqueada por la misma razon.
+
+## No tocado
+
+- Wompi
+- Checkout
+- Wallet
+- Payouts
+- Refunds
+- Auto-release
+- Supabase migrations
+- RLS
+- Storage policies
+- Admin disputes
+- Realtime
 
 ## Riesgos abiertos
 
-- Las signed URLs vencen a los 10 minutos; si el viajero deja `/app` abierto mucho tiempo, puede requerir refresh.
-- Realtime de evidencias sigue pendiente para frentes posteriores.
+- La restriccion de viajero para upload queda aplicada en UI/client y por rol contextual del match detail. Las policies existentes de Storage/DB siguen siendo de participante del shipment porque PR E no toca RLS ni Storage policies.
+- Las signed URLs vencen a los 10 minutos; si el usuario deja la pagina abierta mucho tiempo, puede requerir refresh.
+- La otra parte puede no ver evidencia nueva en vivo hasta refrescar porque realtime de `shipment_evidence` queda fuera de PR E.
 
 ## Proximo paso recomendado
 
-PR E - integrar evidencias de recogida y entrega en match detail.
+Completar validaciones, hacer commit local y reportar estado pre-PR para aprobacion de push/PR.
 
 ## Debe leer el proximo agente
 

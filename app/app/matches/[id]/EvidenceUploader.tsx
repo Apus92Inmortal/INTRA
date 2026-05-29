@@ -8,39 +8,38 @@ import { compressImageFile } from "@/lib/uploads";
 type EvidenceUploaderProps = {
   shipmentId: string;
   matchId: string;
-  allowedTypes: string[];
+  expectedUploaderId: string;
+  evidenceType: "pickup_photo" | "delivery_photo";
+  title: string;
+  description: string;
+  submitLabel: string;
 };
 
 const EVIDENCE_BUCKET = "shipment-evidence";
-
-function getTypeOptions(allowedTypes: string[]) {
-  return allowedTypes.map((type) => ({
-    value: type,
-    label:
-      type === "pickup"
-        ? "Recogida"
-        : type === "delivery"
-          ? "Entrega"
-          : "Estado del paquete",
-  }));
-}
 
 function getFileExtension(file: File) {
   const parts = file.name.split(".");
   return parts.length > 1 ? parts.pop()?.toLowerCase() ?? "bin" : "bin";
 }
 
-export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: EvidenceUploaderProps) {
+export default function EvidenceUploader({
+  shipmentId,
+  matchId,
+  expectedUploaderId,
+  evidenceType,
+  title,
+  description,
+  submitLabel,
+}: EvidenceUploaderProps) {
   const router = useRouter();
   const supabase = createClient();
-  const options = useMemo(() => getTypeOptions(allowedTypes), [allowedTypes]);
 
-  const [selectedType, setSelectedType] = useState(options[0]?.value ?? "pickup");
   const [note, setNote] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
+  const inputId = useMemo(() => `${evidenceType}-${matchId}`, [evidenceType, matchId]);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -60,6 +59,13 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
       return;
     }
 
+    if (user.id !== expectedUploaderId) {
+      setLoading(false);
+      setMessage("Solo el viajero asignado puede subir esta evidencia.");
+      setMessageType("error");
+      return;
+    }
+
     if (!file) {
       setLoading(false);
       setMessage("Selecciona una imagen antes de continuar.");
@@ -67,9 +73,18 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
       return;
     }
 
+    if (!file.type.startsWith("image/")) {
+      setLoading(false);
+      setMessage("La evidencia debe ser una imagen.");
+      setMessageType("error");
+      return;
+    }
+
+    let path: string | null = null;
+
     try {
       const compressedFile = await compressImageFile(file);
-      const path = `${user.id}/${shipmentId}/${Date.now()}-${selectedType}.${getFileExtension(compressedFile)}`;
+      path = `${user.id}/${shipmentId}/${Date.now()}-${evidenceType}.${getFileExtension(compressedFile)}`;
       const upload = await supabase.storage.from(EVIDENCE_BUCKET).upload(path, compressedFile, {
         upsert: false,
         contentType: compressedFile.type || undefined,
@@ -83,7 +98,7 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
         shipment_id: shipmentId,
         match_id: matchId,
         uploaded_by: user.id,
-        evidence_type: selectedType,
+        evidence_type: evidenceType,
         file_path: path,
         file_name: compressedFile.name,
         mime_type: compressedFile.type || null,
@@ -91,10 +106,13 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
       });
 
       if (error) {
+        if (path) {
+          await supabase.storage.from(EVIDENCE_BUCKET).remove([path]);
+        }
         throw new Error(error.message);
       }
 
-      setMessage("Evidencia cargada correctamente.");
+      setMessage("Evidencia de soporte cargada correctamente.");
       setMessageType("success");
       setFile(null);
       setNote("");
@@ -107,38 +125,20 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
     }
   };
 
-  if (options.length === 0) {
-    return null;
-  }
-
   return (
-    <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-intra-border bg-intra-card p-4 shadow-sm">
+    <form onSubmit={onSubmit} className="space-y-3 rounded-2xl border border-intra-border bg-intra-card p-4">
       <div>
-        <h3 className="text-sm font-semibold text-intra-blue">Subir evidencia</h3>
+        <h3 className="text-sm font-semibold text-intra-blue">{title}</h3>
         <p className="mt-1 text-xs text-intra-text-muted">
-          Sube una foto para dejar trazabilidad de recogida, estado o entrega. Si pesa más de 2MB la comprimimos antes de subirla.
+          {description}
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm font-medium text-intra-text-muted">
-          Tipo de evidencia
-          <select
-            value={selectedType}
-            onChange={(event) => setSelectedType(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
-          >
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <label className="block text-sm font-medium text-intra-text-muted">
           Imagen
           <input
+            id={inputId}
             type="file"
             accept="image/*"
             className="mt-2 block w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
@@ -160,7 +160,7 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
 
       {message ? (
         <div
-          className={`rounded-2xl border px-4 py-3 text-sm ${
+          className={`rounded-2xl border px-4 py-3 text-xs ${
             messageType === "success"
               ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
               : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
@@ -175,7 +175,7 @@ export default function EvidenceUploader({ shipmentId, matchId, allowedTypes }: 
         disabled={loading}
         className="intra-btn min-h-11 bg-intra-blue px-5 py-3 text-sm text-intra-card hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Subiendo evidencia..." : "Guardar evidencia"}
+        {loading ? "Subiendo evidencia..." : submitLabel}
       </button>
     </form>
   );
