@@ -2,107 +2,80 @@
 
 ## Fecha
 
-2026-05-29
+2026-05-31
 
 ## Objetivo de la sesion
 
-PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]`.
+Cerrar PR E: integrar evidencias operativas de recogida y entrega en `/app/matches/[id]`, mergear PR #112 a `main`, verificar checks/deploy y dejar memoria actualizada.
 
 ## Estado actual
 
-- Rama local: `feat/match-detail-operational-evidence`
-- Estado: PR abierto contra `main`, pendiente de QA autenticado/visual antes de merge
-- PR: #112 - https://github.com/Apus92Inmortal/INTRA/pull/112
-- Preview Vercel: https://intra-j17yvdpxs-aldo-antonio-altamar-cervantes-projects.vercel.app
-- Main: no tocado
-- Produccion: no tocada
+- PR #112: mergeado a `main`.
+- Merge commit: `bc23e3a` - `Merge pull request #112 from Apus92Inmortal/feat/match-detail-operational-evidence`.
+- `main`: sincronizado con `origin/main` al momento del merge.
+- Produccion: deploy automatico completado desde Vercel para `bc23e3a`.
+- Deployment production registrado: `4880291837`.
+- URL deployment production: `https://intra-2ugi4nin4-aldo-antonio-altamar-cervantes-projects.vercel.app`.
+- QA final de Aldo: PASS.
 
-## Archivos tocados
+## Archivos tocados por PR E
 
 - `app/app/matches/[id]/page.tsx`
+- `app/app/matches/page.tsx`
 - `app/app/page.tsx`
+- `app/app/matches/[id]/actions.ts`
 - `app/app/matches/[id]/EvidenceUploader.tsx`
 - `app/app/matches/[id]/ShipmentEvidencePanel.tsx`
 - `components/evidence-image-preview.tsx`
 - `docs/agent/TASKS.md`
 - `docs/agent/CURRENT_SESSION.md`
 
-## Cambios realizados
+## Cambios entregados
 
 - Se agrego panel compacto `Evidencias del envio` en el detalle del match.
-- El panel ahora muestra una sola evidencia principal progresiva:
+- El panel muestra evidencia principal progresiva:
   - `customer_initial_photo` antes de recogida.
   - `pickup_photo` despues de recoger.
   - `delivery_photo` despues de entregar.
-- Las evidencias anteriores quedan en historial compacto para no competir visualmente.
-- Las imagenes se muestran con signed URLs server-side de 600 segundos desde el bucket privado `shipment-evidence`.
-- El viajero ya no puede marcar recogida sin subir `pickup_photo`: el boton abre modal, exige foto y descripcion, guarda evidencia y luego cambia estado.
-- El viajero ya no puede reportar entrega sin subir `delivery_photo`: el boton abre modal, exige foto y descripcion, guarda evidencia y luego cambia estado.
-- Las server actions `markInTransitAction` y `markDeliveredAction` ahora validan evidencia obligatoria antes de llamar los RPCs de cambio de estado.
-- El CTA externo de entrega en `/app/matches` ya no ejecuta cambio de estado directo; redirige al detalle del match para completar evidencia en modal.
-- Se agrego modal para ver imagen grande desde miniaturas del match detail y desde la foto inicial visible en `/app`.
-- En estados `completed` / `delivered`, el panel queda en modo lectura para este PR.
-- `EvidenceUploader` quedo acotado a `pickup_photo` y `delivery_photo`, con validacion de imagen y limpieza best-effort si el upload pasa pero el insert falla.
-- No se implemento realtime de evidencias.
-- No se implemento paquete sospechoso adicional.
-- No se implemento expediente admin.
+- El viajero ya no puede marcar recogida sin subir `pickup_photo` con descripcion.
+- El viajero ya no puede reportar entrega sin subir `delivery_photo` con descripcion.
+- Las server actions bloquean `markInTransitAction` y `markDeliveredAction` si falta la evidencia obligatoria.
+- El CTA externo de `/app/matches` ya no cambia estado directo; redirige al detalle para completar evidencia.
+- Se agrego visor grande para miniaturas.
+- Cliente y viajero ven evidencias segun el estado progresivo del match.
+- La evidencia no libera pago, no confirma recepcion del cliente y no toca wallet.
 
-## Validacion corrida
+## Validacion
 
-- `git diff --check`
-- `npm run lint`
-- `npx tsc --noEmit`
-- `npm run test:unit`
-- `npm run build`
-- `npm run test:e2e`
-- GitHub check `detect-impact`
-- GitHub check `validate`
-- Vercel Preview deployment actualizado
-
-## Validacion pendiente tras bloqueo server-side de evidencias
-
-- `git diff --check`
-- `npm run lint`
-- `npx tsc --noEmit`
-- `npm run test:unit`
-- `npm run build`
-- `npm run test:e2e`
-
-## Validacion pendiente tras ultimo ajuste
-
-- Push al PR #112
-- GitHub check `detect-impact`
-- GitHub check `validate`
-- Vercel Preview deployment actualizado
-
-## Validacion pendiente
-
-- Smoke manual autenticado `/app/matches/[id]` como cliente y viajero: bloqueado en runtime local por falta de sesiones autenticadas/datos de prueba aprobados.
-- Validacion visual autenticada 1440x800 y 1366x650: bloqueada por la misma razon.
+- QA manual autenticado de Aldo: PASS.
+- GitHub check post-merge `detect-impact`: PASS.
+- GitHub check post-merge `validate`: PASS.
+- Vercel production status para `bc23e3a`: SUCCESS.
+- Deploy production automatico completado.
+- Verificacion de codigo en `main`: `pickup_photo`, `delivery_photo`, `ShipmentEvidencePanel` y bloqueos server-side presentes.
 
 ## No tocado
 
+- RLS
+- Storage policies
+- Supabase migrations
+- Pagos
 - Wompi
-- Checkout
 - Wallet
 - Payouts
 - Refunds
 - Auto-release
-- Supabase migrations
-- RLS
-- Storage policies
 - Admin disputes
-- Realtime
+- Paquete sospechoso adicional
 
 ## Riesgos abiertos
 
-- La restriccion de viajero para upload queda aplicada en UI/client y por rol contextual del match detail. Las policies existentes de Storage/DB siguen siendo de participante del shipment porque PR E no toca RLS ni Storage policies.
+- Realtime de evidencias sigue fuera de PR E; algunas vistas pueden requerir refresh para ver cambios remotos.
 - Las signed URLs vencen a los 10 minutos; si el usuario deja la pagina abierta mucho tiempo, puede requerir refresh.
-- La otra parte puede no ver evidencia nueva en vivo hasta refrescar porque realtime de `shipment_evidence` queda fuera de PR E.
 
 ## Proximo paso recomendado
 
-Completar validaciones, hacer commit local y reportar estado pre-PR para aprobacion de push/PR.
+PR F: conectar paquete sospechoso con evidencias.
 
 ## Debe leer el proximo agente
 

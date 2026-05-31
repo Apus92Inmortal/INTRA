@@ -53,7 +53,7 @@ Criterios de aceptacion:
 - PR B dejo aplicada y verificada la migracion aditiva para que `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo` sean tipos validos sin perder compatibilidad con `pickup`, `delivery` y `package_state`.
 - PR C implementa checkout-gate para exigir `customer_initial_photo` antes de abrir Wompi, sin tocar reglas de pago ni policies.
 - PR D quedo mergeado a `main`: muestra miniatura firmada de `customer_initial_photo` en oportunidades compatibles de `/app`, con QA autenticado 8/8 PASS y sin tocar RLS, Storage policies ni pagos.
-- PR E en rama `feat/match-detail-operational-evidence` y PR #112: integra panel progresivo de evidencias en `/app/matches/[id]`, muestra `customer_initial_photo`, exige `pickup_photo` para marcar recogida, exige `delivery_photo` para reportar entrega, bloquea las server actions si falta evidencia obligatoria, redirige CTAs externos al detalle cuando aplica, agrega visor grande de miniaturas, y no toca pagos, RLS, Storage policies ni migraciones.
+- PR E quedo mergeado a `main` en PR #112: integra panel progresivo de evidencias en `/app/matches/[id]`, muestra `customer_initial_photo`, exige `pickup_photo` para marcar recogida, exige `delivery_photo` para reportar entrega, bloquea las server actions si falta evidencia obligatoria, redirige CTAs externos al detalle cuando aplica, agrega visor grande de miniaturas, y no toca pagos, RLS, Storage policies ni migraciones.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa
@@ -139,6 +139,21 @@ Criterios de aceptacion:
 ---
 
 ## Done Log
+
+### TASK-004-PR-E: Evidencias operativas en detalle de match
+
+Estado: DONE
+Fecha: 2026-05-31
+Resumen:
+
+- PR #112 fue mergeado a `main` con QA final PASS.
+- Se agrego panel progresivo de evidencias en `/app/matches/[id]`.
+- Se exige `pickup_photo` con descripcion para marcar recogida.
+- Se exige `delivery_photo` con descripcion para reportar entrega.
+- Las server actions bloquean cambios de estado si falta evidencia obligatoria.
+- El CTA externo de `/app/matches` redirige al detalle para completar evidencia.
+- Produccion quedo desplegada automaticamente desde el merge commit `bc23e3a`.
+- No se tocaron RLS, Storage policies, pagos, Wompi, wallet, payouts, refunds, auto-release, admin disputes ni paquete sospechoso adicional.
 
 ### TASK-DOC-001: Disenar sistema de evidencias del Frente A
 
