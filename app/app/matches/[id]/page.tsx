@@ -5,6 +5,10 @@ import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import MatchDetailActions from "./MatchDetailActions";
 import MatchDetailRealtime from "./MatchDetailRealtime";
+import ShipmentEvidencePanel, {
+  type ShipmentEvidenceType,
+  type ShipmentEvidenceViewItem,
+} from "./ShipmentEvidencePanel";
 import {
   acceptMatchAction,
   rejectMatchAction,
@@ -19,7 +23,7 @@ import { getStatusLabel, getShipmentKindLabel } from "@/lib/labels";
 import { fetchRatingSummaryMap, getReviewWindowState } from "@/lib/reviews";
 import SuspiciousReportForm from "./SuspiciousReportForm";
 import ReviewComposer from "./ReviewComposer";
-import { CheckCircle2, MessageCircle, PackageCheck, Route, ShieldAlert, Truck } from "lucide-react";
+import { CheckCircle2, MessageCircle, PackageCheck, Route, ShieldAlert } from "lucide-react";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -37,6 +41,24 @@ type CityRow = {
 };
 
 type CityRelation = CityRow | CityRow[] | null;
+
+type ShipmentEvidenceRow = {
+  id: string;
+  evidence_type: string;
+  file_path: string | null;
+  file_name: string | null;
+  note: string | null;
+  uploaded_by: string | null;
+  created_at: string;
+};
+
+const EVIDENCE_BUCKET = "shipment-evidence";
+const EVIDENCE_SIGNED_URL_TTL_SECONDS = 600;
+const MATCH_DETAIL_EVIDENCE_TYPES: ShipmentEvidenceType[] = [
+  "customer_initial_photo",
+  "pickup_photo",
+  "delivery_photo",
+];
 
 function formatDate(dateString: string | null | undefined) {
   if (!dateString) return "Sin fecha";
@@ -110,6 +132,10 @@ function getProgressStepIndex({
   if (shipmentStatus === "in_transit") return 1;
   if (shipmentStatus === "matched" || matchStatus === "accepted") return 0;
   return -1;
+}
+
+function isMatchDetailEvidenceType(value: string): value is ShipmentEvidenceType {
+  return MATCH_DETAIL_EVIDENCE_TYPES.includes(value as ShipmentEvidenceType);
 }
 
 export default async function MatchDetailPage({ params }: PageProps) {
@@ -247,6 +273,63 @@ export default async function MatchDetailPage({ params }: PageProps) {
     });
   }
 
+  const shipmentEvidenceByType = new Map<ShipmentEvidenceType, ShipmentEvidenceViewItem>();
+
+  if (shipment?.id) {
+    const { data: evidenceRows } = await supabase
+      .from("shipment_evidence")
+      .select("id, evidence_type, file_path, file_name, note, uploaded_by, created_at")
+      .eq("shipment_id", shipment.id)
+      .in("evidence_type", MATCH_DETAIL_EVIDENCE_TYPES)
+      .order("created_at", { ascending: false });
+
+    const latestEvidenceRows = ((evidenceRows ?? []) as ShipmentEvidenceRow[]).filter((row) => {
+      if (!isMatchDetailEvidenceType(row.evidence_type)) {
+        return false;
+      }
+
+      if (shipmentEvidenceByType.has(row.evidence_type)) {
+        return false;
+      }
+
+      shipmentEvidenceByType.set(row.evidence_type, {
+        evidenceType: row.evidence_type,
+        signedUrl: null,
+        note: row.note,
+        fileName: row.file_name,
+        uploadedByName: row.uploaded_by
+          ? participantNameById.get(row.uploaded_by) ?? "Usuario INTRA"
+          : "Usuario INTRA",
+        createdAt: row.created_at,
+      });
+
+      return Boolean(row.file_path);
+    });
+
+    await Promise.all(
+      latestEvidenceRows.map(async (row) => {
+        if (!isMatchDetailEvidenceType(row.evidence_type) || !row.file_path) {
+          return;
+        }
+
+        const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+          .from(EVIDENCE_BUCKET)
+          .createSignedUrl(row.file_path, EVIDENCE_SIGNED_URL_TTL_SECONDS);
+
+        if (!signedUrlError && signedUrlData?.signedUrl) {
+          const current = shipmentEvidenceByType.get(row.evidence_type);
+
+          if (current) {
+            shipmentEvidenceByType.set(row.evidence_type, {
+              ...current,
+              signedUrl: signedUrlData.signedUrl,
+            });
+          }
+        }
+      })
+    );
+  }
+
   const progressIndex = getProgressStepIndex({
     matchStatus: match.status,
     shipmentStatus: shipment?.status,
@@ -306,6 +389,13 @@ export default async function MatchDetailPage({ params }: PageProps) {
     isOwner &&
     payment?.status === "held" &&
     payment?.dispute_status !== "open";
+
+  const canUploadPickupEvidence =
+    canMarkInTransit &&
+    !shipmentEvidenceByType.has("pickup_photo");
+  const canUploadDeliveryEvidence =
+    canMarkDelivered &&
+    !shipmentEvidenceByType.has("delivery_photo");
 
   const markInTransitSubmitAction =
     shipment?.id && match?.id
@@ -450,6 +540,21 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     )}
                   </section>
 
+                  {shipment?.id && markInTransitSubmitAction && markDeliveredSubmitAction ? (
+                    <ShipmentEvidencePanel
+                      shipmentId={shipment.id}
+                      matchId={match.id}
+                      travelerId={travelerId ?? ""}
+                      initialEvidence={shipmentEvidenceByType.get("customer_initial_photo") ?? null}
+                      pickupEvidence={shipmentEvidenceByType.get("pickup_photo") ?? null}
+                      deliveryEvidence={shipmentEvidenceByType.get("delivery_photo") ?? null}
+                      canUploadPickup={canUploadPickupEvidence}
+                      canUploadDelivery={canUploadDeliveryEvidence}
+                      pickupAction={markInTransitSubmitAction}
+                      deliveryAction={markDeliveredSubmitAction}
+                    />
+                  ) : null}
+
                 </div>
 
                 <div className="space-y-5">
@@ -465,30 +570,6 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       <h2 className="intra-h3">Acciones del match</h2>
 
                       <div className="mt-5 space-y-3">
-                        {canMarkInTransit && markInTransitSubmitAction ? (
-                          <form action={markInTransitSubmitAction}>
-                            <button
-                              type="submit"
-                              className={primaryActionButtonClass}
-                            >
-                              <PackageCheck className="intra-icon-body" strokeWidth={2.1} />
-                              Confirmar recogida
-                            </button>
-                          </form>
-                        ) : null}
-
-                        {canMarkDelivered && markDeliveredSubmitAction ? (
-                          <form action={markDeliveredSubmitAction}>
-                            <button
-                              type="submit"
-                              className={primaryActionButtonClass}
-                            >
-                              <Truck className="intra-icon-body" strokeWidth={2.1} />
-                              Confirmar entrega
-                            </button>
-                          </form>
-                        ) : null}
-
                         {canConfirmDelivery && confirmDeliverySubmitAction ? (
                           <form action={confirmDeliverySubmitAction}>
                             <button
