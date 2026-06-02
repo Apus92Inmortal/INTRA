@@ -399,11 +399,13 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
   const canMarkInTransit =
     isTraveler &&
+    !activeAlert &&
     match.status === "accepted" &&
     shipment?.status === "matched";
 
   const canMarkDelivered =
     isTraveler &&
+    !activeAlert &&
     match.status === "accepted" &&
     shipment?.status === "in_transit" &&
     payment?.status === "held" &&
@@ -412,6 +414,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
   const canConfirmDelivery =
     isOwner &&
+    !activeAlert &&
     match.status === "accepted" &&
     shipment?.status === "in_transit" &&
     payment?.status === "held" &&
@@ -637,6 +640,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       <h2 className="intra-h3">Acciones del match</h2>
 
                       <div className="mt-5 space-y-3">
+                        {activeAlert ? (
+                          <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm leading-5 text-intra-warning-text">
+                            En revisión operativa. No puedes avanzar el envío hasta que la alerta sea revisada.
+                          </div>
+                        ) : null}
+
                         {canConfirmDelivery && confirmDeliverySubmitAction ? (
                           <form action={confirmDeliverySubmitAction}>
                             <button

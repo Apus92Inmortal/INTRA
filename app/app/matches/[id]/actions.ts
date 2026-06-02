@@ -10,6 +10,9 @@ type ReviewPaymentRow = {
   updated_at: string | null;
 };
 
+const ACTIVE_SHIPMENT_ALERT_ERROR =
+  "Este envío tiene una alerta activa de paquete sospechoso. Debe ser revisada antes de continuar.";
+
 async function hasShipmentEvidence(
   supabase: Awaited<ReturnType<typeof createClient>>,
   shipmentId: string,
@@ -35,6 +38,29 @@ async function hasShipmentEvidence(
           ? "Debes subir evidencia de recogida antes de marcar el paquete como recogido."
           : "Debes subir evidencia de entrega antes de reportar la entrega.",
     };
+  }
+
+  return { success: true };
+}
+
+async function hasActiveShipmentAlert(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  shipmentId: string
+) {
+  const { data, error } = await supabase
+    .from("shipment_report_events")
+    .select("id")
+    .eq("shipment_id", shipmentId)
+    .in("status", ["open", "reviewing"])
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  if (data) {
+    return { success: false, error: ACTIVE_SHIPMENT_ALERT_ERROR };
   }
 
   return { success: true };
@@ -174,6 +200,12 @@ export async function markInTransitAction(shipmentId: string) {
     }
 
     const supabase = await createClient();
+    const activeAlertCheck = await hasActiveShipmentAlert(supabase, shipmentId);
+
+    if (!activeAlertCheck.success) {
+      return { success: false, error: activeAlertCheck.error };
+    }
+
     const evidenceCheck = await hasShipmentEvidence(supabase, shipmentId, "pickup_photo");
 
     if (!evidenceCheck.success) {
@@ -207,6 +239,12 @@ export async function markDeliveredAction(shipmentId: string) {
     }
 
     const supabase = await createClient();
+    const activeAlertCheck = await hasActiveShipmentAlert(supabase, shipmentId);
+
+    if (!activeAlertCheck.success) {
+      return { success: false, error: activeAlertCheck.error };
+    }
+
     const evidenceCheck = await hasShipmentEvidence(supabase, shipmentId, "delivery_photo");
 
     if (!evidenceCheck.success) {
@@ -240,6 +278,11 @@ export async function confirmDeliveryAction(shipmentId: string) {
     }
 
     const supabase = await createClient();
+    const activeAlertCheck = await hasActiveShipmentAlert(supabase, shipmentId);
+
+    if (!activeAlertCheck.success) {
+      return { success: false, error: activeAlertCheck.error };
+    }
 
     const { data: shipment, error: shipmentError } = await supabase
       .from("shipments")

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { ArrowRight, CheckCircle2, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route, Truck } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route, ShieldAlert, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
@@ -74,6 +74,14 @@ type PaymentRow = {
   status: string | null;
   dispute_status: string | null;
   traveler_delivered_at: string | null;
+  created_at: string;
+};
+
+type ShipmentAlertRow = {
+  id: string;
+  shipment_id: string | null;
+  match_id: string | null;
+  status: string;
   created_at: string;
 };
 
@@ -406,6 +414,7 @@ export default async function MatchesPage() {
 
   let messagesMap = new Map<string, MessageRow>();
   let paymentsMap = new Map<string, PaymentRow>();
+  let activeAlertsMap = new Map<string, ShipmentAlertRow>();
 
   if (matchIds.length > 0) {
     const { data: messagesData, error: messagesError } = await supabase
@@ -430,14 +439,29 @@ export default async function MatchesPage() {
   }
 
   if (shipmentIds.length > 0) {
-    const { data: paymentsData, error: paymentsError } = await supabase
-      .from("payments")
-      .select("shipment_id, status, dispute_status, traveler_delivered_at, created_at")
-      .in("shipment_id", shipmentIds)
-      .order("created_at", { ascending: false });
+    const [
+      { data: paymentsData, error: paymentsError },
+      { data: activeAlertsData, error: activeAlertsError },
+    ] = await Promise.all([
+      supabase
+        .from("payments")
+        .select("shipment_id, status, dispute_status, traveler_delivered_at, created_at")
+        .in("shipment_id", shipmentIds)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("shipment_report_events")
+        .select("id, shipment_id, match_id, status, created_at")
+        .in("shipment_id", shipmentIds)
+        .in("status", ["open", "reviewing"])
+        .order("created_at", { ascending: false }),
+    ]);
 
     if (paymentsError) {
       throw new Error(`Error cargando pagos de matches: ${paymentsError.message}`);
+    }
+
+    if (activeAlertsError) {
+      throw new Error(`Error cargando alertas de matches: ${activeAlertsError.message}`);
     }
 
     const latestPayments = new Map<string, PaymentRow>();
@@ -451,6 +475,18 @@ export default async function MatchesPage() {
     }
 
     paymentsMap = latestPayments;
+
+    const latestActiveAlerts = new Map<string, ShipmentAlertRow>();
+
+    for (const alert of (activeAlertsData ?? []) as ShipmentAlertRow[]) {
+      if (!alert.shipment_id || latestActiveAlerts.has(alert.shipment_id)) {
+        continue;
+      }
+
+      latestActiveAlerts.set(alert.shipment_id, alert);
+    }
+
+    activeAlertsMap = latestActiveAlerts;
   }
 
   const pendingMatchesCount = allMatches.filter((match) => match.status === "pending").length;
@@ -537,6 +573,8 @@ export default async function MatchesPage() {
                 const shipment = normalizeShipment(match.shipments);
                 const lastMessage = messagesMap.get(match.id);
                 const payment = shipment?.id ? paymentsMap.get(shipment.id) ?? null : null;
+                const activeAlert = shipment?.id ? activeAlertsMap.get(shipment.id) ?? null : null;
+                const hasActiveAlert = Boolean(activeAlert);
 
                 const isTraveler = trip?.traveler_id === user.id;
                 const isOwner = shipment?.owner_id === user.id;
@@ -619,6 +657,12 @@ export default async function MatchesPage() {
                               ) : null}
                               <span>Creado: {formatDate(match.created_at)}</span>
                             </div>
+                            {hasActiveAlert ? (
+                              <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-intra-warning-border bg-intra-warning-soft px-3 py-1 text-[12px] font-semibold text-intra-warning-text">
+                                <ShieldAlert className="h-3.5 w-3.5" strokeWidth={2.1} />
+                                Paquete sospechoso
+                              </div>
+                            ) : null}
                           </div>
                         </div>
                       </div>
@@ -702,8 +746,15 @@ export default async function MatchesPage() {
                           <div className="mt-3 grid gap-2.5">
                           {match.status === "accepted" ? (
                             <>
+                                {hasActiveAlert ? (
+                                  <p className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-[12px] font-medium leading-5 text-intra-warning-text">
+                                    En revisión operativa. No puedes avanzar el envío hasta que la alerta sea revisada.
+                                  </p>
+                                ) : null}
+
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
+                                  !hasActiveAlert &&
                                   payment?.status === "held" &&
                                   payment?.dispute_status !== "open" &&
                                   !payment?.traveler_delivered_at && (
@@ -717,6 +768,7 @@ export default async function MatchesPage() {
 
                                 {shipment?.status === "in_transit" &&
                                   isOwner &&
+                                  !hasActiveAlert &&
                                   payment?.status === "held" &&
                                   payment?.dispute_status !== "open" &&
                                   payment?.traveler_delivered_at && (

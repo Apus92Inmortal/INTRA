@@ -34,6 +34,8 @@ Cerrar PR F: conectar el reporte de paquete sospechoso con evidencia `suspicious
 - El reporte queda vinculado a la evidencia mediante metadata segura: `metadata.support_evidence_id`, `metadata.support_evidence_type` y `metadata.support_evidence_created_at`.
 - `shipment_report_events.metadata` no guarda `file_path`, bucket path ni Storage path.
 - Si existe una alerta activa `open` o `reviewing` para el match/envio, el detalle del match muestra badge y bloque visual `Paquete sospechoso` / `Alerta abierta` o `En revision operativa`.
+- Si existe una alerta activa `open` o `reviewing`, las server actions bloquean `markInTransitAction`, `markDeliveredAction` y `confirmDeliveryAction` antes de llamar RPCs de avance operativo.
+- `/app/matches` y `/app/matches/[id]` ocultan o bloquean CTAs de avance operativo mientras la alerta siga activa y muestran el mensaje `En revision operativa. No puedes avanzar el envio hasta que la alerta sea revisada.`
 - El formulario de paquete sospechoso se abre en modal con X de cierre, motivo obligatorio, foto obligatoria, descripcion obligatoria y boton `Enviar reporte`.
 - El panel de evidencias del detalle del match consulta y muestra `suspicious_photo` como soporte de alerta.
 - La evidencia sospechosa no reemplaza la evidencia principal normal del flujo:
@@ -65,6 +67,10 @@ Cerrar PR F: conectar el reporte de paquete sospechoso con evidencia `suspicious
 12. No abre disputa automaticamente.
 13. No permite usuario no viajero/no relacionado.
 14. No permite duplicar alerta activa sin advertencia o bloqueo.
+15. Con alerta activa, intentar recoger queda bloqueado.
+16. Con alerta activa, intentar reportar entrega queda bloqueado.
+17. Con alerta activa, intentar confirmar recepcion queda bloqueado.
+18. Al resolver la alerta, el flujo operativo puede continuar normalmente.
 
 ## No tocado
 

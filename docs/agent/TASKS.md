@@ -34,6 +34,7 @@ Criterios de aceptacion:
 - El flujo queda definido con estados, permisos, copy y acciones permitidas.
 - PR F queda en revision: el viajero debe reportar paquete sospechoso con motivo y foto obligatoria desde el detalle del match; el reporte se crea en `shipment_report_events` y queda vinculado a la evidencia `suspicious_photo` mediante metadata.
 - PR F agrega estado visual derivado de `shipment_report_events` para que cliente y viajero vean `Paquete sospechoso` / `Alerta abierta` o `En revision operativa` cuando exista una alerta activa `open` o `reviewing`, sin cambiar estados formales ni pagos.
+- PR F bloquea avance operativo mientras exista alerta activa `open` o `reviewing`: recogida, reporte de entrega y confirmacion de recepcion no llaman RPCs de avance hasta que admin resuelva la alerta.
 - Cliente, viajero y admin ven el estado operativo del reporte sin depender de contexto de chat.
 - La alerta puede revisarse, cerrarse o escalarse a disputa desde admin.
 - No se cambia RLS, pagos ni estados criticos sin revisar `DB_NOTES.md` y matriz legal.
