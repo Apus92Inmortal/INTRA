@@ -88,6 +88,7 @@ export default function SuspiciousReportForm({
 
     let path: string | null = null;
     let evidenceId: string | null = null;
+    let evidenceCreatedAt: string | null = null;
 
     try {
       const compressedFile = await compressImageFile(file);
@@ -114,7 +115,7 @@ export default function SuspiciousReportForm({
           mime_type: compressedFile.type || null,
           note: reason.trim(),
         })
-        .select("id")
+        .select("id, created_at")
         .single();
 
       if (evidenceError) {
@@ -123,6 +124,7 @@ export default function SuspiciousReportForm({
       }
 
       evidenceId = evidence?.id ?? null;
+      evidenceCreatedAt = evidence?.created_at ?? null;
 
       const { error } = await supabase.from("shipment_report_events").insert({
         shipment_id: shipmentId,
@@ -134,7 +136,7 @@ export default function SuspiciousReportForm({
         metadata: {
           support_evidence_id: evidenceId,
           support_evidence_type: SUSPICIOUS_EVIDENCE_TYPE,
-          support_evidence_path: path,
+          support_evidence_created_at: evidenceCreatedAt,
         },
       });
 

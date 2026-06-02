@@ -31,7 +31,8 @@ Cerrar PR F: conectar el reporte de paquete sospechoso con evidencia `suspicious
 - La foto se comprime, se sube al bucket `shipment-evidence` y se registra en `shipment_evidence`.
 - La evidencia se guarda con `evidence_type = suspicious_photo`.
 - El reporte se crea en `shipment_report_events`.
-- El reporte queda vinculado a la evidencia mediante `metadata.support_evidence_id`, `metadata.support_evidence_type` y `metadata.support_evidence_path`.
+- El reporte queda vinculado a la evidencia mediante metadata segura: `metadata.support_evidence_id`, `metadata.support_evidence_type` y `metadata.support_evidence_created_at`.
+- `shipment_report_events.metadata` no guarda `file_path`, bucket path ni Storage path.
 - El panel de evidencias del detalle del match consulta y muestra `suspicious_photo` como soporte de alerta.
 - La evidencia sospechosa no reemplaza la evidencia principal normal del flujo:
   - `customer_initial_photo`
