@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Camera, ShieldAlert } from "lucide-react";
+import { Camera, ShieldAlert, X } from "lucide-react";
 import { compressImageFile } from "@/lib/uploads";
 
 type SuspiciousReportFormProps = {
@@ -11,6 +11,7 @@ type SuspiciousReportFormProps = {
   matchId: string;
   reporterName: string;
   recipientUserId: string;
+  hasActiveAlert?: boolean;
   embedded?: boolean;
 };
 
@@ -33,6 +34,7 @@ export default function SuspiciousReportForm({
   matchId,
   reporterName,
   recipientUserId,
+  hasActiveAlert = false,
   embedded = false,
 }: SuspiciousReportFormProps) {
   const router = useRouter();
@@ -41,11 +43,21 @@ export default function SuspiciousReportForm({
   const [reportType, setReportType] = useState<(typeof REPORT_TYPES)[number]["value"]>("suspicious_package");
   const [reason, setReason] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
   const inputId = useMemo(() => `suspicious-photo-${matchId}`, [matchId]);
+
+  const closeModal = () => {
+    if (loading) {
+      return;
+    }
+
+    setIsOpen(false);
+    setMessage(null);
+    setMessageType(null);
+  };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -172,103 +184,134 @@ export default function SuspiciousReportForm({
     setReason("");
     setFile(null);
     setReportType("suspicious_package");
-    setExpanded(false);
+    setIsOpen(false);
     setMessage("Reporte enviado con evidencia. El paquete quedó marcado para revisión manual.");
     setMessageType("success");
     router.refresh();
   };
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className={embedded ? "space-y-3" : "space-y-4 rounded-2xl border border-intra-warning-border bg-intra-card/80 p-4"}
-    >
-      <div className="flex justify-start">
+    <>
+      <div className={embedded ? "space-y-3" : "space-y-4 rounded-2xl border border-intra-warning-border bg-intra-card/80 p-4"}>
         <button
           type="button"
-          onClick={() => setExpanded((value) => !value)}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-warning px-4 py-2.5 text-sm font-semibold text-intra-card transition hover:bg-intra-warning-text-strong ${
-            embedded ? "w-full" : ""
-          }`}
-        >
-          <ShieldAlert className="h-4 w-4" strokeWidth={2.1} />
-          {expanded ? "Cerrar alerta" : "Activar alerta"}
-        </button>
-      </div>
-
-      {expanded ? (
-        <>
-          <label className="block text-sm font-medium text-intra-warning-text-strong">
-            Tipo de alerta
-            <select
-              value={reportType}
-              onChange={(event) => setReportType(event.target.value as (typeof REPORT_TYPES)[number]["value"])}
-              className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
-            >
-              {REPORT_TYPES.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block text-sm font-medium text-intra-warning-text-strong">
-            Qué pasó
-            <textarea
-              rows={4}
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
-              placeholder="Ej. el paquete no coincide con la descripción, presenta sellos alterados, olor extraño..."
-            />
-          </label>
-
-          <label className="block text-sm font-medium text-intra-warning-text-strong">
-            Foto de soporte
-            <span className="mt-1 block text-xs font-normal leading-5 text-intra-text-muted">
-              Adjunta una imagen clara del paquete o del detalle que activa la alerta.
-            </span>
-            <input
-              id={inputId}
-              type="file"
-              accept="image/*"
-              className="mt-2 block w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
-              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            />
-          </label>
-        </>
-      ) : null}
-
-      {message ? (
-        <div
-          className={`rounded-2xl border px-4 py-3 text-sm ${
-            messageType === "success"
-              ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
-              : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-          }`}
-        >
-          {message}
-        </div>
-      ) : null}
-
-      {expanded ? (
-        <button
-          type="submit"
-          disabled={loading}
+          onClick={() => setIsOpen(true)}
+          disabled={hasActiveAlert}
           className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-warning px-5 py-3 text-sm font-semibold text-intra-card transition hover:bg-intra-warning-text-strong disabled:cursor-not-allowed disabled:opacity-60 ${
             embedded ? "w-full" : ""
           }`}
         >
           <ShieldAlert className="h-4 w-4" strokeWidth={2.1} />
-          {loading ? "Enviando alerta..." : (
-            <>
-              <Camera className="h-4 w-4" strokeWidth={2.1} />
-              Enviar alerta con evidencia
-            </>
-          )}
+          {hasActiveAlert ? "Alerta abierta" : "Reportar paquete sospechoso"}
         </button>
+
+        {message ? (
+          <div
+            className={`rounded-2xl border px-4 py-3 text-sm ${
+              messageType === "success"
+                ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+            }`}
+          >
+            {message}
+          </div>
+        ) : null}
+      </div>
+
+      {isOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-intra-blue/75 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Reportar paquete sospechoso"
+        >
+          <form
+            onSubmit={onSubmit}
+            className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-2xl border border-intra-warning-border bg-intra-card shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-intra-warning-border px-5 py-4">
+              <div className="min-w-0">
+                <h3 className="text-base font-semibold text-intra-warning-text-strong">
+                  Reportar paquete sospechoso
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-intra-text-muted">
+                  Adjunta una foto clara y describe qué debe revisar el equipo operativo.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={loading}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-intra-border bg-intra-card text-intra-blue transition hover:bg-intra-neutral-soft-alt disabled:cursor-not-allowed disabled:opacity-60"
+                aria-label="Cerrar"
+              >
+                <X className="h-5 w-5" strokeWidth={2.2} />
+              </button>
+            </div>
+
+            <div className="space-y-4 px-5 py-5">
+              <label className="block text-sm font-medium text-intra-warning-text-strong">
+                Motivo obligatorio
+                <select
+                  value={reportType}
+                  onChange={(event) => setReportType(event.target.value as (typeof REPORT_TYPES)[number]["value"])}
+                  className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                >
+                  {REPORT_TYPES.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block text-sm font-medium text-intra-warning-text-strong">
+                Foto obligatoria
+                <span className="mt-1 block text-xs font-normal leading-5 text-intra-text-muted">
+                  Adjunta una imagen clara del paquete o del detalle que activa la alerta.
+                </span>
+                <input
+                  id={inputId}
+                  type="file"
+                  accept="image/*"
+                  className="mt-2 block w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                />
+              </label>
+
+              <label className="block text-sm font-medium text-intra-warning-text-strong">
+                Descripción obligatoria
+                <textarea
+                  rows={4}
+                  value={reason}
+                  onChange={(event) => setReason(event.target.value)}
+                  className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  placeholder="Ej. el paquete no coincide con la descripción, presenta sellos alterados, olor extraño..."
+                />
+              </label>
+
+              {message && messageType === "error" ? (
+                <div className="rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-sm text-intra-danger">
+                  {message}
+                </div>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-intra-warning px-5 py-3 text-sm font-semibold text-intra-card transition hover:bg-intra-warning-text-strong disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? "Enviando reporte..." : (
+                  <>
+                    <Camera className="h-4 w-4" strokeWidth={2.1} />
+                    Enviar reporte
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       ) : null}
-    </form>
+    </>
   );
 }

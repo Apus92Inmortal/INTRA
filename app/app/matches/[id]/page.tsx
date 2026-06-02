@@ -52,6 +52,17 @@ type ShipmentEvidenceRow = {
   created_at: string;
 };
 
+type ShipmentReportStatus = "open" | "reviewing" | "resolved";
+
+type ShipmentReportRow = {
+  id: string;
+  report_type: string;
+  reason: string | null;
+  status: ShipmentReportStatus;
+  reported_by: string | null;
+  created_at: string;
+};
+
 const EVIDENCE_BUCKET = "shipment-evidence";
 const EVIDENCE_SIGNED_URL_TTL_SECONDS = 600;
 const MATCH_DETAIL_EVIDENCE_TYPES: ShipmentEvidenceType[] = [
@@ -137,6 +148,10 @@ function getProgressStepIndex({
 
 function isMatchDetailEvidenceType(value: string): value is ShipmentEvidenceType {
   return MATCH_DETAIL_EVIDENCE_TYPES.includes(value as ShipmentEvidenceType);
+}
+
+function getActiveAlertLabel(status: ShipmentReportStatus) {
+  return status === "reviewing" ? "En revisión operativa" : "Alerta abierta";
 }
 
 export default async function MatchDetailPage({ params }: PageProps) {
@@ -273,6 +288,23 @@ export default async function MatchDetailPage({ params }: PageProps) {
       p_match_id: match.id,
     });
   }
+
+  const { data: activeShipmentAlert } = shipment?.id
+    ? await supabase
+        .from("shipment_report_events")
+        .select("id, report_type, reason, status, reported_by, created_at")
+        .eq("shipment_id", shipment.id)
+        .eq("match_id", match.id)
+        .in("status", ["open", "reviewing"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+    : { data: null };
+  const activeAlert = (activeShipmentAlert ?? null) as ShipmentReportRow | null;
+  const activeAlertLabel = activeAlert ? getActiveAlertLabel(activeAlert.status) : null;
+  const activeAlertReporterName = activeAlert?.reported_by
+    ? participantNameById.get(activeAlert.reported_by) ?? "Usuario INTRA"
+    : "Usuario INTRA";
 
   const shipmentEvidenceByType = new Map<ShipmentEvidenceType, ShipmentEvidenceViewItem>();
 
@@ -438,6 +470,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     <span className={`intra-pill intra-badge-text w-fit ${matchStatusBadgeClass}`}>
                       {getStatusLabel(match.status)}
                     </span>
+                    {activeAlert ? (
+                      <span className="inline-flex min-h-8 w-fit items-center gap-1.5 rounded-full border border-intra-warning-border bg-intra-warning-soft px-3 py-1 text-xs font-semibold text-intra-warning-text">
+                        <ShieldAlert className="h-3.5 w-3.5" strokeWidth={2.1} />
+                        Paquete sospechoso
+                      </span>
+                    ) : null}
                   </div>
                   <div className="mt-4 flex flex-col items-start gap-2 intra-body sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4 sm:gap-y-2">
                     <span className="text-left">
@@ -459,6 +497,32 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   <span className="intra-caption">Creado: {formatDate(match.created_at)}</span>
                 </div>
               </div>
+
+              {activeAlert ? (
+                <div className="mt-5 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-intra-warning-soft-alt text-intra-warning-text">
+                        <ShieldAlert className="h-5 w-5" strokeWidth={2.1} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-warning-text">
+                          Paquete sospechoso
+                        </p>
+                        <h2 className="mt-1 text-base font-semibold text-intra-warning-text-strong">
+                          {activeAlertLabel}
+                        </h2>
+                        <p className="mt-1 text-xs leading-5 text-intra-warning-text">
+                          Reportado por {activeAlertReporterName} el {formatDate(activeAlert.created_at)}. El equipo operativo debe revisar la alerta antes de cerrar el caso.
+                        </p>
+                      </div>
+                    </div>
+                    <span className="inline-flex w-fit shrink-0 items-center rounded-full border border-intra-warning-border bg-intra-card px-3 py-1 text-xs font-semibold text-intra-warning-text">
+                      En revisión
+                    </span>
+                  </div>
+                </div>
+              ) : null}
 
               <div className="mt-5">
                 <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted">Progreso del envío</p>
@@ -525,6 +589,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                                 matchId={match.id}
                                 reporterName={participantNameById.get(user.id) ?? "El viajero"}
                                 recipientUserId={ownerId}
+                                hasActiveAlert={Boolean(activeAlert)}
                                 embedded
                               />
                             </div>

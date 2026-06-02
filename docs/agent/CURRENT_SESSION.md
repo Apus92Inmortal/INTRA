@@ -33,6 +33,8 @@ Cerrar PR F: conectar el reporte de paquete sospechoso con evidencia `suspicious
 - El reporte se crea en `shipment_report_events`.
 - El reporte queda vinculado a la evidencia mediante metadata segura: `metadata.support_evidence_id`, `metadata.support_evidence_type` y `metadata.support_evidence_created_at`.
 - `shipment_report_events.metadata` no guarda `file_path`, bucket path ni Storage path.
+- Si existe una alerta activa `open` o `reviewing` para el match/envio, el detalle del match muestra badge y bloque visual `Paquete sospechoso` / `Alerta abierta` o `En revision operativa`.
+- El formulario de paquete sospechoso se abre en modal con X de cierre, motivo obligatorio, foto obligatoria, descripcion obligatoria y boton `Enviar reporte`.
 - El panel de evidencias del detalle del match consulta y muestra `suspicious_photo` como soporte de alerta.
 - La evidencia sospechosa no reemplaza la evidencia principal normal del flujo:
   - `customer_initial_photo`
