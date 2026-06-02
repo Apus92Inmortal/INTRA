@@ -57,6 +57,7 @@ const EVIDENCE_SIGNED_URL_TTL_SECONDS = 600;
 const MATCH_DETAIL_EVIDENCE_TYPES: ShipmentEvidenceType[] = [
   "customer_initial_photo",
   "pickup_photo",
+  "suspicious_photo",
   "delivery_photo",
 ];
 
@@ -547,6 +548,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       travelerId={travelerId ?? ""}
                       initialEvidence={shipmentEvidenceByType.get("customer_initial_photo") ?? null}
                       pickupEvidence={shipmentEvidenceByType.get("pickup_photo") ?? null}
+                      suspiciousEvidence={shipmentEvidenceByType.get("suspicious_photo") ?? null}
                       deliveryEvidence={shipmentEvidenceByType.get("delivery_photo") ?? null}
                       canUploadPickup={canUploadPickupEvidence}
                       canUploadDelivery={canUploadDeliveryEvidence}

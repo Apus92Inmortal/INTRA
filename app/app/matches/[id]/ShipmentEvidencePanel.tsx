@@ -1,12 +1,13 @@
 "use client";
 
-import { Camera, ImageIcon, PackageCheck, Truck } from "lucide-react";
+import { Camera, ImageIcon, PackageCheck, ShieldAlert, Truck } from "lucide-react";
 import { EvidenceImagePreview } from "@/components/evidence-image-preview";
 import EvidenceUploader from "./EvidenceUploader";
 
 export type ShipmentEvidenceType =
   | "customer_initial_photo"
   | "pickup_photo"
+  | "suspicious_photo"
   | "delivery_photo";
 
 export type ShipmentEvidenceViewItem = {
@@ -24,6 +25,7 @@ type ShipmentEvidencePanelProps = {
   travelerId: string;
   initialEvidence: ShipmentEvidenceViewItem | null;
   pickupEvidence: ShipmentEvidenceViewItem | null;
+  suspiciousEvidence: ShipmentEvidenceViewItem | null;
   deliveryEvidence: ShipmentEvidenceViewItem | null;
   canUploadPickup: boolean;
   canUploadDelivery: boolean;
@@ -50,6 +52,12 @@ const EVIDENCE_META: Record<ShipmentEvidenceType, EvidenceMeta> = {
     eyebrow: "Después de recoger",
     description: "Estado recibido por el viajero al recoger el paquete.",
     emptyText: "Aún no hay evidencia de recogida.",
+  },
+  suspicious_photo: {
+    title: "Alerta sospechosa",
+    eyebrow: "Soporte de alerta",
+    description: "Foto vinculada a un reporte de paquete sospechoso o incidente operativo.",
+    emptyText: "Aún no hay evidencia de alerta sospechosa.",
   },
   delivery_photo: {
     title: "Entrega",
@@ -84,6 +92,10 @@ function EvidenceIcon({ type }: { type: ShipmentEvidenceType }) {
 
   if (type === "pickup_photo") {
     return <PackageCheck className="h-5 w-5" strokeWidth={2} />;
+  }
+
+  if (type === "suspicious_photo") {
+    return <ShieldAlert className="h-5 w-5" strokeWidth={2} />;
   }
 
   return <Camera className="h-5 w-5" strokeWidth={2} />;
@@ -133,6 +145,7 @@ export default function ShipmentEvidencePanel({
   travelerId,
   initialEvidence,
   pickupEvidence,
+  suspiciousEvidence,
   deliveryEvidence,
   canUploadPickup,
   canUploadDelivery,
@@ -140,7 +153,7 @@ export default function ShipmentEvidencePanel({
   deliveryAction,
 }: ShipmentEvidencePanelProps) {
   const primaryEvidence = getPrimaryEvidence(initialEvidence, pickupEvidence, deliveryEvidence);
-  const evidenceHistory = [initialEvidence, pickupEvidence, deliveryEvidence].filter(
+  const evidenceHistory = [suspiciousEvidence, initialEvidence, pickupEvidence, deliveryEvidence].filter(
     (evidence): evidence is ShipmentEvidenceViewItem =>
       Boolean(evidence) && evidence?.evidenceType !== primaryEvidence?.evidenceType
   );

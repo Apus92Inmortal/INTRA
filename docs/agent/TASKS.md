@@ -32,6 +32,7 @@ Area: Matches / Shipments / Seguridad operativa / Admin
 Criterios de aceptacion:
 
 - El flujo queda definido con estados, permisos, copy y acciones permitidas.
+- PR F queda en revision: el viajero debe reportar paquete sospechoso con motivo y foto obligatoria desde el detalle del match; el reporte se crea en `shipment_report_events` y queda vinculado a la evidencia `suspicious_photo` mediante metadata.
 - Cliente, viajero y admin ven el estado operativo del reporte sin depender de contexto de chat.
 - La alerta puede revisarse, cerrarse o escalarse a disputa desde admin.
 - No se cambia RLS, pagos ni estados criticos sin revisar `DB_NOTES.md` y matriz legal.
@@ -54,6 +55,7 @@ Criterios de aceptacion:
 - PR C implementa checkout-gate para exigir `customer_initial_photo` antes de abrir Wompi, sin tocar reglas de pago ni policies.
 - PR D quedo mergeado a `main`: muestra miniatura firmada de `customer_initial_photo` en oportunidades compatibles de `/app`, con QA autenticado 8/8 PASS y sin tocar RLS, Storage policies ni pagos.
 - PR E quedo mergeado a `main` en PR #112: integra panel progresivo de evidencias en `/app/matches/[id]`, muestra `customer_initial_photo`, exige `pickup_photo` para marcar recogida, exige `delivery_photo` para reportar entrega, bloquea las server actions si falta evidencia obligatoria, redirige CTAs externos al detalle cuando aplica, agrega visor grande de miniaturas, y no toca pagos, RLS, Storage policies ni migraciones.
+- PR F queda en revision: agrega `suspicious_photo` como soporte de alerta en el panel de evidencias del detalle de match sin reemplazar `customer_initial_photo`, `pickup_photo` ni `delivery_photo`; QA autenticado queda pendiente antes de merge.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa
