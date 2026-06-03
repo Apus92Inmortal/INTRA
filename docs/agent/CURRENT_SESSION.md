@@ -11,10 +11,13 @@ Cerrar PR #113: paquete sospechoso con evidencia `suspicious_photo`, alerta visu
 ## Estado actual
 
 - Rama: `feat/suspicious-package-evidence`.
-- PR #113: QA funcional de Aldo PASS y autorizado para merge a `main`.
+- PR #113: mergeado a `main`.
+- Merge commit: `7df5445` - `Merge pull request #113 from Apus92Inmortal/feat/suspicious-package-evidence`.
 - PR #114: separado y bloqueado hasta confirmar variables Wompi nuevas en Vercel.
-- `main`: pendiente de merge de PR #113 al momento de este cierre de rama.
-- Produccion: pendiente de deploy automatico posterior al merge.
+- `main`: sincronizado con `origin/main` despues del merge.
+- Produccion: deploy automatico completado desde el merge commit `7df5445`.
+- Deployment production registrado: `4921793067`.
+- URL deployment production: `https://intra-70zotdjz8-aldo-antonio-altamar-cervantes-projects.vercel.app`.
 
 ## Archivos tocados por PR #113
 
@@ -57,6 +60,9 @@ Cerrar PR #113: paquete sospechoso con evidencia `suspicious_photo`, alerta visu
 - GitHub check `detect-impact`: PASS.
 - Vercel preview: PASS.
 - QA funcional autenticado de Aldo: PASS.
+- GitHub post-merge `validate`: PASS.
+- GitHub post-merge `detect-impact`: PASS.
+- Vercel production para `7df5445`: SUCCESS.
 
 ## QA funcional confirmado por Aldo
 
@@ -88,7 +94,6 @@ Cerrar PR #113: paquete sospechoso con evidencia `suspicious_photo`, alerta visu
 - Payouts.
 - Refunds.
 - Auto-release.
-- Produccion antes del merge.
 
 ## Riesgos abiertos
 
@@ -97,7 +102,8 @@ Cerrar PR #113: paquete sospechoso con evidencia `suspicious_photo`, alerta visu
 
 ## Proximo paso recomendado
 
-Mergear PR #113 a `main`, verificar checks post-merge, verificar deploy automatico de produccion y reportar merge commit.
+- Mantener PR #114 sin merge hasta confirmar/configurar variables Wompi nuevas en Vercel.
+- Continuar con TASK-005: flujo de disputa, revisando primero pagos, wallet, refunds y payouts.
 
 ## Debe leer el proximo agente
 

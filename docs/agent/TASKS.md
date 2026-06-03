@@ -134,7 +134,10 @@ Estado: DONE
 Fecha: 2026-06-03
 Resumen:
 
-- PR #113 quedo autorizado para merge a `main` con QA funcional de Aldo PASS.
+- PR #113 fue mergeado a `main` con QA funcional de Aldo PASS.
+- Merge commit: `7df5445`.
+- Produccion quedo desplegada automaticamente desde el merge commit `7df5445`.
+- Deployment production registrado: `4921793067`.
 - El viajero puede reportar paquete sospechoso desde `/app/matches/[id]` con foto y descripcion obligatorias.
 - El reporte crea evidencia `suspicious_photo` y evento en `shipment_report_events`.
 - El evento queda vinculado a la evidencia mediante metadata segura sin guardar paths de Storage.
