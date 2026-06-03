@@ -23,19 +23,6 @@ Resumen:
 - Es el siguiente frente real recomendado porque conecta confianza, trazabilidad, admin, pagos y wallet.
 - No debe tocar pagos, RLS, RPCs, Storage o migraciones sin alcance tecnico explicito y revision previa de `DB_NOTES.md`.
 
-### TASK-003: Completar flujo de paquete sospechoso
-
-Estado: TODO
-Prioridad: Critica
-Area: Matches / Shipments / Seguridad operativa / Admin
-
-Criterios de aceptacion:
-
-- El flujo queda definido con estados, permisos, copy y acciones permitidas.
-- Cliente, viajero y admin ven el estado operativo del reporte sin depender de contexto de chat.
-- La alerta puede revisarse, cerrarse o escalarse a disputa desde admin.
-- No se cambia RLS, pagos ni estados criticos sin revisar `DB_NOTES.md` y matriz legal.
-
 ### TASK-004: Completar flujo de evidencias
 
 Estado: TODO
@@ -54,6 +41,7 @@ Criterios de aceptacion:
 - PR C implementa checkout-gate para exigir `customer_initial_photo` antes de abrir Wompi, sin tocar reglas de pago ni policies.
 - PR D quedo mergeado a `main`: muestra miniatura firmada de `customer_initial_photo` en oportunidades compatibles de `/app`, con QA autenticado 8/8 PASS y sin tocar RLS, Storage policies ni pagos.
 - PR E quedo mergeado a `main` en PR #112: integra panel progresivo de evidencias en `/app/matches/[id]`, muestra `customer_initial_photo`, exige `pickup_photo` para marcar recogida, exige `delivery_photo` para reportar entrega, bloquea las server actions si falta evidencia obligatoria, redirige CTAs externos al detalle cuando aplica, agrega visor grande de miniaturas, y no toca pagos, RLS, Storage policies ni migraciones.
+- PR #113 agrega `suspicious_photo` como soporte de alerta en el panel de evidencias del detalle de match sin reemplazar `customer_initial_photo`, `pickup_photo` ni `delivery_photo`; QA autenticado de Aldo quedo PASS.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa
@@ -139,6 +127,23 @@ Criterios de aceptacion:
 ---
 
 ## Done Log
+
+### TASK-003-PR-F: Paquete sospechoso con evidencia y bloqueo operativo
+
+Estado: DONE
+Fecha: 2026-06-03
+Resumen:
+
+- PR #113 quedo autorizado para merge a `main` con QA funcional de Aldo PASS.
+- El viajero puede reportar paquete sospechoso desde `/app/matches/[id]` con foto y descripcion obligatorias.
+- El reporte crea evidencia `suspicious_photo` y evento en `shipment_report_events`.
+- El evento queda vinculado a la evidencia mediante metadata segura sin guardar paths de Storage.
+- Cliente, viajero y admin ven la alerta/evidencia operativa.
+- Una alerta activa `open` o `reviewing` bloquea recogida, entrega y confirmacion de recepcion desde detalle y desde `/app/matches`.
+- Al resolver la alerta, el flujo operativo puede continuar normalmente.
+- No cambia estado de pago, no toca wallet, no libera fondos y no abre disputa automaticamente.
+- No se tocaron RLS, Storage policies, migraciones, pagos, Wompi, wallet, payouts, refunds ni auto-release.
+- PR #114 quedo separado y bloqueado hasta confirmar variables Wompi nuevas en Vercel.
 
 ### TASK-004-PR-E: Evidencias operativas en detalle de match
 
