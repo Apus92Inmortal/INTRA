@@ -2,40 +2,43 @@
 
 ## Fecha
 
-2026-06-02
+2026-06-03
 
 ## Objetivo de la sesion
 
-Cerrar PR F: conectar el reporte de paquete sospechoso con evidencia `suspicious_photo` dentro de `/app/matches/[id]`, abrir PR contra `main` y dejar QA autenticado pendiente antes de merge.
+Cerrar PR #113: paquete sospechoso con evidencia `suspicious_photo`, alerta visual y bloqueo operativo por alerta activa.
 
 ## Estado actual
 
 - Rama: `feat/suspicious-package-evidence`.
-- PR F: pendiente de crear al cierre local de este corte.
-- `main`: no tocado.
-- Produccion: no tocada.
-- Alcance funcional acotado al detalle de match.
+- PR #113: QA funcional de Aldo PASS y autorizado para merge a `main`.
+- PR #114: separado y bloqueado hasta confirmar variables Wompi nuevas en Vercel.
+- `main`: pendiente de merge de PR #113 al momento de este cierre de rama.
+- Produccion: pendiente de deploy automatico posterior al merge.
 
-## Archivos tocados por PR F
+## Archivos tocados por PR #113
 
 - `app/app/matches/[id]/SuspiciousReportForm.tsx`
 - `app/app/matches/[id]/ShipmentEvidencePanel.tsx`
+- `app/app/matches/[id]/actions.ts`
 - `app/app/matches/[id]/page.tsx`
+- `app/app/matches/page.tsx`
 - `docs/agent/CURRENT_SESSION.md`
 - `docs/agent/TASKS.md`
 
 ## Cambios entregados
 
-- El reporte de paquete sospechoso exige motivo o descripcion.
-- El reporte de paquete sospechoso exige foto obligatoria.
+- El viajero puede reportar paquete sospechoso desde el detalle del match.
+- El reporte exige foto obligatoria.
+- El reporte exige motivo o descripcion obligatoria.
 - La foto se comprime, se sube al bucket `shipment-evidence` y se registra en `shipment_evidence`.
 - La evidencia se guarda con `evidence_type = suspicious_photo`.
 - El reporte se crea en `shipment_report_events`.
 - El reporte queda vinculado a la evidencia mediante metadata segura: `metadata.support_evidence_id`, `metadata.support_evidence_type` y `metadata.support_evidence_created_at`.
 - `shipment_report_events.metadata` no guarda `file_path`, bucket path ni Storage path.
-- Si existe una alerta activa `open` o `reviewing` para el match/envio, el detalle del match muestra badge y bloque visual `Paquete sospechoso` / `Alerta abierta` o `En revision operativa`.
+- Si existe una alerta activa `open` o `reviewing`, el detalle del match muestra badge y bloque visual `Paquete sospechoso` / `Alerta abierta` o `En revision operativa`.
 - Si existe una alerta activa `open` o `reviewing`, las server actions bloquean `markInTransitAction`, `markDeliveredAction` y `confirmDeliveryAction` antes de llamar RPCs de avance operativo.
-- `/app/matches` y `/app/matches/[id]` ocultan o bloquean CTAs de avance operativo mientras la alerta siga activa y muestran el mensaje `En revision operativa. No puedes avanzar el envio hasta que la alerta sea revisada.`
+- `/app/matches` y `/app/matches/[id]` ocultan o bloquean CTAs de avance operativo mientras la alerta siga activa.
 - El formulario de paquete sospechoso se abre en modal con X de cierre, motivo obligatorio, foto obligatoria, descripcion obligatoria y boton `Enviar reporte`.
 - El panel de evidencias del detalle del match consulta y muestra `suspicious_photo` como soporte de alerta.
 - La evidencia sospechosa no reemplaza la evidencia principal normal del flujo:
@@ -50,50 +53,51 @@ Cerrar PR F: conectar el reporte de paquete sospechoso con evidencia `suspicious
 - `npm run test:unit`: PASS, 42/42 tests.
 - `npm run build`: PASS.
 - `git diff --check`: PASS.
+- GitHub check `validate`: PASS.
+- GitHub check `detect-impact`: PASS.
+- Vercel preview: PASS.
+- QA funcional autenticado de Aldo: PASS.
 
-## QA autenticado pendiente antes de merge
+## QA funcional confirmado por Aldo
 
-1. Viajero en match accepted/matched abre modal de paquete sospechoso.
-2. Sin foto no envia.
-3. Sin motivo/descripcion no envia.
-4. Con foto + descripcion crea `suspicious_photo`.
-5. Con foto + descripcion crea `shipment_report_events`.
-6. Cliente ve alerta/evidencia en match detail.
-7. Cliente recibe notificacion si el patron actual aplica.
-8. Admin sigue viendo la alerta en su modulo existente.
-9. No cambia estado de pago.
-10. No toca wallet.
-11. No libera fondos.
-12. No abre disputa automaticamente.
-13. No permite usuario no viajero/no relacionado.
-14. No permite duplicar alerta activa sin advertencia o bloqueo.
-15. Con alerta activa, intentar recoger queda bloqueado.
-16. Con alerta activa, intentar reportar entrega queda bloqueado.
-17. Con alerta activa, intentar confirmar recepcion queda bloqueado.
-18. Al resolver la alerta, el flujo operativo puede continuar normalmente.
+1. Viajero puede abrir el modal de `Reportar paquete sospechoso`.
+2. El modal exige foto.
+3. El modal exige motivo/descripcion.
+4. Con foto + descripcion se crea la alerta correctamente.
+5. Se genera evidencia `suspicious_photo`.
+6. El cliente ve la alerta/evidencia en el detalle del match.
+7. Admin puede ver la alerta.
+8. No cambia el estado del pago.
+9. No toca wallet.
+10. No libera fondos.
+11. No abre disputa automaticamente.
+12. No permite duplicar alerta activa.
+13. Con alerta `open` o `reviewing`, el flujo queda bloqueado.
+14. No deja recoger, entregar ni confirmar recepcion mientras la alerta este activa.
+15. Desde `/app/matches` tampoco permite saltarse el bloqueo.
+16. Cuando la alerta se resuelve, el flujo puede continuar normalmente.
 
 ## No tocado
 
-- Pagos
-- Wompi
-- Wallet
-- Payouts
-- Refunds
-- Auto-release
-- RLS
-- Storage policies
-- Supabase migrations
-- `main`
-- Produccion
+- RLS.
+- Storage policies.
+- Supabase migrations.
+- Pagos.
+- Wompi.
+- Wallet.
+- Payouts.
+- Refunds.
+- Auto-release.
+- Produccion antes del merge.
 
 ## Riesgos abiertos
 
-- QA autenticado funcional sigue pendiente antes de merge.
-- Realtime de evidencias y alertas sigue fuera de PR F; algunas vistas pueden requerir refresh.
+- Realtime de evidencias y alertas sigue fuera de PR #113; algunas vistas pueden requerir refresh.
+- PR #114 sigue bloqueado hasta confirmar variables Wompi nuevas en Vercel.
 
 ## Proximo paso recomendado
 
-Ejecutar QA autenticado de PR F, revisar checks del PR y mergear solo con aprobacion explicita.
+Mergear PR #113 a `main`, verificar checks post-merge, verificar deploy automatico de produccion y reportar merge commit.
 
 ## Debe leer el proximo agente
 
