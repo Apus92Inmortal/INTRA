@@ -2,108 +2,92 @@
 
 ## Fecha
 
-2026-06-03
+2026-06-04
 
 ## Objetivo de la sesion
 
-Cerrar PR #113: paquete sospechoso con evidencia `suspicious_photo`, alerta visual y bloqueo operativo por alerta activa.
+Implementar PR G: expediente administrativo de evidencias, alertas y disputas en `/app/admin/disputes`.
 
 ## Estado actual
 
-- Rama: `feat/suspicious-package-evidence`.
-- PR #113: mergeado a `main`.
-- Merge commit: `7df5445` - `Merge pull request #113 from Apus92Inmortal/feat/suspicious-package-evidence`.
-- PR #114: separado y bloqueado hasta confirmar variables Wompi nuevas en Vercel.
-- `main`: sincronizado con `origin/main` despues del merge.
-- Produccion: deploy automatico completado desde el merge commit `7df5445`.
-- Deployment production registrado: `4921793067`.
-- URL deployment production: `https://intra-70zotdjz8-aldo-antonio-altamar-cervantes-projects.vercel.app`.
+- Rama: `feat/admin-evidence-case-file`.
+- `main`: incluye PR #114 mergeado.
+- PR #114: mergeado a `main`.
+- Merge commit PR #114: `236f243` - `Merge pull request #114 from Apus92Inmortal/chore/intra-wompi-env-names`.
+- Produccion PR #114: deploy automatico `READY` desde `236f243`.
+- Variables Wompi nuevas confirmadas en Production y Preview:
+  - `NEXT_PUBLIC_WOMPI_PUBLIC_KEY`
+  - `INTRA_WOMPI_PRIVATE_KEY`
+  - `INTRA_WOMPI_EVENTS_KEY`
+  - `INTRA_WOMPI_INTEGRITY_KEY`
+- Development Wompi queda pendiente y no bloqueante.
+- Variables Wompi antiguas siguen presentes en Vercel; no se borraron.
+- PR G implementado localmente y pendiente de push/PR.
 
-## Archivos tocados por PR #113
+## Archivos tocados por PR G
 
-- `app/app/matches/[id]/SuspiciousReportForm.tsx`
-- `app/app/matches/[id]/ShipmentEvidencePanel.tsx`
-- `app/app/matches/[id]/actions.ts`
-- `app/app/matches/[id]/page.tsx`
-- `app/app/matches/page.tsx`
+- `app/app/admin/disputes/page.tsx`
+- `app/app/admin/disputes/DisputesReviewClient.tsx`
+- `app/app/admin/disputes/AdminCaseEvidencePanel.tsx`
 - `docs/agent/CURRENT_SESSION.md`
 - `docs/agent/TASKS.md`
 
-## Cambios entregados
+## Cambios implementados
 
-- El viajero puede reportar paquete sospechoso desde el detalle del match.
-- El reporte exige foto obligatoria.
-- El reporte exige motivo o descripcion obligatoria.
-- La foto se comprime, se sube al bucket `shipment-evidence` y se registra en `shipment_evidence`.
-- La evidencia se guarda con `evidence_type = suspicious_photo`.
-- El reporte se crea en `shipment_report_events`.
-- El reporte queda vinculado a la evidencia mediante metadata segura: `metadata.support_evidence_id`, `metadata.support_evidence_type` y `metadata.support_evidence_created_at`.
-- `shipment_report_events.metadata` no guarda `file_path`, bucket path ni Storage path.
-- Si existe una alerta activa `open` o `reviewing`, el detalle del match muestra badge y bloque visual `Paquete sospechoso` / `Alerta abierta` o `En revision operativa`.
-- Si existe una alerta activa `open` o `reviewing`, las server actions bloquean `markInTransitAction`, `markDeliveredAction` y `confirmDeliveryAction` antes de llamar RPCs de avance operativo.
-- `/app/matches` y `/app/matches/[id]` ocultan o bloquean CTAs de avance operativo mientras la alerta siga activa.
-- El formulario de paquete sospechoso se abre en modal con X de cierre, motivo obligatorio, foto obligatoria, descripcion obligatoria y boton `Enviar reporte`.
-- El panel de evidencias del detalle del match consulta y muestra `suspicious_photo` como soporte de alerta.
-- La evidencia sospechosa no reemplaza la evidencia principal normal del flujo:
+- `/app/admin/disputes` carga un expediente operativo por disputa y alerta.
+- El expediente resume ruta, cliente, viajero, estado de match, estado de shipment, estado de payment, alerta y disputa.
+- Admin ve evidencias del caso con signed URLs generadas server-side:
   - `customer_initial_photo`
   - `pickup_photo`
+  - `suspicious_photo`
   - `delivery_photo`
-
-## Validacion
-
-- `npm run lint`: PASS.
-- `npx tsc --noEmit`: PASS.
-- `npm run test:unit`: PASS, 42/42 tests.
-- `npm run build`: PASS.
-- `git diff --check`: PASS.
-- GitHub check `validate`: PASS.
-- GitHub check `detect-impact`: PASS.
-- Vercel preview: PASS.
-- QA funcional autenticado de Aldo: PASS.
-- GitHub post-merge `validate`: PASS.
-- GitHub post-merge `detect-impact`: PASS.
-- Vercel production para `7df5445`: SUCCESS.
-
-## QA funcional confirmado por Aldo
-
-1. Viajero puede abrir el modal de `Reportar paquete sospechoso`.
-2. El modal exige foto.
-3. El modal exige motivo/descripcion.
-4. Con foto + descripcion se crea la alerta correctamente.
-5. Se genera evidencia `suspicious_photo`.
-6. El cliente ve la alerta/evidencia en el detalle del match.
-7. Admin puede ver la alerta.
-8. No cambia el estado del pago.
-9. No toca wallet.
-10. No libera fondos.
-11. No abre disputa automaticamente.
-12. No permite duplicar alerta activa.
-13. Con alerta `open` o `reviewing`, el flujo queda bloqueado.
-14. No deja recoger, entregar ni confirmar recepcion mientras la alerta este activa.
-15. Desde `/app/matches` tampoco permite saltarse el bloqueo.
-16. Cuando la alerta se resuelve, el flujo puede continuar normalmente.
+- El client component recibe solo datos limpios de evidencia: tipo, signed URL, nota, uploader y fecha.
+- No se pasa `file_path`, bucket path ni Storage path al client component.
+- Se reutiliza `EvidenceImagePreview` para abrir miniaturas en visor grande.
+- Las acciones admin existentes se mantienen, separadas visualmente del expediente.
+- Se agrego copy visual de advertencia para acciones con impacto financiero u operativo existente.
 
 ## No tocado
 
-- RLS.
-- Storage policies.
-- Supabase migrations.
 - Pagos.
 - Wompi.
-- Wallet.
+- Wallet pages/actions.
 - Payouts.
 - Refunds.
 - Auto-release.
+- Supabase migrations.
+- RLS.
+- Storage policies.
+- RPCs de pagos, release o refunds.
+- Paquete sospechoso en match detail.
+- Realtime.
+
+## Validacion
+
+- `git diff --check`: PASS.
+- `npx tsc --noEmit`: PASS despues de ajustar tipos de ciudad.
+- `npm run lint`: PASS.
+- `npm run test:unit`: PASS, 42/42 tests.
+- `npm run build`: PASS, con warning no bloqueante de root por lockfiles multiples.
+- Verificacion client admin: `file_path`, `storage_path`, bucket path y Storage path no aparecen en `DisputesReviewClient.tsx` ni `AdminCaseEvidencePanel.tsx`.
+
+## QA pendiente
+
+- QA manual admin de `/app/admin/disputes` en 1440x800 y 1366x650 requiere sesion admin y datos reales.
+- Confirmar en UI que no aparece `file_path`, bucket path ni Storage path.
+- Confirmar que no se ejecutan acciones financieras nuevas.
 
 ## Riesgos abiertos
 
-- Realtime de evidencias y alertas sigue fuera de PR #113; algunas vistas pueden requerir refresh.
-- PR #114 sigue bloqueado hasta confirmar variables Wompi nuevas en Vercel.
+- Las acciones admin existentes para disputas y alertas pueden afectar pagos, wallet, release o cancelaciones si el admin las ejecuta; PR G solo las separa visualmente y agrega advertencia.
+- Realtime queda fuera de alcance; la pantalla depende del refresh existente.
+- La validacion funcional con datos reales de admin sigue pendiente.
 
 ## Proximo paso recomendado
 
-- Mantener PR #114 sin merge hasta confirmar/configurar variables Wompi nuevas en Vercel.
-- Continuar con TASK-005: flujo de disputa, revisando primero pagos, wallet, refunds y payouts.
+- Commit local.
+- Reportar estado y pedir autorizacion antes de push y apertura de PR.
+- Ejecutar QA manual admin cuando exista sesion/datos reales disponibles.
 
 ## Debe leer el proximo agente
 
