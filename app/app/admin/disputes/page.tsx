@@ -1,8 +1,18 @@
 import { requireAdminUser } from "@/lib/auth/admin"
 import { createAdminClient } from "@/lib/supabase/admin"
 import DisputesReviewClient from "./DisputesReviewClient"
+import type { AdminCaseEvidenceType, AdminCaseFile } from "./AdminCaseEvidencePanel"
 
 type JsonObject = Record<string, unknown>
+
+const EVIDENCE_BUCKET = "shipment-evidence"
+const EVIDENCE_SIGNED_URL_TTL_SECONDS = 10 * 60
+const CASE_EVIDENCE_TYPES: AdminCaseEvidenceType[] = [
+  "customer_initial_photo",
+  "pickup_photo",
+  "delivery_photo",
+  "suspicious_photo",
+]
 
 type PaymentRow = {
   id: string
@@ -28,11 +38,16 @@ type MatchRow = {
   resolution_notes: string | null
 }
 
+type CityRow = { name: string | null; iata_code?: string | null }
+type CityRelation = CityRow | CityRow[] | null
+
 type ShipmentRow = {
   id: string
   owner_id: string
   tracking_code: string | null
   status: string | null
+  origin_city: CityRelation
+  destination_city: CityRelation
 }
 
 type TripRow = {
@@ -59,6 +74,16 @@ type ProfileRow = {
   phone: string | null
 }
 
+type EvidenceRow = {
+  id: string
+  shipment_id: string
+  evidence_type: string
+  file_path: string | null
+  note: string | null
+  uploaded_by: string | null
+  created_at: string | null
+}
+
 function asJsonObject(value: unknown) {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonObject) : {}
 }
@@ -75,6 +100,35 @@ function getDisputeAdminState(payment: PaymentRow) {
   }
 
   return "open"
+}
+
+function asCity(value: CityRelation) {
+  return Array.isArray(value) ? (value[0] ?? null) : value
+}
+
+function getCityName(value: CityRelation) {
+  const city = asCity(value)
+  return city?.name?.trim() || city?.iata_code?.trim() || null
+}
+
+function getRouteLabel(shipment: ShipmentRow | null | undefined) {
+  if (!shipment) {
+    return "Ruta sin datos"
+  }
+
+  return `${getCityName(shipment.origin_city) ?? "Origen"} → ${getCityName(shipment.destination_city) ?? "Destino"}`
+}
+
+function isCaseEvidenceType(value: string): value is AdminCaseEvidenceType {
+  return (CASE_EVIDENCE_TYPES as string[]).includes(value)
+}
+
+function normalizeAlertState(value: string | null | undefined): "open" | "reviewing" | "resolved" | null {
+  if (value === "open" || value === "reviewing" || value === "resolved") {
+    return value
+  }
+
+  return null
 }
 
 export default async function AdminDisputesPage() {
@@ -99,6 +153,7 @@ export default async function AdminDisputesPage() {
     resolutionNotes: string | null
     suggestedAmount: number
     travelerAmount: number
+    caseFile: AdminCaseFile
   }> = []
   let alerts: Array<{
     id: string
@@ -116,6 +171,7 @@ export default async function AdminDisputesPage() {
     resolvedAt: string | null
     resolutionAction: string | null
     resolutionNotes: string | null
+    caseFile: AdminCaseFile
   }> = []
 
   try {
@@ -149,7 +205,7 @@ export default async function AdminDisputesPage() {
         ])
       ) as string[]
 
-      const shipmentIds = Array.from(
+      const initialShipmentIds = Array.from(
         new Set([
           ...disputePayments.map((payment) => payment.shipment_id).filter(Boolean),
           ...reportEvents.map((report) => report.shipment_id).filter(Boolean),
@@ -168,10 +224,21 @@ export default async function AdminDisputesPage() {
       } else {
         const matches = new Map(((matchRows ?? []) as MatchRow[]).map((match) => [match.id, match]))
         const tripIds = Array.from(new Set(((matchRows ?? []) as MatchRow[]).map((match) => match.trip_id).filter(Boolean))) as string[]
+        const shipmentIds = Array.from(
+          new Set([
+            ...initialShipmentIds,
+            ...((matchRows ?? []) as MatchRow[]).map((match) => match.shipment_id).filter(Boolean),
+          ])
+        ) as string[]
 
         const [{ data: shipmentRows, error: shipmentError }, { data: tripRows, error: tripError }] = await Promise.all([
           shipmentIds.length
-            ? admin.from("shipments").select("id, owner_id, tracking_code, status").in("id", shipmentIds)
+            ? admin
+                .from("shipments")
+                .select(
+                  "id, owner_id, tracking_code, status, origin_city:cities!shipments_origin_city_id_fkey(name, iata_code), destination_city:cities!shipments_destination_city_id_fkey(name, iata_code)"
+                )
+                .in("id", shipmentIds)
             : Promise.resolve({ data: [] as ShipmentRow[], error: null }),
           tripIds.length
             ? admin.from("trips").select("id, traveler_id").in("id", tripIds)
@@ -183,12 +250,80 @@ export default async function AdminDisputesPage() {
         } else {
           const shipments = new Map(((shipmentRows ?? []) as ShipmentRow[]).map((shipment) => [shipment.id, shipment]))
           const trips = new Map(((tripRows ?? []) as TripRow[]).map((trip) => [trip.id, trip]))
+          const [{ data: relatedPaymentRows, error: relatedPaymentsError }, { data: evidenceRows, error: evidenceError }] =
+            await Promise.all([
+              shipmentIds.length
+                ? admin
+                    .from("payments")
+                    .select(
+                      "id, match_id, shipment_id, status, dispute_status, dispute_reason, dispute_opened_at, dispute_resolved_at, amount, traveler_amount, metadata"
+                    )
+                    .in("shipment_id", shipmentIds)
+                    .order("created_at", { ascending: false })
+                : Promise.resolve({ data: [] as PaymentRow[], error: null }),
+              shipmentIds.length
+                ? admin
+                    .from("shipment_evidence")
+                    .select("id, shipment_id, evidence_type, file_path, note, uploaded_by, created_at")
+                    .in("shipment_id", shipmentIds)
+                    .in("evidence_type", CASE_EVIDENCE_TYPES)
+                    .order("created_at", { ascending: false })
+                : Promise.resolve({ data: [] as EvidenceRow[], error: null }),
+            ])
+
+          if (relatedPaymentsError || evidenceError) {
+            loadError =
+              relatedPaymentsError?.message ?? evidenceError?.message ?? "No pudimos cargar el expediente administrativo."
+            throw new Error(loadError ?? "No pudimos cargar el expediente administrativo.")
+          }
+
+          const relatedPayments = (relatedPaymentRows ?? []) as PaymentRow[]
+          const allPayments = [...disputePayments, ...relatedPayments]
+          const latestPaymentByShipmentId = new Map<string, PaymentRow>()
+          const latestPaymentByMatchId = new Map<string, PaymentRow>()
+
+          for (const payment of allPayments) {
+            if (payment.shipment_id && !latestPaymentByShipmentId.has(payment.shipment_id)) {
+              latestPaymentByShipmentId.set(payment.shipment_id, payment)
+            }
+
+            if (payment.match_id && !latestPaymentByMatchId.has(payment.match_id)) {
+              latestPaymentByMatchId.set(payment.match_id, payment)
+            }
+          }
+
+          const latestReportByShipmentId = new Map<string, ReportRow>()
+          const latestReportByMatchId = new Map<string, ReportRow>()
+          const activeReportByShipmentId = new Map<string, ReportRow>()
+          const activeReportByMatchId = new Map<string, ReportRow>()
+
+          for (const report of reportEvents) {
+            if (!latestReportByShipmentId.has(report.shipment_id)) {
+              latestReportByShipmentId.set(report.shipment_id, report)
+            }
+
+            if (report.match_id && !latestReportByMatchId.has(report.match_id)) {
+              latestReportByMatchId.set(report.match_id, report)
+            }
+
+            if (report.status === "open" || report.status === "reviewing") {
+              if (!activeReportByShipmentId.has(report.shipment_id)) {
+                activeReportByShipmentId.set(report.shipment_id, report)
+              }
+
+              if (report.match_id && !activeReportByMatchId.has(report.match_id)) {
+                activeReportByMatchId.set(report.match_id, report)
+              }
+            }
+          }
+
           const profileIds = Array.from(
             new Set(
               [
                 ...((shipmentRows ?? []) as ShipmentRow[]).map((shipment) => shipment.owner_id),
                 ...((tripRows ?? []) as TripRow[]).map((trip) => trip.traveler_id),
                 ...reportEvents.map((report) => report.reported_by),
+                ...((evidenceRows ?? []) as EvidenceRow[]).map((evidence) => evidence.uploaded_by),
               ].filter(Boolean)
             )
           ) as string[]
@@ -203,12 +338,82 @@ export default async function AdminDisputesPage() {
             const profiles = new Map(((profileRows ?? []) as ProfileRow[]).map((profile) => [profile.id, profile]))
             const fullName = (userId: string | null | undefined, fallback: string) =>
               userId ? profiles.get(userId)?.full_name?.trim() || fallback : fallback
+            const evidenceByShipmentId = new Map<string, AdminCaseFile["evidences"]>()
+
+            await Promise.all(
+              ((evidenceRows ?? []) as EvidenceRow[]).map(async (row) => {
+                if (!isCaseEvidenceType(row.evidence_type)) {
+                  return
+                }
+
+                const current = evidenceByShipmentId.get(row.shipment_id) ?? []
+                if (current.some((evidence) => evidence.evidenceType === row.evidence_type)) {
+                  return
+                }
+
+                let signedUrl: string | null = null
+
+                if (row.file_path) {
+                  const { data: signedUrlData, error: signedUrlError } = await admin.storage
+                    .from(EVIDENCE_BUCKET)
+                    .createSignedUrl(row.file_path, EVIDENCE_SIGNED_URL_TTL_SECONDS)
+
+                  if (!signedUrlError && signedUrlData?.signedUrl) {
+                    signedUrl = signedUrlData.signedUrl
+                  }
+                }
+
+                current.push({
+                  evidenceType: row.evidence_type,
+                  signedUrl,
+                  note: row.note,
+                  uploadedByName: fullName(row.uploaded_by, "Usuario INTRA"),
+                  createdAt: row.created_at,
+                })
+                evidenceByShipmentId.set(row.shipment_id, current)
+              })
+            )
+
+            const buildCaseFile = ({
+              match,
+              shipment,
+              trip,
+              payment,
+              report,
+              disputeState,
+            }: {
+              match: MatchRow | null
+              shipment: ShipmentRow | null
+              trip: TripRow | null
+              payment: PaymentRow | null
+              report: ReportRow | null
+              disputeState: "open" | "reviewing" | "resolved" | null
+            }): AdminCaseFile => ({
+              matchId: match?.id ?? payment?.match_id ?? report?.match_id ?? null,
+              shipmentId: shipment?.id ?? payment?.shipment_id ?? report?.shipment_id ?? null,
+              routeLabel: getRouteLabel(shipment),
+              customerName: fullName(shipment?.owner_id, "Cliente sin nombre"),
+              travelerName: fullName(trip?.traveler_id, "Viajero sin nombre"),
+              matchStatus: match?.status ?? null,
+              shipmentStatus: shipment?.status ?? null,
+              paymentStatus: payment?.status ?? null,
+              alertState: normalizeAlertState(report?.status),
+              disputeState,
+              evidences: shipment?.id ? evidenceByShipmentId.get(shipment.id) ?? [] : [],
+            })
 
             disputes = disputePayments.map((payment) => {
               const match = payment.match_id ? matches.get(payment.match_id) ?? null : null
               const shipment = payment.shipment_id ? shipments.get(payment.shipment_id) ?? null : match?.shipment_id ? shipments.get(match.shipment_id) ?? null : null
               const trip = match?.trip_id ? trips.get(match.trip_id) ?? null : null
               const metadata = asJsonObject(payment.metadata)
+              const relatedReport =
+                (payment.match_id ? activeReportByMatchId.get(payment.match_id) : null) ??
+                (shipment?.id ? activeReportByShipmentId.get(shipment.id) : null) ??
+                (payment.match_id ? latestReportByMatchId.get(payment.match_id) : null) ??
+                (shipment?.id ? latestReportByShipmentId.get(shipment.id) : null) ??
+                null
+              const state = getDisputeAdminState(payment)
 
               return {
                 id: payment.id,
@@ -233,6 +438,14 @@ export default async function AdminDisputesPage() {
                     : (match?.resolution_notes ?? null),
                 suggestedAmount: Number(payment.amount ?? 0),
                 travelerAmount: Number(payment.traveler_amount ?? payment.amount ?? 0),
+                caseFile: buildCaseFile({
+                  match,
+                  shipment,
+                  trip,
+                  payment,
+                  report: relatedReport,
+                  disputeState: state,
+                }),
               }
             })
 
@@ -242,6 +455,11 @@ export default async function AdminDisputesPage() {
               const trip = match?.trip_id ? trips.get(match.trip_id) ?? null : null
               const metadata = asJsonObject(report.metadata)
               const affectedUserId = report.reported_by === trip?.traveler_id ? shipment?.owner_id ?? null : trip?.traveler_id ?? null
+              const payment =
+                (report.match_id ? latestPaymentByMatchId.get(report.match_id) : null) ??
+                latestPaymentByShipmentId.get(report.shipment_id) ??
+                null
+              const state = report.status === "reviewing" ? "reviewing" : report.status === "resolved" ? "resolved" : "open"
 
               return {
                 id: report.id,
@@ -254,13 +472,21 @@ export default async function AdminDisputesPage() {
                 affectedName: fullName(affectedUserId, "Usuario relacionado"),
                 affectedUserId,
                 reason: report.reason,
-                state: report.status === "reviewing" ? "reviewing" : report.status === "resolved" ? "resolved" : "open",
+                state,
                 createdAt: report.created_at,
                 resolvedAt: report.resolved_at,
                 resolutionAction:
                   typeof metadata.admin_resolution_action === "string" ? metadata.admin_resolution_action : null,
                 resolutionNotes:
                   typeof metadata.admin_resolution_notes === "string" ? metadata.admin_resolution_notes : null,
+                caseFile: buildCaseFile({
+                  match,
+                  shipment,
+                  trip,
+                  payment,
+                  report,
+                  disputeState: payment ? getDisputeAdminState(payment) : null,
+                }),
               }
             })
           }

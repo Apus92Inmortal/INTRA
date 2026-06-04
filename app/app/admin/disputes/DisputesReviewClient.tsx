@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { reviewDisputeAction, reviewShipmentAlertAction } from "@/app/app/admin/actions"
 import { formatCop, formatDateTime } from "@/lib/payments/wallet"
+import { AdminCaseEvidencePanel, type AdminCaseFile } from "./AdminCaseEvidencePanel"
 
 type AdminDispute = {
   id: string
@@ -24,6 +25,7 @@ type AdminDispute = {
   resolutionNotes: string | null
   suggestedAmount: number
   travelerAmount: number
+  caseFile: AdminCaseFile
 }
 
 type AdminAlert = {
@@ -42,6 +44,7 @@ type AdminAlert = {
   resolvedAt: string | null
   resolutionAction: string | null
   resolutionNotes: string | null
+  caseFile: AdminCaseFile
 }
 
 type CaseFilter = "all" | "open" | "resolved"
@@ -116,6 +119,10 @@ function matchesSearch(item: AdminDispute | AdminAlert, search: string) {
     item.reporterName,
     item.affectedName,
     item.reason,
+    item.caseFile.routeLabel,
+    item.caseFile.matchStatus ?? "",
+    item.caseFile.shipmentStatus ?? "",
+    item.caseFile.paymentStatus ?? "",
     "paymentId" in item ? item.paymentId : item.reportType,
   ]
     .join(" ")
@@ -180,6 +187,15 @@ function DisputeCard({
       </summary>
 
       <div className="mt-5 space-y-4 border-t border-intra-border-soft pt-5">
+        <AdminCaseEvidencePanel caseFile={dispute.caseFile} />
+
+        <div>
+          <p className="text-[11px] font-semibold uppercase text-intra-text-muted">Disputa formal</p>
+          <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
+            <span className="font-semibold text-intra-blue">Motivo:</span> {dispute.reason}
+          </div>
+        </div>
+
         <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Pago retenido</p>
@@ -197,10 +213,6 @@ function DisputeCard({
             <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Resolución</p>
             <p className="mt-1 text-intra-blue">{getResolutionLabel(dispute.resolutionAction)}</p>
           </div>
-        </div>
-
-        <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
-          <span className="font-semibold text-intra-blue">Motivo:</span> {dispute.reason}
         </div>
 
         <label className="block space-y-2">
@@ -234,39 +246,46 @@ function DisputeCard({
         ) : null}
 
         {!isResolved ? (
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={() => onAction(dispute, "reviewing")}
-              className="intra-btn intra-btn-secondary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
-            >
-              Marcar en revisión
-            </button>
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={() => onAction(dispute, "customer_refund")}
-              className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
-            >
-              A favor del cliente
-            </button>
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={() => onAction(dispute, "traveler_release")}
-              className="intra-btn min-h-11 rounded-2xl border border-intra-success-border bg-intra-card px-4 py-2.5 text-sm font-semibold text-intra-text-success transition hover:bg-intra-success-soft disabled:opacity-50"
-            >
-              A favor del viajero
-            </button>
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={() => onAction(dispute, "rejected")}
-              className="intra-btn min-h-11 rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-2.5 text-sm font-semibold text-intra-text-subtle transition hover:border-intra-blue/20 disabled:opacity-50"
-            >
-              Cerrar sin movimiento
-            </button>
+          <div className="space-y-3 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3">
+            <p className="text-sm font-semibold text-intra-warning-text">Acciones admin</p>
+            <p className="text-xs leading-5 text-intra-warning-text">
+              Resolver a favor del cliente o viajero puede afectar pago, wallet o liberación según la lógica ya existente.
+              Revisa el expediente antes de ejecutar.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => onAction(dispute, "reviewing")}
+                className="intra-btn intra-btn-secondary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+              >
+                Marcar en revisión
+              </button>
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => onAction(dispute, "customer_refund")}
+                className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+              >
+                A favor del cliente
+              </button>
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => onAction(dispute, "traveler_release")}
+                className="intra-btn min-h-11 rounded-2xl border border-intra-success-border bg-intra-card px-4 py-2.5 text-sm font-semibold text-intra-text-success transition hover:bg-intra-success-soft disabled:opacity-50"
+              >
+                A favor del viajero
+              </button>
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => onAction(dispute, "rejected")}
+                className="intra-btn min-h-11 rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-2.5 text-sm font-semibold text-intra-text-subtle transition hover:border-intra-blue/20 disabled:opacity-50"
+              >
+                Cerrar sin movimiento
+              </button>
+            </div>
           </div>
         ) : null}
       </div>
@@ -336,6 +355,15 @@ function AlertCard({
       </summary>
 
       <div className="mt-5 space-y-4 border-t border-intra-border-soft pt-5">
+        <AdminCaseEvidencePanel caseFile={alert.caseFile} />
+
+        <div>
+          <p className="text-[11px] font-semibold uppercase text-intra-text-muted">Reporte sospechoso / alerta</p>
+          <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
+            <span className="font-semibold text-intra-blue">Motivo:</span> {alert.reason}
+          </div>
+        </div>
+
         <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Tipo</p>
@@ -349,10 +377,6 @@ function AlertCard({
             <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Última actualización</p>
             <p className="mt-1 text-intra-blue">{formatDateTime(alert.resolvedAt || alert.createdAt)}</p>
           </div>
-        </div>
-
-        <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
-          <span className="font-semibold text-intra-blue">Motivo:</span> {alert.reason}
         </div>
 
         <label className="block space-y-2">
@@ -374,26 +398,32 @@ function AlertCard({
         ) : null}
 
         {!isResolved ? (
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            {actionButtons.map((button) => (
-              <button
-                key={button.key}
-                type="button"
-                disabled={isPending}
-                onClick={() => onAction(alert, button.key)}
-                className={`intra-btn min-h-11 px-4 py-2.5 text-sm disabled:opacity-50 ${
-                  button.key === "reviewing"
-                    ? "intra-btn-secondary"
-                    : button.key === "reject_shipment" || button.key === "cancel_match"
-                      ? "border border-intra-danger-border text-intra-danger hover:bg-intra-danger-soft"
-                      : button.key === "allow_shipment"
-                        ? "border border-intra-success-border text-intra-text-success hover:bg-intra-success-soft"
-                        : "border border-intra-border-soft text-intra-text-subtle hover:border-intra-blue/20"
-                }`}
-              >
-                {button.label}
-              </button>
-            ))}
+          <div className="space-y-3 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3">
+            <p className="text-sm font-semibold text-intra-warning-text">Acciones admin</p>
+            <p className="text-xs leading-5 text-intra-warning-text">
+              Algunas acciones pueden cancelar el envío, escalar a disputa o desbloquear el flujo operativo según la lógica ya existente.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              {actionButtons.map((button) => (
+                <button
+                  key={button.key}
+                  type="button"
+                  disabled={isPending}
+                  onClick={() => onAction(alert, button.key)}
+                  className={`intra-btn min-h-11 px-4 py-2.5 text-sm disabled:opacity-50 ${
+                    button.key === "reviewing"
+                      ? "intra-btn-secondary"
+                      : button.key === "reject_shipment" || button.key === "cancel_match"
+                        ? "border border-intra-danger-border text-intra-danger hover:bg-intra-danger-soft"
+                        : button.key === "allow_shipment"
+                          ? "border border-intra-success-border text-intra-text-success hover:bg-intra-success-soft"
+                          : "border border-intra-border-soft text-intra-text-subtle hover:border-intra-blue/20"
+                  }`}
+                >
+                  {button.label}
+                </button>
+              ))}
+            </div>
           </div>
         ) : null}
       </div>

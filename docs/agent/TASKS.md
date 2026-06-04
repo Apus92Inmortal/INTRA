@@ -46,7 +46,7 @@ Criterios de aceptacion:
 
 ### TASK-005: Completar flujo de disputa
 
-Estado: TODO
+Estado: IN_PROGRESS
 Prioridad: Critica
 Area: Disputas / Pagos / Wallet / Admin
 
@@ -55,6 +55,7 @@ Criterios de aceptacion:
 - El flujo respeta ventana de disputa y copy aprobado en la matriz legal operativa.
 - La disputa queda visible con motivo, estado y siguiente paso para cliente/viajero.
 - Admin puede revisar el caso con contexto de match, pago, alerta y evidencia.
+- PR G en curso: expediente admin en `/app/admin/disputes` para revisar evidencias, alertas y disputas sin cambiar pagos, refunds, wallet, auto-release, RLS, Storage policies ni migraciones.
 - Se valida impacto en `payments`, `wallets`, `wallet_ledger`, refunds y payouts antes de implementar.
 
 ## P1 - Alto
@@ -127,6 +128,21 @@ Criterios de aceptacion:
 ---
 
 ## Done Log
+
+### TASK-ENV-001: Variables Wompi con prefijo INTRA
+
+Estado: DONE
+Fecha: 2026-06-04
+Resumen:
+
+- PR #114 fue mergeado a `main`.
+- Merge commit: `236f243`.
+- Se renombraron las variables server-side de Wompi a `INTRA_WOMPI_PRIVATE_KEY`, `INTRA_WOMPI_EVENTS_KEY` e `INTRA_WOMPI_INTEGRITY_KEY`.
+- `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` se mantuvo como variable publica.
+- Produccion quedo desplegada automaticamente desde `236f243`.
+- Variables nuevas confirmadas en Vercel Production y Preview sin exponer valores.
+- Development queda pendiente y no bloqueante.
+- No se tocaron pagos, checkout, wallet, payouts, refunds, auto-release, RLS, Storage policies ni migraciones.
 
 ### TASK-003-PR-F: Paquete sospechoso con evidencia y bloqueo operativo
 
