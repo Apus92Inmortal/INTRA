@@ -42,6 +42,7 @@ Criterios de aceptacion:
 - PR D quedo mergeado a `main`: muestra miniatura firmada de `customer_initial_photo` en oportunidades compatibles de `/app`, con QA autenticado 8/8 PASS y sin tocar RLS, Storage policies ni pagos.
 - PR E quedo mergeado a `main` en PR #112: integra panel progresivo de evidencias en `/app/matches/[id]`, muestra `customer_initial_photo`, exige `pickup_photo` para marcar recogida, exige `delivery_photo` para reportar entrega, bloquea las server actions si falta evidencia obligatoria, redirige CTAs externos al detalle cuando aplica, agrega visor grande de miniaturas, y no toca pagos, RLS, Storage policies ni migraciones.
 - PR #113 agrega `suspicious_photo` como soporte de alerta en el panel de evidencias del detalle de match sin reemplazar `customer_initial_photo`, `pickup_photo` ni `delivery_photo`; QA autenticado de Aldo quedo PASS.
+- PR #115 agrega expediente admin en `/app/admin/disputes` para que admin vea evidencias inicial, recogida, entrega y sospechosa con signed URLs server-side, sin exponer paths internos al client.
 - No se asocia liberacion de pago solo a carga de evidencia sin regla operativa aprobada.
 
 ### TASK-005: Completar flujo de disputa
@@ -55,7 +56,7 @@ Criterios de aceptacion:
 - El flujo respeta ventana de disputa y copy aprobado en la matriz legal operativa.
 - La disputa queda visible con motivo, estado y siguiente paso para cliente/viajero.
 - Admin puede revisar el caso con contexto de match, pago, alerta y evidencia.
-- PR G en curso: expediente admin en `/app/admin/disputes` para revisar evidencias, alertas y disputas sin cambiar pagos, refunds, wallet, auto-release, RLS, Storage policies ni migraciones.
+- PR G quedo mergeado en PR #115: expediente admin en `/app/admin/disputes` para revisar evidencias, alertas y disputas sin cambiar pagos, refunds, wallet, auto-release, RLS, Storage policies ni migraciones.
 - Se valida impacto en `payments`, `wallets`, `wallet_ledger`, refunds y payouts antes de implementar.
 
 ## P1 - Alto
@@ -128,6 +129,28 @@ Criterios de aceptacion:
 ---
 
 ## Done Log
+
+### TASK-005-PR-G: Expediente admin de evidencias, alertas y disputas
+
+Estado: DONE
+Fecha: 2026-06-04
+Resumen:
+
+- PR #115 fue mergeado a `main`.
+- Merge commit: `d6c77ab`.
+- Commit funcional: `82b6ba4`.
+- Produccion quedo desplegada automaticamente desde `d6c77ab`.
+- Deployment production registrado: `4939477249`.
+- Admin ve expediente por disputa y alerta desde `/app/admin/disputes`.
+- El expediente muestra ruta, cliente, viajero y estados de match, shipment, payment, alerta y disputa.
+- Admin ve evidencias `customer_initial_photo`, `pickup_photo`, `delivery_photo` y `suspicious_photo` si existen.
+- Las evidencias usan signed URLs generadas server-side.
+- El client recibe solo tipo, signed URL, nota, uploader y fecha; no recibe `file_path`, bucket path ni Storage path.
+- Miniaturas abren imagen grande usando `EvidenceImagePreview`.
+- Acciones admin existentes quedan visibles y separadas con advertencia de impacto operativo/financiero existente.
+- QA funcional de Aldo: PASS.
+- Checks post-merge: CI, `detect-impact` y Vercel Production PASS.
+- No se tocaron pagos, Wompi, checkout, wallet, payouts, refunds, auto-release, RLS, Storage policies, migraciones, RPCs de pagos/release/refunds, paquete sospechoso en match detail ni realtime.
 
 ### TASK-ENV-001: Variables Wompi con prefijo INTRA
 

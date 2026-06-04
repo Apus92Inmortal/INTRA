@@ -6,33 +6,21 @@
 
 ## Objetivo de la sesion
 
-Implementar PR G: expediente administrativo de evidencias, alertas y disputas en `/app/admin/disputes`.
+Cerrar PR G: expediente administrativo de evidencias, alertas y disputas en `/app/admin/disputes`.
 
 ## Estado actual
 
-- Rama: `feat/admin-evidence-case-file`.
-- `main`: incluye PR #114 mergeado.
-- PR #114: mergeado a `main`.
-- Merge commit PR #114: `236f243` - `Merge pull request #114 from Apus92Inmortal/chore/intra-wompi-env-names`.
-- Produccion PR #114: deploy automatico `READY` desde `236f243`.
-- Variables Wompi nuevas confirmadas en Production y Preview:
-  - `NEXT_PUBLIC_WOMPI_PUBLIC_KEY`
-  - `INTRA_WOMPI_PRIVATE_KEY`
-  - `INTRA_WOMPI_EVENTS_KEY`
-  - `INTRA_WOMPI_INTEGRITY_KEY`
-- Development Wompi queda pendiente y no bloqueante.
-- Variables Wompi antiguas siguen presentes en Vercel; no se borraron.
-- PR G implementado localmente y pendiente de push/PR.
+- Rama local: `main`.
+- `main`: sincronizado con `origin/main` despues del merge de PR #115.
+- PR #115: `MERGED`.
+- Merge commit PR #115: `d6c77ab` - `Merge pull request #115 from Apus92Inmortal/feat/admin-evidence-case-file`.
+- Commit funcional PR #115: `82b6ba4` - `feat: add admin evidence case file`.
+- Production Vercel: deploy automatico completado desde `d6c77ab`.
+- Deployment Production registrado: `4939477249`.
+- URL deployment Production: `https://intra-gcvf3qnql-aldo-antonio-altamar-cervantes-projects.vercel.app`.
+- QA funcional de Aldo: PASS.
 
-## Archivos tocados por PR G
-
-- `app/app/admin/disputes/page.tsx`
-- `app/app/admin/disputes/DisputesReviewClient.tsx`
-- `app/app/admin/disputes/AdminCaseEvidencePanel.tsx`
-- `docs/agent/CURRENT_SESSION.md`
-- `docs/agent/TASKS.md`
-
-## Cambios implementados
+## Cambios entregados
 
 - `/app/admin/disputes` carga un expediente operativo por disputa y alerta.
 - El expediente resume ruta, cliente, viajero, estado de match, estado de shipment, estado de payment, alerta y disputa.
@@ -47,10 +35,19 @@ Implementar PR G: expediente administrativo de evidencias, alertas y disputas en
 - Las acciones admin existentes se mantienen, separadas visualmente del expediente.
 - Se agrego copy visual de advertencia para acciones con impacto financiero u operativo existente.
 
+## Archivos tocados por PR #115
+
+- `app/app/admin/disputes/page.tsx`
+- `app/app/admin/disputes/DisputesReviewClient.tsx`
+- `app/app/admin/disputes/AdminCaseEvidencePanel.tsx`
+- `docs/agent/CURRENT_SESSION.md`
+- `docs/agent/TASKS.md`
+
 ## No tocado
 
 - Pagos.
 - Wompi.
+- Checkout.
 - Wallet pages/actions.
 - Payouts.
 - Refunds.
@@ -62,32 +59,49 @@ Implementar PR G: expediente administrativo de evidencias, alertas y disputas en
 - Paquete sospechoso en match detail.
 - Realtime.
 
-## Validacion
+## Validacion local PR #115
 
 - `git diff --check`: PASS.
-- `npx tsc --noEmit`: PASS despues de ajustar tipos de ciudad.
+- `npx tsc --noEmit`: PASS.
 - `npm run lint`: PASS.
 - `npm run test:unit`: PASS, 42/42 tests.
 - `npm run build`: PASS, con warning no bloqueante de root por lockfiles multiples.
 - Verificacion client admin: `file_path`, `storage_path`, bucket path y Storage path no aparecen en `DisputesReviewClient.tsx` ni `AdminCaseEvidencePanel.tsx`.
 
-## QA pendiente
+## Checks post-merge
 
-- QA manual admin de `/app/admin/disputes` en 1440x800 y 1366x650 requiere sesion admin y datos reales.
-- Confirmar en UI que no aparece `file_path`, bucket path ni Storage path.
-- Confirmar que no se ejecutan acciones financieras nuevas.
+- CI / `validate`: PASS.
+- Workflows Impact Analysis / `detect-impact`: PASS.
+- Vercel Production: success.
+
+## QA funcional
+
+- Aldo valido `/app/admin/disputes` como admin: PASS.
+- Admin puede entrar a `/app/admin/disputes`.
+- Admin puede revisar alerta sospechosa.
+- Se ve `suspicious_photo` cuando existe.
+- Se ve motivo, descripcion, reportante y fecha de alerta.
+- Admin puede revisar disputa.
+- Se ve expediente completo del caso.
+- Se muestran ruta, cliente, viajero y estados de match, shipment, payment, alerta y disputa.
+- Se muestran evidencias inicial, recogida, entrega y sospechosa si existen.
+- Miniaturas abren imagen grande.
+- Casos sin evidencia muestran empty state limpio.
+- No se observo `file_path`, bucket path ni Storage path en UI.
+- Acciones admin existentes siguen visibles.
+- No se ejecutaron acciones financieras reales durante QA.
+- Barrida UI fina queda para pre-lanzamiento.
 
 ## Riesgos abiertos
 
-- Las acciones admin existentes para disputas y alertas pueden afectar pagos, wallet, release o cancelaciones si el admin las ejecuta; PR G solo las separa visualmente y agrega advertencia.
+- Las acciones admin existentes para disputas y alertas pueden afectar pagos, wallet, release o cancelaciones si el admin las ejecuta; PR #115 solo las separa visualmente y agrega advertencia.
 - Realtime queda fuera de alcance; la pantalla depende del refresh existente.
-- La validacion funcional con datos reales de admin sigue pendiente.
+- Barrida visual fina desktop/mobile queda para pre-lanzamiento.
 
 ## Proximo paso recomendado
 
-- Commit local.
-- Reportar estado y pedir autorizacion antes de push y apertura de PR.
-- Ejecutar QA manual admin cuando exista sesion/datos reales disponibles.
+- Definir siguiente PR del flujo de disputa antes de tocar pagos, refunds, wallet, release o auto-release.
+- Mantener regla oficial: evidencia prueba, paquete sospechoso alerta, disputa decide.
 
 ## Debe leer el proximo agente
 
