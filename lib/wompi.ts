@@ -69,15 +69,15 @@ export function getWompiPublicKey() {
 }
 
 export function getWompiPrivateKey() {
-  return getRequiredEnv("WOMPI_PRIVATE_KEY")
+  return getRequiredEnv("INTRA_WOMPI_PRIVATE_KEY")
 }
 
 export function getWompiEventsKey() {
-  return getRequiredEnv("WOMPI_EVENTS_KEY")
+  return getRequiredEnv("INTRA_WOMPI_EVENTS_KEY")
 }
 
 export function getWompiIntegrityKey() {
-  return getRequiredEnv("WOMPI_INTEGRITY_KEY")
+  return getRequiredEnv("INTRA_WOMPI_INTEGRITY_KEY")
 }
 
 export function wompiAmountToCents(amount: number) {
