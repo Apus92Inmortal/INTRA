@@ -2,55 +2,80 @@
 
 ## Fecha
 
-2026-06-04
+2026-06-05
 
 ## Objetivo de la sesion
 
-Implementar PR H: realtime operativo incremental para evidencias, alertas y estados visibles.
+Actualizar PR #116 / PR H con fallback polling visible-aware y logs gated para QA en pantallas operativas.
 
 ## Estado actual
 
 - Rama local: `feat/operational-realtime-pr-h`.
-- Base: `main` sincronizado con `origin/main` en `c12f78e`.
-- PR #115: mergeado y desplegado en Production.
-- Regla activa: evidencia prueba, paquete sospechoso alerta, disputa decide.
-- Alcance PR H: realtime/refetch operativo, sin cambios de reglas financieras ni DB.
+- PR #116 sigue bloqueado para merge hasta que QA confirme actualizacion automatica sin F5.
+- Diagnostico aceptado: los datos cambian en DB, pero Realtime puede no llegar o no disparar `router.refresh()`.
+- Realtime se mantiene best-effort.
+- Fallback polling visible-aware queda agregado en `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`.
+- Logs temporales de QA quedan gated por `localStorage.setItem("intraRealtimeDebug", "1")`.
+- Sin cambios de DB, RLS, Storage, migraciones, pagos, Wompi, wallet, payouts, refunds, auto-release, RPCs financieras ni chat internals.
 
 ## Cambios en curso
 
-- `/app/matches/[id]` escucha eventos filtrados por `matchId` y `shipmentId` para:
+- `MarketRealtime` mantiene listeners Realtime y agrega fallback visible-aware:
+  - intervalo: 12s.
+  - debounce: 700ms.
+  - min gap: 1500ms.
+  - logs de subscribe, evento recibido y `router.refresh()`.
+- `MatchesRealtime` mantiene listeners Realtime y agrega fallback visible-aware:
+  - intervalo: 10s.
+  - debounce: 700ms.
+  - min gap: 1500ms.
+  - mantiene filtro para no refrescar por mensajes propios.
+  - logs de subscribe, evento recibido y `router.refresh()`.
+- `MatchDetailRealtime` mantiene listeners filtrados por `matchId` y `shipmentId` y agrega fallback visible-aware:
+  - intervalo: 8s.
+  - debounce: 700ms.
+  - min gap: 1500ms.
+  - logs de subscribe, evento recibido y `router.refresh()`.
+- `AdminDisputesRealtime` mantiene fallback moderado visible-aware:
+  - intervalo: 25s.
+  - debounce: 800ms.
+  - min gap: 1500ms.
+  - logs de subscribe, evento recibido y `router.refresh()`.
+- Cleanup incluido en los cuatro componentes:
+  - clear timeout.
+  - clear interval.
+  - remove event listener de visibilidad.
+  - `supabase.removeChannel(channel)`.
+- Tablas escuchadas en detalle de match:
   - `matches`
   - `shipments`
   - `payments`
   - `shipment_evidence`
   - `shipment_report_events`
-- `/app/matches` amplia listeners para cambios visibles de:
+- Tablas escuchadas en lista de matches:
   - `messages`
   - `matches`
   - `shipments`
   - `payments`
   - `shipment_report_events`
-- `/app` mantiene `matches` y `shipments`, y agrega listeners acotados para:
-  - `payments` del usuario actual
-  - `notifications` del usuario actual
-- `/app/admin/disputes` agrega realtime best-effort y fallback polling moderado:
+- Tablas escuchadas en `/app`:
+  - `matches`
+  - `shipments`
+  - `payments` del usuario actual.
+  - `notifications` del usuario actual.
+- Tablas escuchadas en admin disputes:
   - `shipment_report_events`
   - `shipment_evidence`
   - `payments`
   - `matches`
   - `shipments`
-  - polling cada 25s solo con la pagina visible
-- Todos los refreshes nuevos usan debounce de 700-800ms.
-- Cleanup de timeouts, intervals y channels incluido.
 
 ## Archivos tocados
 
 - `app/app/market/MarketRealtime.tsx`
 - `app/app/matches/MatchesRealtime.tsx`
 - `app/app/matches/[id]/MatchDetailRealtime.tsx`
-- `app/app/matches/[id]/page.tsx`
 - `app/app/admin/disputes/AdminDisputesRealtime.tsx`
-- `app/app/admin/disputes/page.tsx`
 - `docs/agent/CURRENT_SESSION.md`
 - `docs/agent/TASKS.md`
 
@@ -79,26 +104,26 @@ Implementar PR H: realtime operativo incremental para evidencias, alertas y esta
 
 ## QA pendiente
 
-- Subir `pickup_photo` y verificar match detail sin refresh manual.
-- Subir `delivery_photo` y verificar match detail sin refresh manual.
-- Crear alerta sospechosa y verificar match detail/lista sin refresh manual.
-- Resolver alerta desde admin y verificar match detail/lista con actualizacion automatica.
-- Verificar admin disputes por realtime best-effort o fallback moderado.
-- Verificar cambios visibles de payment/dispute_status sin tocar logica financiera.
-- Verificar chat como regresion: envio/recepcion sigue funcionando.
-- Navegar entre matches y match detail sin duplicar eventos ni generar loops.
+- Si una sesion marca recogida/en transito, otra sesion en `/app` debe actualizarse sola sin F5 en maximo 15s.
+- Si admin resuelve una alerta, una sesion en `/app/matches/[id]` debe actualizarse sola sin F5 en maximo 10s.
+- Si se crea o resuelve alerta, `/app/matches` debe reflejarlo sin F5 en maximo 12s.
+- Admin disputes debe actualizar por realtime o fallback moderado sin F5.
+- Confirmar que no hay refresh infinito.
+- Confirmar que no hay errores de consola por subscriptions.
+- Confirmar que no se siente pesado.
 
 ## Riesgos abiertos
 
-- Admin realtime depende de RLS del cliente; por eso se agrego fallback polling moderado.
-- `/app` no agrega nueva UI de alerta en dashboard; solo mejora refetch de eventos seguros existentes.
+- Realtime remoto puede no estar habilitado para todas las tablas.
+- Admin realtime puede estar limitado por RLS del cliente; por eso se mantiene fallback moderado.
+- El refresh automatico por polling es resiliencia, no prueba de que Realtime remoto este completo.
 - Realtime puede producir eventos duplicados; se mitiga con debounce.
 
 ## Proximo paso recomendado
 
-- Revisar diff final.
-- Commit local.
-- Reportar estado antes de push/PR.
+- Esperar QA funcional de Aldo en PR #116.
+- Mantener PR #116 bloqueado para merge hasta confirmar actualizacion automatica sin F5.
+- Si QA confirma, proceder con aprobacion explicita de merge/deploy segun flujo.
 
 ## Debe leer el proximo agente
 

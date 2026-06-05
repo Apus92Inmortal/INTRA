@@ -72,7 +72,11 @@ Criterios de aceptacion:
 - Identificar pantallas donde los cambios obligan a refrescar.
 - Definir estrategia de realtime operativo o invalidacion/refetch.
 - Validar matches, notificaciones, pagos, evidencias, alertas, wallet, dashboard `/app`, detalle de match y chat segun aplique.
-- PR H en curso: realtime operativo incremental para `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`, usando `router.refresh()` con debounce y fallback moderado en admin sin tocar pagos, RLS, Storage policies ni migraciones.
+- PR #116 / PR H actualizado con Realtime best-effort, fallback polling visible-aware y logs gated para QA en `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`.
+- Intervalos finales: `/app` 12s, `/app/matches` 10s, `/app/matches/[id]` 8s, `/app/admin/disputes` 25s.
+- Debug QA: `localStorage.setItem("intraRealtimeDebug", "1")`.
+- PR #116 sigue bloqueado para merge hasta que QA confirme actualizacion automatica sin F5 y sin refresh infinito.
+- No se tocaron pagos, Wompi, checkout, wallet, payouts, refunds, auto-release, RLS, Storage policies, migraciones, RPCs financieras ni chat internals.
 
 ### TASK-007: Mejorar pantalla payment / checkout UI/UX
 
