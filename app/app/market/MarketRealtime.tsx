@@ -29,7 +29,7 @@ export default function MarketRealtime({ currentUserId }: Props) {
     refreshTimeoutRef.current = setTimeout(() => {
       lastRefreshRef.current = Date.now();
       router.refresh();
-    }, 300);
+    }, 700);
   }, [router]);
 
   useEffect(() => {
@@ -54,6 +54,32 @@ export default function MarketRealtime({ currentUserId }: Props) {
           event: "*",
           schema: "public",
           table: "shipments",
+        },
+        () => {
+          safeRefresh();
+        }
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "payments",
+          filter: `user_id=eq.${currentUserId}`,
+        },
+        () => {
+          safeRefresh();
+        }
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${currentUserId}`,
         },
         () => {
           safeRefresh();

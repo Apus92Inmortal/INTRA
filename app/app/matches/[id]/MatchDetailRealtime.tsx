@@ -6,9 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 
 type Props = {
   matchId: string;
+  shipmentId: string | null;
 };
 
-export default function MatchDetailRealtime({ matchId }: Props) {
+export default function MatchDetailRealtime({ matchId, shipmentId }: Props) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -20,12 +21,12 @@ export default function MatchDetailRealtime({ matchId }: Props) {
 
     refreshTimeoutRef.current = setTimeout(() => {
       router.refresh();
-    }, 200);
+    }, 700);
   }, [router]);
 
   useEffect(() => {
-    const channel = supabase
-      .channel(`match-detail-${matchId}`)
+    let channel = supabase
+      .channel(`match-detail-${matchId}-${shipmentId ?? "no-shipment"}`)
 
       .on(
         "postgres_changes",
@@ -38,9 +39,60 @@ export default function MatchDetailRealtime({ matchId }: Props) {
         () => {
           safeRefresh();
         }
-      )
+      );
 
-      .on(
+    if (shipmentId) {
+      channel = channel
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "shipments",
+            filter: `id=eq.${shipmentId}`,
+          },
+          () => {
+            safeRefresh();
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "payments",
+            filter: `shipment_id=eq.${shipmentId}`,
+          },
+          () => {
+            safeRefresh();
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "shipment_evidence",
+            filter: `shipment_id=eq.${shipmentId}`,
+          },
+          () => {
+            safeRefresh();
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "shipment_report_events",
+            filter: `shipment_id=eq.${shipmentId}`,
+          },
+          () => {
+            safeRefresh();
+          }
+        );
+    } else {
+      channel = channel.on(
         "postgres_changes",
         {
           event: "*",
@@ -50,9 +102,10 @@ export default function MatchDetailRealtime({ matchId }: Props) {
         () => {
           safeRefresh();
         }
-      )
+      );
+    }
 
-      .subscribe();
+    channel.subscribe();
 
     return () => {
       if (refreshTimeoutRef.current) {
@@ -61,7 +114,7 @@ export default function MatchDetailRealtime({ matchId }: Props) {
 
       supabase.removeChannel(channel);
     };
-  }, [matchId, safeRefresh, supabase]);
+  }, [matchId, safeRefresh, shipmentId, supabase]);
 
   return null;
 }

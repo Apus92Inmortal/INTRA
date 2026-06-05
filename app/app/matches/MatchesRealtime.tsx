@@ -26,7 +26,7 @@ export default function MatchesRealtime({ currentUserId }: Props) {
 
     refreshTimeoutRef.current = setTimeout(() => {
       router.refresh();
-    }, 200);
+    }, 700);
   }, [router]);
 
   useEffect(() => {
@@ -42,8 +42,6 @@ export default function MatchesRealtime({ currentUserId }: Props) {
           table: "messages",
         },
         (payload: MessageInsertPayload) => {
-          console.log("📩 Nuevo mensaje:", payload.new);
-
           // Solo refrescar si el mensaje no es mío
           if (payload.new?.sender_id !== currentUserId) {
             safeRefresh();
@@ -60,7 +58,6 @@ export default function MatchesRealtime({ currentUserId }: Props) {
           table: "matches",
         },
         () => {
-          console.log("🤝 Cambio en match");
           safeRefresh();
         }
       )
@@ -74,14 +71,35 @@ export default function MatchesRealtime({ currentUserId }: Props) {
           table: "shipments",
         },
         () => {
-          console.log("📦 Cambio en shipment");
           safeRefresh();
         }
       )
 
-      .subscribe((status: string) => {
-        console.log("REALTIME STATUS:", status);
-      });
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "payments",
+        },
+        () => {
+          safeRefresh();
+        }
+      )
+
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "shipment_report_events",
+        },
+        () => {
+          safeRefresh();
+        }
+      )
+
+      .subscribe();
 
     return () => {
       if (refreshTimeoutRef.current) {

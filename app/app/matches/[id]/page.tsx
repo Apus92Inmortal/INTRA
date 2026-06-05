@@ -456,7 +456,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
     <>
       <AppNavbar />
       <main className="intra-page-shell px-4 py-6 sm:px-6 sm:py-8">
-        <MatchDetailRealtime matchId={match.id} />
+        <MatchDetailRealtime matchId={match.id} shipmentId={shipment?.id ?? null} />
 
         <div className="mx-auto max-w-5xl">
           <div className="overflow-hidden rounded-[28px] border border-intra-border-strong bg-intra-card shadow-sm">

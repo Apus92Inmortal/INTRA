@@ -63,7 +63,7 @@ Criterios de aceptacion:
 
 ### TASK-006: Corregir eventos que no actualizan en vivo
 
-Estado: TODO
+Estado: IN_PROGRESS
 Prioridad: Alta
 Area: Realtime / UX operativa
 
@@ -72,6 +72,7 @@ Criterios de aceptacion:
 - Identificar pantallas donde los cambios obligan a refrescar.
 - Definir estrategia de realtime operativo o invalidacion/refetch.
 - Validar matches, notificaciones, pagos, evidencias, alertas, wallet, dashboard `/app`, detalle de match y chat segun aplique.
+- PR H en curso: realtime operativo incremental para `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`, usando `router.refresh()` con debounce y fallback moderado en admin sin tocar pagos, RLS, Storage policies ni migraciones.
 
 ### TASK-007: Mejorar pantalla payment / checkout UI/UX
 
