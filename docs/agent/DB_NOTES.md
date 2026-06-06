@@ -124,3 +124,37 @@ select phone, document_number
 from public.profiles
 where id = '<USER_B_ID>';
 ```
+
+## PR F2 - RPC/env/admin hardening
+
+- Migracion nueva: `202606061930_rpc_anon_grants_hardening.sql`.
+- Estado remoto: pendiente de aplicar en Supabase real cuando PR F2 sea mergeado y aprobado.
+- Objetivo: cerrar grants `anon` reintroducidos en RPCs operativas despues del hardening phase0.
+- RPCs ajustadas:
+  - `mark_match_read(uuid, timestamptz)`: revoca `anon`, mantiene `authenticated`.
+  - `request_match(uuid, uuid)`: revoca `anon`, mantiene `authenticated`.
+  - `create_trip(uuid, uuid, date, time, numeric, text, boolean, boolean, boolean)`: revoca `anon`, mantiene `authenticated`.
+- Motivo: estas RPCs dependen de usuario autenticado y validan `auth.uid()`; `anon` no debe ejecutar operaciones de matches/trips.
+- RPC publica justificada:
+  - `calculate_payment_amount(...)` conserva grant `anon` porque es calculadora publica de tarifa y no muta datos.
+- Admin client:
+  - `lib/supabase/admin.ts` queda protegido con `server-only`.
+  - `SUPABASE_SERVICE_ROLE_KEY` debe permanecer solo en server actions, route handlers o server-only modules.
+- Env:
+  - Wompi server-side usa `INTRA_WOMPI_PRIVATE_KEY`, `INTRA_WOMPI_EVENTS_KEY` e `INTRA_WOMPI_INTEGRITY_KEY`.
+  - Los nombres legacy `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_KEY` y `WOMPI_INTEGRITY_KEY` no son leidos por la app y no deben usarse como fuente de verdad de produccion.
+
+Verificacion SQL recomendada despues de aplicar la migracion:
+
+```sql
+select routine_name, grantee, privilege_type
+from information_schema.routine_privileges
+where specific_schema = 'public'
+  and routine_name in ('mark_match_read', 'request_match', 'create_trip', 'calculate_payment_amount')
+order by routine_name, grantee;
+```
+
+Resultado esperado:
+
+- `mark_match_read`, `request_match` y `create_trip`: sin `anon`, con `authenticated`.
+- `calculate_payment_amount`: puede conservar `anon` por pricing publico no mutante.
