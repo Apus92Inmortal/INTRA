@@ -1,5 +1,6 @@
 import { requireAdminUser } from "@/lib/auth/admin"
 import { createAdminClient } from "@/lib/supabase/admin"
+import AdminDisputesRealtime from "./AdminDisputesRealtime"
 import DisputesReviewClient from "./DisputesReviewClient"
 import type { AdminCaseEvidenceType, AdminCaseFile } from "./AdminCaseEvidencePanel"
 
@@ -513,5 +514,10 @@ export default async function AdminDisputesPage() {
     )
   }
 
-  return <DisputesReviewClient disputes={disputes} alerts={alerts} />
+  return (
+    <>
+      <AdminDisputesRealtime />
+      <DisputesReviewClient disputes={disputes} alerts={alerts} />
+    </>
+  )
 }
