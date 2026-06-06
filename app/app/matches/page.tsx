@@ -384,10 +384,7 @@ export default async function MatchesPage() {
   );
 
   const { data: profilesData, error: profilesError } = relatedUserIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", relatedUserIds)
+    ? await supabase.rpc("get_public_profiles", { p_profile_ids: relatedUserIds })
     : { data: [] as ProfileRow[], error: null };
 
   if (profilesError) {

@@ -567,7 +567,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
 
   const [travelerProfilesRes, travelerHistoryTripsRes] = await Promise.all([
     travelerIds.length
-      ? supabase.from("profiles").select("id, full_name").in("id", travelerIds)
+      ? supabase.rpc("get_public_profiles", { p_profile_ids: travelerIds })
       : Promise.resolve({ data: [], error: null }),
     travelerIds.length
       ? supabase.from("trips").select("id, traveler_id").in("traveler_id", travelerIds)
@@ -780,10 +780,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   );
 
   const { data: counterpartProfiles } = counterpartIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", counterpartIds)
+    ? await supabase.rpc("get_public_profiles", { p_profile_ids: counterpartIds })
     : { data: [] as ProfileRow[] };
 
   const counterpartNameById = new Map<string, string>(

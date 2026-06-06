@@ -14,7 +14,7 @@
 
 ### TASK-011: Auditoria funcional full del repo
 
-Estado: TODO
+Estado: DONE
 Prioridad: Critica
 Area: Producto funcional / Seguridad / Pagos / Operacion / QA
 
@@ -37,6 +37,37 @@ Criterios de aceptacion:
 - Entregar un mapa funcional del repo con estado por flujo: completo, parcial, mock/visual, faltante o riesgo.
 - Proponer secuencia de PRs funcionales antes de hardening, E2E, QA de pagos/wallet/disputas/seguridad, UI/UX final y lanzamiento controlado.
 - No implementar cambios durante la auditoria salvo que Aldo o Cristhian lo autoricen despues de revisar hallazgos.
+
+Resultado:
+
+- Auditoria funcional full entregada el 2026-06-06.
+- Recomendacion final: opcion C, no pasar a QA integral/UI final hasta cerrar flujos funcionales criticos.
+- Primer PR recomendado y autorizado por Aldo: PR F1 hardening RLS de `profiles`/schema.
+
+### TASK-012: PR F1 - Hardening RLS profiles/schema
+
+Estado: REVIEW
+Prioridad: Critica
+Area: Seguridad / Supabase RLS / Perfiles / Datos personales
+
+Resumen:
+
+- Cerrar riesgo P0 de exposicion de PII por lectura amplia de `profiles`.
+- Evitar que usuarios autenticados puedan leer perfiles completos de terceros.
+- Mantener lectura propia completa.
+- Mantener datos minimos de contraparte mediante RPC segura.
+- Reconciliar `supabase/schema.sql` para que no reinstale policies amplias sobre `profiles`.
+
+Criterios de aceptacion:
+
+- No existe policy amplia de lectura total sobre `profiles`.
+- Usuario A no puede leer `phone` ni `document_number` de usuario B.
+- Usuario A puede leer su propio perfil completo.
+- Contrapartes/dashboard/matches/chat/reviews conservan datos minimos necesarios.
+- Admin conserva acceso server-side protegido.
+- Migracion nueva documenta el cambio RLS.
+- `schema.sql` queda alineado para `profiles`/RLS.
+- `npm run lint`, `npx tsc --noEmit`, `npm run test:unit`, `npm run build` y `git diff --check` pasan.
 
 ### Frente A: Seguridad operativa del envio
 

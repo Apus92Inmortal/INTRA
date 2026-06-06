@@ -336,16 +336,67 @@ CREATE OR REPLACE FUNCTION public.can_view_profile(p_profile_id uuid)
 AS $function$
   select
     auth.uid() is not null
-    and exists (
-      select 1
-      from public.matches m
-      join public.shipments s on s.id = m.shipment_id
-      join public.trips t on t.id = m.trip_id
-      where
-        (s.owner_id = auth.uid() and t.traveler_id = p_profile_id)
-        or
-        (t.traveler_id = auth.uid() and s.owner_id = p_profile_id)
+    and (
+      p_profile_id = auth.uid()
+      or exists (
+        select 1
+        from public.matches m
+        join public.shipments s on s.id = m.shipment_id
+        join public.trips t on t.id = m.trip_id
+        where
+          (s.owner_id = auth.uid() and t.traveler_id = p_profile_id)
+          or
+          (t.traveler_id = auth.uid() and s.owner_id = p_profile_id)
+      )
     );
+$function$
+
+CREATE OR REPLACE FUNCTION public.can_view_public_profile(p_profile_id uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  select auth.uid() is not null
+    and (
+      p_profile_id = auth.uid()
+      or public.can_view_profile(p_profile_id)
+      or exists (
+        select 1
+        from public.trips t
+        where t.traveler_id = p_profile_id
+          and t.status in ('open', 'full')
+      )
+      or exists (
+        select 1
+        from public.shipments s
+        where s.owner_id = p_profile_id
+          and s.status = 'open'
+          and exists (
+            select 1
+            from public.payments p
+            where p.shipment_id = s.id
+              and p.status = 'held'
+              and lower(coalesce(p.gateway_status, '')) = 'approved'
+              and coalesce(p.refund_status, 'none') = 'none'
+              and coalesce(p.dispute_status, 'none') = 'none'
+              and lower(coalesce(p.metadata ->> 'manual_refund_required', 'false')) <> 'true'
+            limit 1
+          )
+      )
+    );
+$function$
+
+CREATE OR REPLACE FUNCTION public.get_public_profiles(p_profile_ids uuid[])
+ RETURNS TABLE(id uuid, full_name text)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  select p.id, p.full_name
+  from public.profiles p
+  where p.id = any(coalesce(p_profile_ids, '{}'::uuid[]))
+    and public.can_view_public_profile(p.id);
 $function$
 
 CREATE OR REPLACE FUNCTION public.can_view_shipment(p_shipment_id uuid)
@@ -1020,14 +1071,17 @@ create policy "payments_update_related_users" on public."payments" as PERMISSIVE
      JOIN trips t ON ((t.id = m.trip_id)))
   WHERE ((m.shipment_id = payments.shipment_id) AND (t.traveler_id = auth.uid()))))));
 
-create policy "Authenticated users can read profiles" on public."profiles" as PERMISSIVE for select to "authenticated" using (true);
-create policy "Profiles are updatable by owner" on public."profiles" as PERMISSIVE for update to public using ((auth.uid() = id)) with check ((auth.uid() = id));
-create policy "Profiles are viewable by owner" on public."profiles" as PERMISSIVE for select to public using ((auth.uid() = id));
-create policy "Users can insert their own profile" on public."profiles" as PERMISSIVE for insert to public with check ((auth.uid() = id));
-create policy "Users can view their own profile" on public."profiles" as PERMISSIVE for select to public using ((auth.uid() = id));
+create policy "profiles_select_self" on public."profiles" as PERMISSIVE for select to "authenticated" using ((id = auth.uid()));
 create policy "profiles_insert_self" on public."profiles" as PERMISSIVE for insert to "authenticated" with check ((id = auth.uid()));
-create policy "profiles_select_related_or_self" on public."profiles" as PERMISSIVE for select to "authenticated" using (((id = auth.uid()) OR can_view_profile(id)));
 create policy "profiles_update_self" on public."profiles" as PERMISSIVE for update to "authenticated" using ((id = auth.uid())) with check ((id = auth.uid()));
+
+revoke execute on function public.can_view_profile(uuid) from public, anon;
+revoke execute on function public.can_view_public_profile(uuid) from public, anon;
+revoke execute on function public.get_public_profiles(uuid[]) from public, anon;
+
+grant execute on function public.can_view_profile(uuid) to authenticated, service_role;
+grant execute on function public.can_view_public_profile(uuid) to authenticated, service_role;
+grant execute on function public.get_public_profiles(uuid[]) to authenticated, service_role;
 
 create policy "Allow read access to route_prices" on public."route_prices" as PERMISSIVE for select to public using (true);
 create policy "route_prices_read_public" on public."route_prices" as PERMISSIVE for select to "anon", "authenticated" using ((is_active = true));
