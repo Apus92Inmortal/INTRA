@@ -238,10 +238,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
   );
 
   const { data: participantProfiles } = participantIds.length
-    ? await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", participantIds)
+    ? await supabase.rpc("get_public_profiles", { p_profile_ids: participantIds })
     : { data: [] as ProfileRow[] };
 
   const participantNameById = new Map<string, string>(

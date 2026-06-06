@@ -100,9 +100,7 @@ export default async function MatchChatPage({ params }: PageProps) {
   }
 
   const { data: participantProfiles } = await supabase
-    .from("profiles")
-    .select("id, full_name")
-    .in("id", [user.id, otherUserId]);
+    .rpc("get_public_profiles", { p_profile_ids: [user.id, otherUserId] });
 
   const profileNameById = new Map<string, string>(
     ((participantProfiles ?? []) as ProfileNameRow[]).map((profile: ProfileNameRow) => [

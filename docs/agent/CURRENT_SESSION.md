@@ -6,132 +6,56 @@
 
 ## Objetivo de la sesion
 
-Cerrar la seccion operativa posterior a PR #116 y dejar memoria preparada para iniciar la auditoria funcional full del repo.
+Implementar PR F1: hardening RLS de `profiles` y reconciliacion de `schema.sql` para cerrar riesgo P0 de exposicion de PII entre usuarios autenticados.
 
 ## Estado actual
 
-- PR #116 fue cerrado previamente con merge a `main`, checks PASS y deploy automatico.
-- Ramas mergeadas `feat/admin-evidence-case-file` y `feat/operational-realtime-pr-h` fueron eliminadas local y remoto.
-- La rama `docs/intra-session-entry-rule` fue revisada, conservada y mergeada a `main` porque contiene documentacion operativa util en `AGENTS.md`.
-- `main` contiene el commit `30f9a26` de `docs/intra-session-entry-rule`.
-- La siguiente fase oficial de INTRA no sera UI/UX.
-- UI/UX queda aplazada hasta una etapa posterior, antes de pruebas finales y lanzamiento.
-- La prioridad inmediata es una auditoria funcional full del repo.
+- La auditoria funcional full fue entregada el 2026-06-06.
+- Aldo autorizo iniciar PR F1 como primer cierre funcional/seguridad post-auditoria.
+- Rama actual: `fix/f1-profiles-rls-schema-hardening`.
+- El cambio es quirurgico y no toca UI/UX, pagos, Wompi, wallet, payouts, refunds, auto-release ni disputas.
 
-## Decision de fase
+## Cambios implementados
 
-INTRA no pasara todavia a fase de UI/UX. La UI/UX queda reservada para una etapa posterior, antes de las pruebas finales y el lanzamiento.
+- Nueva migracion Supabase: `supabase/migrations/202606061830_profiles_rls_schema_hardening.sql`.
+- `profiles` queda con RLS self-only para lectura, insercion y update.
+- Se eliminan policies legacy/amplias sobre `profiles`, incluyendo lectura total para usuarios autenticados.
+- Nueva RPC `get_public_profiles(uuid[])` devuelve solo `id` y `full_name` para contextos publicos/relacionados.
+- Nueva funcion `can_view_public_profile(uuid)` valida contexto publico minimo:
+  - perfil propio,
+  - contraparte de match,
+  - viajero con trip `open`/`full`,
+  - owner de shipment `open` payment-ready.
+- `schema.sql` fue reconciliado para `profiles`/RLS y ya no contiene lectura global de perfiles.
+- Queries de dashboard, matches y chat que solo necesitan nombres de terceros usan la RPC minima.
+- `DB_NOTES.md` documenta la migracion y verificaciones SQL/manuales recomendadas.
 
-La prioridad inmediata sera realizar una auditoria funcional full del repo para verificar el estado real de los flujos de negocio, seguridad, pagos, wallet, retiros, evidencias, disputas, reviews, admin, RLS, RPCs, webhooks, variables de entorno y pruebas.
+## Archivos tocados
 
-La auditoria debe ignorar por completo diseno visual, tokens, colores, tipografia, responsive y mockups. El objetivo es identificar que flujos reales faltan, que modulos estan parciales o mock, que riesgos existen para operar con usuarios reales y dinero real, y que PRs funcionales deben cerrarse antes de pasar a QA integral y luego a UI/UX final.
-
-## Alcance de la siguiente auditoria
-
-Auditar funcionalmente:
-
-- Logica de negocio.
-- Flujos funcionales reales.
-- Auth.
-- Perfiles.
-- Roles contextuales.
-- Creacion de envios.
-- Creacion de viajes.
-- Matching.
-- Aceptacion, rechazo y cancelacion.
-- Chat.
-- Notificaciones.
-- Pagos / Wompi / INTRA Pay.
-- Retencion operativa.
-- Wallet.
-- Ledger.
-- Retiros.
-- Evidencias.
-- Confirmacion de entrega.
-- Auto-release.
-- Disputas.
-- Reviews.
-- Legal versionado.
-- Admin.
-- Market.
-- Dashboard.
-- Supabase RLS.
-- RPCs.
-- Webhooks.
-- Variables de entorno.
-- Tests, build y lint.
-
-## Exclusiones de la auditoria
-
-No revisar todavia:
-
-- Colores.
-- Tipografia.
-- Tokens visuales.
-- Diseno responsive.
-- Mockups.
-- Mejoras esteticas.
-- Conversion visual.
-- Layout visual.
-- QA visual.
-
-## Secuencia oficial desde este punto
-
-1. Auditoria funcional full del repo.
-2. Cierre de flujos faltantes por PRs pequenos.
-3. Hardening tecnico final.
-4. Pruebas end-to-end.
-5. QA de pagos, wallet, disputas y seguridad.
-6. UI/UX final.
-7. QA visual responsive.
-8. Pruebas finales antes de lanzamiento.
-9. Lanzamiento MVP controlado.
-
-## Archivos tocados en este cierre
-
-- `AGENTS.md`
-- `docs/agent/PROJECT_STATE.md`
-- `docs/agent/TASKS.md`
+- `supabase/migrations/202606061830_profiles_rls_schema_hardening.sql`
+- `supabase/schema.sql`
+- `app/app/_lib/dashboard-queries.ts`
+- `app/app/matches/page.tsx`
+- `app/app/matches/[id]/page.tsx`
+- `app/app/matches/[id]/chat/page.tsx`
 - `docs/agent/CURRENT_SESSION.md`
-- `docs/agent/DECISIONS.md`
+- `docs/agent/TASKS.md`
+- `docs/agent/DB_NOTES.md`
 
-## No tocado
-
-- Codigo de aplicacion.
-- Pagos/Wompi/checkout.
-- Wallet.
-- Payouts/retiros.
-- Refunds.
-- Auto-release.
-- Supabase migrations.
-- RLS.
-- Storage policies.
-- RPCs.
-- Webhooks.
-- Variables de entorno.
-- Tests.
-- UI/UX.
-
-## Validacion esperada de este cierre
+## Verificacion realizada
 
 - `git diff --check`: PASS.
-- `git diff --check HEAD^1..HEAD`: PASS para el merge de `docs/intra-session-entry-rule`.
-- `AGENTS.md` verificado con regla de entrada extendida.
-- `main` verificado con `30f9a26` incluido.
-- No aplica ejecutar lint, tests, typecheck ni build porque solo se actualiza documentacion operativa.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 42/42.
+- `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
+
+## Riesgos activos
+
+- La migracion debe aplicarse en Supabase real para cerrar el P0 en entorno remoto.
+- `schema.sql` sigue siendo un snapshot historicamente desalineado en otras areas; este PR solo reconcilia `profiles`/RLS segun alcance aprobado.
+- Las pruebas RLS finales requieren ejecutar consultas con usuarios reales o fixture SQL en Supabase.
 
 ## Proximo paso recomendado
 
-Iniciar `TASK-011: Auditoria funcional full del repo` leyendo primero:
-
-1. `AGENTS.md`
-2. `docs/agent/START_HERE.md`
-3. `docs/agent/PROJECT_STATE.md`
-4. `docs/agent/TASKS.md`
-5. `docs/agent/CURRENT_SESSION.md`
-6. `docs/agent/DECISIONS.md`
-7. `docs/agent/KNOWN_ISSUES.md`
-8. `docs/agent/DB_NOTES.md`
-9. `docs/agent/RELEASE_CHECKLIST.md`
-
-La auditoria debe producir un mapa funcional del repo con flujos completos, parciales, mock/visuales, faltantes, riesgos y PRs funcionales recomendados antes de QA integral.
+Abrir PR F1 contra `main`, revisar checks remotos y luego pasar a PR F2: hardening RPC/env/admin client.

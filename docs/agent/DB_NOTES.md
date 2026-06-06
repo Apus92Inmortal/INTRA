@@ -58,3 +58,48 @@
 - Wompi checkout procesa el pago del cliente.
 - La liberacion al viajero depende de reglas operativas, entrega, disputa y bloqueos administrativos.
 - No exponer porcentajes internos de tarifa en UI publica; usar copy aprobado de la matriz legal operativa.
+
+## PR F1 - Profiles RLS hardening
+
+- Migracion nueva: `202606061830_profiles_rls_schema_hardening.sql`.
+- Objetivo: cerrar lectura amplia de `profiles` y evitar exposicion de PII entre usuarios autenticados.
+- `profiles` queda con RLS habilitado y policies self-only:
+  - `profiles_select_self`: solo `id = auth.uid()`.
+  - `profiles_insert_self`: solo `id = auth.uid()`.
+  - `profiles_update_self`: solo `id = auth.uid()`.
+- Se eliminan policies legacy/amplias:
+  - `Authenticated users can read profiles`.
+  - `profiles_select_related_or_self`.
+  - policies publicas duplicadas de owner/self.
+- Datos sensibles que ya no deben leerse desde cliente para terceros:
+  - `phone`.
+  - `document_number`.
+  - `city_id` y cualquier dato privado del perfil.
+- La lectura minima de contraparte se hace mediante RPC:
+  - `get_public_profiles(uuid[])` devuelve solo `id` y `full_name`.
+  - Usa `can_view_public_profile(uuid)` para permitir nombre propio, contraparte de match, viajero con trip abierto/full u owner de shipment open payment-ready.
+- Admin conserva acceso usando cliente server-side protegido con service role.
+- `supabase/schema.sql` fue reconciliado para `profiles`/RLS y ya no contiene lectura total de perfiles.
+
+Verificacion SQL/manual recomendada en Supabase:
+
+```sql
+-- Como usuario A autenticado:
+select id, full_name, phone, document_number
+from public.profiles
+where id = auth.uid();
+
+-- Debe devolver 0 filas para usuario B sin relacion:
+select id, full_name, phone, document_number
+from public.profiles
+where id = '<USER_B_ID>';
+
+-- Debe devolver solo id/full_name cuando exista contexto publico valido:
+select *
+from public.get_public_profiles(array['<USER_B_ID>'::uuid]);
+
+-- Debe fallar o devolver 0 filas para PII de B aun si existe match/contexto:
+select phone, document_number
+from public.profiles
+where id = '<USER_B_ID>';
+```
