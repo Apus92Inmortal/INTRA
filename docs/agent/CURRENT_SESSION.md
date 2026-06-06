@@ -12,7 +12,8 @@ Cerrar la seccion operativa posterior a PR #116 y dejar memoria preparada para i
 
 - PR #116 fue cerrado previamente con merge a `main`, checks PASS y deploy automatico.
 - Ramas mergeadas `feat/admin-evidence-case-file` y `feat/operational-realtime-pr-h` fueron eliminadas local y remoto.
-- `main` quedo limpio y sincronizado antes de actualizar esta memoria.
+- La rama `docs/intra-session-entry-rule` fue revisada, conservada y mergeada a `main` porque contiene documentacion operativa util en `AGENTS.md`.
+- `main` contiene el commit `30f9a26` de `docs/intra-session-entry-rule`.
 - La siguiente fase oficial de INTRA no sera UI/UX.
 - UI/UX queda aplazada hasta una etapa posterior, antes de pruebas finales y lanzamiento.
 - La prioridad inmediata es una auditoria funcional full del repo.
@@ -88,6 +89,7 @@ No revisar todavia:
 
 ## Archivos tocados en este cierre
 
+- `AGENTS.md`
 - `docs/agent/PROJECT_STATE.md`
 - `docs/agent/TASKS.md`
 - `docs/agent/CURRENT_SESSION.md`
@@ -112,8 +114,11 @@ No revisar todavia:
 
 ## Validacion esperada de este cierre
 
-- `git diff --check`: debe pasar.
-- No aplica ejecutar lint, tests, typecheck ni build porque solo se actualiza memoria documental.
+- `git diff --check`: PASS.
+- `git diff --check HEAD^1..HEAD`: PASS para el merge de `docs/intra-session-entry-rule`.
+- `AGENTS.md` verificado con regla de entrada extendida.
+- `main` verificado con `30f9a26` incluido.
+- No aplica ejecutar lint, tests, typecheck ni build porque solo se actualiza documentacion operativa.
 
 ## Proximo paso recomendado
 
