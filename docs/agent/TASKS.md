@@ -46,7 +46,7 @@ Resultado:
 
 ### TASK-012: PR F1 - Hardening RLS profiles/schema
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Critica
 Area: Seguridad / Supabase RLS / Perfiles / Datos personales
 
@@ -68,6 +68,29 @@ Criterios de aceptacion:
 - Migracion nueva documenta el cambio RLS.
 - `schema.sql` queda alineado para `profiles`/RLS.
 - `npm run lint`, `npx tsc --noEmit`, `npm run test:unit`, `npm run build` y `git diff --check` pasan.
+
+Resultado:
+
+- PR #117 fue mergeado a `main`.
+- Merge commit: `369a4b8`.
+- Commit funcional: `0b1bbc3`.
+- Post-merge `main`: CI, detect-impact y Vercel deploy automatico PASS.
+- Migracion `202606061830_profiles_rls_schema_hardening.sql` aplicada en Supabase real del proyecto Intra-app.
+- Supabase real ya no tiene la policy peligrosa `Authenticated users can read profiles`.
+- Supabase real conserva solo `profiles_insert_self`, `profiles_select_self`, `profiles_update_self` para `profiles`.
+- Supabase real contiene `can_view_profile`, `can_view_public_profile` y `get_public_profiles`.
+- Production validado por Aldo:
+  - dashboard carga normal,
+  - matches carga normal,
+  - detalle de match carga normal,
+  - chat carga normal,
+  - nombres minimos de contraparte cargan correctamente.
+- P0 de lectura amplia de `profiles` / exposicion potencial de PII queda cerrado en repo, `main`, Supabase real y Production.
+
+Siguiente frente sugerido:
+
+- PR F2 - Hardening RPC/env/admin client.
+- No avanzar a PR F2 hasta autorizacion explicita de Aldo.
 
 ### Frente A: Seguridad operativa del envio
 

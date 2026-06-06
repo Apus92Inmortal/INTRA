@@ -6,14 +6,19 @@
 
 ## Objetivo de la sesion
 
-Implementar PR F1: hardening RLS de `profiles` y reconciliacion de `schema.sql` para cerrar riesgo P0 de exposicion de PII entre usuarios autenticados.
+Cerrar seguimiento operativo de PR F1: hardening RLS de `profiles`, merge a `main` y aplicacion de la migracion en Supabase real.
 
 ## Estado actual
 
 - La auditoria funcional full fue entregada el 2026-06-06.
 - Aldo autorizo iniciar PR F1 como primer cierre funcional/seguridad post-auditoria.
-- Rama actual: `fix/f1-profiles-rls-schema-hardening`.
-- El cambio es quirurgico y no toca UI/UX, pagos, Wompi, wallet, payouts, refunds, auto-release ni disputas.
+- PR #117 fue mergeado a `main`.
+- Merge commit: `369a4b8`.
+- Commit funcional: `0b1bbc3`.
+- La migracion `202606061830_profiles_rls_schema_hardening.sql` fue aplicada en Supabase real del proyecto Intra-app, segun confirmacion de Aldo.
+- Production fue validado funcionalmente por Aldo despues de aplicar la migracion.
+- El P0 de lectura amplia de `profiles` / exposicion potencial de PII queda cerrado en repo, `main`, Supabase real y Production.
+- No avanzar a PR F2 hasta autorizacion explicita de Aldo.
 
 ## Cambios implementados
 
@@ -29,6 +34,22 @@ Implementar PR F1: hardening RLS de `profiles` y reconciliacion de `schema.sql` 
 - `schema.sql` fue reconciliado para `profiles`/RLS y ya no contiene lectura global de perfiles.
 - Queries de dashboard, matches y chat que solo necesitan nombres de terceros usan la RPC minima.
 - `DB_NOTES.md` documenta la migracion y verificaciones SQL/manuales recomendadas.
+- En Supabase real, la policy peligrosa `Authenticated users can read profiles` ya no existe.
+- En Supabase real, las policies legacy/duplicadas de `profiles` fueron eliminadas.
+- En Supabase real, `profiles` quedo con:
+  - `profiles_insert_self`,
+  - `profiles_select_self`,
+  - `profiles_update_self`.
+- En Supabase real, existen:
+  - `can_view_profile`,
+  - `can_view_public_profile`,
+  - `get_public_profiles`.
+- En Production, Aldo valido:
+  - dashboard carga normal,
+  - matches carga normal,
+  - detalle de match carga normal,
+  - chat carga normal,
+  - nombres minimos de contraparte cargan correctamente.
 
 ## Archivos tocados
 
@@ -49,13 +70,16 @@ Implementar PR F1: hardening RLS de `profiles` y reconciliacion de `schema.sql` 
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 42/42.
 - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
+- PR #117 remoto: CI, detect-impact y Vercel Preview PASS.
+- Post-merge en `main`: CI, detect-impact y Vercel deploy automatico PASS.
+- Supabase real: migracion F1 aplicada y policies/functions esperadas confirmadas por Aldo.
+- Production: dashboard, matches, detalle de match, chat y nombres minimos de contraparte validados por Aldo.
 
 ## Riesgos activos
 
-- La migracion debe aplicarse en Supabase real para cerrar el P0 en entorno remoto.
 - `schema.sql` sigue siendo un snapshot historicamente desalineado en otras areas; este PR solo reconcilia `profiles`/RLS segun alcance aprobado.
-- Las pruebas RLS finales requieren ejecutar consultas con usuarios reales o fixture SQL en Supabase.
+- No hay pendiente activo de PR F1.
 
 ## Proximo paso recomendado
 
-Abrir PR F1 contra `main`, revisar checks remotos y luego pasar a PR F2: hardening RPC/env/admin client.
+Esperar autorizacion de Aldo para iniciar PR F2: hardening RPC/env/admin client.

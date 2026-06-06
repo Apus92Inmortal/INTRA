@@ -62,6 +62,7 @@
 ## PR F1 - Profiles RLS hardening
 
 - Migracion nueva: `202606061830_profiles_rls_schema_hardening.sql`.
+- Estado remoto: aplicada en Supabase real del proyecto Intra-app, segun confirmacion de Aldo el 2026-06-06.
 - Objetivo: cerrar lectura amplia de `profiles` y evitar exposicion de PII entre usuarios autenticados.
 - `profiles` queda con RLS habilitado y policies self-only:
   - `profiles_select_self`: solo `id = auth.uid()`.
@@ -80,6 +81,26 @@
   - Usa `can_view_public_profile(uuid)` para permitir nombre propio, contraparte de match, viajero con trip abierto/full u owner de shipment open payment-ready.
 - Admin conserva acceso usando cliente server-side protegido con service role.
 - `supabase/schema.sql` fue reconciliado para `profiles`/RLS y ya no contiene lectura total de perfiles.
+
+Confirmacion Supabase real:
+
+- La policy peligrosa `Authenticated users can read profiles` ya no existe.
+- Las policies legacy/duplicadas de `profiles` fueron eliminadas.
+- `profiles` quedo con:
+  - `profiles_insert_self`,
+  - `profiles_select_self`,
+  - `profiles_update_self`.
+- Existen las funciones:
+  - `can_view_profile`,
+  - `can_view_public_profile`,
+  - `get_public_profiles`.
+- Production validado por Aldo despues de aplicar la migracion:
+  - dashboard carga normal,
+  - matches carga normal,
+  - detalle de match carga normal,
+  - chat carga normal,
+  - nombres minimos de contraparte cargan correctamente.
+- El P0 de lectura amplia de `profiles` / exposicion potencial de PII queda cerrado en repo, `main`, Supabase real y Production.
 
 Verificacion SQL/manual recomendada en Supabase:
 
