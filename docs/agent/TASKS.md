@@ -12,6 +12,32 @@
 
 ## P0 - Critico
 
+### TASK-011: Auditoria funcional full del repo
+
+Estado: TODO
+Prioridad: Critica
+Area: Producto funcional / Seguridad / Pagos / Operacion / QA
+
+Resumen:
+
+- Esta es la siguiente fase oficial de INTRA.
+- Antes de UI/UX final, se debe auditar el repo completo para conocer el estado real de los flujos funcionales y riesgos operativos.
+- La auditoria debe ignorar por completo diseno visual, tokens, colores, tipografia, responsive, mockups, conversion visual, layout visual y QA visual.
+
+Criterios de aceptacion:
+
+- Identificar que flujos reales ya estan completos.
+- Identificar que flujos estan parciales.
+- Identificar que partes son mock o solo visuales.
+- Identificar que modulos faltan.
+- Identificar riesgos tecnicos.
+- Identificar riesgos para operar con usuarios reales y dinero real.
+- Identificar PRs funcionales pequenos que deben cerrarse antes de UI/UX final.
+- Revisar logica de negocio, flujos funcionales reales, auth, perfiles, roles contextuales, creacion de envios, creacion de viajes, matching, aceptacion/rechazo/cancelacion, chat, notificaciones, pagos/Wompi/INTRA Pay, retencion operativa, wallet, ledger, retiros, evidencias, confirmacion de entrega, auto-release, disputas, reviews, legal versionado, admin, market, dashboard, Supabase RLS, RPCs, webhooks, variables de entorno, tests, build y lint.
+- Entregar un mapa funcional del repo con estado por flujo: completo, parcial, mock/visual, faltante o riesgo.
+- Proponer secuencia de PRs funcionales antes de hardening, E2E, QA de pagos/wallet/disputas/seguridad, UI/UX final y lanzamiento controlado.
+- No implementar cambios durante la auditoria salvo que Aldo o Cristhian lo autoricen despues de revisar hallazgos.
+
 ### Frente A: Seguridad operativa del envio
 
 Prioridad: Critica
@@ -64,11 +90,12 @@ Criterios de aceptacion:
 ### TASK-007: Mejorar pantalla payment / checkout UI/UX
 
 Estado: TODO
-Prioridad: Alta
+Prioridad: Alta, aplazada por DEC-005
 Area: Pagos / UI
 
 Criterios de aceptacion:
 
+- UI/UX queda aplazada hasta despues de auditoria funcional full, cierre de flujos faltantes, hardening tecnico, E2E y QA de pagos/wallet/disputas/seguridad.
 - Mejorar claridad visual sin cambiar reglas de pago.
 - Cubrir estados `pending`, `processing`, `failed`, retry y continuidad hacia Wompi.
 - Respetar copy legal y matriz operativa vigente.
@@ -77,11 +104,12 @@ Criterios de aceptacion:
 ### TASK-008: Mejorar pantalla payment / success UI/UX
 
 Estado: TODO
-Prioridad: Alta
+Prioridad: Alta, aplazada por DEC-005
 Area: Pagos / UI
 
 Criterios de aceptacion:
 
+- UI/UX queda aplazada hasta despues de auditoria funcional full, cierre de flujos faltantes, hardening tecnico, E2E y QA de pagos/wallet/disputas/seguridad.
 - Mejorar confirmacion, siguiente paso y estados post-pago.
 - Diferenciar pago aprobado/en retencion, pendiente de confirmacion, fallido y retry.
 - No cambiar estados de pago ni reglas de liberacion.
@@ -90,11 +118,12 @@ Criterios de aceptacion:
 ### TASK-009: Mejorar UI/UX del chat de cada match
 
 Estado: TODO
-Prioridad: Alta
+Prioridad: Alta, aplazada por DEC-005
 Area: Matches / Chat / UI
 
 Criterios de aceptacion:
 
+- UI/UX queda aplazada hasta despues de auditoria funcional full, cierre de flujos faltantes, hardening tecnico, E2E y QA de pagos/wallet/disputas/seguridad.
 - Mejorar lectura, estados y experiencia operativa del chat.
 - Respetar roles contextuales del match.
 - Incluir acceso claro a detalle, evidencia o disputa cuando aplique.

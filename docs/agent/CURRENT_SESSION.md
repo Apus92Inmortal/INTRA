@@ -6,116 +6,127 @@
 
 ## Objetivo de la sesion
 
-Cerrar PR #116 / PR H despues de QA funcional PASS de Aldo, merge a `main`, verificacion post-merge y deploy automatico de produccion.
+Cerrar la seccion operativa posterior a PR #116 y dejar memoria preparada para iniciar la auditoria funcional full del repo.
 
 ## Estado actual
 
-- PR #116 fue mergeado a `main`.
-- Merge commit: `e178358`.
-- Commit funcional final del PR: `e6721f7`.
-- Rama local actual: `main`.
-- `main` quedo sincronizado con `origin/main`.
-- Vercel marco deployment completo para `e178358`.
-- Produccion ya contiene el fallback realtime visible-aware para evidencias, alertas y estados en las pantallas cubiertas.
-- No hubo cambios fuera del alcance aprobado.
+- PR #116 fue cerrado previamente con merge a `main`, checks PASS y deploy automatico.
+- Ramas mergeadas `feat/admin-evidence-case-file` y `feat/operational-realtime-pr-h` fueron eliminadas local y remoto.
+- `main` quedo limpio y sincronizado antes de actualizar esta memoria.
+- La siguiente fase oficial de INTRA no sera UI/UX.
+- UI/UX queda aplazada hasta una etapa posterior, antes de pruebas finales y lanzamiento.
+- La prioridad inmediata es una auditoria funcional full del repo.
 
-## Alcance entregado
+## Decision de fase
 
-- `/app` mantiene Realtime best-effort y agrega fallback polling visible-aware:
-  - intervalo: 12s.
-  - debounce: 700ms.
-  - min gap: 1500ms.
-- `/app/matches` mantiene Realtime best-effort y agrega fallback polling visible-aware:
-  - intervalo: 10s.
-  - debounce: 700ms.
-  - min gap: 1500ms.
-  - mantiene filtro para no refrescar por mensajes propios.
-- `/app/matches/[id]` mantiene listeners filtrados por `matchId` y `shipmentId` y agrega fallback polling visible-aware:
-  - intervalo: 8s.
-  - debounce: 700ms.
-  - min gap: 1500ms.
-- `/app/admin/disputes` mantiene Realtime best-effort y agrega fallback moderado visible-aware:
-  - intervalo: 25s.
-  - debounce: 800ms.
-  - min gap: 1500ms.
-- Logs de QA quedan gated por `localStorage.setItem("intraRealtimeDebug", "1")`.
-- Cleanup incluido en los cuatro componentes:
-  - clear timeout.
-  - clear interval.
-  - remove event listener de visibilidad.
-  - `supabase.removeChannel(channel)`.
+INTRA no pasara todavia a fase de UI/UX. La UI/UX queda reservada para una etapa posterior, antes de las pruebas finales y el lanzamiento.
 
-## QA funcional
+La prioridad inmediata sera realizar una auditoria funcional full del repo para verificar el estado real de los flujos de negocio, seguridad, pagos, wallet, retiros, evidencias, disputas, reviews, admin, RLS, RPCs, webhooks, variables de entorno y pruebas.
 
-Aldo confirmo PASS antes del merge:
+La auditoria debe ignorar por completo diseno visual, tokens, colores, tipografia, responsive y mockups. El objetivo es identificar que flujos reales faltan, que modulos estan parciales o mock, que riesgos existen para operar con usuarios reales y dinero real, y que PRs funcionales deben cerrarse antes de pasar a QA integral y luego a UI/UX final.
 
-- `/app` se actualiza automaticamente despues de cambios operativos sin F5.
-- `/app/matches` refleja cambios de estado/alerta sin F5.
-- `/app/matches/[id]` actualiza evidencias, alertas y desbloqueos sin F5.
-- `/app/admin/disputes` actualiza por Realtime o fallback moderado.
-- El fallback visible-aware no se siente pesado.
-- No hubo refresh infinito.
-- No hubo errores de consola por subscriptions.
-- Chat sigue funcionando normal.
+## Alcance de la siguiente auditoria
 
-## Archivos tocados por PR #116
+Auditar funcionalmente:
 
-- `app/app/market/MarketRealtime.tsx`
-- `app/app/matches/MatchesRealtime.tsx`
-- `app/app/matches/[id]/MatchDetailRealtime.tsx`
-- `app/app/admin/disputes/AdminDisputesRealtime.tsx`
-- `app/app/admin/disputes/page.tsx`
-- `app/app/matches/[id]/page.tsx`
-- `docs/agent/CURRENT_SESSION.md`
+- Logica de negocio.
+- Flujos funcionales reales.
+- Auth.
+- Perfiles.
+- Roles contextuales.
+- Creacion de envios.
+- Creacion de viajes.
+- Matching.
+- Aceptacion, rechazo y cancelacion.
+- Chat.
+- Notificaciones.
+- Pagos / Wompi / INTRA Pay.
+- Retencion operativa.
+- Wallet.
+- Ledger.
+- Retiros.
+- Evidencias.
+- Confirmacion de entrega.
+- Auto-release.
+- Disputas.
+- Reviews.
+- Legal versionado.
+- Admin.
+- Market.
+- Dashboard.
+- Supabase RLS.
+- RPCs.
+- Webhooks.
+- Variables de entorno.
+- Tests, build y lint.
+
+## Exclusiones de la auditoria
+
+No revisar todavia:
+
+- Colores.
+- Tipografia.
+- Tokens visuales.
+- Diseno responsive.
+- Mockups.
+- Mejoras esteticas.
+- Conversion visual.
+- Layout visual.
+- QA visual.
+
+## Secuencia oficial desde este punto
+
+1. Auditoria funcional full del repo.
+2. Cierre de flujos faltantes por PRs pequenos.
+3. Hardening tecnico final.
+4. Pruebas end-to-end.
+5. QA de pagos, wallet, disputas y seguridad.
+6. UI/UX final.
+7. QA visual responsive.
+8. Pruebas finales antes de lanzamiento.
+9. Lanzamiento MVP controlado.
+
+## Archivos tocados en este cierre
+
+- `docs/agent/PROJECT_STATE.md`
 - `docs/agent/TASKS.md`
+- `docs/agent/CURRENT_SESSION.md`
+- `docs/agent/DECISIONS.md`
 
 ## No tocado
 
+- Codigo de aplicacion.
 - Pagos/Wompi/checkout.
 - Wallet.
-- Payouts.
+- Payouts/retiros.
 - Refunds.
 - Auto-release.
 - Supabase migrations.
 - RLS.
 - Storage policies.
-- RPCs financieras.
-- Logica financiera.
-- Reglas de disputa.
-- Chat internals.
+- RPCs.
+- Webhooks.
+- Variables de entorno.
+- Tests.
+- UI/UX.
 
-## Validacion local post-merge
+## Validacion esperada de este cierre
 
-- `git diff --check HEAD^ HEAD`: PASS.
-- `npm run lint`: PASS.
-- `npx tsc --noEmit`: PASS.
-- `npm run test:unit`: PASS, 42/42 tests.
-- `npm run build`: PASS, con warning no bloqueante de root por lockfiles multiples.
-
-## Checks remotos post-merge
-
-- CI en `main` para `e178358`: PASS.
-- `detect-impact` en `main` para `e178358`: PASS.
-- Vercel Production para `e178358`: PASS.
-
-## Riesgos abiertos
-
-- Realtime remoto puede no estar habilitado para todas las tablas, por eso se mantiene fallback visible-aware en pantallas operativas cubiertas.
-- Admin realtime puede estar limitado por RLS del cliente; el fallback moderado cubre resiliencia sin refrescar agresivamente.
-- El fallback confirma experiencia sin F5; no prueba por si solo que Realtime remoto este completo para futuras pantallas fuera del alcance.
+- `git diff --check`: debe pasar.
+- No aplica ejecutar lint, tests, typecheck ni build porque solo se actualiza memoria documental.
 
 ## Proximo paso recomendado
 
-- Continuar con la siguiente prioridad activa de INTRA: mejorar UI/UX de `payment / checkout` o `payment / success` sin cambiar reglas de pago.
-- Si se toca pagos, revisar antes `docs/agent/DECISIONS.md`, `docs/agent/DB_NOTES.md` y la matriz legal operativa vigente.
-
-## Debe leer el proximo agente
+Iniciar `TASK-011: Auditoria funcional full del repo` leyendo primero:
 
 1. `AGENTS.md`
 2. `docs/agent/START_HERE.md`
-3. `docs/agent/TASKS.md`
-4. `docs/agent/CURRENT_SESSION.md`
-5. `docs/agent/DECISIONS.md`
-6. `docs/agent/KNOWN_ISSUES.md`
-7. `docs/agent/DB_NOTES.md`
-8. `docs/shipment-evidence-system.md`
+3. `docs/agent/PROJECT_STATE.md`
+4. `docs/agent/TASKS.md`
+5. `docs/agent/CURRENT_SESSION.md`
+6. `docs/agent/DECISIONS.md`
+7. `docs/agent/KNOWN_ISSUES.md`
+8. `docs/agent/DB_NOTES.md`
+9. `docs/agent/RELEASE_CHECKLIST.md`
+
+La auditoria debe producir un mapa funcional del repo con flujos completos, parciales, mock/visuales, faltantes, riesgos y PRs funcionales recomendados antes de QA integral.

@@ -67,3 +67,33 @@ El flujo principal de descubrimiento/operacion del market debe mantenerse alinea
 Impacto:
 
 No crear una nueva reconstruccion aislada de `/app/market` sin aprobacion explicita. Cualquier mejora relacionada con market debe revisar primero la integracion actual con `/app`, dashboard, matches y oportunidades operativas.
+
+## DEC-005: Auditoria funcional full antes de UI/UX final
+
+Fecha: 2026-06-06
+
+Decision:
+
+INTRA no pasara todavia a fase de UI/UX. La UI/UX queda reservada para una etapa posterior, antes de las pruebas finales y el lanzamiento.
+
+La prioridad inmediata sera realizar una auditoria funcional full del repo para verificar el estado real de los flujos de negocio, seguridad, pagos, wallet, retiros, evidencias, disputas, reviews, admin, RLS, RPCs, webhooks, variables de entorno y pruebas.
+
+La auditoria debe ignorar por completo diseno visual, tokens, colores, tipografia, responsive, mockups, conversion visual, layout visual y QA visual.
+
+Motivo:
+
+Antes de invertir tiempo en refinamiento visual, INTRA necesita conocer que flujos reales faltan, que modulos estan parciales o mock, que riesgos existen para operar con usuarios reales y dinero real, y que PRs funcionales deben cerrarse.
+
+Impacto:
+
+La secuencia oficial desde este punto es:
+
+1. Auditoria funcional full del repo.
+2. Cierre de flujos faltantes por PRs pequenos.
+3. Hardening tecnico final.
+4. Pruebas end-to-end.
+5. QA de pagos, wallet, disputas y seguridad.
+6. UI/UX final.
+7. QA visual responsive.
+8. Pruebas finales antes de lanzamiento.
+9. Lanzamiento MVP controlado.
