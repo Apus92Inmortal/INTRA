@@ -61,23 +61,6 @@ Criterios de aceptacion:
 
 ## P1 - Alto
 
-### TASK-006: Corregir eventos que no actualizan en vivo
-
-Estado: IN_PROGRESS
-Prioridad: Alta
-Area: Realtime / UX operativa
-
-Criterios de aceptacion:
-
-- Identificar pantallas donde los cambios obligan a refrescar.
-- Definir estrategia de realtime operativo o invalidacion/refetch.
-- Validar matches, notificaciones, pagos, evidencias, alertas, wallet, dashboard `/app`, detalle de match y chat segun aplique.
-- PR #116 / PR H actualizado con Realtime best-effort, fallback polling visible-aware y logs gated para QA en `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`.
-- Intervalos finales: `/app` 12s, `/app/matches` 10s, `/app/matches/[id]` 8s, `/app/admin/disputes` 25s.
-- Debug QA: `localStorage.setItem("intraRealtimeDebug", "1")`.
-- PR #116 sigue bloqueado para merge hasta que QA confirme actualizacion automatica sin F5 y sin refresh infinito.
-- No se tocaron pagos, Wompi, checkout, wallet, payouts, refunds, auto-release, RLS, Storage policies, migraciones, RPCs financieras ni chat internals.
-
 ### TASK-007: Mejorar pantalla payment / checkout UI/UX
 
 Estado: TODO
@@ -134,6 +117,29 @@ Criterios de aceptacion:
 ---
 
 ## Done Log
+
+### TASK-006-PR-H: Realtime/fallback visible-aware en pantallas operativas
+
+Estado: DONE
+Fecha: 2026-06-06
+Resumen:
+
+- PR #116 fue mergeado a `main`.
+- Merge commit: `e178358`.
+- Commit funcional final: `e6721f7`.
+- Produccion quedo desplegada automaticamente desde `e178358`.
+- Vercel Production marco deployment completo para el merge commit.
+- `/app` actualiza automaticamente cambios operativos sin F5 con Realtime best-effort y fallback visible-aware de 12s.
+- `/app/matches` refleja cambios de estado/alerta sin F5 con Realtime best-effort y fallback visible-aware de 10s.
+- `/app/matches/[id]` actualiza evidencias, alertas y desbloqueos sin F5 con Realtime best-effort y fallback visible-aware de 8s.
+- `/app/admin/disputes` actualiza por Realtime o fallback moderado visible-aware de 25s.
+- Logs de QA quedan gated por `localStorage.setItem("intraRealtimeDebug", "1")`.
+- QA funcional de Aldo: PASS.
+- Checks post-merge: CI, `detect-impact` y Vercel Production PASS.
+- Validacion local post-merge: `git diff --check HEAD^ HEAD`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit` 42/42 y `npm run build` PASS.
+- No se observaron refresh infinito, errores de consola por subscriptions ni impacto pesado del fallback.
+- Chat sigue funcionando normal.
+- No se tocaron pagos, Wompi, checkout, wallet, payouts, refunds, auto-release, RLS, Storage policies, migraciones, RPCs financieras ni chat internals.
 
 ### TASK-005-PR-G: Expediente admin de evidencias, alertas y disputas
 
