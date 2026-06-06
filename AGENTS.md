@@ -4,14 +4,28 @@
 
 Antes de modificar codigo en INTRA, leer:
 
-1. `docs/agent/START_HERE.md`
-2. `docs/agent/PROJECT_STATE.md`
-3. `docs/agent/TASKS.md`
-4. `docs/agent/CURRENT_SESSION.md`
-5. `docs/agent/KNOWN_ISSUES.md`
+1. `AGENTS.md`
+2. `docs/agent/START_HERE.md`
+3. `docs/agent/PROJECT_STATE.md`
+4. `docs/agent/TASKS.md`
+5. `docs/agent/CURRENT_SESSION.md`
 6. `docs/agent/DECISIONS.md`
+7. `docs/agent/KNOWN_ISSUES.md`
+8. `docs/agent/DB_NOTES.md`
+9. `docs/agent/RELEASE_CHECKLIST.md`
+
+Si la sesion es sobre evidencias, leer tambien:
+
+10. `docs/shipment-evidence-system.md`
 
 No asumir contexto del chat como fuente principal. La memoria oficial del proyecto vive en el repo.
+
+Antes de tocar codigo, resumir:
+
+- estado actual entendido
+- tarea siguiente
+- riesgos activos
+- archivos que se planea tocar
 
 ## Proyecto
 
@@ -39,7 +53,7 @@ INTRA es una plataforma peer-to-peer de envios que conecta clientes que necesita
 - Toda modificacion de base de datos debe ir por migracion.
 - No tocar pagos, wallet, refunds, payouts o RLS sin revisar decisiones y notas vigentes.
 - No cambiar UI sin respetar los documentos visuales aprobados en `docs/`.
-- Al cerrar una sesion tecnica, actualizar `docs/agent/CURRENT_SESSION.md` y `docs/agent/TASKS.md`; actualizar `docs/agent/DECISIONS.md` solo si hubo una decision nueva.
+- Al cerrar una sesion tecnica, actualizar `docs/agent/CURRENT_SESSION.md` y `docs/agent/TASKS.md`; actualizar `docs/agent/DECISIONS.md` solo si hubo una decision nueva; actualizar `docs/agent/KNOWN_ISSUES.md` si aparecio un riesgo nuevo; actualizar `docs/agent/DB_NOTES.md` si se tocaron base de datos, Supabase, RLS, Storage o migraciones.
 
 ## Validacion esperada
 
