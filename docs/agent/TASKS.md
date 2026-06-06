@@ -90,7 +90,30 @@ Resultado:
 Siguiente frente sugerido:
 
 - PR F2 - Hardening RPC/env/admin client.
-- No avanzar a PR F2 hasta autorizacion explicita de Aldo.
+- Aldo autorizo iniciar PR F2 el 2026-06-06.
+
+### TASK-013: PR F2 - Hardening RPC/env/admin client
+
+Estado: IN_PROGRESS
+Prioridad: Alta
+Area: Seguridad / Supabase RPC / Admin client / Env
+
+Resumen:
+
+- Cerrar hardening preventivo detectado en auditoria funcional.
+- Revocar grants innecesarios a `anon` en RPCs operativas que requieren usuario autenticado.
+- Confirmar que el admin client y `SUPABASE_SERVICE_ROLE_KEY` quedan server-side.
+- Revisar nombres de variables Wompi/env y documentar nombres actuales de produccion.
+- Mantener alcance quirurgico: no tocar UI/UX, pagos, wallet, payouts, refunds o disputas salvo grants/env/documentacion.
+
+Criterios de aceptacion:
+
+- No hay RPC sensible ejecutable por `anon` sin justificacion.
+- `createAdminClient` queda protegido con `server-only`.
+- No hay imports del admin client en componentes `use client`.
+- Variables env quedan documentadas sin secretos y sin confusion critica entre nombres legacy y actuales.
+- Se documenta la migracion nueva y su aplicacion pendiente en Supabase real.
+- `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit` y `npm run build` pasan.
 
 ### Frente A: Seguridad operativa del envio
 
