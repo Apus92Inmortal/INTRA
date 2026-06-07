@@ -2,157 +2,74 @@
 
 ## Fecha
 
-2026-06-06
+2026-06-07
 
 ## Objetivo de la sesion
 
-Cerrar hotfix F3 para resolver correctamente disputas a favor del viajero cuando vienen de un reporte de paquete sospechoso escalado por admin.
+Cerrar documentalmente F3 y su hotfix operativo despues de merge, aplicacion de migraciones en Supabase real y validacion Production por Aldo.
 
 ## Estado actual
 
-- La auditoria funcional full fue entregada el 2026-06-06.
-- Aldo autorizo iniciar PR F1 como primer cierre funcional/seguridad post-auditoria.
-- PR #117 fue mergeado a `main`.
-- Merge commit: `369a4b8`.
-- Commit funcional: `0b1bbc3`.
-- La migracion `202606061830_profiles_rls_schema_hardening.sql` fue aplicada en Supabase real del proyecto Intra-app, segun confirmacion de Aldo.
-- Production fue validado funcionalmente por Aldo despues de aplicar la migracion.
-- El P0 de lectura amplia de `profiles` / exposicion potencial de PII queda cerrado en repo, `main`, Supabase real y Production.
-- Aldo autorizo iniciar PR F2 en la rama `fix/f2-rpc-env-admin-hardening`.
-- Alcance F2: revocar grants `anon` innecesarios en RPCs operativas, proteger admin client server-side, revisar service role y documentar envs reales.
-- PR #118 fue mergeado a `main`.
-- Merge commit F2: `9d33fec`.
-- La migracion `202606061930_rpc_anon_grants_hardening.sql` fue aplicada en Supabase real del proyecto Intra-app, segun confirmacion de Aldo.
-- Production fue validado funcionalmente por Aldo despues de aplicar la migracion F2.
-- PR F2 queda cerrado en repo, `main`, Supabase real y Production.
-- Aldo autorizo iniciar PR F3 en la rama `fix/f3-refunds-payouts-manual-ops`.
-- Decision MVP: refunds y payouts seran manuales; no se integra todavia payout bancario automatico ni refund automatico Wompi.
-- Alcance F3: SOP operativo, guards minimos anti doble operacion, y hardening transaccional de payout manual.
-- No avanzar a F4, no tocar UI/UX final, no integrar bancos, no integrar refund automatico, no tocar pricing, matching ni chat.
+- PR #119 fue mergeado a `main`.
+- Merge commit PR #119: `b0f8090`.
+- Migracion F3 aplicada en Supabase real:
+  - `202606070020_manual_refunds_payouts_ops.sql`.
+- PR #120 fue mergeado a `main`.
+- Merge commit PR #120: `ed0b498`.
+- Migracion hotfix F3 aplicada en Supabase real:
+  - `202606070140_suspicious_dispute_traveler_resolution.sql`.
+- Aldo valido Production:
+  - paquete sospechoso -> escalar a disputa -> resolver a favor del viajero: OK.
+  - ya no aparece error `match_in_dispute`.
+  - resolver disputa a favor del cliente sigue funcionando.
+  - flujo admin de disputa/release queda operativo.
+  - no se detectaron novedades en pruebas.
+- F3 queda cerrado en repo, `main`, Supabase real y Production.
+- No avanzar a F4 hasta autorizacion explicita de Aldo.
 
 ## Cambios implementados
 
-- Nueva migracion Supabase: `supabase/migrations/202606061830_profiles_rls_schema_hardening.sql`.
-- `profiles` queda con RLS self-only para lectura, insercion y update.
-- Se eliminan policies legacy/amplias sobre `profiles`, incluyendo lectura total para usuarios autenticados.
-- Nueva RPC `get_public_profiles(uuid[])` devuelve solo `id` y `full_name` para contextos publicos/relacionados.
-- Nueva funcion `can_view_public_profile(uuid)` valida contexto publico minimo:
-  - perfil propio,
-  - contraparte de match,
-  - viajero con trip `open`/`full`,
-  - owner de shipment `open` payment-ready.
-- `schema.sql` fue reconciliado para `profiles`/RLS y ya no contiene lectura global de perfiles.
-- Queries de dashboard, matches y chat que solo necesitan nombres de terceros usan la RPC minima.
-- `DB_NOTES.md` documenta la migracion y verificaciones SQL/manuales recomendadas.
-- En Supabase real, la policy peligrosa `Authenticated users can read profiles` ya no existe.
-- En Supabase real, las policies legacy/duplicadas de `profiles` fueron eliminadas.
-- En Supabase real, `profiles` quedo con:
-  - `profiles_insert_self`,
-  - `profiles_select_self`,
-  - `profiles_update_self`.
-- En Supabase real, existen:
-  - `can_view_profile`,
-  - `can_view_public_profile`,
-  - `get_public_profiles`.
-- En Production, Aldo valido:
-  - dashboard carga normal,
-  - matches carga normal,
-  - detalle de match carga normal,
-  - chat carga normal,
-  - nombres minimos de contraparte cargan correctamente.
-- F2 agrega migracion `202606061930_rpc_anon_grants_hardening.sql` para revocar `anon` en:
-  - `mark_match_read(uuid, timestamptz)`,
-  - `request_match(uuid, uuid)`,
-  - `create_trip(uuid, uuid, date, time, numeric, text, boolean, boolean, boolean)`.
-- F2 mantiene `authenticated` para esas RPCs porque requieren usuario real y validan `auth.uid()`.
-- F2 deja documentado que `calculate_payment_amount` conserva grant `anon` por ser calculadora publica de tarifa, sin mutacion.
-- `lib/supabase/admin.ts` queda marcado con `server-only`.
-- `.env.example` documenta que los envs server-side actuales de Wompi usan prefijo `INTRA_` y que los legacy `WOMPI_*` no son leidos por la app.
-- En Supabase real, Aldo confirmo post-check F2:
-  - `create_trip` ya no tiene `anon`; conserva `authenticated`, `postgres` y `service_role`.
-  - `mark_match_read` ya no tiene `anon`; conserva `authenticated`, `postgres` y `service_role`.
-  - `request_match` ya no tiene `anon`; conserva `authenticated`, `postgres` y `service_role`.
-  - `calculate_payment_amount` queda publico/`anon` como funcion de cotizacion no mutante.
-- En Production, Aldo valido:
-  - publicar viaje OK,
-  - solicitar match OK,
-  - chat/read OK,
-  - sin novedad.
-- F3 agrega SOP operativo en `docs/ops/manual-refunds-payouts-mvp.md`.
-- F3 agrega migracion `202606070020_manual_refunds_payouts_ops.sql` para endurecer `admin_update_payout_status`.
+- F3 agrego SOP operativo en `docs/ops/manual-refunds-payouts-mvp.md`.
+- F3 agrego migracion `supabase/migrations/202606070020_manual_refunds_payouts_ops.sql` para endurecer `admin_update_payout_status`.
 - F3 exige referencia externa para marcar payout `paid`.
 - F3 evita que payout quede `paid` antes de validar wallet y registrar ledger `payout_paid_debit`.
 - F3 exige nota operativa al cerrar disputa con resolucion final.
-- PR F3 #119 fue mergeado a `main` con merge commit `b0f8090`.
-- La migracion F3 `202606070020_manual_refunds_payouts_ops.sql` fue aplicada en Supabase real, segun confirmacion de Aldo.
-- Aldo reporto bug en Production: reporte de paquete sospechoso escalado a disputa falla con `match_in_dispute` al resolver a favor del viajero.
-- Causa: `reviewDisputeAction` llamaba `release_payment` mientras `payments.dispute_status` seguia `open`; `release_payment` bloquea correctamente disputas abiertas.
-- Hotfix en curso en rama `fix/f3-suspicious-dispute-traveler-resolution`.
-- Hotfix agrega RPC admin/service-role `admin_resolve_dispute_for_traveler(...)` para cerrar disputa y liberar pago en una sola transaccion autorizada.
+- Hotfix F3 agrego migracion `supabase/migrations/202606070140_suspicious_dispute_traveler_resolution.sql`.
+- Hotfix F3 agrego RPC admin/service-role `admin_resolve_dispute_for_traveler(...)` para cerrar disputa y liberar pago en una sola transaccion autorizada cuando una disputa viene de paquete sospechoso escalado.
+- Hotfix F3 no debilita `release_payment`; la RPC global sigue bloqueando disputas abiertas en flujos normales.
 
-## Archivos tocados
+## Archivos tocados en esta sesion documental
 
-- `supabase/migrations/202606061830_profiles_rls_schema_hardening.sql`
-- `supabase/schema.sql`
-- `app/app/_lib/dashboard-queries.ts`
-- `app/app/matches/page.tsx`
-- `app/app/matches/[id]/page.tsx`
-- `app/app/matches/[id]/chat/page.tsx`
 - `docs/agent/CURRENT_SESSION.md`
 - `docs/agent/TASKS.md`
 - `docs/agent/DB_NOTES.md`
-- `supabase/migrations/202606061930_rpc_anon_grants_hardening.sql`
-- `lib/supabase/admin.ts`
-- `.env.example`
 - `docs/agent/RELEASE_CHECKLIST.md`
 - `docs/ops/manual-refunds-payouts-mvp.md`
-- `supabase/migrations/202606070020_manual_refunds_payouts_ops.sql`
-- `app/app/wallet/actions.ts`
-- `app/app/admin/actions.ts`
-- `docs/agent/DECISIONS.md`
-- `supabase/migrations/202606070140_suspicious_dispute_traveler_resolution.sql`
 
 ## Verificacion realizada
 
-- `git diff --check`: PASS.
-- `npm run lint`: PASS.
-- `npx tsc --noEmit`: PASS.
-- `npm run test:unit`: PASS, 42/42.
-- `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
-- PR #117 remoto: CI, detect-impact y Vercel Preview PASS.
-- Post-merge en `main`: CI, detect-impact y Vercel deploy automatico PASS.
-- Supabase real: migracion F1 aplicada y policies/functions esperadas confirmadas por Aldo.
-- Production: dashboard, matches, detalle de match, chat y nombres minimos de contraparte validados por Aldo.
-- F2 validado localmente:
+- Validacion local previa F3:
   - `git diff --check`: PASS.
   - `npm run lint`: PASS.
   - `npx tsc --noEmit`: PASS.
   - `npm run test:unit`: PASS, 42/42.
   - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
-- PR #118 remoto: CI, detect-impact y Vercel Preview PASS.
-- Post-merge en `main`: merge commit `9d33fec`.
-- Supabase real: migracion F2 aplicada y grants finales confirmados por Aldo.
-- Production: publicar viaje, solicitar match y chat/read validados por Aldo.
-- F3 validado localmente:
+- Validacion local previa hotfix F3:
   - `git diff --check`: PASS.
   - `npm run lint`: PASS.
   - `npx tsc --noEmit`: PASS.
   - `npm run test:unit`: PASS, 42/42.
   - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
-- Hotfix F3 validado localmente:
-  - `git diff --check`: PASS.
-  - `npm run lint`: PASS.
-  - `npx tsc --noEmit`: PASS.
-  - `npm run test:unit`: PASS, 42/42.
-  - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
+- PR #119 mergeado a `main`: `b0f8090`.
+- PR #120 mergeado a `main`: `ed0b498`.
+- Migraciones F3 aplicadas en Supabase real segun confirmacion de Aldo.
+- Production validado por Aldo con flujo admin de disputa/release operativo.
 
 ## Riesgos activos
 
-- `schema.sql` sigue siendo un snapshot historicamente desalineado en otras areas; este PR solo reconcilia `profiles`/RLS segun alcance aprobado.
-- Los archivos `.env.runtime` y `.env*.tmp` pueden contener nombres Wompi legacy por origen runtime/tmp; no son fuente de verdad del codigo y no se exponen valores en el diff.
 - La operacion externa de refunds/payouts sigue siendo manual; requiere disciplina SOP y comprobante externo.
-- Hotfix F3 requiere aplicar migracion nueva en Supabase real despues de merge para corregir la RPC admin.
+- `schema.sql` sigue siendo un snapshot historicamente desalineado en otras areas; no usarlo como unica fuente para inferir estado remoto.
 
 ## Proximo paso recomendado
 
-Validar hotfix F3, abrir PR y no avanzar a F4.
+Revisar roadmap restante de la auditoria funcional y decidir el proximo PR. No iniciar F4 sin autorizacion de Aldo.

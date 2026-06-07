@@ -1,5 +1,18 @@
 # INTRA - Release Checklist
 
+## Cierre F3 operativo - 2026-06-07
+
+- [x] PR #119 mergeado a `main`: `b0f8090`.
+- [x] Migracion F3 aplicada en Supabase real: `202606070020_manual_refunds_payouts_ops.sql`.
+- [x] PR #120 mergeado a `main`: `ed0b498`.
+- [x] Migracion hotfix F3 aplicada en Supabase real: `202606070140_suspicious_dispute_traveler_resolution.sql`.
+- [x] Production validado por Aldo: paquete sospechoso -> disputa -> resolver a favor del viajero OK.
+- [x] Production validado por Aldo: no reaparece error `match_in_dispute`.
+- [x] Production validado por Aldo: resolver disputa a favor del cliente sigue funcionando.
+- [x] Flujo admin de disputa/release queda operativo.
+- [x] F3 cerrado en repo, `main`, Supabase real y Production.
+- [x] No avanzar a F4 sin autorizacion explicita de Aldo.
+
 ## Antes de pedir revision
 
 - [ ] `docs/agent/CURRENT_SESSION.md` actualizado.

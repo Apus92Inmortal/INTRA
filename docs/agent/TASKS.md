@@ -143,7 +143,7 @@ Siguiente frente sugerido:
 
 ### TASK-014: PR F3 - Refunds/payouts manual ops
 
-Estado: IN_PROGRESS
+Estado: DONE
 Prioridad: Alta
 Area: Pagos / Wallet / Refunds / Payouts / Admin / Operacion
 
@@ -168,6 +168,29 @@ Criterios de aceptacion:
 - Hotfix suspicious/dispute usa una RPC admin transaccional para cerrar disputa y liberar pago sin debilitar `release_payment`.
 - `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit` y `npm run build` pasan.
 - No se toca UI/UX final ni se integran bancos/refunds automaticos.
+
+Resultado:
+
+- PR #119 fue mergeado a `main`.
+- Merge commit PR #119: `b0f8090`.
+- Migracion F3 aplicada en Supabase real:
+  - `202606070020_manual_refunds_payouts_ops.sql`.
+- PR #120 fue mergeado a `main`.
+- Merge commit PR #120: `ed0b498`.
+- Migracion hotfix F3 aplicada en Supabase real:
+  - `202606070140_suspicious_dispute_traveler_resolution.sql`.
+- Production validado por Aldo:
+  - paquete sospechoso -> escalar a disputa -> resolver a favor del viajero: OK.
+  - ya no aparece error `match_in_dispute`.
+  - resolver disputa a favor del cliente sigue funcionando.
+  - flujo admin de disputa/release queda operativo.
+  - no se detectaron novedades en pruebas.
+- F3 queda cerrado en repo, `main`, Supabase real y Production.
+- No avanzar a F4 hasta autorizacion explicita de Aldo.
+
+Siguiente frente sugerido:
+
+- Revisar roadmap restante de la auditoria funcional y decidir el proximo PR.
 
 ### Frente A: Seguridad operativa del envio
 
