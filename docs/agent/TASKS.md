@@ -154,6 +154,7 @@ Resumen:
 - Documentar SOP operativo para admin.
 - Agregar guards minimos contra doble operacion.
 - Endurecer payout manual para que `paid` solo ocurra despues de referencia externa, wallet valida y ledger consistente.
+- Hotfix posterior al merge F3: corregir resolucion admin a favor del viajero cuando la disputa viene de paquete sospechoso escalado y `release_payment` devuelve `match_in_dispute`.
 
 Criterios de aceptacion:
 
@@ -164,6 +165,7 @@ Criterios de aceptacion:
 - Se confirma que dispute/refund bloquea release.
 - Se confirma que payout no genera saldo negativo.
 - Si hay migracion, queda lista para aplicar en Supabase real.
+- Hotfix suspicious/dispute usa una RPC admin transaccional para cerrar disputa y liberar pago sin debilitar `release_payment`.
 - `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit` y `npm run build` pasan.
 - No se toca UI/UX final ni se integran bancos/refunds automaticos.
 

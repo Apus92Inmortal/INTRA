@@ -6,7 +6,7 @@
 
 ## Objetivo de la sesion
 
-Ejecutar PR F3: operacion manual MVP de refunds y payouts, sin integracion bancaria ni refund automatico.
+Cerrar hotfix F3 para resolver correctamente disputas a favor del viajero cuando vienen de un reporte de paquete sospechoso escalado por admin.
 
 ## Estado actual
 
@@ -83,6 +83,12 @@ Ejecutar PR F3: operacion manual MVP de refunds y payouts, sin integracion banca
 - F3 exige referencia externa para marcar payout `paid`.
 - F3 evita que payout quede `paid` antes de validar wallet y registrar ledger `payout_paid_debit`.
 - F3 exige nota operativa al cerrar disputa con resolucion final.
+- PR F3 #119 fue mergeado a `main` con merge commit `b0f8090`.
+- La migracion F3 `202606070020_manual_refunds_payouts_ops.sql` sigue pendiente de aplicar en Supabase real.
+- Aldo reporto bug en Production: reporte de paquete sospechoso escalado a disputa falla con `match_in_dispute` al resolver a favor del viajero.
+- Causa: `reviewDisputeAction` llamaba `release_payment` mientras `payments.dispute_status` seguia `open`; `release_payment` bloquea correctamente disputas abiertas.
+- Hotfix en curso en rama `fix/f3-suspicious-dispute-traveler-resolution`.
+- Hotfix agrega RPC admin/service-role `admin_resolve_dispute_for_traveler(...)` para cerrar disputa y liberar pago en una sola transaccion autorizada.
 
 ## Archivos tocados
 
@@ -104,6 +110,7 @@ Ejecutar PR F3: operacion manual MVP de refunds y payouts, sin integracion banca
 - `app/app/wallet/actions.ts`
 - `app/app/admin/actions.ts`
 - `docs/agent/DECISIONS.md`
+- `supabase/migrations/202606070140_suspicious_dispute_traveler_resolution.sql`
 
 ## Verificacion realizada
 
@@ -132,6 +139,12 @@ Ejecutar PR F3: operacion manual MVP de refunds y payouts, sin integracion banca
   - `npx tsc --noEmit`: PASS.
   - `npm run test:unit`: PASS, 42/42.
   - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
+- Hotfix F3 validado localmente:
+  - `git diff --check`: PASS.
+  - `npm run lint`: PASS.
+  - `npx tsc --noEmit`: PASS.
+  - `npm run test:unit`: PASS, 42/42.
+  - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
 
 ## Riesgos activos
 
@@ -139,7 +152,8 @@ Ejecutar PR F3: operacion manual MVP de refunds y payouts, sin integracion banca
 - Los archivos `.env.runtime` y `.env*.tmp` pueden contener nombres Wompi legacy por origen runtime/tmp; no son fuente de verdad del codigo y no se exponen valores en el diff.
 - La operacion externa de refunds/payouts sigue siendo manual; requiere disciplina SOP y comprobante externo.
 - F3 requiere aplicar la nueva migracion en Supabase real despues de merge si PR queda aprobado.
+- Hotfix F3 requiere aplicar migracion nueva en Supabase real despues de merge para corregir la RPC admin.
 
 ## Proximo paso recomendado
 
-Crear commit, hacer push de `fix/f3-refunds-payouts-manual-ops` y abrir PR F3 para revision. No avanzar a F4.
+Validar hotfix F3, abrir PR y no avanzar a F4.

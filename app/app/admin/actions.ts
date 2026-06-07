@@ -759,13 +759,11 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
     }
 
     if (action === "traveler_release") {
-      if (shipment.status === "in_transit" && payment.traveler_delivered_at) {
-        await admin.from("shipments").update({ status: "delivered" }).eq("id", shipment.id)
-      }
-
-      const { data: releaseResult, error: releaseError } = await admin.rpc("release_payment", {
+      const { data: releaseResult, error: releaseError } = await admin.rpc("admin_resolve_dispute_for_traveler", {
         p_payment_id: payment.id,
-        p_reason: "admin_dispute_resolution",
+        p_match_id: resolvedMatchId,
+        p_resolution_notes: resolutionNotes,
+        p_admin_id: user.id,
       })
 
       if (releaseError) {
@@ -776,33 +774,6 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
         return {
           success: false,
           error: typeof releaseResult.error === "string" ? releaseResult.error : "No se pudo liberar el pago.",
-        }
-      }
-
-      const [{ error: paymentUpdateError }, { error: matchUpdateError }] = await Promise.all([
-        admin
-          .from("payments")
-          .update({
-            dispute_status: "resolved",
-            dispute_resolved_at: now,
-            updated_at: now,
-            metadata: resolutionMeta,
-          })
-          .eq("id", payment.id),
-        admin
-          .from("matches")
-          .update({
-            status: "resolved",
-            resolved_at: now,
-            resolution_notes: resolutionNotes || "Disputa resuelta a favor del viajero y pago liberado.",
-          })
-          .eq("id", resolvedMatchId),
-      ])
-
-      if (paymentUpdateError || matchUpdateError) {
-        return {
-          success: false,
-          error: paymentUpdateError?.message ?? matchUpdateError?.message ?? "No pudimos cerrar la disputa.",
         }
       }
 
