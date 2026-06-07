@@ -485,6 +485,10 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
       return { success: false, error: "Escribe un monto válido para la devolución manual." }
     }
 
+    if (action !== "reviewing" && !resolutionNotes) {
+      return { success: false, error: "Escribe una nota operativa antes de cerrar la disputa." }
+    }
+
     const admin = createAdminClient()
     const { data: payment, error: paymentError } = await admin
       .from("payments")

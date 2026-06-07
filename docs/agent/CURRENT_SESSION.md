@@ -6,7 +6,7 @@
 
 ## Objetivo de la sesion
 
-Ejecutar PR F2: hardening preventivo de RPC grants, admin client, service role y variables env/documentacion.
+Ejecutar PR F3: operacion manual MVP de refunds y payouts, sin integracion bancaria ni refund automatico.
 
 ## Estado actual
 
@@ -25,7 +25,10 @@ Ejecutar PR F2: hardening preventivo de RPC grants, admin client, service role y
 - La migracion `202606061930_rpc_anon_grants_hardening.sql` fue aplicada en Supabase real del proyecto Intra-app, segun confirmacion de Aldo.
 - Production fue validado funcionalmente por Aldo despues de aplicar la migracion F2.
 - PR F2 queda cerrado en repo, `main`, Supabase real y Production.
-- No avanzar a PR F3 hasta autorizacion explicita de Aldo.
+- Aldo autorizo iniciar PR F3 en la rama `fix/f3-refunds-payouts-manual-ops`.
+- Decision MVP: refunds y payouts seran manuales; no se integra todavia payout bancario automatico ni refund automatico Wompi.
+- Alcance F3: SOP operativo, guards minimos anti doble operacion, y hardening transaccional de payout manual.
+- No avanzar a F4, no tocar UI/UX final, no integrar bancos, no integrar refund automatico, no tocar pricing, matching ni chat.
 
 ## Cambios implementados
 
@@ -75,6 +78,11 @@ Ejecutar PR F2: hardening preventivo de RPC grants, admin client, service role y
   - solicitar match OK,
   - chat/read OK,
   - sin novedad.
+- F3 agrega SOP operativo en `docs/ops/manual-refunds-payouts-mvp.md`.
+- F3 agrega migracion `202606070020_manual_refunds_payouts_ops.sql` para endurecer `admin_update_payout_status`.
+- F3 exige referencia externa para marcar payout `paid`.
+- F3 evita que payout quede `paid` antes de validar wallet y registrar ledger `payout_paid_debit`.
+- F3 exige nota operativa al cerrar disputa con resolucion final.
 
 ## Archivos tocados
 
@@ -91,6 +99,11 @@ Ejecutar PR F2: hardening preventivo de RPC grants, admin client, service role y
 - `lib/supabase/admin.ts`
 - `.env.example`
 - `docs/agent/RELEASE_CHECKLIST.md`
+- `docs/ops/manual-refunds-payouts-mvp.md`
+- `supabase/migrations/202606070020_manual_refunds_payouts_ops.sql`
+- `app/app/wallet/actions.ts`
+- `app/app/admin/actions.ts`
+- `docs/agent/DECISIONS.md`
 
 ## Verificacion realizada
 
@@ -113,13 +126,20 @@ Ejecutar PR F2: hardening preventivo de RPC grants, admin client, service role y
 - Post-merge en `main`: merge commit `9d33fec`.
 - Supabase real: migracion F2 aplicada y grants finales confirmados por Aldo.
 - Production: publicar viaje, solicitar match y chat/read validados por Aldo.
+- F3 validado localmente:
+  - `git diff --check`: PASS.
+  - `npm run lint`: PASS.
+  - `npx tsc --noEmit`: PASS.
+  - `npm run test:unit`: PASS, 42/42.
+  - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
 
 ## Riesgos activos
 
 - `schema.sql` sigue siendo un snapshot historicamente desalineado en otras areas; este PR solo reconcilia `profiles`/RLS segun alcance aprobado.
 - Los archivos `.env.runtime` y `.env*.tmp` pueden contener nombres Wompi legacy por origen runtime/tmp; no son fuente de verdad del codigo y no se exponen valores en el diff.
-- No hay pendiente activo de PR F2.
+- La operacion externa de refunds/payouts sigue siendo manual; requiere disciplina SOP y comprobante externo.
+- F3 requiere aplicar la nueva migracion en Supabase real despues de merge si PR queda aprobado.
 
 ## Proximo paso recomendado
 
-Esperar autorizacion de Aldo para iniciar el siguiente frente. Sugerido: PR F3 - operacion real de refunds/payouts manuales MVP, o revisar primero el roadmap restante de auditoria. No avanzar sin autorizacion.
+Crear commit, hacer push de `fix/f3-refunds-payouts-manual-ops` y abrir PR F3 para revision. No avanzar a F4.
