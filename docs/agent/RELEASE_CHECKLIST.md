@@ -27,8 +27,17 @@
 - [x] Smoke admin temporal: PASS.
 - [x] Resultado general `Authenticated Smoke`: PASS.
 - [x] Smoke autenticado minimo cerrado y validado.
+- [x] PR documental smoke #127 mergeado a `main`: `d5f3e2f`.
+- [x] Post-merge PR #127 `main`: CI remoto PASS.
+- [x] Post-merge PR #127 `main`: detect-impact remoto PASS.
+- [x] Post-merge PR #127 `main`: Vercel Production deploy PASS.
+- [x] GitHub Actions Secrets del smoke eliminados por Aldo.
+- [x] Sin secrets de smoke activos en GitHub Actions.
+- [x] Sin accesos temporales pendientes.
+- [x] Limpieza de ramas locales/remotas completada; queda solo `main` / `origin/main`.
 - [x] No se ejecutaron pagos reales, release real, payout completo, disputa completa con dinero ni fixtures con service role.
 - [x] No se avanzo a UI/UX ni F5.
+- [ ] Recomendado: cambiar o eliminar claves usadas en smoke cuando Aldo lo considere conveniente.
 
 ## PR F4 operational notifications - 2026-06-07
 

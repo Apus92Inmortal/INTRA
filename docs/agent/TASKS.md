@@ -301,11 +301,23 @@ Resultado:
   - Admin: PASS.
   - duracion aproximada reportada por Aldo: 1 min 2 s.
 - Smoke test autenticado minimo queda cerrado y validado.
+- PR documental de cierre smoke #127 fue mergeado a `main`.
+- Merge commit PR #127: `d5f3e2f`.
+- Post-merge PR #127 en `main`:
+  - CI remoto: PASS.
+  - detect-impact remoto: PASS.
+  - Vercel Production deploy: PASS.
+- Limpieza posterior confirmada por Aldo:
+  - GitHub Actions Secrets del smoke eliminados.
+  - No quedan secrets de smoke activos en GitHub Actions.
+  - Sin accesos temporales pendientes.
+  - Ramas locales/remotas de PRs cerrados eliminadas; queda solo `main` / `origin/main`.
 
 Siguiente frente sugerido:
 
-- Esperar autorizacion explicita de Aldo para UI/UX final o F5.
-- Antes de avanzar, retirar admin temporal de `ADMIN_EMAILS`, redeployar Production y cambiar/eliminar claves temporales.
+- Abrir nuevo chat para UI/UX final y Manual UI/UX INTRA v2 definitivo.
+- No avanzar a UI/UX ni F5 en este chat.
+- Recomendacion pendiente de seguridad: cambiar o eliminar claves usadas en smoke cuando Aldo lo considere conveniente.
 
 ### Frente A: Seguridad operativa del envio
 

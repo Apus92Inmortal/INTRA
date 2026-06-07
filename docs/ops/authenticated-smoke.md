@@ -75,6 +75,7 @@ Commits/PRs relacionados:
 - PR #124: harness inicial, merge `d9127e6`.
 - PR #125: fix de fragilidad en smoke de envio, merge `2adf17e`.
 - PR #126: fix de fragilidad en smoke de viaje, merge `d4f4392`.
+- PR #127: cierre documental del smoke, merge `d5f3e2f`.
 
 ## Seguridad
 
@@ -92,3 +93,16 @@ El workflow no sube artifacts. Los tests no imprimen credenciales ni valores de 
 - Redeployar Production.
 - Cambiar o eliminar las contraseñas temporales.
 - Eliminar datos de prueba solo si Aldo lo autoriza.
+
+## Limpieza confirmada
+
+Confirmado por Aldo el 2026-06-07:
+
+- GitHub Actions Secrets del smoke eliminados.
+- No quedan secrets de smoke activos en GitHub Actions.
+- Sin accesos temporales pendientes.
+- Aldo decidio no cambiar claves por ahora.
+
+Recomendacion pendiente:
+
+- Cambiar o eliminar claves usadas en smoke cuando Aldo lo considere conveniente.
