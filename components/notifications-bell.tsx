@@ -93,20 +93,36 @@ function getNotificationVisual(type: string | null) {
         badgeClassName: "bg-intra-bg-app",
       };
     case "shipment_in_transit":
+    case "delivery_reported":
     case "delivery_confirmed":
       return {
         icon: Package,
         iconClassName: "text-intra-blue",
         badgeClassName: "bg-intra-bg-app",
       };
+    case "payment_confirmed":
+    case "payment_failed":
+    case "payment_cancelled":
     case "payment_released":
+    case "auto_release_executed":
+    case "refund_manual_required":
     case "refund_processed":
+    case "payout_requested":
+    case "payout_approved":
+    case "payout_rejected":
+    case "payout_paid":
       return {
         icon: Wallet,
         iconClassName: "text-intra-green",
         badgeClassName: "bg-intra-success-soft",
       };
     case "dispute_opened":
+    case "shipment_alert":
+    case "shipment_alert_escalated":
+    case "case_reviewing":
+    case "dispute_resolved_customer":
+    case "dispute_resolved_traveler":
+    case "dispute_closed":
       return {
         icon: AlertTriangle,
         iconClassName: "text-intra-warning",

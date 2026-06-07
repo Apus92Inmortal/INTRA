@@ -192,6 +192,36 @@ Siguiente frente sugerido:
 
 - Revisar roadmap restante de la auditoria funcional y decidir el proximo PR.
 
+### TASK-015: PR F4 - Operational notifications
+
+Estado: IN_PROGRESS
+Prioridad: Alta
+Area: Notificaciones / Operacion / Pagos / Wallet / Admin
+
+Resumen:
+
+- Completar y endurecer notificaciones operativas criticas antes de UI/UX final.
+- Corregir la estrategia de unicidad/idempotencia de `notifications`.
+- Evitar el indice unico global `(related_match_id, type)` porque bloquea eventos validos entre cliente/viajero y eventos repetibles como `new_message`.
+- Cubrir eventos operativos faltantes sin cambiar logica de dinero, pricing, Wompi runtime, wallet/ledger, payouts/refunds/disputas salvo insercion de notificaciones.
+
+Criterios de aceptacion:
+
+- `new_message` queda permitido como evento repetible.
+- Eventos idempotentes quedan protegidos por usuario/evento y `dedupe_key` cuando aplique.
+- Pago aprobado/fallido/cancelado, pago liberado, refund manual requerido/realizado, caso en revision, alerta escalada, disputa resuelta, retiros, verificacion y cuenta de retiro generan notificaciones contextuales.
+- No se toca UI/UX final.
+- No se crea E2E.
+- No se avanza a F5.
+- `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit` y `npm run build` pasan.
+
+Resultado:
+
+- En progreso en rama `fix/f4-operational-notifications`.
+- Migracion local creada: `202606071450_operational_notifications_f4.sql`.
+- Checks locales F4 pasan: `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit`, `npm run build`.
+- Pendiente: PR, merge, aplicar migracion en Supabase real y validar Production.
+
 ### Frente A: Seguridad operativa del envio
 
 Prioridad: Critica

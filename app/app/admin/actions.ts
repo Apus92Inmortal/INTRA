@@ -744,16 +744,6 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
         }
       }
 
-      await insertParticipantNotifications(admin, {
-        matchId: resolvedMatchId,
-        customerUserId: shipment.owner_id,
-        travelerUserId: trip.traveler_id,
-        customerTitle: "Tu disputa fue resuelta",
-        customerMessage: `Acreditamos ${resolvedRefundAmount.toLocaleString("es-CO")} COP a tu wallet como devolución.`,
-        travelerTitle: "Disputa resuelta a favor del cliente",
-        travelerMessage: "La administración resolvió la disputa a favor del cliente, devolvió el saldo al cliente y retiró la retención del pago en tu wallet.",
-      })
-
       revalidateAdminDisputePaths(resolvedMatchId)
       return { success: true, message: "Disputa resuelta a favor del cliente." }
     }
@@ -776,16 +766,6 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
           error: typeof releaseResult.error === "string" ? releaseResult.error : "No se pudo liberar el pago.",
         }
       }
-
-      await insertParticipantNotifications(admin, {
-        matchId: resolvedMatchId,
-        customerUserId: shipment.owner_id,
-        travelerUserId: trip.traveler_id,
-        customerTitle: "Tu disputa fue resuelta",
-        customerMessage: "La administración resolvió la disputa a favor del viajero y liberó el pago correspondiente.",
-        travelerTitle: "Disputa resuelta a tu favor",
-        travelerMessage: "La administración resolvió la disputa a tu favor y liberó el pago a tu wallet.",
-      })
 
       revalidateAdminDisputePaths(resolvedMatchId)
       return { success: true, message: "Disputa resuelta a favor del viajero." }
@@ -817,16 +797,6 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
         error: paymentUpdateError?.message ?? matchUpdateError?.message ?? "No pudimos cerrar la disputa.",
       }
     }
-
-    await insertParticipantNotifications(admin, {
-      matchId: resolvedMatchId,
-      customerUserId: shipment.owner_id,
-      travelerUserId: trip.traveler_id,
-      customerTitle: "Tu disputa fue cerrada",
-      customerMessage: "La administración cerró la disputa sin movimiento de dinero adicional.",
-      travelerTitle: "La disputa fue cerrada",
-      travelerMessage: "La administración cerró la disputa sin movimiento de dinero adicional.",
-    })
 
     revalidateAdminDisputePaths(resolvedMatchId)
     return { success: true, message: "Disputa cerrada sin movimiento de dinero." }
@@ -1028,16 +998,6 @@ export async function reviewShipmentAlertAction(formData: FormData): Promise<Act
             "No pudimos escalar la alerta a disputa.",
         }
       }
-
-      await insertParticipantNotifications(admin, {
-        matchId: match.id,
-        customerUserId: customerId,
-        travelerUserId: travelerId,
-        customerTitle: "Se abrió una disputa",
-        customerMessage: "La administración escaló la alerta a disputa para revisar el caso con mayor detalle.",
-        travelerTitle: "Tu alerta fue escalada a disputa",
-        travelerMessage: "La administración escaló la alerta a disputa para revisar el caso con mayor detalle.",
-      })
 
       revalidateAdminDisputePaths(match.id)
       return { success: true, message: "Alerta escalada a disputa." }
