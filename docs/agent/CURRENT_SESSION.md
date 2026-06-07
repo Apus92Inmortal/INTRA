@@ -6,21 +6,36 @@
 
 ## Objetivo de la sesion
 
-PR F4 - Operational notifications. Completar notificaciones operativas criticas antes de UI/UX final, manteniendo alcance controlado.
+Cerrar documentalmente F4 operational notifications despues de merge, aplicacion de migracion en Supabase real y validacion Production por Aldo.
 
 ## Estado actual
 
-- Rama activa: `fix/f4-operational-notifications`.
-- F1, F2 y F3 estan cerrados en repo, `main`, Supabase real y Production.
-- F4 fue autorizado por Aldo el 2026-06-07.
-- PR F4 abierto:
-  - `#122` - `F4 operational notifications`.
-  - https://github.com/Apus92Inmortal/INTRA/pull/122
-- No avanzar a F5, E2E ni UI/UX final.
+- PR #122 fue mergeado a `main`.
+- Merge commit PR #122: `d17a0fd`.
+- Migracion F4 aplicada en Supabase real:
+  - `202606071450_operational_notifications_f4.sql`.
+- Post-checks Supabase real confirmados por Aldo:
+  - `notifications_unique_dedupe_key`: OK.
+  - `notifications_unique_idempotent_match_event`: OK.
+  - `dedupe_key` existe como `text nullable`: OK.
+  - indices globales peligrosos eliminados: OK.
+  - triggers F4 existentes:
+    - `trg_notify_payment_operational_event`.
+    - `trg_notify_payout_insert_operational_event`.
+    - `trg_notify_payout_update_operational_event`.
+    - `trg_notify_user_verification_operational_event`.
+    - `trg_notify_payout_account_operational_event`.
+    - `trg_notify_shipment_report_operational_event`.
+- Production validado por Aldo:
+  - eventos criticos de notificacion probados.
+  - sin novedades reportadas.
+  - notificaciones operativas funcionando correctamente.
+- F4 queda cerrado en repo, `main`, Supabase real y Production.
+- No avanzar al siguiente frente sin autorizacion explicita de Aldo.
 
-## Cambios implementados
+## Cambios implementados en F4
 
-- Migracion F4 creada:
+- Migracion F4:
   - `supabase/migrations/202606071450_operational_notifications_f4.sql`.
 - La migracion corrige la unicidad global demasiado amplia de `notifications (related_match_id, type)`.
 - Se agrega `notifications.dedupe_key`.
@@ -36,36 +51,43 @@ PR F4 - Operational notifications. Completar notificaciones operativas criticas 
 - Se hacen ajustes funcionales minimos en campana/dashboard para reconocer tipos nuevos.
 - Se eliminan notificaciones genericas admin en resoluciones donde la migracion F4 genera eventos especificos.
 
-## Archivos tocados
+## Archivos tocados en esta sesion documental
 
-- `supabase/migrations/202606071450_operational_notifications_f4.sql`
-- `supabase/schema.sql`
-- `app/app/admin/actions.ts`
-- `app/app/_lib/dashboard-queries.ts`
-- `components/notifications-bell.tsx`
 - `docs/agent/CURRENT_SESSION.md`
 - `docs/agent/TASKS.md`
-- `docs/agent/DECISIONS.md`
 - `docs/agent/DB_NOTES.md`
 - `docs/agent/RELEASE_CHECKLIST.md`
 
 ## Verificacion realizada
 
-- `git diff --check`: PASS.
-- `npm run lint`: PASS.
-- `npx tsc --noEmit`: PASS.
-- `npm run test:unit`: PASS, 42/42.
-- `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
-- PR #122 remoto:
+- Validacion local previa F4:
+  - `git diff --check`: PASS.
+  - `npm run lint`: PASS.
+  - `npx tsc --noEmit`: PASS.
+  - `npm run test:unit`: PASS, 42/42.
+  - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
+- PR #122 pre-merge:
   - CI `validate`: PASS.
   - detect-impact: PASS.
   - Vercel Preview: PASS.
+  - PR mergeable.
+- Post-merge `main`:
+  - CI remoto `main`: PASS.
+  - detect-impact remoto `main`: PASS.
+  - Vercel deploy automatico `main`: PASS.
+- Supabase real:
+  - migracion F4 aplicada.
+  - post-checks de indices, columna y triggers: OK segun confirmacion de Aldo.
+- Production:
+  - validacion de eventos criticos de notificacion: OK segun confirmacion de Aldo.
 
 ## Riesgos activos
 
-- La migracion F4 debe aplicarse en Supabase real despues del merge para activar triggers y nueva idempotencia.
-- No hay cambio de UI/UX final; los ajustes visuales son solo reconocimiento funcional de tipos.
+- Warning no bloqueante en GitHub Actions: deprecacion futura de Node.js 20 en `actions/checkout` y `actions/setup-node`.
+- No hay pendiente operativo F4 abierto despues de la validacion Production reportada por Aldo.
 
 ## Proximo paso recomendado
 
-Esperar aprobacion de Aldo para mergear PR #122, aplicar migracion F4 en Supabase real y validar Production.
+Siguiente frente segun roadmap acordado: smoke test funcional minimo.
+
+No iniciar smoke test ni avanzar a F5 sin autorizacion explicita de Aldo.

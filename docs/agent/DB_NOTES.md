@@ -258,7 +258,7 @@ Resultado esperado:
 ## PR F4 - Operational notifications
 
 - Migracion nueva: `202606071450_operational_notifications_f4.sql`.
-- Estado remoto: pendiente de aplicar en Supabase real despues de merge.
+- Estado remoto: aplicada en Supabase real, segun confirmacion de Aldo el 2026-06-07.
 - Objetivo:
   - corregir unicidad/idempotencia de `notifications`,
   - permitir eventos repetibles como `new_message`,
@@ -318,3 +318,24 @@ Resultado esperado:
 - Existe `notifications.dedupe_key`.
 - Existen los triggers F4.
 - `new_message` puede repetirse para el mismo match/usuario.
+
+Confirmacion Supabase real:
+
+- `notifications_unique_dedupe_key`: OK.
+- `notifications_unique_idempotent_match_event`: OK.
+- `dedupe_key` existe como `text nullable`: OK.
+- Indices globales peligrosos eliminados: OK.
+- Triggers F4 existentes:
+  - `trg_notify_payment_operational_event`.
+  - `trg_notify_payout_insert_operational_event`.
+  - `trg_notify_payout_update_operational_event`.
+  - `trg_notify_user_verification_operational_event`.
+  - `trg_notify_payout_account_operational_event`.
+  - `trg_notify_shipment_report_operational_event`.
+
+Validacion Production:
+
+- Aldo valido eventos criticos de notificacion.
+- Sin novedades reportadas.
+- Notificaciones operativas funcionando correctamente.
+- F4 queda cerrado en repo, `main`, Supabase real y Production.

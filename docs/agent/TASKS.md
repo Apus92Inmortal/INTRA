@@ -194,7 +194,7 @@ Siguiente frente sugerido:
 
 ### TASK-015: PR F4 - Operational notifications
 
-Estado: IN_PROGRESS
+Estado: DONE
 Prioridad: Alta
 Area: Notificaciones / Operacion / Pagos / Wallet / Admin
 
@@ -217,12 +217,29 @@ Criterios de aceptacion:
 
 Resultado:
 
-- En progreso en rama `fix/f4-operational-notifications`.
-- Migracion local creada: `202606071450_operational_notifications_f4.sql`.
+- PR #122 fue mergeado a `main`.
+- Merge commit PR #122: `d17a0fd`.
+- Migracion F4 aplicada en Supabase real:
+  - `202606071450_operational_notifications_f4.sql`.
 - Checks locales F4 pasan: `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit`, `npm run build`.
-- PR abierto: #122.
 - Checks remotos PR #122 pasan: CI `validate`, detect-impact y Vercel Preview.
-- Pendiente: merge, aplicar migracion en Supabase real y validar Production.
+- Post-merge `main`: CI remoto, detect-impact remoto y Vercel deploy automatico PASS.
+- Post-checks Supabase real confirmados por Aldo:
+  - `notifications_unique_dedupe_key`: OK.
+  - `notifications_unique_idempotent_match_event`: OK.
+  - `dedupe_key` existe como `text nullable`: OK.
+  - indices globales peligrosos eliminados: OK.
+  - triggers F4 existentes: `trg_notify_payment_operational_event`, `trg_notify_payout_insert_operational_event`, `trg_notify_payout_update_operational_event`, `trg_notify_user_verification_operational_event`, `trg_notify_payout_account_operational_event`, `trg_notify_shipment_report_operational_event`.
+- Production validado por Aldo:
+  - eventos criticos de notificacion probados.
+  - sin novedades reportadas.
+  - notificaciones operativas funcionando correctamente.
+- F4 queda cerrado en repo, `main`, Supabase real y Production.
+
+Siguiente frente sugerido:
+
+- Smoke test funcional minimo.
+- No avanzar sin autorizacion explicita de Aldo.
 
 ### Frente A: Seguridad operativa del envio
 

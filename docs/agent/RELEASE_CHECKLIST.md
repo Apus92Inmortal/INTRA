@@ -3,6 +3,7 @@
 ## PR F4 operational notifications - 2026-06-07
 
 - [x] PR F4 creado desde `fix/f4-operational-notifications`: #122.
+- [x] PR #122 mergeado a `main`: `d17a0fd`.
 - [x] Migracion F4 revisada: `202606071450_operational_notifications_f4.sql`.
 - [x] Confirmado que no se toca UI/UX final.
 - [x] Confirmado que no se avanza a F5 ni se crea E2E.
@@ -12,8 +13,14 @@
 - [x] `npx tsc --noEmit`.
 - [x] `npm run test:unit`.
 - [x] `npm run build`.
-- [ ] Despues de merge: aplicar migracion F4 en Supabase real.
-- [ ] Despues de migracion: validar Production con eventos operativos criticos.
+- [x] Post-merge `main`: CI remoto PASS.
+- [x] Post-merge `main`: detect-impact remoto PASS.
+- [x] Post-merge `main`: Vercel deploy automatico PASS.
+- [x] Despues de merge: aplicar migracion F4 en Supabase real.
+- [x] Post-check Supabase real: indices, `dedupe_key` y triggers F4 OK.
+- [x] Despues de migracion: validar Production con eventos operativos criticos.
+- [x] F4 cerrado en repo, `main`, Supabase real y Production.
+- [x] No avanzar al siguiente frente sin autorizacion explicita de Aldo.
 
 ## Cierre F3 operativo - 2026-06-07
 
