@@ -175,7 +175,7 @@ Resultado esperado:
 ## PR F3 - Refunds/payouts manual ops
 
 - Migracion nueva: `202606070020_manual_refunds_payouts_ops.sql`.
-- Estado remoto: pendiente de aplicar en Supabase real.
+- Estado remoto: aplicada en Supabase real, segun confirmacion de Aldo.
 - Objetivo: endurecer operacion manual de payouts y documentar refunds/payouts manuales MVP.
 - Decision MVP:
   - refunds manuales,
