@@ -8,6 +8,18 @@
 - Admin debe revisar estado del payment, payout, wallet y ledger antes de actuar.
 - Todo cambio critico debe hacerse desde el admin para mantener trazabilidad.
 
+## Estado F3 validado
+
+- PR #119 quedo mergeado en `main` con commit `b0f8090`.
+- Migracion F3 aplicada en Supabase real: `202606070020_manual_refunds_payouts_ops.sql`.
+- PR #120 quedo mergeado en `main` con commit `ed0b498`.
+- Migracion hotfix F3 aplicada en Supabase real: `202606070140_suspicious_dispute_traveler_resolution.sql`.
+- Production validado por Aldo:
+  - paquete sospechoso -> escalar a disputa -> resolver a favor del viajero: OK.
+  - no reaparece `match_in_dispute`.
+  - resolver disputa a favor del cliente sigue funcionando.
+  - flujo admin de disputa/release queda operativo.
+
 ## Refunds manuales
 
 ### Cuando aplica

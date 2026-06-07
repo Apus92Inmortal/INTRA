@@ -214,7 +214,7 @@ Resultado esperado:
 ## Hotfix F3 - Suspicious dispute traveler resolution
 
 - Migracion nueva: `202606070140_suspicious_dispute_traveler_resolution.sql`.
-- Estado remoto: pendiente de aplicar en Supabase real cuando el hotfix sea mergeado y aprobado.
+- Estado remoto: aplicada en Supabase real, segun confirmacion de Aldo.
 - Objetivo: corregir bug Production donde una alerta de paquete sospechoso escalada a disputa falla con `match_in_dispute` al resolver a favor del viajero.
 - Causa: `reviewDisputeAction` llamaba `release_payment` mientras `payments.dispute_status = 'open'`; `release_payment` debe seguir bloqueando disputas abiertas para flujos normales.
 - Nueva RPC: `admin_resolve_dispute_for_traveler(uuid, uuid, text, uuid)`.
@@ -230,6 +230,14 @@ Resultado esperado:
   - sincroniza wallet del viajero.
 - La RPC queda disponible solo para `service_role`.
 - No se modifica `release_payment` global.
+- PR #120 fue mergeado a `main` con merge commit `ed0b498`.
+- Production validado por Aldo despues de aplicar la migracion:
+  - paquete sospechoso -> escalar a disputa -> resolver a favor del viajero: OK.
+  - ya no aparece error `match_in_dispute`.
+  - resolver disputa a favor del cliente sigue funcionando.
+  - flujo admin de disputa/release queda operativo.
+  - no se detectaron novedades en pruebas.
+- F3 queda cerrado en repo, `main`, Supabase real y Production.
 
 Verificacion SQL recomendada despues de aplicar la migracion:
 
