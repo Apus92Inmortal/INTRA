@@ -175,7 +175,7 @@ Resultado esperado:
 ## PR F3 - Refunds/payouts manual ops
 
 - Migracion nueva: `202606070020_manual_refunds_payouts_ops.sql`.
-- Estado remoto: pendiente de aplicar en Supabase real cuando PR F3 sea mergeado y aprobado.
+- Estado remoto: aplicada en Supabase real, segun confirmacion de Aldo.
 - Objetivo: endurecer operacion manual de payouts y documentar refunds/payouts manuales MVP.
 - Decision MVP:
   - refunds manuales,
@@ -210,3 +210,39 @@ Resultado esperado:
 - Payouts `paid` tienen `paid_reference`, `paid_at` y una sola entrada `payout_paid_debit`.
 - Payouts `approved` no tienen ledger `payout_paid_debit`.
 - Wallet disponible no queda negativa por payout manual.
+
+## Hotfix F3 - Suspicious dispute traveler resolution
+
+- Migracion nueva: `202606070140_suspicious_dispute_traveler_resolution.sql`.
+- Estado remoto: pendiente de aplicar en Supabase real cuando el hotfix sea mergeado y aprobado.
+- Objetivo: corregir bug Production donde una alerta de paquete sospechoso escalada a disputa falla con `match_in_dispute` al resolver a favor del viajero.
+- Causa: `reviewDisputeAction` llamaba `release_payment` mientras `payments.dispute_status = 'open'`; `release_payment` debe seguir bloqueando disputas abiertas para flujos normales.
+- Nueva RPC: `admin_resolve_dispute_for_traveler(uuid, uuid, text, uuid)`.
+- Alcance de la RPC:
+  - requiere nota operativa,
+  - valida payment `held`, gateway `approved`, dispute `open`, sin refund/manual_refund_required,
+  - bloquea payment/match/shipment con `for update`,
+  - registra ledger `release_pending_debit` y `release_available_credit` de forma idempotente,
+  - marca payment `released` y dispute `resolved`,
+  - marca match `resolved`,
+  - actualiza metadata del `shipment_report_events` escalado si existe,
+  - registra `app_audit_logs`,
+  - sincroniza wallet del viajero.
+- La RPC queda disponible solo para `service_role`.
+- No se modifica `release_payment` global.
+
+Verificacion SQL recomendada despues de aplicar la migracion:
+
+```sql
+select routine_name, grantee, privilege_type
+from information_schema.routine_privileges
+where specific_schema = 'public'
+  and routine_name = 'admin_resolve_dispute_for_traveler'
+order by grantee;
+```
+
+Resultado esperado:
+
+- Sin `anon`.
+- Sin `authenticated`.
+- Con `service_role`.
