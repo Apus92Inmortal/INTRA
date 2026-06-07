@@ -241,6 +241,72 @@ Siguiente frente sugerido:
 - Smoke test funcional minimo.
 - No avanzar sin autorizacion explicita de Aldo.
 
+### TASK-016: Smoke test autenticado minimo
+
+Estado: DONE
+Prioridad: Alta
+Area: QA / Playwright / Auth / Production smoke
+
+Resumen:
+
+- Validar de forma corta y segura que los flujos autenticados principales siguen vivos despues de F1, F2, F3 y F4.
+- Crear harness automatizado minimo con Playwright y workflow manual `Authenticated Smoke`.
+- Usar cuentas temporales y GitHub Actions Secrets sin exponer credenciales.
+- Mantener alcance no destructivo: no pago real, no release real, no payout completo, no disputa completa con dinero, no fixtures con service role.
+
+Criterios de aceptacion:
+
+- Workflow manual `Authenticated Smoke` disponible en `main`.
+- Configuracion segura:
+  - `trace: off`.
+  - `screenshot: off`.
+  - `video: off`.
+  - sin upload de artifacts.
+  - sin impresion de secrets.
+- Smoke v1 cubre:
+  - login cliente temporal,
+  - dashboard cliente,
+  - campana/notificaciones cliente,
+  - envio hasta checkout seguro sin pago real,
+  - login viajero temporal,
+  - dashboard viajero,
+  - campana/notificaciones viajero,
+  - viaje compatible si el formulario lo permite,
+  - oportunidades compatibles,
+  - login admin temporal,
+  - `/app/admin`,
+  - modulos admin de payouts, verificaciones y disputas/reportes,
+  - guard de payout pagado sin referencia si existe caso aprobado seguro visible.
+- No toca producto, DB, migraciones, pagos, Wompi, UI/UX ni F5.
+- Workflow `Authenticated Smoke` ejecutado en `main` con resultado PASS.
+
+Resultado:
+
+- PR #124 fue mergeado a `main`.
+- Merge commit PR #124: `d9127e6`.
+- PR #125 fue mergeado a `main` para corregir fragilidad del smoke de envio.
+- Merge commit PR #125: `2adf17e`.
+- PR #126 fue mergeado a `main` para corregir fragilidad del smoke de viaje.
+- Merge commit PR #126: `d4f4392`.
+- Post-merge PR #126 en `main`:
+  - CI remoto: PASS.
+  - detect-impact remoto: PASS.
+  - Vercel deploy automatico: PASS.
+- Workflow manual `Authenticated Smoke` ejecutado en `main`:
+  - resultado general: PASS.
+  - `Validate smoke secrets`: PASS.
+  - `Run authenticated smoke`: PASS.
+  - Cliente: PASS.
+  - Viajero: PASS.
+  - Admin: PASS.
+  - duracion aproximada reportada por Aldo: 1 min 2 s.
+- Smoke test autenticado minimo queda cerrado y validado.
+
+Siguiente frente sugerido:
+
+- Esperar autorizacion explicita de Aldo para UI/UX final o F5.
+- Antes de avanzar, retirar admin temporal de `ADMIN_EMAILS`, redeployar Production y cambiar/eliminar claves temporales.
+
 ### Frente A: Seguridad operativa del envio
 
 Prioridad: Critica

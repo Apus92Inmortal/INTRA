@@ -58,6 +58,24 @@ No escribir valores reales en chat, docs, commits, PRs, issues ni archivos del r
 6. Ejecutar manualmente `Authenticated Smoke`.
 7. Revisar el log PASS/FAIL sin exponer secretos.
 
+## Resultado validado
+
+Ejecucion manual en `main` el 2026-06-07:
+
+- Resultado general: PASS.
+- `Validate smoke secrets`: PASS.
+- `Run authenticated smoke`: PASS.
+- Cliente temporal: PASS.
+- Viajero temporal: PASS.
+- Admin temporal: PASS.
+- Duracion aproximada reportada por Aldo: 1 min 2 s.
+
+Commits/PRs relacionados:
+
+- PR #124: harness inicial, merge `d9127e6`.
+- PR #125: fix de fragilidad en smoke de envio, merge `2adf17e`.
+- PR #126: fix de fragilidad en smoke de viaje, merge `d4f4392`.
+
 ## Seguridad
 
 La configuración de smoke usa:

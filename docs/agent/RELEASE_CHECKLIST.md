@@ -1,5 +1,35 @@
 # INTRA - Release Checklist
 
+## Smoke autenticado minimo - 2026-06-07
+
+- [x] PR #124 creado para harness `Authenticated Smoke`.
+- [x] PR #124 mergeado a `main`: `d9127e6`.
+- [x] Workflow manual `Authenticated Smoke` disponible en `main`.
+- [x] GitHub Actions Secrets definidos como fuente segura de credenciales temporales.
+- [x] Configuracion segura del smoke confirmada:
+  - [x] `trace: off`.
+  - [x] `screenshot: off`.
+  - [x] `video: off`.
+  - [x] sin upload de artifacts.
+  - [x] sin impresion de secrets.
+- [x] PR #125 mergeado a `main`: `2adf17e`.
+- [x] PR #125 corrige fragilidad del smoke de envio sin tocar producto.
+- [x] PR #126 mergeado a `main`: `d4f4392`.
+- [x] PR #126 corrige fragilidad del smoke de viaje sin tocar producto.
+- [x] Post-merge PR #126 `main`: CI remoto PASS.
+- [x] Post-merge PR #126 `main`: detect-impact remoto PASS.
+- [x] Post-merge PR #126 `main`: Vercel deploy automatico PASS.
+- [x] Workflow manual `Authenticated Smoke` ejecutado en `main`.
+- [x] `Validate smoke secrets`: PASS.
+- [x] `Run authenticated smoke`: PASS.
+- [x] Smoke cliente temporal: PASS.
+- [x] Smoke viajero temporal: PASS.
+- [x] Smoke admin temporal: PASS.
+- [x] Resultado general `Authenticated Smoke`: PASS.
+- [x] Smoke autenticado minimo cerrado y validado.
+- [x] No se ejecutaron pagos reales, release real, payout completo, disputa completa con dinero ni fixtures con service role.
+- [x] No se avanzo a UI/UX ni F5.
+
 ## PR F4 operational notifications - 2026-06-07
 
 - [x] PR F4 creado desde `fix/f4-operational-notifications`: #122.
