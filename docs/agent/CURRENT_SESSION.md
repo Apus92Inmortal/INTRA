@@ -6,7 +6,7 @@
 
 ## Objetivo de la sesion
 
-Cerrar documentalmente el smoke test autenticado minimo despues de validar `Authenticated Smoke` en `main`.
+Cerrar la sesion funcional minima de INTRA antes de UI/UX y dejar memoria lista para continuar en otro chat.
 
 ## Estado actual
 
@@ -35,6 +35,30 @@ Cerrar documentalmente el smoke test autenticado minimo despues de validar `Auth
   - CI remoto `main`: PASS.
   - detect-impact remoto `main`: PASS.
   - Vercel deploy automatico `main`: PASS.
+- PR documental de cierre del smoke #127 fue mergeado a `main`.
+  - Merge commit PR #127: `d5f3e2f`.
+  - CI remoto `main`: PASS.
+  - detect-impact remoto `main`: PASS.
+  - Vercel Production deploy: PASS.
+- Limpieza operativa de ramas completada:
+  - local: solo `main`.
+  - remoto: solo `origin/main`.
+  - PRs abiertos: ninguno.
+- Limpieza de seguridad confirmada por Aldo:
+  - GitHub Actions Secrets del smoke eliminados.
+  - No quedan secrets de smoke activos en GitHub Actions.
+  - Sin accesos temporales pendientes.
+  - Aldo decidio no cambiar claves por ahora.
+
+## Cierre funcional minimo
+
+La etapa funcional minima queda cerrada y validada antes de UI/UX:
+
+- F1 Profiles/RLS/PII: cerrado.
+- F2 RPC/env/admin hardening: cerrado.
+- F3 refunds/payouts manuales + hotfix disputa sospechosa: cerrado.
+- F4 notificaciones operativas completas: cerrado.
+- Smoke test autenticado minimo automatizado: PASS.
 
 ## Cambios implementados en smoke autenticado minimo
 
@@ -83,6 +107,8 @@ Cerrar documentalmente el smoke test autenticado minimo despues de validar `Auth
 - `docs/agent/RELEASE_CHECKLIST.md`
 - `docs/ops/authenticated-smoke.md`
 
+`docs/agent/DB_NOTES.md` no se actualizo en este cierre porque no hubo cambios de DB, Supabase, RLS, Storage ni migraciones.
+
 ## Verificacion realizada
 
 - PR #124:
@@ -113,19 +139,34 @@ Cerrar documentalmente el smoke test autenticado minimo despues de validar `Auth
   - Vercel Preview: PASS.
   - Merge a `main`: `d4f4392`.
 - Workflow `Authenticated Smoke` en `main`: PASS segun confirmacion de Aldo.
+- PR #127:
+  - merge a `main`: `d5f3e2f`.
+  - CI remoto `main`: PASS.
+  - detect-impact remoto `main`: PASS.
+  - Vercel Production deploy: PASS.
+- Limpieza de ramas:
+  - local: solo `main`.
+  - remoto: solo `origin/main`.
+  - PRs abiertos: ninguno.
+- Limpieza de secrets:
+  - GitHub Actions Secrets del smoke eliminados segun confirmacion de Aldo.
+  - No quedan secrets de smoke activos en GitHub Actions.
 
 ## Riesgos activos
 
 - Smoke v1 no cubre flujos con dinero real, release, disputa completa, paquete sospechoso completo ni fixtures DB.
-- Los datos/cuentas temporales de smoke deben limpiarse fuera del repo:
-  - retirar admin temporal de `ADMIN_EMAILS`,
-  - redeploy Production despues de retirar el admin temporal,
-  - cambiar o eliminar claves temporales,
-  - eliminar datos de prueba solo con autorizacion explicita de Aldo.
+- Aldo decidio no cambiar claves por ahora. Recomendacion pendiente: cambiar o eliminar claves usadas en smoke cuando Aldo lo considere conveniente.
 - Warning no bloqueante en GitHub Actions: deprecacion futura de Node.js 20 en el workflow CI normal.
 
 ## Proximo paso recomendado
 
-Esperar autorizacion explicita de Aldo antes de avanzar a UI/UX final o F5.
+Abrir nuevo chat para UI/UX final y Manual UI/UX INTRA v2 definitivo.
+
+El siguiente chat trabajara:
+
+- UI/UX final de INTRA.
+- Actualizacion del Manual UI/UX INTRA v2 definitivo.
+- Integracion del manual actual, anexo viewport y anexo iconografia en un solo documento oficial.
+- Los anexos dejaran de existir como documentos separados porque quedaran absorbidos en la v2.
 
 No avanzar a UI/UX ni F5 sin autorizacion explicita de Aldo.
