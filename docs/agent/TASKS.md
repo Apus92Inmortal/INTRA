@@ -94,7 +94,7 @@ Siguiente frente sugerido:
 
 ### TASK-013: PR F2 - Hardening RPC/env/admin client
 
-Estado: IN_PROGRESS
+Estado: DONE
 Prioridad: Alta
 Area: Seguridad / Supabase RPC / Admin client / Env
 
@@ -114,6 +114,32 @@ Criterios de aceptacion:
 - Variables env quedan documentadas sin secretos y sin confusion critica entre nombres legacy y actuales.
 - Se documenta la migracion nueva y su aplicacion pendiente en Supabase real.
 - `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit` y `npm run build` pasan.
+
+Resultado:
+
+- PR #118 fue mergeado a `main`.
+- Merge commit: `9d33fec`.
+- Commit funcional: `688edb3`.
+- Post-merge `main`: limpio y sincronizado con `origin/main`.
+- Migracion `202606061930_rpc_anon_grants_hardening.sql` aplicada en Supabase real del proyecto Intra-app.
+- Supabase real confirmado por Aldo:
+  - `create_trip` sin `anon`, conserva `authenticated`, `postgres`, `service_role`.
+  - `mark_match_read` sin `anon`, conserva `authenticated`, `postgres`, `service_role`.
+  - `request_match` sin `anon`, conserva `authenticated`, `postgres`, `service_role`.
+  - `calculate_payment_amount` conserva `anon` como funcion publica/no mutante de cotizacion.
+- `lib/supabase/admin.ts` protegido con `server-only`.
+- `.env.example` documenta `INTRA_WOMPI_*` y marca legacy `WOMPI_*` como no usado por la app.
+- Production validado por Aldo:
+  - publicar viaje OK,
+  - solicitar match OK,
+  - chat/read OK,
+  - sin novedad.
+- PR F2 queda cerrado en repo, `main`, Supabase real y Production.
+
+Siguiente frente sugerido:
+
+- PR F3 - Operacion real de refunds/payouts manuales MVP, o revisar primero el roadmap restante de auditoria.
+- No avanzar a PR F3 hasta autorizacion explicita de Aldo.
 
 ### Frente A: Seguridad operativa del envio
 

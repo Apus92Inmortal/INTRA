@@ -128,7 +128,7 @@ where id = '<USER_B_ID>';
 ## PR F2 - RPC/env/admin hardening
 
 - Migracion nueva: `202606061930_rpc_anon_grants_hardening.sql`.
-- Estado remoto: pendiente de aplicar en Supabase real cuando PR F2 sea mergeado y aprobado.
+- Estado remoto: aplicada en Supabase real del proyecto Intra-app, segun confirmacion de Aldo el 2026-06-06.
 - Objetivo: cerrar grants `anon` reintroducidos en RPCs operativas despues del hardening phase0.
 - RPCs ajustadas:
   - `mark_match_read(uuid, timestamptz)`: revoca `anon`, mantiene `authenticated`.
@@ -143,6 +143,19 @@ where id = '<USER_B_ID>';
 - Env:
   - Wompi server-side usa `INTRA_WOMPI_PRIVATE_KEY`, `INTRA_WOMPI_EVENTS_KEY` e `INTRA_WOMPI_INTEGRITY_KEY`.
   - Los nombres legacy `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_KEY` y `WOMPI_INTEGRITY_KEY` no son leidos por la app y no deben usarse como fuente de verdad de produccion.
+
+Confirmacion Supabase real:
+
+- `create_trip` ya no tiene grant para `anon`; conserva `authenticated`, `postgres` y `service_role`.
+- `mark_match_read` ya no tiene grant para `anon`; conserva `authenticated`, `postgres` y `service_role`.
+- `request_match` ya no tiene grant para `anon`; conserva `authenticated`, `postgres` y `service_role`.
+- `calculate_payment_amount` queda publico/`anon` como funcion de cotizacion no mutante.
+- Production validado por Aldo despues de aplicar la migracion:
+  - publicar viaje OK,
+  - solicitar match OK,
+  - chat/read OK,
+  - sin novedad.
+- PR F2 queda cerrado en repo, `main`, Supabase real y Production.
 
 Verificacion SQL recomendada despues de aplicar la migracion:
 

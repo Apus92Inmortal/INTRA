@@ -20,7 +20,12 @@ Ejecutar PR F2: hardening preventivo de RPC grants, admin client, service role y
 - El P0 de lectura amplia de `profiles` / exposicion potencial de PII queda cerrado en repo, `main`, Supabase real y Production.
 - Aldo autorizo iniciar PR F2 en la rama `fix/f2-rpc-env-admin-hardening`.
 - Alcance F2: revocar grants `anon` innecesarios en RPCs operativas, proteger admin client server-side, revisar service role y documentar envs reales.
-- No avanzar a PR F3 ni tocar UI/UX, pagos, wallet, payouts, refunds o disputas fuera de grants/env/documentacion.
+- PR #118 fue mergeado a `main`.
+- Merge commit F2: `9d33fec`.
+- La migracion `202606061930_rpc_anon_grants_hardening.sql` fue aplicada en Supabase real del proyecto Intra-app, segun confirmacion de Aldo.
+- Production fue validado funcionalmente por Aldo despues de aplicar la migracion F2.
+- PR F2 queda cerrado en repo, `main`, Supabase real y Production.
+- No avanzar a PR F3 hasta autorizacion explicita de Aldo.
 
 ## Cambios implementados
 
@@ -60,6 +65,16 @@ Ejecutar PR F2: hardening preventivo de RPC grants, admin client, service role y
 - F2 deja documentado que `calculate_payment_amount` conserva grant `anon` por ser calculadora publica de tarifa, sin mutacion.
 - `lib/supabase/admin.ts` queda marcado con `server-only`.
 - `.env.example` documenta que los envs server-side actuales de Wompi usan prefijo `INTRA_` y que los legacy `WOMPI_*` no son leidos por la app.
+- En Supabase real, Aldo confirmo post-check F2:
+  - `create_trip` ya no tiene `anon`; conserva `authenticated`, `postgres` y `service_role`.
+  - `mark_match_read` ya no tiene `anon`; conserva `authenticated`, `postgres` y `service_role`.
+  - `request_match` ya no tiene `anon`; conserva `authenticated`, `postgres` y `service_role`.
+  - `calculate_payment_amount` queda publico/`anon` como funcion de cotizacion no mutante.
+- En Production, Aldo valido:
+  - publicar viaje OK,
+  - solicitar match OK,
+  - chat/read OK,
+  - sin novedad.
 
 ## Archivos tocados
 
@@ -94,13 +109,17 @@ Ejecutar PR F2: hardening preventivo de RPC grants, admin client, service role y
   - `npx tsc --noEmit`: PASS.
   - `npm run test:unit`: PASS, 42/42.
   - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
+- PR #118 remoto: CI, detect-impact y Vercel Preview PASS.
+- Post-merge en `main`: merge commit `9d33fec`.
+- Supabase real: migracion F2 aplicada y grants finales confirmados por Aldo.
+- Production: publicar viaje, solicitar match y chat/read validados por Aldo.
 
 ## Riesgos activos
 
 - `schema.sql` sigue siendo un snapshot historicamente desalineado en otras areas; este PR solo reconcilia `profiles`/RLS segun alcance aprobado.
-- F2 debe aplicar la nueva migracion en Supabase real despues de merge si PR queda aprobado.
 - Los archivos `.env.runtime` y `.env*.tmp` pueden contener nombres Wompi legacy por origen runtime/tmp; no son fuente de verdad del codigo y no se exponen valores en el diff.
+- No hay pendiente activo de PR F2.
 
 ## Proximo paso recomendado
 
-Hacer push de `fix/f2-rpc-env-admin-hardening` y abrir PR F2 para revision. No avanzar a PR F3.
+Esperar autorizacion de Aldo para iniciar el siguiente frente. Sugerido: PR F3 - operacion real de refunds/payouts manuales MVP, o revisar primero el roadmap restante de auditoria. No avanzar sin autorizacion.
