@@ -220,7 +220,9 @@ Resultado:
 - En progreso en rama `fix/f4-operational-notifications`.
 - Migracion local creada: `202606071450_operational_notifications_f4.sql`.
 - Checks locales F4 pasan: `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit`, `npm run build`.
-- Pendiente: PR, merge, aplicar migracion en Supabase real y validar Production.
+- PR abierto: #122.
+- Checks remotos PR #122 pasan: CI `validate`, detect-impact y Vercel Preview.
+- Pendiente: merge, aplicar migracion en Supabase real y validar Production.
 
 ### Frente A: Seguridad operativa del envio
 

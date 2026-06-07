@@ -2,7 +2,7 @@
 
 ## PR F4 operational notifications - 2026-06-07
 
-- [ ] PR F4 creado desde `fix/f4-operational-notifications`.
+- [x] PR F4 creado desde `fix/f4-operational-notifications`: #122.
 - [x] Migracion F4 revisada: `202606071450_operational_notifications_f4.sql`.
 - [x] Confirmado que no se toca UI/UX final.
 - [x] Confirmado que no se avanza a F5 ni se crea E2E.

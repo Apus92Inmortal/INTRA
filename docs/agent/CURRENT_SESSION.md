@@ -13,6 +13,9 @@ PR F4 - Operational notifications. Completar notificaciones operativas criticas 
 - Rama activa: `fix/f4-operational-notifications`.
 - F1, F2 y F3 estan cerrados en repo, `main`, Supabase real y Production.
 - F4 fue autorizado por Aldo el 2026-06-07.
+- PR F4 abierto:
+  - `#122` - `F4 operational notifications`.
+  - https://github.com/Apus92Inmortal/INTRA/pull/122
 - No avanzar a F5, E2E ni UI/UX final.
 
 ## Cambios implementados
@@ -53,6 +56,10 @@ PR F4 - Operational notifications. Completar notificaciones operativas criticas 
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 42/42.
 - `npm run build`: PASS, con warning no bloqueante de lockfiles multiples.
+- PR #122 remoto:
+  - CI `validate`: PASS.
+  - detect-impact: PASS.
+  - Vercel Preview: PASS.
 
 ## Riesgos activos
 
@@ -61,4 +68,4 @@ PR F4 - Operational notifications. Completar notificaciones operativas criticas 
 
 ## Proximo paso recomendado
 
-Validar local, crear commit, abrir PR F4 y esperar aprobacion para merge/aplicar migracion en Supabase real.
+Esperar aprobacion de Aldo para mergear PR #122, aplicar migracion F4 en Supabase real y validar Production.
