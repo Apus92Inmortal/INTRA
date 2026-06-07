@@ -42,6 +42,7 @@
 
 - [ ] Supabase: revisar migraciones, RLS, RPCs y policies de Storage.
 - [ ] Pagos: revisar Wompi, `payments`, wallet, ledger, refunds y payouts.
+- [ ] Operacion manual dinero: confirmar SOP vigente antes de cerrar refunds o payouts manuales.
 - [ ] Seguridad: revisar auth, permisos cruzados, rutas protegidas y datos sensibles.
 - [ ] Env/secretos: confirmar `SUPABASE_SERVICE_ROLE_KEY` solo server-side y Wompi server envs con prefijo `INTRA_`.
 - [ ] UI: revisar Manual UI/UX vigente, mobile y viewports base.

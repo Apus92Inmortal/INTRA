@@ -139,7 +139,33 @@ Resultado:
 Siguiente frente sugerido:
 
 - PR F3 - Operacion real de refunds/payouts manuales MVP, o revisar primero el roadmap restante de auditoria.
-- No avanzar a PR F3 hasta autorizacion explicita de Aldo.
+- Aldo autorizo iniciar PR F3 el 2026-06-06.
+
+### TASK-014: PR F3 - Refunds/payouts manual ops
+
+Estado: IN_PROGRESS
+Prioridad: Alta
+Area: Pagos / Wallet / Refunds / Payouts / Admin / Operacion
+
+Resumen:
+
+- Cerrar frente P1 de operacion real de refunds y payouts para MVP.
+- Mantener refunds y payouts manuales, sin integracion bancaria automatica ni refund automatico Wompi.
+- Documentar SOP operativo para admin.
+- Agregar guards minimos contra doble operacion.
+- Endurecer payout manual para que `paid` solo ocurra despues de referencia externa, wallet valida y ledger consistente.
+
+Criterios de aceptacion:
+
+- Refund manual MVP queda documentado.
+- Payout manual MVP queda documentado.
+- Admin tiene pasos claros.
+- Se confirma que no hay doble release/doble payout/doble refund.
+- Se confirma que dispute/refund bloquea release.
+- Se confirma que payout no genera saldo negativo.
+- Si hay migracion, queda lista para aplicar en Supabase real.
+- `git diff --check`, `npm run lint`, `npx tsc --noEmit`, `npm run test:unit` y `npm run build` pasan.
+- No se toca UI/UX final ni se integran bancos/refunds automaticos.
 
 ### Frente A: Seguridad operativa del envio
 

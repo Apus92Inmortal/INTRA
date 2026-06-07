@@ -171,3 +171,42 @@ Resultado esperado:
 
 - `mark_match_read`, `request_match` y `create_trip`: sin `anon`, con `authenticated`.
 - `calculate_payment_amount`: puede conservar `anon` por pricing publico no mutante.
+
+## PR F3 - Refunds/payouts manual ops
+
+- Migracion nueva: `202606070020_manual_refunds_payouts_ops.sql`.
+- Estado remoto: pendiente de aplicar en Supabase real cuando PR F3 sea mergeado y aprobado.
+- Objetivo: endurecer operacion manual de payouts y documentar refunds/payouts manuales MVP.
+- Decision MVP:
+  - refunds manuales,
+  - payouts manuales,
+  - sin payout bancario automatico,
+  - sin refund automatico Wompi.
+- Refund manual:
+  - `refund_status` existente: `none`, `manual_required`, `pending`, `processing`, `refunded`, `failed`.
+  - `release_payment` y `auto_release_due_payments` bloquean si `refund_status <> 'none'` o `metadata.manual_refund_required = true`.
+  - Admin action exige nota operativa al cerrar disputa con resolucion final.
+- Payout manual:
+  - `request_payout` valida usuario autenticado, politica aceptada, cuenta verificada, nivel `payout_verified`, minimo y saldo retirable.
+  - `admin_update_payout_status` se reemplaza para exigir referencia externa antes de `paid`.
+  - La RPC valida wallet y saldo antes de cambiar payout a `paid`.
+  - Inserta una sola vez `wallet_ledger.entry_type = 'payout_paid_debit'` por `payout_id`.
+  - Si ya existe ledger pagado para un payout no marcado `paid`, retorna `payout_already_has_paid_ledger` para congelar y reconciliar.
+
+Verificacion SQL recomendada despues de aplicar la migracion:
+
+```sql
+select p.id, p.status, p.amount, p.paid_reference, p.paid_at, count(wl.id) as paid_ledger_rows
+from public.payouts p
+left join public.wallet_ledger wl
+  on wl.payout_id = p.id
+ and wl.entry_type = 'payout_paid_debit'
+group by p.id, p.status, p.amount, p.paid_reference, p.paid_at
+order by p.paid_at desc nulls last, p.requested_at desc;
+```
+
+Resultado esperado:
+
+- Payouts `paid` tienen `paid_reference`, `paid_at` y una sola entrada `payout_paid_debit`.
+- Payouts `approved` no tienen ledger `payout_paid_debit`.
+- Wallet disponible no queda negativa por payout manual.

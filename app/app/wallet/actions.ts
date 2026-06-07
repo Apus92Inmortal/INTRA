@@ -329,6 +329,10 @@ export async function updatePayoutStatusAction(formData: FormData): Promise<Acti
       return { success: false, error: "Estado de retiro no válido." }
     }
 
+    if (status === "paid" && !paidReference) {
+      return { success: false, error: "Registra la referencia externa antes de marcar el retiro como pagado." }
+    }
+
     if (!user.id) {
       return { success: false, error: "No pudimos validar la sesión actual." }
     }

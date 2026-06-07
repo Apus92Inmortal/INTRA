@@ -97,3 +97,27 @@ La secuencia oficial desde este punto es:
 7. QA visual responsive.
 8. Pruebas finales antes de lanzamiento.
 9. Lanzamiento MVP controlado.
+
+## DEC-006: Refunds y payouts manuales para MVP
+
+Fecha: 2026-06-06
+
+Decision:
+
+Para el MVP, INTRA operara refunds/reembolsos y payouts/retiros de forma manual.
+
+- No se integrara todavia payout bancario automatico.
+- No se integrara todavia refund automatico Wompi.
+- Admin debe mantener estados claros, trazabilidad y bloqueos contra dobles operaciones.
+- Usuario debe ver estados entendibles mientras el proceso esta en revision/manual.
+- Toda ejecucion externa debe registrarse desde el admin con nota o referencia operativa.
+
+Motivo:
+
+Antes de automatizar movimientos externos de dinero, INTRA necesita operar el MVP con control manual, evidencia y menor superficie de riesgo.
+
+Impacto:
+
+- Los cambios de codigo deben priorizar guards, ledger, audit y SOP operativo.
+- No crear integraciones bancarias ni automatizar refunds sin una decision posterior.
+- Cualquier cierre de refund/payout debe confirmar que el movimiento externo ya fue ejecutado.
