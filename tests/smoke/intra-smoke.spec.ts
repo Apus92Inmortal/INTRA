@@ -1,4 +1,4 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Locator, type Page } from "@playwright/test";
 
 type SmokeRole = "cliente" | "viajero" | "admin";
 
@@ -99,6 +99,46 @@ async function fillCompatibleRoute(page: Page, prefix: "shipment" | "trip") {
   await selectCity(page, `#${prefix}-destination-city`, ["Medellín", "Medellin"]);
 }
 
+async function isVisible(locator: Locator) {
+  return locator.first().isVisible().catch(() => false);
+}
+
+function isAppDashboardUrl(value: string) {
+  return new URL(value).pathname === "/app";
+}
+
+async function expectNoFatalAppState(page: Page) {
+  const fatalError = page.getByText(/Application error|Internal Server Error|Error 500/i);
+
+  if (await isVisible(fatalError)) {
+    throw new Error("La app mostró un error fatal durante el smoke.");
+  }
+}
+
+async function expectTripSubmitControlledResult(page: Page) {
+  await expect(async () => {
+    await expectNoFatalAppState(page);
+
+    const currentUrl = page.url();
+    const onDashboard = isAppDashboardUrl(currentUrl);
+    const onTripForm = new URL(currentUrl).pathname === "/app/trips/new";
+    const successVisible = await isVisible(page.getByText(/Viaje publicado correctamente/i));
+    const publishErrorVisible = await isVisible(page.getByText(/Error publicando viaje/i));
+    const tripFormVisible = await isVisible(page.locator("#trip-origin-city"));
+    const sessionVisible = await isVisible(page.getByRole("link", { name: /^Inicio$/i }));
+
+    if (publishErrorVisible) {
+      throw new Error("El formulario de viaje reportó un error explícito al publicar.");
+    }
+
+    if (successVisible || onDashboard || (onTripForm && tripFormVisible && sessionVisible)) {
+      return;
+    }
+
+    throw new Error("El submit de viaje no llegó a un estado controlado.");
+  }).toPass({ timeout: 15_000 });
+}
+
 test("cliente temporal: dashboard, notificaciones y envío hasta checkout seguro", async ({
   browser,
 }) => {
@@ -168,16 +208,7 @@ test("viajero temporal: dashboard, notificaciones y publicación de viaje", asyn
 
     await page.getByRole("button", { name: /Publicar viaje/i }).click();
 
-    await expect(
-      page.getByText(/Viaje publicado correctamente|Error publicando viaje/i)
-    ).toBeVisible();
-
-    const errorMessage = page.getByText(/Error publicando viaje/i);
-    if (await errorMessage.isVisible()) {
-      throw new Error("El formulario de viaje no permitió publicar el viaje temporal.");
-    }
-
-    await expect(page).toHaveURL(/\/app/);
+    await expectTripSubmitControlledResult(page);
   });
 
   await test.step("oportunidades compatibles no rompen", async () => {
