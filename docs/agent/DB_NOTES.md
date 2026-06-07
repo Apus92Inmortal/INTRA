@@ -254,3 +254,67 @@ Resultado esperado:
 - Sin `anon`.
 - Sin `authenticated`.
 - Con `service_role`.
+
+## PR F4 - Operational notifications
+
+- Migracion nueva: `202606071450_operational_notifications_f4.sql`.
+- Estado remoto: pendiente de aplicar en Supabase real despues de merge.
+- Objetivo:
+  - corregir unicidad/idempotencia de `notifications`,
+  - permitir eventos repetibles como `new_message`,
+  - completar eventos operativos criticos mediante triggers de notificacion.
+- Cambio de tabla:
+  - `notifications.dedupe_key text` nuevo, opcional.
+- Indices:
+  - se elimina el indice global amplio sobre `(related_match_id, type)`.
+  - se agrega `notifications_unique_dedupe_key` sobre `(user_id, type, dedupe_key)` cuando `dedupe_key is not null`.
+  - se agrega `notifications_unique_idempotent_match_event` sobre `(user_id, related_match_id, type)` solo para eventos idempotentes con match.
+- Eventos repetibles:
+  - `new_message` no queda dentro de indices unicos fuertes.
+  - `shipment_alert` tampoco queda bloqueado globalmente para permitir nuevos reportes legitimos.
+- Helper nuevo:
+  - `create_operational_notification(uuid, text, text, text, uuid, text, boolean)`.
+- Triggers nuevos:
+  - `payments`: pago confirmado/fallido/cancelado/liberado, auto-release, refund manual requerido/procesado, disputa abierta, caso en revision, disputa resuelta/cerrada.
+  - `payouts`: retiro solicitado/aprobado/rechazado/pagado.
+  - `user_verifications`: verificacion aprobada/rechazada.
+  - `traveler_payout_accounts`: cuenta de retiro aprobada/rechazada.
+  - `shipment_report_events`: caso en revision y alerta escalada a disputa.
+- RPC ajustada:
+  - `reject_match(uuid)` deja de depender de `on conflict (related_match_id, type)` y usa el helper idempotente.
+
+Verificacion SQL recomendada despues de aplicar la migracion:
+
+```sql
+select indexname, indexdef
+from pg_indexes
+where schemaname = 'public'
+  and tablename = 'notifications'
+order by indexname;
+
+select column_name, data_type
+from information_schema.columns
+where table_schema = 'public'
+  and table_name = 'notifications'
+  and column_name = 'dedupe_key';
+
+select tgname, tgrelid::regclass::text as table_name
+from pg_trigger
+where not tgisinternal
+  and tgname in (
+    'trg_notify_payment_operational_event',
+    'trg_notify_payout_insert_operational_event',
+    'trg_notify_payout_update_operational_event',
+    'trg_notify_user_verification_operational_event',
+    'trg_notify_payout_account_operational_event',
+    'trg_notify_shipment_report_operational_event'
+  )
+order by table_name, tgname;
+```
+
+Resultado esperado:
+
+- No existe `notifications_unique_match_type_global`.
+- Existe `notifications.dedupe_key`.
+- Existen los triggers F4.
+- `new_message` puede repetirse para el mismo match/usuario.

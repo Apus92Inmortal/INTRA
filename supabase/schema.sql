@@ -47,7 +47,8 @@ create table if not exists public."notifications" (
     "related_match_id" uuid,
     "is_read" boolean default false not null,
     "created_at" timestamp with time zone default now() not null,
-    "read_at" timestamp with time zone
+    "read_at" timestamp with time zone,
+    "dedupe_key" text
 );
 
 create table if not exists public."payments" (
@@ -178,8 +179,8 @@ CREATE INDEX IF NOT EXISTS matches_trip_idx ON public.matches USING btree (trip_
 
 CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications USING btree (user_id, is_read, created_at DESC);
 CREATE INDEX IF NOT EXISTS notifications_created_idx ON public.notifications USING btree (created_at DESC);
-CREATE UNIQUE INDEX IF NOT EXISTS notifications_unique_match_events ON public.notifications USING btree (user_id, type, related_match_id) WHERE (type = ANY (ARRAY['match_accepted'::text, 'match_cancelled'::text, 'match_rejected'::text]));
-CREATE UNIQUE INDEX IF NOT EXISTS notifications_unique_match_type ON public.notifications USING btree (related_match_id, type);
+CREATE UNIQUE INDEX IF NOT EXISTS notifications_unique_dedupe_key ON public.notifications USING btree (user_id, type, dedupe_key) WHERE (dedupe_key IS NOT NULL);
+CREATE UNIQUE INDEX IF NOT EXISTS notifications_unique_idempotent_match_event ON public.notifications USING btree (user_id, related_match_id, type) WHERE ((related_match_id IS NOT NULL) AND (type = ANY (ARRAY['match_requested'::text, 'match_accepted'::text, 'match_rejected'::text, 'match_cancelled'::text, 'shipment_in_transit'::text, 'delivery_reported'::text, 'delivery_confirmed'::text, 'dispute_opened'::text, 'dispute_resolved_customer'::text, 'dispute_resolved_traveler'::text, 'dispute_closed'::text, 'payment_released'::text, 'auto_release_executed'::text, 'refund_manual_required'::text, 'refund_processed'::text, 'review_reminder'::text])));
 CREATE INDEX IF NOT EXISTS notifications_user_idx ON public.notifications USING btree (user_id);
 
 CREATE INDEX IF NOT EXISTS payments_external_reference_idx ON public.payments USING btree (external_reference);
@@ -954,7 +955,13 @@ begin
   from public.matches m
   join public.trips t on t.id = m.trip_id
   where m.id = p_match_id
-  on conflict (related_match_id, type) do nothing;
+    and not exists (
+      select 1
+      from public.notifications n
+      where n.user_id = t.traveler_id
+        and n.type = 'match_rejected'
+        and n.related_match_id = p_match_id
+    );
 end;
 $function$
 

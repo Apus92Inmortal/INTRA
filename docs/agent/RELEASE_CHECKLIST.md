@@ -1,5 +1,20 @@
 # INTRA - Release Checklist
 
+## PR F4 operational notifications - 2026-06-07
+
+- [x] PR F4 creado desde `fix/f4-operational-notifications`: #122.
+- [x] Migracion F4 revisada: `202606071450_operational_notifications_f4.sql`.
+- [x] Confirmado que no se toca UI/UX final.
+- [x] Confirmado que no se avanza a F5 ni se crea E2E.
+- [x] Confirmado que no se cambia logica de dinero/pricing/Wompi runtime/wallet/ledger.
+- [x] `git diff --check`.
+- [x] `npm run lint`.
+- [x] `npx tsc --noEmit`.
+- [x] `npm run test:unit`.
+- [x] `npm run build`.
+- [ ] Despues de merge: aplicar migracion F4 en Supabase real.
+- [ ] Despues de migracion: validar Production con eventos operativos criticos.
+
 ## Cierre F3 operativo - 2026-06-07
 
 - [x] PR #119 mergeado a `main`: `b0f8090`.

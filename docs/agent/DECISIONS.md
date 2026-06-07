@@ -121,3 +121,24 @@ Impacto:
 - Los cambios de codigo deben priorizar guards, ledger, audit y SOP operativo.
 - No crear integraciones bancarias ni automatizar refunds sin una decision posterior.
 - Cualquier cierre de refund/payout debe confirmar que el movimiento externo ya fue ejecutado.
+
+## DEC-007: Idempotencia de notificaciones operativas
+
+Fecha: 2026-06-07
+
+Decision:
+
+Las notificaciones operativas no deben usar unicidad global por `(related_match_id, type)`.
+
+- Eventos repetibles como `new_message` deben poder generarse varias veces.
+- Eventos idempotentes se protegen por usuario/evento, usando `(user_id, related_match_id, type)` cuando dependen de match.
+- Eventos sin match o con entidad operativa propia usan `dedupe_key`.
+
+Motivo:
+
+La unicidad global bloquea casos validos: cliente y viajero recibiendo el mismo tipo, varios eventos administrativos del mismo match y mensajes repetidos.
+
+Impacto:
+
+- Las migraciones futuras de notificaciones deben preferir `create_operational_notification(...)`.
+- No reintroducir indices unicos globales sobre `(related_match_id, type)`.
