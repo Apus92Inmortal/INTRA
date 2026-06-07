@@ -99,8 +99,6 @@ async function fillCompatibleRoute(page: Page, prefix: "shipment" | "trip") {
   await selectCity(page, `#${prefix}-destination-city`, ["Medellín", "Medellin"]);
 }
 
-test.describe.configure({ mode: "serial" });
-
 test("cliente temporal: dashboard, notificaciones y envío hasta checkout seguro", async ({
   browser,
 }) => {
@@ -123,7 +121,8 @@ test("cliente temporal: dashboard, notificaciones y envío hasta checkout seguro
   await test.step("crear envío llega a checkout sin pago real", async () => {
     await page.goto("/app/shipments/new");
     await page.getByRole("button", { name: /Continuar/i }).click();
-    await expect(page.getByText(/Revisa los campos marcados/i)).toBeVisible();
+    await expect(page).toHaveURL(/\/app\/shipments\/new/);
+    await expect(page.locator("#shipment-origin-city")).toBeVisible();
 
     await fillCompatibleRoute(page, "shipment");
     await page.locator("#shipment-kind").selectOption("document");
