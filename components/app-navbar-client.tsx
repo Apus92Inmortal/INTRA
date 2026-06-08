@@ -250,7 +250,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
       </div>
 
       {mobileOpen ? (
-        <div className="border-t border-intra-border-soft bg-intra-card md:hidden">
+        <div className="fixed inset-x-0 top-16 z-50 max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-intra-border-soft bg-intra-card shadow-[0_18px_44px_rgba(11,44,74,0.14)] md:hidden">
           <div className="mx-auto max-w-6xl px-4 py-4">
             {context.hasSession ? (
               <nav className="grid grid-cols-2 gap-3">
