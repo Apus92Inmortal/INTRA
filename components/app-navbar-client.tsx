@@ -172,7 +172,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
       {
         href: "/app/matches",
         label: "Matches",
-        mobileLabel: "Matches y chat",
+        mobileLabel: "Matches",
         icon: MessageSquareText,
       },
       {
