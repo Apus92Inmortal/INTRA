@@ -90,7 +90,7 @@ export default function UpdatePasswordClient({
               <LockKeyhole className="intra-icon-2xl" aria-hidden="true" />
             </div>
             <h1 className="intra-h1">
-              {isSuccess ? "Contraseña actualizada" : "Crea una nueva contraseña"}
+              {isSuccess ? "Contraseña actualizada" : "Nueva contraseña"}
             </h1>
             <p className="intra-body mt-2">
               {isSuccess
