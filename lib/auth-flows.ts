@@ -3,9 +3,7 @@ import { isSafeInternalPath } from "@/lib/safe-next"
 const publicAppUrl =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://intra-chi.vercel.app"
 
-// Nota operativa: la verificación de email queda lista en código,
-// pero debe activarse en Supabase Dashboard cuando el proyecto salga
-// del plan free y deje de ser un bloqueo el límite de emails por hora.
+// Nota operativa: la verificacion de email queda lista en codigo.
 
 export function isUnconfirmedEmailMessage(message: string) {
   const normalized = message.toLowerCase()
@@ -48,32 +46,44 @@ export function getResetPasswordErrorMessage(message: string) {
   const normalized = message.toLowerCase()
 
   if (normalized.includes("rate limit") || normalized.includes("too many requests")) {
-    return "❌ Supabase bloqueó temporalmente el envío por límite de correos. Inténtalo de nuevo en un rato."
+    return "Estamos recibiendo muchas solicitudes. Intenta nuevamente en unos minutos."
   }
 
   if (normalized.includes("invalid email") || normalized.includes("correo") && normalized.includes("válido")) {
-    return "❌ Escribe un correo válido para enviarte el enlace."
+    return "Escribe un correo válido para enviarte el enlace."
   }
 
   if (normalized.includes("user not found") || normalized.includes("not found")) {
-    return "❌ No encontré una cuenta registrada con ese correo."
+    return "Si existe una cuenta con ese correo, enviaremos un enlace para cambiar tu contraseña."
   }
 
-  return "❌ " + message
+  if (normalized.includes("failed to fetch") || normalized.includes("network")) {
+    return "No pudimos enviar el enlace. Revisa tu conexión e intenta nuevamente."
+  }
+
+  return "No pudimos enviar el enlace. Intenta nuevamente."
 }
 
 export function getResendVerificationErrorMessage(message: string) {
   const normalized = message.toLowerCase()
 
   if (normalized.includes("rate limit") || normalized.includes("too many requests")) {
-    return "❌ Se alcanzó el límite de correos de verificación. Inténtalo de nuevo más tarde."
+    return "Estamos recibiendo muchas solicitudes. Intenta reenviar el correo más tarde."
   }
 
   if (normalized.includes("email rate limit exceeded")) {
-    return "❌ Supabase alcanzó el límite de verificación por hora del plan actual."
+    return "No pudimos reenviar el correo en este momento. Intenta más tarde."
   }
 
-  return "❌ " + message
+  if (normalized.includes("invalid email") || normalized.includes("email")) {
+    return "Necesitamos un correo válido para reenviar la verificación."
+  }
+
+  if (normalized.includes("failed to fetch") || normalized.includes("network")) {
+    return "No pudimos reenviar el correo. Revisa tu conexión e intenta nuevamente."
+  }
+
+  return "No pudimos reenviar el correo. Intenta nuevamente."
 }
 
 export function getUpdatePasswordErrorMessage(message: string) {
@@ -86,10 +96,14 @@ export function getUpdatePasswordErrorMessage(message: string) {
     normalized.includes("otp") ||
     normalized.includes("invalid")
   ) {
-    return "❌ El enlace para cambiar tu contraseña es inválido o expiró. Solicita uno nuevo."
+    return "El enlace para cambiar tu contraseña es inválido o expiró. Solicita uno nuevo."
   }
 
-  return "❌ " + message
+  if (normalized.includes("failed to fetch") || normalized.includes("network")) {
+    return "No pudimos actualizar la contraseña. Revisa tu conexión e intenta nuevamente."
+  }
+
+  return "No pudimos actualizar la contraseña. Intenta nuevamente."
 }
 
 export function validatePasswordChange(password: string, confirmPassword: string) {

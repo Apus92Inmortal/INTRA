@@ -42,11 +42,11 @@ describe("auth-flows", () => {
 
   it("maps common auth errors to spanish UX messages", () => {
     expect(getResetPasswordErrorMessage("User not found")).toContain(
-      "No encontré una cuenta"
+      "Si existe una cuenta"
     )
     expect(
       getResendVerificationErrorMessage("Email rate limit exceeded")
-    ).toContain("límite")
+    ).toContain("reenviar el correo más tarde")
     expect(
       getUpdatePasswordErrorMessage("Auth session missing or token expired")
     ).toContain("inválido o expiró")
