@@ -1,6 +1,19 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Briefcase, Calendar, CircleDollarSign, Clock3, PackageCheck, Route, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Briefcase,
+  Calendar,
+  CheckCircle2,
+  CircleDollarSign,
+  Clock3,
+  PackageCheck,
+  Plane,
+  Route,
+  ShieldCheck,
+  Star,
+  UserCheck,
+} from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
 import { EvidenceImagePreview } from "@/components/evidence-image-preview";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
@@ -135,7 +148,7 @@ function DashboardShortcutCard({
   return (
     <Link
       href={href}
-      className={`group flex min-h-[96px] items-center gap-3 rounded-[var(--intra-radius-md)] p-3 text-left transition sm:min-h-28 sm:gap-4 sm:p-5 ${cardClassName}`}
+      className={`group flex min-h-[88px] items-center gap-3 rounded-[var(--intra-radius-sm)] p-3 text-left transition sm:min-h-24 sm:gap-4 sm:p-4 ${cardClassName}`}
     >
       <div className={`intra-icon-shell-emphasis rounded-[var(--intra-radius-xs)] ${iconShellClassName}`}>
         {icon}
@@ -144,9 +157,7 @@ function DashboardShortcutCard({
         <p className="intra-h4 text-white">{title}</p>
         <p className={`mt-1 hidden intra-body sm:block ${descriptionClassName}`}>{description}</p>
       </div>
-      <svg className={`ml-auto intra-icon-emphasis shrink-0 transition group-hover:translate-x-1 ${arrowClassName}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-      </svg>
+      <ArrowRight className={`ml-auto intra-icon-emphasis shrink-0 transition group-hover:translate-x-1 ${arrowClassName}`} />
     </Link>
   );
 }
@@ -198,13 +209,13 @@ function EmptyCard({
   ctaLabel?: string;
 }) {
   return (
-    <div className="intra-card-compact border-dashed p-5">
+    <div className="intra-empty-state text-left">
       <p className="intra-h4">{title}</p>
       <p className="mt-1 intra-body">{description}</p>
       {ctaHref && ctaLabel ? (
         <Link
           href={ctaHref}
-          className="intra-btn intra-btn-primary mt-4"
+          className="intra-btn intra-btn-secondary mt-4"
         >
           {ctaLabel}
         </Link>
@@ -250,8 +261,8 @@ function CustomerRatingBadge({
   if (!formatted || totalReviews <= 0) {
     return (
       <span className="intra-pill gap-1 bg-intra-warning-soft text-intra-warning-text">
-        <span aria-hidden="true">⭐</span>
-        <span>Sin calificaciones aún</span>
+        <Star className="h-3.5 w-3.5" aria-hidden="true" />
+        <span>Sin calificaciones</span>
       </span>
     );
   }
@@ -261,7 +272,7 @@ function CustomerRatingBadge({
 
 function InitialPhotoPreview({ shipment }: { shipment: DashboardCompatibleShipmentCard }) {
   return (
-    <div className="mt-3 flex items-center gap-3 rounded-2xl border border-intra-border-soft bg-intra-card px-3 py-2 shadow-sm">
+    <div className="mt-3 flex items-center gap-3 rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card px-3 py-2 shadow-sm">
       {shipment.initialPhotoUrl ? (
         <EvidenceImagePreview
           src={shipment.initialPhotoUrl}
@@ -272,11 +283,11 @@ function InitialPhotoPreview({ shipment }: { shipment: DashboardCompatibleShipme
           <img
             src={shipment.initialPhotoUrl}
             alt={shipment.initialPhotoAlt}
-            className="h-14 w-14 shrink-0 rounded-xl border border-intra-border-soft object-cover"
+            className="h-14 w-14 shrink-0 rounded-[var(--intra-radius-xs)] border border-intra-border-soft object-cover"
           />
         </EvidenceImagePreview>
       ) : (
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-dashed border-intra-border-soft bg-intra-neutral-soft-alt">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] border border-dashed border-intra-border-soft bg-intra-neutral-soft-alt">
           <PackageCheck className="h-5 w-5 text-intra-text-muted" />
         </div>
       )}
@@ -334,7 +345,7 @@ function CompactCompatibleShipmentCard({
       </div>
 
       <div className="mt-4 flex items-center gap-3 sm:justify-end">
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3 py-2 shadow-sm sm:flex-none">
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft px-3 py-2 shadow-sm sm:flex-none">
           <span className="intra-icon-shell-body rounded-full bg-intra-card text-intra-green">
             <CircleDollarSign className="intra-icon-body" />
           </span>
@@ -415,33 +426,24 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
             <h1 className="intra-h1">
               {greetingName ? `Hola, ${greetingName}` : "Hola"}
             </h1>
-            <p className="mt-1 intra-body">Resumen de tu actividad</p>
+            <p className="mt-1 intra-body">Gestiona tus envíos, viajes y matches desde aquí.</p>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <DashboardShortcutCard
               href="/app/shipments/new"
               title="Crear envío"
-              description="Publica un paquete para que un viajero lo lleve"
+              description="Publica un paquete y encuentra un viajero."
               tone="green"
-              icon={(
-                <svg className="intra-icon-emphasis" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              )}
+              icon={<PackageCheck className="intra-icon-emphasis" />}
             />
 
             <DashboardShortcutCard
               href="/app/trips/new"
               title="Publicar viaje"
-              description="Gana dinero con tu próximo viaje llevando paquetes"
+              description="Gana llevando paquetes en tu ruta."
               tone="blue"
-              icon={(
-                <svg className="intra-icon-emphasis" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              )}
+              icon={<Plane className="intra-icon-emphasis" />}
             />
           </div>
 
@@ -449,11 +451,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
             <DashboardStatCard
               value={dashboard.summary.activeShipmentsCount}
               label="Envíos activos"
-              icon={(
-                <svg className="intra-icon-body text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-              )}
+              icon={<PackageCheck className="intra-icon-body text-intra-green" />}
             />
 
             <DashboardStatCard
@@ -472,11 +470,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
             <DashboardStatCard
               value={dashboard.summary.completedDeliveriesCount}
               label="Entregas completadas"
-              icon={(
-                <svg className="intra-icon-body text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0" />
-                  </svg>
-              )}
+              icon={<CheckCircle2 className="intra-icon-body text-intra-green" />}
             />
           </div>
 
@@ -488,7 +482,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 </div>
 
                 {dashboard.pendingPaymentShipments.length > 0 ? (
-                  <div id="pendientes-de-pago" className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft p-4 sm:p-5">
+                  <div id="pendientes-de-pago" className="rounded-[var(--intra-radius-sm)] border border-intra-warning-border bg-intra-warning-soft p-4">
                     <div className="mb-4 flex items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -498,7 +492,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                           </span>
                         </div>
                         <p className="mt-1 intra-body text-intra-warning-text/80">
-                          Completa el checkout para activar estos envíos y empezar a recibir matches.
+                          Completa el checkout para activar tus envíos.
                         </p>
                       </div>
                       {dashboard.pendingPaymentShipments.length > 3 ? (
@@ -512,7 +506,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
                     <div className="space-y-3">
                       {pendingPaymentItems.map((shipment) => (
-                        <div key={shipment.id} className="rounded-2xl border border-intra-warning-border bg-intra-card p-4">
+                        <div key={shipment.id} className="intra-card-compact p-4">
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
                               <div className="mb-1 flex items-center gap-2">
@@ -529,7 +523,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                               <span className="intra-metric-sm">{shipment.amountLabel}</span>
                               <Link
                                 href={shipment.checkoutHref}
-                                className="intra-btn min-h-11 items-center justify-center rounded-xl bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong"
+                                className="intra-btn min-h-11 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong"
                               >
                                 Ir al checkout
                               </Link>
@@ -544,14 +538,14 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 {dashboard.activeShipments.length === 0 ? (
                   <EmptyCard
                     title="Aún no tienes envíos activos"
-                    description="Crea tu envío para recibir matches y hacer seguimiento aquí."
+                    description="Cuando crees tu primer envío, aparecerá aquí."
                     ctaHref="/app/shipments/new"
                     ctaLabel="Crear envío"
                   />
                 ) : (
                   <div className="space-y-3">
                     {dashboard.activeShipments.map((shipment) => (
-                      <div key={shipment.id} className="rounded-2xl border border-intra-border-soft bg-intra-card p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                      <div key={shipment.id} className="intra-card-compact p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
                         <div className="mb-3 flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div className="mb-1 flex items-center gap-2">
@@ -567,12 +561,10 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                         </div>
 
                         {shipment.hasPendingAction && shipment.pendingMatchId ? (
-                          <div className="rounded-2xl border border-intra-trust-border bg-intra-trust-soft p-5">
+                          <div className="rounded-[var(--intra-radius-sm)] border border-intra-trust-border bg-intra-trust-soft p-4">
                             <div className="flex items-start gap-3">
                               <div className="intra-icon-shell-body mt-0.5 rounded-full bg-intra-trust-icon-bg text-intra-trust-icon-text">
-                                <svg className="intra-icon-body" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
+                                <UserCheck className="intra-icon-body" />
                               </div>
                               <div className="min-w-0 flex-1">
                                 <p className="text-[16px] font-bold leading-6 text-intra-blue">
@@ -672,7 +664,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   </div>
                 )}
 
-                <div id="envios-compatibles" className="space-y-3 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4 sm:p-5">
+                <div id="envios-compatibles" className="intra-surface-compact space-y-3 bg-intra-neutral-soft-alt p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="intra-h4">Envíos compatibles con mis viajes</h3>
@@ -688,7 +680,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   {dashboard.compatibleShipments.length === 0 ? (
                     <EmptyCard
                       title="Sin envíos compatibles por ahora"
-                      description="Mantén tu viaje activo o publica otra ruta para recibir nuevas oportunidades."
+                      description="Publica o mantén activo un viaje para ver oportunidades."
                       ctaHref="/app/trips/new"
                       ctaLabel="Publicar viaje"
                     />
@@ -712,25 +704,22 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 {dashboard.publishedTrips.length === 0 ? (
                   <EmptyCard
                     title="Aún no tienes viajes publicados"
-                    description="Publica tu próximo viaje para recibir paquetes compatibles con tu Ruta."
+                    description="Publica un viaje para recibir paquetes compatibles con tu ruta."
                     ctaHref="/app/trips/new"
                     ctaLabel="Publicar viaje"
                   />
                 ) : (
                   <div className="space-y-3">
                     {dashboard.publishedTrips.map((trip) => (
-                      <div key={trip.id} className="rounded-[22px] border border-intra-border-soft bg-intra-card px-3 py-2.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:px-5">
+                      <div key={trip.id} className="intra-card-compact px-3 py-2.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:px-4">
                         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
                           <div className="flex min-w-0 items-start gap-2">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-intra-success-soft-alt">
-                              <svg className="h-[25px] w-[25px] text-intra-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                              </svg>
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft-alt">
+                              <Plane className="h-5 w-5 text-intra-green" />
                             </div>
                             <div className="min-w-0 pt-0.5">
                               <div className="flex flex-wrap items-center gap-1">
-                                <p className="intra-h4 tracking-[-0.02em]">{trip.routeShortLabel}</p>
+                                <p className="intra-h4">{trip.routeShortLabel}</p>
                                 <TripAvailabilityBadge trip={trip} />
                               </div>
                               <div className="mt-0.5 flex flex-nowrap items-center gap-x-1 intra-caption leading-none sm:gap-x-1.5">
@@ -758,7 +747,7 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                 <div className="mb-4 flex items-start justify-between gap-4">
                   <div>
                     <p className="intra-on-dark-label">{revenueTitle}</p>
-                    <p className="mt-3 intra-on-dark-metric tracking-[-0.03em]">{dashboard.monthlyRevenue.releasedAmountLabel}</p>
+                    <p className="mt-3 intra-on-dark-metric">{dashboard.monthlyRevenue.releasedAmountLabel}</p>
                     <p className="mt-2 intra-on-dark-body">
                       {hasMonthlyRevenue
                         ? (dashboard.monthlyRevenue.deltaVsPreviousMonthLabel ?? dashboard.monthlyRevenue.monthLabel)
@@ -767,11 +756,11 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   </div>
 
                   <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-intra-success-border/30 bg-intra-success-soft text-intra-green shadow-sm">
-                    <span className="intra-body-strong text-intra-green">$</span>
+                    <CircleDollarSign className="h-5 w-5" />
                   </span>
                 </div>
 
-                <div className="grid grid-cols-[0.65fr_1.05fr_1.3fr] rounded-[20px] border border-white/10 bg-white/7 backdrop-blur-sm sm:grid-cols-3">
+                <div className="grid grid-cols-[0.65fr_1.05fr_1.3fr] rounded-[var(--intra-radius-sm)] border border-white/10 bg-white/7 backdrop-blur-sm sm:grid-cols-3">
                   <div className="flex flex-col px-2 py-3 sm:px-4">
                     <p className="intra-on-dark-caption">Entregas</p>
                     <div className="mt-1 flex w-full justify-center">

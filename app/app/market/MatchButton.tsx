@@ -53,11 +53,11 @@ export default function MatchButton({
       }
 
       if (m.includes("active_match_limit_exceeded")) {
-        setMsg("❌ Las cuentas sin verificar solo pueden tener 1 match activo al mismo tiempo.")
+        setMsg("Verifica tu cuenta para tener más de un match activo.")
         return
       }
 
-      setMsg("❌ " + errorMessage)
+      setMsg("No pudimos solicitar el transporte. Intenta nuevamente.")
       return
     }
 
@@ -70,7 +70,7 @@ export default function MatchButton({
       <button
         onClick={onClick}
         disabled={loading || done}
-        className="intra-btn intra-btn-primary min-h-11 rounded-2xl px-4 py-2 shadow-sm hover:opacity-90"
+        className="intra-btn intra-btn-primary min-h-11 rounded-[var(--intra-radius-xs)] px-4 py-2 shadow-sm hover:opacity-90"
       >
         <span className="intra-stable-swap">
           <span className="intra-stable-swap-ghost">{layoutLabel}</span>
@@ -79,7 +79,7 @@ export default function MatchButton({
       </button>
 
       {msg && (
-        <span className="intra-body">
+        <span className="intra-field-error">
           {msg}
         </span>
       )}
