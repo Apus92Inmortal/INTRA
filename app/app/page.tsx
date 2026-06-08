@@ -681,8 +681,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                     <EmptyCard
                       title="Sin envíos compatibles por ahora"
                       description="Publica o mantén activo un viaje para ver oportunidades."
-                      ctaHref="/app/trips/new"
-                      ctaLabel="Publicar viaje"
                     />
                   ) : (
                     <div className="space-y-3">
