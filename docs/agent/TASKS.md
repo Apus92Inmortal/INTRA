@@ -321,7 +321,7 @@ Siguiente frente sugerido:
 
 ### TASK-017: Gobierno documental UI/UX v2.2
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Alta
 Area: UI/UX / Documentacion / Gobierno visual
 
@@ -348,7 +348,13 @@ Estado actual:
 - No se encontraron manuales/anexos UI/UX antiguos versionados para eliminar o archivar.
 - Se creo `docs/archive/ui-ux-derogados/` como ruta prevista si aparecen documentos derogados.
 - Navegacion oficial revisada: no existe item `Market` en `components/app-navbar-client.tsx`; `/app/market` es redirect tecnico heredado hacia `/app`.
-- Pendiente: aprobacion de Aldo antes de commit.
+- Commit documental creado: `866f41a`.
+- Merge a `main`: fast-forward directo.
+- Push a `origin/main`: aceptado.
+- No hubo deploy manual.
+- No se modificaron pantallas.
+- No se creo rama de barrida UI/UX.
+- `main` contiene el Manual UI/UX INTRA v2.2 como fuente oficial vigente.
 
 ### Frente A: Seguridad operativa del envio
 

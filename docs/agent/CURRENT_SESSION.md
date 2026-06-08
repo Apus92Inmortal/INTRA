@@ -11,9 +11,15 @@ Adoptar el Manual Oficial UI/UX INTRA v2.2 como fuente unica vigente para gobier
 ## Estado actual
 
 - Rama de trabajo creada: `docs/adopt-uiux-manual-v2-2`.
-- No se trabajo sobre `main`.
-- No se hizo push a `main`.
+- Commit documental creado:
+  - `866f41a` (`docs: adopt UI/UX manual v2.2 as source of truth`).
+- La rama `docs/adopt-uiux-manual-v2-2` fue integrada a `main` por fast-forward.
+- `main` fue subido a `origin/main`.
+- `origin/main` contiene el Manual UI/UX INTRA v2.2 como fuente oficial vigente.
 - No se hizo deploy.
+- No se inicio barrida UI/UX.
+- No se creo rama de pantallas.
+- No se modificaron pantallas.
 - El PDF adjunto por Aldo fue incorporado en:
   - `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`.
 - Se creo la referencia rectora:
@@ -55,6 +61,12 @@ Este manual reemplaza y deroga manuales anteriores, anexos tecnicos de viewport,
 
 ## Verificacion realizada
 
+- `git status`: working tree limpio en `main`.
+- `git diff --check`: PASS antes y despues del merge.
+- `git pull origin main`: `Already up to date` antes del merge.
+- `git merge docs/adopt-uiux-manual-v2-2`: fast-forward limpio.
+- `git push origin main`: aceptado.
+- `origin/main`: `866f41a`.
 - `file docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`: PDF valido, version 1.4, 21 paginas.
 - Busqueda de manuales/anexos UI/UX antiguos en el repo excluyendo `node_modules`, `.next` y `.vercel`.
 - Busqueda de referencias a:
@@ -72,13 +84,6 @@ Este manual reemplaza y deroga manuales anteriores, anexos tecnicos de viewport,
   - `components/app-navbar.tsx`.
   - `app/app/market/page.tsx`.
 
-## Pendiente
-
-- Ejecutar validaciones finales:
-  - `git diff --check`.
-  - validacion Markdown/grep final.
-- Queda pendiente decision de Aldo antes de commit.
-
 ## Riesgos activos
 
 - No se pudo extraer texto del PDF con la herramienta PDF del runtime, pero el archivo fue validado como PDF local de 21 paginas.
@@ -86,4 +91,4 @@ Este manual reemplaza y deroga manuales anteriores, anexos tecnicos de viewport,
 
 ## Proximo paso recomendado
 
-Si Aldo aprueba el diff documental, crear commit en la rama `docs/adopt-uiux-manual-v2-2` y luego, solo con aprobacion explicita, push/PR. No hacer deploy para este cambio documental.
+Abrir manana una nueva rama desde `main` actualizado para la barrida UI/UX. No crear esa rama en esta sesion.
