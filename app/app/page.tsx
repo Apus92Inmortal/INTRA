@@ -313,7 +313,7 @@ function CompactCompatibleShipmentCard({
           <p className="intra-h4">{shipment.title}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2 intra-body">
             <span>Cliente: {shipment.customerName}</span>
-            <div className="hidden lg:flex lg:items-center">
+            <div className="flex items-center">
               <CustomerRatingBadge
                 avgRating={shipment.customerAvgRating}
                 totalReviews={shipment.customerTotalReviews}
@@ -329,12 +329,6 @@ function CompactCompatibleShipmentCard({
             </p>
           ) : null}
           <InitialPhotoPreview shipment={shipment} />
-          <div className="mt-3 lg:hidden">
-            <CustomerRatingBadge
-              avgRating={shipment.customerAvgRating}
-              totalReviews={shipment.customerTotalReviews}
-            />
-          </div>
         </div>
 
         <div className="absolute right-0 top-0 sm:static sm:flex sm:shrink-0 sm:justify-end">
