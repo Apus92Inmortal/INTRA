@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { CreditCard, Home, Menu, MessageSquareText, Shield, User, X } from "lucide-react";
+import { CreditCard, Home, LogIn, Menu, MessageSquareText, PackagePlus, PlaneTakeoff, Shield, User, UserPlus, X } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications-bell";
 
 export type AppNavbarContext = {
@@ -19,6 +19,7 @@ export type AppNavbarContext = {
 type QuickAction = {
   href: string;
   label: string;
+  icon: typeof Home;
   variant: "primary" | "secondary";
 };
 
@@ -56,8 +57,8 @@ function getQuickActions(
 ): QuickAction[] {
   if (!context.hasSession) {
     return [
-      { href: "/login", label: "Iniciar sesión", variant: "secondary" },
-      { href: "/register", label: "Registrarse", variant: "primary" },
+      { href: "/login", label: "Iniciar sesión", icon: LogIn, variant: "secondary" },
+      { href: "/register", label: "Registrarse", icon: UserPlus, variant: "primary" },
     ];
   }
 
@@ -74,6 +75,7 @@ function getQuickActions(
         context.pendingMatchesCount === 1
           ? "Revisar 1 match"
           : `Revisar ${context.pendingMatchesCount} matches`,
+      icon: MessageSquareText,
       variant: "primary",
     });
   }
@@ -82,6 +84,7 @@ function getQuickActions(
     actions.push({
       href: "/app/shipments/new",
       label: "Crear envío",
+      icon: PackagePlus,
       variant: actions.length === 0 ? "primary" : "secondary",
     });
   }
@@ -90,6 +93,7 @@ function getQuickActions(
     actions.push({
       href: "/app/trips/new",
       label: "Publicar viaje",
+      icon: PlaneTakeoff,
       variant: actions.length === 0 ? "primary" : "secondary",
     });
   }
@@ -98,6 +102,7 @@ function getQuickActions(
     actions.push({
       href: "/app",
       label: "Volver a inicio",
+      icon: Home,
       variant: "secondary",
     });
   }
@@ -106,6 +111,7 @@ function getQuickActions(
     actions.push({
       href: "/app/shipments/new",
       label: "Crear envío",
+      icon: PackagePlus,
       variant: actions.length === 0 ? "primary" : "secondary",
     });
   }
@@ -114,6 +120,7 @@ function getQuickActions(
     actions.push({
       href: "/app/trips/new",
       label: "Publicar viaje",
+      icon: PlaneTakeoff,
       variant: actions.length === 0 ? "primary" : "secondary",
     });
   }
@@ -203,7 +210,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
   return (
     <header className="sticky top-0 z-40 border-b border-intra-border-soft bg-intra-card/95 backdrop-blur supports-[backdrop-filter]:bg-intra-card/85">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href={context.hasSession ? "/app" : "/"} className="flex min-w-0 items-center rounded-2xl">
+        <Link href={context.hasSession ? "/app" : "/"} className="flex min-w-0 items-center rounded-[var(--intra-radius-xs)]">
           <Image
             src="/logoshort.png"
             alt="INTRA logo"
@@ -224,7 +231,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium transition ${
+                  className={`inline-flex min-h-11 items-center gap-2 rounded-[var(--intra-radius-xs)] px-4 py-2.5 text-sm font-medium transition ${
                     isActive
                       ? "bg-intra-blue text-intra-card"
                       : "text-intra-text-subtle hover:bg-intra-bg-app hover:text-intra-blue"
@@ -233,7 +240,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                   <span>{link.label}</span>
                   {showPending ? (
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                      className={`intra-badge min-w-[1.5rem] justify-center px-2 py-0.5 text-[11px] ${
                         isActive ? "bg-intra-card/20 text-intra-card" : "bg-intra-success-soft text-intra-text-success"
                       }`}
                     >
@@ -248,17 +255,22 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
 
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 lg:flex">
-            {quickActions.map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
-                className={`inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${getDesktopActionClassName(
-                  action.variant
-                )}`}
-              >
-                {action.label}
-              </Link>
-            ))}
+            {quickActions.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className={`intra-btn px-4 py-2.5 text-sm ${getDesktopActionClassName(
+                    action.variant
+                  )}`}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  {action.label}
+                </Link>
+              );
+            })}
           </div>
 
           {context.hasSession ? <NotificationsBell /> : null}
@@ -268,7 +280,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
             onClick={() => setMobileOpen((current) => !current)}
             aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
             aria-expanded={mobileOpen}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card text-intra-blue transition hover:bg-intra-bg-app md:hidden"
+            className="intra-icon-button md:hidden"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -291,7 +303,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                       key={link.href}
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex min-h-11 items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition ${
+                      className={`flex min-h-11 items-center gap-3 rounded-[var(--intra-radius-xs)] border px-4 py-3 text-sm font-medium transition ${
                         isActive
                           ? "border-intra-blue bg-intra-blue text-intra-card"
                           : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:bg-intra-bg-app"
@@ -301,7 +313,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                       <span className="flex-1">{link.mobileLabel}</span>
                       {showPending ? (
                         <span
-                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                          className={`intra-badge min-w-[1.5rem] justify-center px-2 py-0.5 text-[11px] ${
                             isActive ? "bg-intra-card/20 text-intra-card" : "bg-intra-success-soft text-intra-text-success"
                           }`}
                         >
@@ -316,22 +328,27 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
 
             {quickActions.length > 0 ? (
               <div className={`grid gap-3 ${context.hasSession ? "mt-4" : "grid-cols-2"}`}>
-                {quickActions.map((action) => (
-                  <Link
-                    key={action.href}
-                    href={action.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-3 text-sm font-semibold transition ${getMobileActionClassName(
-                      action.variant
-                    )}`}
-                  >
-                    {action.label}
-                  </Link>
-                ))}
+                {quickActions.map((action) => {
+                  const Icon = action.icon;
+
+                  return (
+                    <Link
+                      key={action.href}
+                      href={action.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`intra-btn px-4 py-3 text-sm ${getMobileActionClassName(
+                        action.variant
+                      )}`}
+                    >
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {action.label}
+                    </Link>
+                  );
+                })}
               </div>
             ) : null}
 
-            <p className="mt-4 rounded-2xl bg-intra-bg-app px-4 py-3 text-sm leading-6 text-intra-text-subtle">
+            <p className="mt-4 rounded-[var(--intra-radius-xs)] bg-intra-bg-app px-4 py-3 text-sm leading-6 text-intra-text-subtle">
               {summary}
             </p>
           </div>

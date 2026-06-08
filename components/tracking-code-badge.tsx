@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check, Copy } from "lucide-react";
 
 type TrackingCodeBadgeProps = {
   code: string;
@@ -35,6 +36,11 @@ export function TrackingCodeBadge({ code, className = "", variant = "dark" }: Tr
       className={`intra-pill intra-badge-text min-w-[108px] text-center transition ${toneClasses} ${className}`.trim()}
       title="Copiar tracking"
     >
+      {copied ? (
+        <Check className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      ) : (
+        <Copy className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      )}
       <span className="grid place-items-center">
         <span className="invisible col-start-1 row-start-1">{layoutLabel}</span>
         <span className="col-start-1 row-start-1">{copied ? copiedLabel : code}</span>

@@ -58,10 +58,10 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-intra-blue/40 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-intra-card p-6 shadow-xl">
+    <div className="intra-modal-backdrop p-4">
+      <div className="intra-modal-panel w-full max-w-md p-6">
         <h2 className="text-2xl font-bold text-intra-blue">
-          Bienvenido a INTRA 
+          Bienvenido a INTRA
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-intra-text-subtle">
@@ -77,7 +77,7 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
           <button
             onClick={handleCompleteProfile}
             disabled={loading}
-            className="flex-1 rounded-xl bg-intra-blue px-4 py-3 text-center text-sm font-medium text-intra-card transition hover:opacity-95 disabled:opacity-50"
+            className="intra-btn flex-1 bg-intra-blue px-4 py-3 text-center text-sm text-intra-card hover:opacity-95 disabled:opacity-50"
           >
             {loading ? "Abriendo perfil..." : "Completar perfil"}
           </button>
@@ -85,7 +85,7 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
           <button
             onClick={handleClose}
             disabled={loading}
-            className="flex-1 rounded-xl border border-intra-border-soft bg-intra-card px-4 py-3 text-sm font-medium text-intra-blue transition hover:bg-intra-bg-app disabled:opacity-50"
+            className="intra-btn flex-1 border border-intra-border-soft bg-intra-card px-4 py-3 text-sm text-intra-blue hover:bg-intra-bg-app disabled:opacity-50"
           >
             {loading ? "Cerrando..." : "Ahora no"}
           </button>
