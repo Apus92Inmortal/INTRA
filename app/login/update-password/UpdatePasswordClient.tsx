@@ -86,7 +86,7 @@ export default function UpdatePasswordClient({
           </Link>
 
           <div className="mt-6">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info">
+            <div className="mb-4 hidden h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info sm:flex">
               <LockKeyhole className="intra-icon-2xl" aria-hidden="true" />
             </div>
             <h1 className="intra-h1">

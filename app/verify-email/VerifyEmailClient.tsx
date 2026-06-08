@@ -105,7 +105,7 @@ export default function VerifyEmailClient({
 
           {status === "verified" ? (
             <>
-              <div className="mx-auto mt-6 flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft text-intra-text-success">
+              <div className="mx-auto mt-6 hidden h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft text-intra-text-success sm:flex">
                 <CheckCircle2 className="intra-icon-2xl" aria-hidden="true" />
               </div>
               <h1 className="intra-h1 mt-4">Correo verificado</h1>
@@ -134,7 +134,7 @@ export default function VerifyEmailClient({
             </>
           ) : (
             <>
-              <div className="mx-auto mt-6 flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info">
+              <div className="mx-auto mt-6 hidden h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info sm:flex">
                 <MailCheck className="intra-icon-2xl" aria-hidden="true" />
               </div>
               <h1 className="intra-h1 mt-4">Verifica tu correo</h1>

@@ -57,7 +57,7 @@ export default function ResetPasswordClient() {
 
           {success ? (
             <div className="mt-6 space-y-5">
-              <div className="flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft text-intra-text-success">
+              <div className="hidden h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft text-intra-text-success sm:flex">
                 <CheckCircle2 className="intra-icon-2xl" aria-hidden="true" />
               </div>
               <div>
@@ -91,7 +91,7 @@ export default function ResetPasswordClient() {
           ) : (
             <>
               <div className="mt-6">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info">
+                <div className="mb-4 hidden h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info sm:flex">
                   <KeyRound className="intra-icon-2xl" aria-hidden="true" />
                 </div>
                 <h1 className="intra-h1">Recupera tu contraseña</h1>
