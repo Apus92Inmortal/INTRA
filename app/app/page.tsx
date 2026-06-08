@@ -270,10 +270,21 @@ function CustomerRatingBadge({
   return <RatingSummaryBadge avgRating={avgRating} totalReviews={totalReviews} />;
 }
 
-function InitialPhotoThumbnail({ shipment }: { shipment: DashboardCompatibleShipmentCard }) {
-  const thumbnailShellClassName = "h-24 w-24 shrink-0 sm:h-28 sm:w-28";
-  const thumbnailClassName =
-    "h-24 w-24 rounded-[var(--intra-radius-sm)] border border-intra-border-soft object-cover sm:h-28 sm:w-28";
+function InitialPhotoThumbnail({
+  shipment,
+  size = "media",
+}: {
+  shipment: DashboardCompatibleShipmentCard;
+  size?: "compact" | "media";
+}) {
+  const isCompact = size === "compact";
+  const thumbnailShellClassName = isCompact
+    ? "h-14 w-14 shrink-0"
+    : "h-24 w-24 shrink-0 sm:h-28 sm:w-28";
+  const thumbnailClassName = isCompact
+    ? "h-14 w-14 rounded-[var(--intra-radius-xs)] border border-intra-border-soft object-cover"
+    : "h-24 w-24 rounded-[var(--intra-radius-sm)] border border-intra-border-soft object-cover sm:h-28 sm:w-28";
+  const iconClassName = isCompact ? "h-5 w-5" : "h-7 w-7";
 
   return (
     <div className={thumbnailShellClassName}>
@@ -295,9 +306,65 @@ function InitialPhotoThumbnail({ shipment }: { shipment: DashboardCompatibleShip
           className={`flex items-center justify-center border-dashed bg-intra-neutral-soft-alt ${thumbnailClassName}`}
           aria-label="Imagen no disponible"
         >
-          <PackageCheck className="h-7 w-7 text-intra-text-muted" />
+          <PackageCheck className={`${iconClassName} text-intra-text-muted`} />
         </div>
       )}
+    </div>
+  );
+}
+
+function CompatibleShipmentInfo({ shipment }: { shipment: DashboardCompatibleShipmentCard }) {
+  return (
+    <>
+      <div className="flex flex-wrap items-start gap-2">
+        <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
+        <span className="intra-pill shrink-0 bg-intra-neutral-pill text-intra-blue">
+          Peso: {shipment.weightLabel}
+        </span>
+      </div>
+      <div className="mt-1 flex flex-wrap items-center gap-2 intra-body">
+        <span className="min-w-0 break-words">Cliente: {shipment.customerName}</span>
+        <div className="flex shrink-0 items-center">
+          <CustomerRatingBadge
+            avgRating={shipment.customerAvgRating}
+            totalReviews={shipment.customerTotalReviews}
+          />
+        </div>
+      </div>
+      <p className="mt-1 intra-body">
+        <span className="intra-body-strong">Ruta:</span> {shipment.routeLabel}
+      </p>
+      {shipment.description ? (
+        <p className="mt-2 line-clamp-2 intra-body">
+          <span className="intra-body-strong">Descripción:</span> {shipment.description}
+        </p>
+      ) : null}
+    </>
+  );
+}
+
+function CompatibleShipmentEarnings({
+  shipment,
+  className = "",
+}: {
+  shipment: DashboardCompatibleShipmentCard;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex min-w-0 flex-1 items-center gap-2 rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft px-3 py-2 shadow-sm ${className}`.trim()}
+    >
+      <span className="intra-icon-shell-body shrink-0 rounded-full bg-intra-card text-intra-green">
+        <CircleDollarSign className="intra-icon-body" />
+      </span>
+      <div className="flex min-w-0 items-center gap-2 text-left">
+        <span className="hidden whitespace-nowrap intra-body-strong text-intra-text-success sm:inline">
+          Ganancia
+        </span>
+        <p className="min-w-0 break-words intra-metric-sm text-intra-green">
+          {shipment.travelerEarningsLabel ?? "Por confirmar"}
+        </p>
+      </div>
     </div>
   );
 }
@@ -309,50 +376,31 @@ function CompactCompatibleShipmentCard({
 }) {
   return (
     <div className="intra-card-compact p-4">
-      <div className="flex items-start gap-3">
+      <div className="sm:hidden">
+        <CompatibleShipmentInfo shipment={shipment} />
+
+        <div className="mt-3 flex items-center gap-3">
+          <InitialPhotoThumbnail shipment={shipment} size="compact" />
+          <CompatibleShipmentEarnings shipment={shipment} />
+        </div>
+
+        {shipment.matchingTripId ? (
+          <div className="mt-3 [&>div]:w-full [&_button]:w-full">
+            <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} />
+          </div>
+        ) : null}
+      </div>
+
+      <div className="hidden items-start gap-3 sm:flex">
         <InitialPhotoThumbnail shipment={shipment} />
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-start gap-2">
-            <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
-            <span className="intra-pill shrink-0 bg-intra-neutral-pill text-intra-blue">
-              Peso: {shipment.weightLabel}
-            </span>
-          </div>
-          <div className="mt-1 flex flex-wrap items-center gap-2 intra-body">
-            <span className="min-w-0 break-words">Cliente: {shipment.customerName}</span>
-            <div className="flex shrink-0 items-center">
-              <CustomerRatingBadge
-                avgRating={shipment.customerAvgRating}
-                totalReviews={shipment.customerTotalReviews}
-              />
-            </div>
-          </div>
-          <p className="mt-1 intra-body">
-            <span className="intra-body-strong">Ruta:</span> {shipment.routeLabel}
-          </p>
-          {shipment.description ? (
-            <p className="mt-2 line-clamp-2 intra-body">
-              <span className="intra-body-strong">Descripción:</span> {shipment.description}
-            </p>
-          ) : null}
+          <CompatibleShipmentInfo shipment={shipment} />
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-3 sm:justify-end">
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft px-3 py-2 shadow-sm sm:flex-none">
-          <span className="intra-icon-shell-body rounded-full bg-intra-card text-intra-green">
-            <CircleDollarSign className="intra-icon-body" />
-          </span>
-          <div className="flex min-w-0 items-center gap-2 text-left">
-            <span className="hidden whitespace-nowrap intra-body-strong text-intra-text-success sm:inline">
-              Ganancia
-            </span>
-            <p className="intra-metric-sm text-intra-green">
-              {shipment.travelerEarningsLabel ?? "Por confirmar"}
-            </p>
-          </div>
-        </div>
+      <div className="mt-4 hidden items-center gap-3 sm:flex sm:justify-end">
+        <CompatibleShipmentEarnings shipment={shipment} className="sm:flex-none" />
         {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
       </div>
     </div>
