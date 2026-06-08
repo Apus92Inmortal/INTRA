@@ -55,6 +55,29 @@ INTRA es una plataforma peer-to-peer de envios que conecta clientes que necesita
 - No cambiar UI sin respetar los documentos visuales aprobados en `docs/`.
 - Al cerrar una sesion tecnica, actualizar `docs/agent/CURRENT_SESSION.md` y `docs/agent/TASKS.md`; actualizar `docs/agent/DECISIONS.md` solo si hubo una decision nueva; actualizar `docs/agent/KNOWN_ISSUES.md` si aparecio un riesgo nuevo; actualizar `docs/agent/DB_NOTES.md` si se tocaron base de datos, Supabase, RLS, Storage o migraciones.
 
+## Manual UI/UX vigente
+
+El manual oficial y vigente de UI/UX para INTRA es:
+
+`docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`
+
+Este documento es la fuente unica de verdad para decisiones visuales, componentes, tokens, navegacion, Core Mobile, Core PC, CTAs, cards, inputs, badges, iconografia, tablas, ventanas emergentes, estados de carga, errores, mensajes, microcopy y QA visual.
+
+Los manuales anteriores y anexos tecnicos quedan derogados.
+
+Antes de implementar cualquier cambio UI/UX, se debe revisar si el cambio cumple el Manual UI/UX INTRA v2.2.
+
+Si una pantalla o componente contradice el manual:
+
+1. Reportar la contradiccion.
+2. Explicar que regla contradice.
+3. Proponer si debe corregirse o si amerita crear una excepcion, anexo o nueva regla.
+4. No improvisar estilos por criterio personal.
+
+Regla clave:
+
+El manual manda, pero puede evolucionar. Lo que no se permite es improvisar.
+
 ## Validacion esperada
 
 Segun el cambio, correr y reportar:

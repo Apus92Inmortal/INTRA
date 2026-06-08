@@ -319,6 +319,37 @@ Siguiente frente sugerido:
 - No avanzar a UI/UX ni F5 en este chat.
 - Recomendacion pendiente de seguridad: cambiar o eliminar claves usadas en smoke cuando Aldo lo considere conveniente.
 
+### TASK-017: Gobierno documental UI/UX v2.2
+
+Estado: REVIEW
+Prioridad: Alta
+Area: UI/UX / Documentacion / Gobierno visual
+
+Resumen:
+
+- Adoptar el Manual Oficial UI/UX INTRA v2.2 como manual actual, vigente y rector de todo el diseno UI/UX del proyecto.
+- Evitar doble fuente de verdad con manuales anteriores, anexos tecnicos de viewport, QA visual, iconografia proporcional o documentos previos de reglas visuales.
+- Actualizar memoria/instrucciones para que agentes y developers validen cualquier cambio visual contra el manual vigente antes de implementar.
+
+Criterios de aceptacion:
+
+- `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf` existe en el repo.
+- `docs/ui-ux/README.md` declara que el Manual UI/UX INTRA v2.2 es la fuente oficial unica vigente.
+- Manuales anteriores y anexos tecnicos UI/UX quedan derogados, eliminados o archivados si existian.
+- `AGENTS.md`, `README.md`, `PROJECT_STATE.md` y `DECISIONS.md` conocen la regla vigente.
+- Market no queda como modulo oficial ni item activo de navegacion mientras no este implementado formalmente.
+- No se toca UI runtime, pagos, DB, RLS, migraciones, Supabase ni deploy.
+
+Estado actual:
+
+- Rama local: `docs/adopt-uiux-manual-v2-2`.
+- PDF incorporado en `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`.
+- README rector creado en `docs/ui-ux/README.md`.
+- No se encontraron manuales/anexos UI/UX antiguos versionados para eliminar o archivar.
+- Se creo `docs/archive/ui-ux-derogados/` como ruta prevista si aparecen documentos derogados.
+- Navegacion oficial revisada: no existe item `Market` en `components/app-navbar-client.tsx`; `/app/market` es redirect tecnico heredado hacia `/app`.
+- Pendiente: aprobacion de Aldo antes de commit.
+
 ### Frente A: Seguridad operativa del envio
 
 Prioridad: Critica

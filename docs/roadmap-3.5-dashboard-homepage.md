@@ -254,6 +254,8 @@ Estas son las **subtareas oficiales y secuenciales** dentro de 3.5:
 
 ## Lo que Joy debe evaluar explícitamente
 
+> Nota historica: esta seccion pertenece al roadmap 3.5 y no es fuente UI/UX vigente. Desde la adopcion del Manual UI/UX INTRA v2.2, `Market` no debe tratarse como modulo activo ni aparecer como item oficial de navegacion mientras no este implementado formalmente.
+
 1. si mantener un hamburger menu en mobile para `Market`, `Matches`, `Chat` y `Perfil`, porque el boceto no lo muestra pero la app real sí necesita navegación
 2. si el sidebar del boceto se mantiene tal cual o se simplifica para convivir con la navbar actual sin romper el producto
 

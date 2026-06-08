@@ -51,6 +51,8 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 
 ## Referencias vigentes en `docs/`
 
+- `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`
+- `docs/ui-ux/README.md`
 - `docs/legal-operational-matrix-v1.md`
 - `docs/phase-2-security-status.md`
 - `docs/roadmap-3.5-dashboard-homepage.md`
@@ -64,6 +66,7 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 - El theme base aprobado para publicar viaje sirve como referencia visual para futuras pantallas.
 - Market fue fusionado con `/app` como decision de producto; cualquier mejora debe mantener la experiencia integrada de dashboard, oportunidades y matches.
 - PR #116 quedo mergeado y produccion contiene realtime/fallback visible-aware para `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`.
+- Manual Oficial UI/UX INTRA v2.2 queda adoptado como fuente unica vigente para decisiones visuales. Manuales anteriores y anexos UI/UX quedan derogados.
 
 ## Secuencia oficial vigente
 
@@ -79,6 +82,6 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 
 ## Fase inmediata
 
-La siguiente fase no es UI/UX. La prioridad inmediata es una auditoria funcional full del repo para identificar el estado real de flujos de negocio, seguridad, pagos, wallet, retiros, evidencias, disputas, reviews, admin, RLS, RPCs, webhooks, variables de entorno y pruebas.
+La auditoria funcional full ya fue cerrada y la etapa funcional minima quedo validada. El siguiente frente aprobado por Aldo es UI/UX final, usando `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf` como fuente unica de verdad.
 
-La auditoria debe ignorar por completo diseno visual, tokens, colores, tipografia, responsive, mockups, conversion visual, layout visual y QA visual. La UI/UX queda reservada para una etapa posterior, antes de las pruebas finales y el lanzamiento.
+Cualquier ajuste UI/UX debe validarse contra el Manual UI/UX INTRA v2.2 antes de implementarse. Si una pantalla contradice el manual, primero se reporta la contradiccion y se propone correccion, excepcion, anexo o nueva regla.

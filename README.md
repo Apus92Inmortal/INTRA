@@ -2,6 +2,20 @@
 
 [![CI](https://github.com/Apus92Inmortal/INTRA/actions/workflows/ci.yml/badge.svg)](https://github.com/Apus92Inmortal/INTRA/actions/workflows/ci.yml)
 
+## Manual UI/UX vigente
+
+El manual oficial y vigente de UI/UX para INTRA es:
+
+`docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`
+
+Este documento es la fuente unica de verdad para decisiones visuales, componentes, tokens, navegacion, Core Mobile, Core PC, CTAs, cards, inputs, badges, iconografia, tablas, ventanas emergentes, estados de carga, errores, mensajes, microcopy y QA visual.
+
+Los manuales anteriores y anexos tecnicos quedan derogados.
+
+Antes de implementar cualquier cambio UI/UX, se debe revisar si el cambio cumple el Manual UI/UX INTRA v2.2. Si una pantalla o componente contradice el manual, se debe reportar la contradiccion, explicar la regla afectada y proponer correccion o excepcion antes de implementar.
+
+Regla clave: el manual manda, pero puede evolucionar. Lo que no se permite es improvisar.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

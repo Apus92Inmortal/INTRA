@@ -142,3 +142,27 @@ Impacto:
 
 - Las migraciones futuras de notificaciones deben preferir `create_operational_notification(...)`.
 - No reintroducir indices unicos globales sobre `(related_match_id, type)`.
+
+## DEC-008: Manual UI/UX INTRA v2.2 como fuente vigente
+
+Fecha: 2026-06-07
+
+Decision:
+
+El Manual Oficial UI/UX INTRA v2.2 queda adoptado como manual actual, vigente y rector de todo el diseno UI/UX del proyecto.
+
+Referencia:
+
+- `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`
+- `docs/ui-ux/README.md`
+
+Motivo:
+
+INTRA necesita una sola fuente de verdad para decisiones visuales antes de iniciar UI/UX final y QA visual responsive.
+
+Impacto:
+
+- Manuales anteriores, anexos tecnicos de viewport, QA visual, iconografia proporcional y documentos previos relacionados con reglas visuales quedan derogados.
+- Todo cambio UI/UX debe validarse contra el Manual UI/UX INTRA v2.2 antes de implementarse.
+- Si una pantalla o componente contradice el manual, se debe reportar la contradiccion, explicar la regla afectada y proponer correccion, excepcion, anexo o nueva regla.
+- Market no debe tratarse como modulo activo ni aparecer como item oficial de navegacion mientras no este implementado formalmente.
