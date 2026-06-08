@@ -30,15 +30,6 @@ type NavLink = {
   icon: typeof Home;
 };
 
-function pluralize(count: number, singular: string, plural: string) {
-  return `${count} ${count === 1 ? singular : plural}`;
-}
-
-function getFirstName(fullName: string | null) {
-  const candidate = fullName?.trim() ?? "";
-  return candidate.split(" ")[0]?.trim() ?? "";
-}
-
 function getDesktopActionClassName(variant: QuickAction["variant"]) {
   return variant === "primary"
     ? "bg-intra-green text-intra-card hover:bg-intra-green-hover-app"
@@ -130,34 +121,6 @@ function getQuickActions(
     .slice(0, 2);
 }
 
-function getSessionSummary(context: AppNavbarContext) {
-  if (!context.hasSession) {
-    return "Entra para publicar envíos, ofrecer viajes y chatear con tus matches.";
-  }
-
-  const parts: string[] = [];
-
-  if (context.activeShipmentsCount > 0) {
-    parts.push(pluralize(context.activeShipmentsCount, "envío activo", "envíos activos"));
-  }
-
-  if (context.publishedTripsCount > 0) {
-    parts.push(pluralize(context.publishedTripsCount, "viaje publicado", "viajes publicados"));
-  }
-
-  if (context.pendingMatchesCount > 0) {
-    parts.push(pluralize(context.pendingMatchesCount, "match por revisar", "matches por revisar"));
-  }
-
-  if (parts.length === 0) {
-    return "Todavía no tienes actividad. Puedes empezar creando un envío o publicando un viaje.";
-  }
-
-  const firstName = getFirstName(context.fullName);
-  const prefix = firstName ? `Hola, ${firstName}. ` : "";
-  return `${prefix}${parts.join(" · ")}`;
-}
-
 export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -200,7 +163,6 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
     () => getQuickActions(pathname, context),
     [context, pathname]
   );
-  const summary = useMemo(() => getSessionSummary(context), [context]);
 
   const isActiveLink = (href: string) =>
     pathname === href || (href !== "/app" && pathname.startsWith(href));
@@ -348,9 +310,6 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
               </div>
             ) : null}
 
-            <p className="mt-4 rounded-[var(--intra-radius-xs)] bg-intra-bg-app px-4 py-3 text-sm leading-6 text-intra-text-subtle">
-              {summary}
-            </p>
           </div>
         </div>
       ) : null}
