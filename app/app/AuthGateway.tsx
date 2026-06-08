@@ -4,6 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  CheckCircle2,
+  LogIn,
+  PackageCheck,
+  Plane,
+  ShieldCheck,
+  UserPlus,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   getSignupEmailRedirectUrl,
@@ -40,6 +49,50 @@ type AuthGatewayProps = {
   nextPath?: string | null;
 };
 
+function getLoginErrorMessage(message: string) {
+  if (isUnconfirmedEmailMessage(message)) {
+    return "Verifica tu correo antes de entrar.";
+  }
+
+  const normalized = message.toLowerCase();
+
+  if (
+    normalized.includes("invalid login credentials") ||
+    normalized.includes("invalid credentials") ||
+    normalized.includes("credenciales")
+  ) {
+    return "No pudimos iniciar sesión. Revisa tu correo y contraseña.";
+  }
+
+  if (normalized.includes("failed to fetch") || normalized.includes("network")) {
+    return "No pudimos iniciar sesión. Revisa tu conexión e intenta nuevamente.";
+  }
+
+  return "No pudimos iniciar sesión. Revisa tus datos e intenta nuevamente.";
+}
+
+function getRegisterErrorMessage(message: string) {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("already registered") || normalized.includes("already exists")) {
+    return "Ese correo ya está registrado. Intenta entrar o recupera tu contraseña.";
+  }
+
+  if (normalized.includes("password") || normalized.includes("contraseña")) {
+    return "Usa una contraseña segura de al menos 6 caracteres.";
+  }
+
+  if (normalized.includes("invalid email") || normalized.includes("correo")) {
+    return "Escribe un correo válido para crear tu cuenta.";
+  }
+
+  if (normalized.includes("failed to fetch") || normalized.includes("network")) {
+    return "No pudimos crear tu cuenta. Revisa tu conexión e intenta nuevamente.";
+  }
+
+  return "No pudimos crear tu cuenta. Intenta nuevamente.";
+}
+
 export default function AuthGateway({
   initialTab = "login",
   initialError = null,
@@ -50,7 +103,9 @@ export default function AuthGateway({
 
   const [tab, setTab] = useState<AuthTab>(initialTab);
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<string | null>(initialError);
+  const [msg, setMsg] = useState<string | null>(
+    initialError ? getLoginErrorMessage(initialError) : null
+  );
   const [needsEmailVerification, setNeedsEmailVerification] = useState(false);
 
   const [loginEmail, setLoginEmail] = useState("");
@@ -101,12 +156,12 @@ export default function AuthGateway({
 
     if (error) {
       if (isUnconfirmedEmailMessage(error.message)) {
-        setMsg("❌ Debes verificar tu correo antes de ingresar.");
+        setMsg("Verifica tu correo antes de entrar.");
         setNeedsEmailVerification(true);
         return;
       }
 
-      setMsg("❌ " + error.message);
+      setMsg(getLoginErrorMessage(error.message));
       return;
     }
 
@@ -121,7 +176,7 @@ export default function AuthGateway({
 
     if (!acceptedTerms || !acceptedPrivacy) {
       setLoading(false);
-      setMsg("❌ Debes aceptar los Términos y Condiciones y la Política de Privacidad para crear tu cuenta.");
+      setMsg("Acepta los términos y la política de privacidad para continuar.");
       return;
     }
 
@@ -151,7 +206,7 @@ export default function AuthGateway({
 
     if (signUpError) {
       setLoading(false);
-      setMsg("❌ " + signUpError.message);
+      setMsg(getRegisterErrorMessage(signUpError.message));
       return;
     }
 
@@ -170,7 +225,7 @@ export default function AuthGateway({
 
       if (profileError) {
         setLoading(false);
-        setMsg("❌ No pude guardar el nombre: " + profileError.message);
+        setMsg("Tu cuenta fue creada, pero no pudimos guardar algunos datos. Intenta actualizar tu perfil.");
         return;
       }
 
@@ -194,94 +249,104 @@ export default function AuthGateway({
 
   return (
     <>
-    <main className="intra-page-shell p-2 sm:p-3 lg:p-4">
-      <div className="mx-auto flex min-h-[calc(100vh-1rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-1.5rem)] lg:h-[calc(100vh-2rem)] lg:min-h-0">
-        <div className="grid w-full overflow-hidden rounded-[32px] bg-intra-card shadow-[var(--intra-shadow-hero)] lg:h-full lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="intra-auth-hero px-6 py-7 sm:px-7 sm:py-8 lg:min-h-0 lg:overflow-y-auto lg:px-8 lg:py-8">
+    <main className="intra-page-shell p-3 sm:p-4">
+      <div className="mx-auto flex min-h-[calc(100vh-1.5rem)] w-full max-w-5xl items-center justify-center sm:min-h-[calc(100vh-2rem)]">
+        <div className="grid w-full overflow-hidden rounded-[var(--intra-radius-md)] border border-intra-border-soft bg-intra-card shadow-[var(--intra-shadow-base)] lg:grid-cols-[0.9fr_1fr]">
+          <section className="intra-auth-hero px-5 py-6 sm:px-6 sm:py-7 lg:px-7 lg:py-8">
             <Link
               href="/"
               aria-label="Ir a la landing de INTRA"
-              className="intra-auth-logo-shell ring-1 ring-white/70 sm:p-4"
+              className="intra-auth-logo-shell p-3 ring-1 ring-white/70"
             >
               <Image
                 src="/logo.png"
                 alt="INTRA"
                 width={280}
                 height={180}
-                className="h-auto w-[160px] sm:w-[190px]"
+                className="h-auto w-[140px] sm:w-[170px]"
                 priority
               />
             </Link>
 
-            <div className="mt-5 max-w-xl">
-              <h1 className="intra-landing-hero-title">
-                Entra a INTRA desde aquí
+            <div className="mt-5 max-w-lg">
+              <h1 className="text-[30px] font-bold leading-[36px] text-white sm:text-[34px] sm:leading-[40px]">
+                Bienvenido a INTRA
               </h1>
-              <p className="intra-landing-lead mt-2.5 text-white/82">
-                Esta es la entrada oficial de la app. Desde aquí puedes iniciar sesión o crear tu cuenta para publicar envíos y viajes.
+              <p className="intra-on-dark-body mt-2.5 max-w-md">
+                Envía, viaja y conecta con confianza.
               </p>
             </div>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-5 hidden gap-3 sm:grid sm:grid-cols-2">
               <div className="intra-auth-feature-card">
-                <div className="text-2xl">📦</div>
+                <div className="intra-icon-shell-body rounded-[var(--intra-radius-xs)] bg-white/15 text-white">
+                  <PackageCheck className="intra-icon-lg" aria-hidden="true" />
+                </div>
                 <h2 className="intra-on-dark-body-strong mt-3">Clientes</h2>
                 <p className="intra-on-dark-body mt-2">
-                  Publica tu envío y encuentra viajeros reales para tu ruta.
+                  Publica envíos con seguimiento claro.
                 </p>
               </div>
               <div className="intra-auth-feature-card">
-                <div className="text-2xl">✈️</div>
+                <div className="intra-icon-shell-body rounded-[var(--intra-radius-xs)] bg-white/15 text-white">
+                  <Plane className="intra-icon-lg" aria-hidden="true" />
+                </div>
                 <h2 className="intra-on-dark-body-strong mt-3">Viajeros</h2>
                 <p className="intra-on-dark-body mt-2">
-                  Monetiza tu viaje llevando paquetes que ya van en tu misma dirección.
+                  Publica rutas y acepta oportunidades.
                 </p>
               </div>
             </div>
 
+            <div className="intra-auth-highlight mt-4 hidden items-start gap-3 sm:flex">
+              <ShieldCheck className="intra-icon-lg mt-0.5 shrink-0" aria-hidden="true" />
+              <span>Acceso protegido para operar envíos, viajes y pagos dentro de la app.</span>
+            </div>
+
             {isSafeInternalPath(nextPath) ? (
-              <div className="intra-auth-highlight mt-5">
-                Después de autenticarte te llevaremos a <span className="font-bold">{nextPath}</span>.
+              <div className="intra-auth-highlight mt-3 hidden items-start gap-3 sm:flex">
+                <CheckCircle2 className="intra-icon-lg mt-0.5 shrink-0" aria-hidden="true" />
+                <span>Después de entrar te llevaremos a <span className="font-bold">{nextPath}</span>.</span>
               </div>
             ) : null}
 
           </section>
 
-          <section className="px-5 py-6 sm:px-6 sm:py-7 lg:min-h-0 lg:overflow-y-auto lg:px-7 lg:py-8">
-            <div className="mx-auto w-full max-w-md lg:min-h-full">
-              <div className="grid grid-cols-2 rounded-2xl bg-intra-bg-app p-1.5">
+          <section className="px-5 py-6 sm:px-6 sm:py-7 lg:px-7 lg:py-8">
+            <div className="mx-auto w-full max-w-md">
+              <div className="grid grid-cols-2 rounded-[var(--intra-radius-xs)] bg-intra-bg-app p-1">
                 <button
                   type="button"
                   onClick={() => switchTab("login")}
-                  className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                  className={`inline-flex min-h-11 items-center justify-center rounded-[10px] px-4 text-sm font-semibold transition ${
                     tab === "login"
                       ? "bg-intra-card text-intra-blue shadow-sm"
                       : "text-intra-text-subtle hover:text-intra-blue"
                   }`}
                 >
-                  Iniciar sesión
+                  Entrar
                 </button>
                 <button
                   type="button"
                   onClick={() => switchTab("register")}
-                  className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                  className={`inline-flex min-h-11 items-center justify-center rounded-[10px] px-4 text-sm font-semibold transition ${
                     tab === "register"
                       ? "bg-intra-card text-intra-blue shadow-sm"
                       : "text-intra-text-subtle hover:text-intra-blue"
                   }`}
                 >
-                  Registrarse
+                  Crear cuenta
                 </button>
               </div>
 
               <div className="mt-5">
                 <h2 className="intra-h1">
-                  {tab === "login" ? "Bienvenido de nuevo" : "Crea tu cuenta"}
+                  {tab === "login" ? "Entra a INTRA" : "Crea tu cuenta"}
                 </h2>
                 <p className="intra-body mt-2">
                   {tab === "login"
-                    ? "Ingresa para continuar dentro de INTRA."
-                    : "Regístrate para empezar a publicar envíos o viajes."}
+                    ? "Continúa con tus envíos, viajes y matches."
+                    : "Empieza a publicar envíos o viajes."}
                 </p>
               </div>
 
@@ -323,14 +388,14 @@ export default function AuthGateway({
                 {tab === "register" ? (
                   <div className="grid gap-3 lg:grid-cols-2">
                     <div>
-                      <label className="intra-label">Email</label>
+                      <label className="intra-label">Correo</label>
                       <input
                         className="intra-input mt-1"
                         type="email"
                         value={registerEmail}
                         onChange={(e) => setRegisterEmail(e.target.value)}
                         required
-                        placeholder="tu@email.com"
+                        placeholder="correo@ejemplo.com"
                       />
                     </div>
 
@@ -352,14 +417,14 @@ export default function AuthGateway({
                 ) : (
                   <>
                     <div>
-                      <label className="intra-label">Email</label>
+                      <label className="intra-label">Correo</label>
                       <input
                         className="intra-input mt-1"
                         type="email"
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
                         required
-                        placeholder="tu@email.com"
+                        placeholder="correo@ejemplo.com"
                       />
                     </div>
 
@@ -388,7 +453,7 @@ export default function AuthGateway({
                 )}
 
                 {tab === "register" ? (
-                  <div className="space-y-2 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-3 text-sm leading-5 text-intra-text-subtle">
+                  <div className="space-y-2 rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-3 py-3 text-sm leading-5 text-intra-text-subtle">
                     <div className="flex items-start gap-3">
                       <input
                         id="terms-conditions-acceptance"
@@ -435,21 +500,24 @@ export default function AuthGateway({
                 ) : null}
 
                 {msg ? (
-                  <div className="intra-alert-danger">
-                    <p>{msg}</p>
+                  <div className="intra-alert-danger flex items-start gap-3">
+                    <AlertCircle className="intra-icon-lg mt-0.5 shrink-0" aria-hidden="true" />
+                    <div>
+                      <p>{msg}</p>
 
-                    {needsEmailVerification && loginEmail ? (
-                      <Link
-                        className="intra-link mt-2 inline-block"
-                        href={`/verify-email?email=${encodeURIComponent(loginEmail)}${
-                          isSafeInternalPath(nextDestination)
-                            ? `&next=${encodeURIComponent(nextDestination)}`
-                            : ""
-                        }`}
-                      >
-                        Reenviar correo de verificación
-                      </Link>
-                    ) : null}
+                      {needsEmailVerification && loginEmail ? (
+                        <Link
+                          className="intra-link mt-2 inline-block"
+                          href={`/verify-email?email=${encodeURIComponent(loginEmail)}${
+                            isSafeInternalPath(nextDestination)
+                              ? `&next=${encodeURIComponent(nextDestination)}`
+                              : ""
+                          }`}
+                        >
+                          Reenviar correo
+                        </Link>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
 
@@ -458,6 +526,11 @@ export default function AuthGateway({
                   className="intra-btn intra-btn-primary w-full"
                   type="submit"
                 >
+                  {tab === "login" ? (
+                    <LogIn className="intra-icon-md" aria-hidden="true" />
+                  ) : (
+                    <UserPlus className="intra-icon-md" aria-hidden="true" />
+                  )}
                   {loading
                     ? tab === "login"
                       ? "Entrando..."
@@ -475,7 +548,7 @@ export default function AuthGateway({
                   onClick={() => switchTab(tab === "login" ? "register" : "login")}
                   className="intra-link"
                 >
-                  {tab === "login" ? "Regístrate" : "Inicia sesión"}
+                  {tab === "login" ? "Crear cuenta" : "Entrar"}
                 </button>
               </p>
             </div>

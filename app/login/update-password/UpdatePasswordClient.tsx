@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { AlertCircle, CheckCircle2, LockKeyhole } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import {
   getUpdatePasswordErrorMessage,
@@ -21,7 +22,9 @@ export default function UpdatePasswordClient({
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<string | null>(initialError)
+  const [message, setMessage] = useState<string | null>(
+    initialError ? getUpdatePasswordErrorMessage(initialError) : null
+  )
   const [isSuccess, setIsSuccess] = useState(false)
 
   useEffect(() => {
@@ -41,7 +44,7 @@ export default function UpdatePasswordClient({
     const validationError = validatePasswordChange(password, confirmPassword)
 
     if (validationError) {
-      setMessage(`❌ ${validationError}`)
+      setMessage(validationError)
       return
     }
 
@@ -59,37 +62,44 @@ export default function UpdatePasswordClient({
     }
 
     setIsSuccess(true)
-    setMessage("✅ Tu contraseña quedó actualizada. Te llevaremos al login.")
+    setMessage("Ya puedes iniciar sesión con tu nueva contraseña.")
 
     await supabase.auth.signOut()
   }
 
   return (
-    <main className="intra-page-shell p-6">
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
-        <div className="intra-card w-full max-w-md overflow-hidden p-8 sm:p-10">
+    <main className="intra-page-shell p-4 sm:p-6">
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-3rem)]">
+        <div className="intra-card w-full max-w-md overflow-hidden p-6 sm:p-8">
           <Link
-            href="/login"
-            className="inline-flex rounded-3xl border border-intra-border-soft bg-intra-card p-4 shadow-[var(--intra-shadow-base)] transition hover:scale-[1.01] sm:p-5"
+            href="/app?tab=login"
+            className="inline-flex rounded-[var(--intra-radius-sm)] border border-intra-border-soft bg-intra-card p-3 shadow-[var(--intra-shadow-base)] transition hover:scale-[1.01]"
           >
             <Image
               src="/logo.png"
               alt="INTRA"
               width={280}
               height={180}
-              className="h-auto w-[180px] sm:w-[220px]"
+              className="h-auto w-[150px] sm:w-[170px]"
               priority
             />
           </Link>
 
-          <div className="mt-8">
-            <h1 className="intra-h1">Crea tu nueva contraseña</h1>
+          <div className="mt-6">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info">
+              <LockKeyhole className="intra-icon-2xl" aria-hidden="true" />
+            </div>
+            <h1 className="intra-h1">
+              {isSuccess ? "Contraseña actualizada" : "Crea una nueva contraseña"}
+            </h1>
             <p className="intra-body mt-2">
-              Usa una contraseña nueva de mínimo 6 caracteres para volver a entrar a INTRA.
+              {isSuccess
+                ? "Ya puedes iniciar sesión con tu nueva contraseña."
+                : "Usa una contraseña segura para proteger tu cuenta."}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
               <label className="intra-label">Nueva contraseña</label>
               <input
@@ -118,13 +128,18 @@ export default function UpdatePasswordClient({
 
             {message ? (
               <div
-                className={`rounded-2xl border p-4 text-sm ${
+                className={`flex items-start gap-3 rounded-[var(--intra-radius-xs)] border p-4 text-sm ${
                   isSuccess
                     ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                     : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
                 }`}
               >
-                {message}
+                {isSuccess ? (
+                  <CheckCircle2 className="intra-icon-lg mt-0.5 shrink-0" aria-hidden="true" />
+                ) : (
+                  <AlertCircle className="intra-icon-lg mt-0.5 shrink-0" aria-hidden="true" />
+                )}
+                <span>{message}</span>
               </div>
             ) : null}
 
@@ -133,7 +148,7 @@ export default function UpdatePasswordClient({
               className="intra-btn intra-btn-primary w-full"
               type="submit"
             >
-              {loading ? "Guardando..." : isSuccess ? "Redirigiendo..." : "Guardar nueva contraseña"}
+              {loading ? "Guardando..." : isSuccess ? "Contraseña actualizada" : "Guardar contraseña"}
             </button>
           </form>
 

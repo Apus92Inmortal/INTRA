@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
+import { AlertCircle, CheckCircle2, KeyRound, Send } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import {
   getPasswordRecoveryRedirectUrl,
@@ -37,48 +38,46 @@ export default function ResetPasswordClient() {
   }
 
   return (
-    <main className="intra-page-shell p-6">
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-center justify-center">
-        <div className="intra-card w-full max-w-md overflow-hidden p-8 sm:p-10">
+    <main className="intra-page-shell p-4 sm:p-6">
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-3rem)]">
+        <div className="intra-card w-full max-w-md overflow-hidden p-6 sm:p-8">
           <Link
-            href="/login"
-            className="inline-flex rounded-3xl border border-intra-border-soft bg-intra-card p-4 shadow-[var(--intra-shadow-base)] transition hover:scale-[1.01] sm:p-5"
+            href="/app?tab=login"
+            className="inline-flex rounded-[var(--intra-radius-sm)] border border-intra-border-soft bg-intra-card p-3 shadow-[var(--intra-shadow-base)] transition hover:scale-[1.01]"
           >
             <Image
               src="/logo.png"
               alt="INTRA"
               width={280}
               height={180}
-              className="h-auto w-[180px] sm:w-[220px]"
+              className="h-auto w-[150px] sm:w-[170px]"
               priority
             />
           </Link>
 
           {success ? (
-            <div className="mt-8 space-y-5">
+            <div className="mt-6 space-y-5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft text-intra-text-success">
+                <CheckCircle2 className="intra-icon-2xl" aria-hidden="true" />
+              </div>
               <div>
                 <h1 className="intra-h1">Revisa tu correo</h1>
                 <p className="intra-body mt-2">
-                  Si encontramos una cuenta con <span className="font-semibold">{email}</span>,
-                  te enviamos un enlace para cambiar tu contraseña.
+                  Si existe una cuenta con ese correo, enviaremos un enlace para cambiar tu contraseña.
                 </p>
               </div>
 
               <div className="intra-card-compact bg-intra-bg-app p-4">
-                <p className="intra-body-strong">Qué hacer ahora</p>
-                <ul className="intra-caption mt-2 list-disc space-y-1 pl-5">
-                  <li>Abre el correo desde tu bandeja principal o spam.</li>
-                  <li>Usa el enlace desde el mismo dispositivo si puedes.</li>
-                  <li>Cuando abras el link, sigue las instrucciones.</li>
-                </ul>
+                <p className="intra-body-strong">Siguiente paso</p>
+                <p className="intra-body mt-1">Abre el enlace del correo para crear una nueva contraseña.</p>
               </div>
 
               <div className="flex flex-col gap-3">
                 <Link
-                  href="/login"
+                  href="/app?tab=login"
                   className="intra-btn intra-btn-primary w-full"
                 >
-                  Volver a iniciar sesión
+                  Volver a entrar
                 </Link>
                 <button
                   type="button"
@@ -91,28 +90,32 @@ export default function ResetPasswordClient() {
             </div>
           ) : (
             <>
-              <div className="mt-8">
+              <div className="mt-6">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info">
+                  <KeyRound className="intra-icon-2xl" aria-hidden="true" />
+                </div>
                 <h1 className="intra-h1">Recupera tu contraseña</h1>
                 <p className="intra-body mt-2">
-                  Escribe tu correo y te enviaremos un enlace para crear una nueva contraseña.
+                  Te enviaremos un enlace para volver a entrar.
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <div>
-                  <label className="intra-label">Email</label>
+                  <label className="intra-label">Correo</label>
                   <input
                     className="intra-input mt-1"
                     type="email"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     required
-                    placeholder="tu@email.com"
+                    placeholder="correo@ejemplo.com"
                   />
                 </div>
 
                 {error ? (
-                  <div className="intra-alert-danger">
+                  <div className="intra-alert-danger flex items-start gap-3">
+                    <AlertCircle className="intra-icon-lg mt-0.5 shrink-0" aria-hidden="true" />
                     {error}
                   </div>
                 ) : null}
@@ -122,14 +125,15 @@ export default function ResetPasswordClient() {
                   className="intra-btn intra-btn-primary w-full"
                   type="submit"
                 >
-                  {loading ? "Enviando..." : "Enviar enlace de recuperación"}
+                  <Send className="intra-icon-md" aria-hidden="true" />
+                  {loading ? "Enviando..." : "Enviar enlace"}
                 </button>
               </form>
 
               <p className="intra-body mt-5">
                 ¿Recordaste tu contraseña?{" "}
-                <Link href="/login" className="intra-link mt-1 block sm:mt-0 sm:inline">
-                  Volver a iniciar sesión
+                <Link href="/app?tab=login" className="intra-link mt-1 block sm:mt-0 sm:inline">
+                  Volver a entrar
                 </Link>
               </p>
             </>
