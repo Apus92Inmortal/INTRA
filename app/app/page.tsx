@@ -270,33 +270,34 @@ function CustomerRatingBadge({
   return <RatingSummaryBadge avgRating={avgRating} totalReviews={totalReviews} />;
 }
 
-function InitialPhotoPreview({ shipment }: { shipment: DashboardCompatibleShipmentCard }) {
+function InitialPhotoThumbnail({ shipment }: { shipment: DashboardCompatibleShipmentCard }) {
+  const thumbnailShellClassName = "h-24 w-24 shrink-0 sm:h-28 sm:w-28";
+  const thumbnailClassName =
+    "h-24 w-24 rounded-[var(--intra-radius-sm)] border border-intra-border-soft object-cover sm:h-28 sm:w-28";
+
   return (
-    <div className="mt-3 flex items-center gap-3 rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card px-3 py-2 shadow-sm">
+    <div className={thumbnailShellClassName}>
       {shipment.initialPhotoUrl ? (
         <EvidenceImagePreview
           src={shipment.initialPhotoUrl}
           alt={shipment.initialPhotoAlt}
-          modalTitle="Foto inicial del paquete"
+          modalTitle="Imagen del paquete"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- signed evidence URLs should not pass through the image optimizer cache. */}
           <img
             src={shipment.initialPhotoUrl}
             alt={shipment.initialPhotoAlt}
-            className="h-14 w-14 shrink-0 rounded-[var(--intra-radius-xs)] border border-intra-border-soft object-cover"
+            className={`${thumbnailClassName} block`}
           />
         </EvidenceImagePreview>
       ) : (
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] border border-dashed border-intra-border-soft bg-intra-neutral-soft-alt">
-          <PackageCheck className="h-5 w-5 text-intra-text-muted" />
+        <div
+          className={`flex items-center justify-center border-dashed bg-intra-neutral-soft-alt ${thumbnailClassName}`}
+          aria-label="Imagen no disponible"
+        >
+          <PackageCheck className="h-7 w-7 text-intra-text-muted" />
         </div>
       )}
-      <div className="min-w-0">
-        <p className="intra-caption-strong text-intra-blue">Foto inicial del paquete</p>
-        <p className="line-clamp-1 intra-caption">
-          {shipment.initialPhotoUrl ? "Visible antes de solicitar match" : "No disponible por ahora"}
-        </p>
-      </div>
     </div>
   );
 }
@@ -308,9 +309,16 @@ function CompactCompatibleShipmentCard({
 }) {
   return (
     <div className="intra-card-compact p-4">
-      <div className="relative sm:flex sm:items-start sm:justify-between sm:gap-3">
-        <div className="min-w-0 pr-24 sm:pr-0">
-          <p className="intra-h4">{shipment.title}</p>
+      <div className="flex items-start gap-3">
+        <InitialPhotoThumbnail shipment={shipment} />
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start gap-2">
+            <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
+            <span className="intra-pill shrink-0 bg-intra-neutral-pill text-intra-blue">
+              Peso: {shipment.weightLabel}
+            </span>
+          </div>
           <div className="mt-1 flex flex-wrap items-center gap-2 intra-body">
             <span className="min-w-0 break-words">Cliente: {shipment.customerName}</span>
             <div className="flex shrink-0 items-center">
@@ -328,13 +336,6 @@ function CompactCompatibleShipmentCard({
               <span className="intra-body-strong">Descripción:</span> {shipment.description}
             </p>
           ) : null}
-          <InitialPhotoPreview shipment={shipment} />
-        </div>
-
-        <div className="absolute right-0 top-0 sm:static sm:flex sm:shrink-0 sm:justify-end">
-          <span className="intra-pill bg-intra-neutral-pill text-intra-blue">
-            Peso: {shipment.weightLabel}
-          </span>
         </div>
       </div>
 
