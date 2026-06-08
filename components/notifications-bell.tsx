@@ -732,7 +732,7 @@ export function NotificationsBell() {
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen((value) => !value)}
-        className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card text-intra-blue transition hover:bg-intra-neutral-soft-alt"
+        className="intra-icon-button relative"
         aria-label="Notificaciones"
         type="button"
       >
@@ -749,7 +749,7 @@ export function NotificationsBell() {
       </button>
 
       {open && (
-        <div className="fixed inset-x-3 top-20 z-50 flex max-h-[calc(100dvh-6rem)] flex-col rounded-2xl border border-intra-border-soft bg-intra-card p-3 shadow-xl sm:absolute sm:right-0 sm:left-auto sm:top-auto sm:mt-2 sm:w-[24rem] sm:max-h-96">
+        <div className="intra-popover-surface fixed inset-x-3 top-20 z-50 flex max-h-[calc(100dvh-6rem)] flex-col p-3 sm:absolute sm:right-0 sm:left-auto sm:top-auto sm:mt-2 sm:w-[24rem] sm:max-h-96">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
               <h3 className="font-semibold text-intra-blue">Notificaciones</h3>
@@ -777,10 +777,17 @@ export function NotificationsBell() {
 
           <div className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto overscroll-contain pb-4">
             {loading ? (
-              <p className="text-sm text-intra-text-subtle">Cargando...</p>
+              <div className="space-y-2" aria-label="Cargando notificaciones">
+                <div className="intra-skeleton h-16" />
+                <div className="intra-skeleton h-16" />
+                <div className="intra-skeleton h-16" />
+              </div>
             ) : items.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-intra-border-soft bg-intra-neutral-soft-alt p-4 text-center">
-                <p className="text-sm font-semibold text-intra-blue">Sin novedades 🎉</p>
+              <div className="intra-empty-state">
+                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-intra-card text-intra-blue">
+                  <Bell className="h-5 w-5" />
+                </div>
+                <p className="mt-3 text-sm font-semibold text-intra-blue">Sin novedades</p>
                 <p className="mt-1 text-sm text-intra-text-subtle">
                   Publica un envío o un viaje para empezar a ver actividad aquí.
                 </p>
@@ -791,7 +798,7 @@ export function NotificationsBell() {
                       router.push("/app/shipments/new");
                     }}
                     type="button"
-                    className="min-h-11 flex-1 rounded-xl bg-intra-green px-4 py-2 text-sm font-semibold text-intra-card transition hover:bg-intra-green-hover-app"
+                    className="intra-btn flex-1 bg-intra-green px-4 py-2 text-sm text-intra-card hover:bg-intra-green-hover-app"
                   >
                     Publicar envío
                   </button>
@@ -801,7 +808,7 @@ export function NotificationsBell() {
                       router.push("/app/trips/new");
                     }}
                     type="button"
-                    className="min-h-11 flex-1 rounded-xl border border-intra-blue/10 bg-intra-card px-4 py-2 text-sm font-semibold text-intra-blue transition hover:bg-intra-bg-app"
+                    className="intra-btn flex-1 border border-intra-blue/10 bg-intra-card px-4 py-2 text-sm text-intra-blue hover:bg-intra-bg-app"
                   >
                     Publicar viaje
                   </button>
@@ -825,7 +832,7 @@ export function NotificationsBell() {
                 return (
                   <div
                     key={item.id}
-                    className="relative overflow-hidden rounded-xl"
+                    className="relative overflow-hidden rounded-[var(--intra-radius-xs)]"
                   >
                     <button
                       type="button"
@@ -834,7 +841,7 @@ export function NotificationsBell() {
                         void deleteNotificationById(item.id);
                       }}
                       disabled={Boolean(deletingId) || clearingAll}
-                      className="absolute inset-0 flex w-full items-center justify-end rounded-xl bg-intra-danger pr-5 text-sm font-semibold text-intra-card disabled:opacity-60"
+                      className="absolute inset-0 flex w-full items-center justify-end rounded-[var(--intra-radius-xs)] bg-intra-danger pr-5 text-sm font-semibold text-intra-card disabled:opacity-60"
                     >
                       <div className="flex flex-col items-center gap-1">
                         <Trash2 className="h-4 w-4" />
@@ -850,7 +857,7 @@ export function NotificationsBell() {
                       onPointerCancel={handlePointerEnd(item.id)}
                       type="button"
                       disabled={clearingAll || isDeleting}
-                      className={`min-h-11 relative z-10 w-full rounded-xl border border-intra-border-soft p-3 text-left transition ${
+                      className={`relative z-10 min-h-11 w-full rounded-[var(--intra-radius-xs)] border border-intra-border-soft p-3 text-left transition ${
                         item.is_read ? "bg-intra-card" : "bg-intra-neutral-soft-alt"
                       }`}
                       style={{
@@ -864,7 +871,7 @@ export function NotificationsBell() {
                     >
                       <div className="flex items-start gap-3">
                         <div
-                          className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl ${visual.badgeClassName}`}
+                          className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] ${visual.badgeClassName}`}
                         >
                           <Icon className={`h-4 w-4 ${visual.iconClassName}`} />
                         </div>
@@ -899,8 +906,8 @@ export function NotificationsBell() {
       )}
 
       {open && showClearAllModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-intra-blue/45 p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-intra-card p-5 shadow-2xl">
+        <div className="intra-modal-backdrop z-[60] p-4">
+          <div className="intra-modal-panel w-full max-w-sm p-5">
             <h4 className="text-lg font-semibold text-intra-blue">Borrar todas las notificaciones</h4>
             <p className="mt-2 text-sm text-intra-text-subtle">
               Esto eliminará tanto las leídas como las no leídas. Esta acción no se puede deshacer.
@@ -910,7 +917,7 @@ export function NotificationsBell() {
               <button
                 type="button"
                 onClick={() => setShowClearAllModal(false)}
-                className="min-h-11 rounded-xl border border-intra-border-soft px-4 py-2 text-sm font-semibold text-intra-blue transition hover:bg-intra-bg-app"
+                className="intra-btn border border-intra-border-soft px-4 py-2 text-sm text-intra-blue hover:bg-intra-bg-app"
                 disabled={clearingAll}
               >
                 Cancelar
@@ -918,7 +925,7 @@ export function NotificationsBell() {
               <button
                 type="button"
                 onClick={() => void clearAllNotifications()}
-                className="min-h-11 rounded-xl bg-intra-danger px-4 py-2 text-sm font-semibold text-intra-card transition hover:opacity-95 disabled:opacity-60"
+                className="intra-btn bg-intra-danger px-4 py-2 text-sm text-intra-card hover:opacity-95 disabled:opacity-60"
                 disabled={clearingAll}
               >
                 {clearingAll ? "Borrando..." : "Sí, borrar todo"}

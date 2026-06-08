@@ -35,7 +35,7 @@ export function AdminTabs() {
           <Link
             key={link.href}
             href={link.href}
-            className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
+            className={`inline-flex min-h-11 items-center gap-2 rounded-[var(--intra-radius-xs)] border px-4 py-3 text-sm font-semibold transition ${
               isActive
                 ? "border-intra-blue bg-intra-blue text-intra-card"
                 : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue/20 hover:text-intra-blue"

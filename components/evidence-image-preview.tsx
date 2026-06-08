@@ -39,18 +39,18 @@ export function EvidenceImagePreview({
 
       {isOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-intra-blue/80 p-4"
+          className="intra-modal-backdrop p-4"
           role="dialog"
           aria-modal="true"
           aria-label={modalTitle}
         >
-          <div className="relative flex max-h-[92vh] w-full max-w-5xl flex-col rounded-2xl border border-intra-border bg-intra-card shadow-2xl">
+          <div className="intra-modal-panel relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
             <div className="flex items-center justify-between gap-3 border-b border-intra-border px-4 py-3">
               <p className="min-w-0 text-sm font-semibold text-intra-blue">{modalTitle}</p>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-intra-border bg-intra-card text-intra-blue transition hover:bg-intra-neutral-soft-alt"
+                className="intra-icon-button h-10 w-10 shrink-0"
                 aria-label="Cerrar imagen"
               >
                 <X className="h-5 w-5" strokeWidth={2.2} />

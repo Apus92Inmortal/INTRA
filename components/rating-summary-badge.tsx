@@ -1,4 +1,5 @@
 import { formatRatingValue } from "@/lib/reviews";
+import { Star } from "lucide-react";
 
 type Props = {
   avgRating: number | null;
@@ -15,9 +16,9 @@ export function RatingSummaryBadge({ avgRating, totalReviews, className = "" }: 
 
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full bg-intra-warning-soft-alt px-3 py-1 text-xs font-semibold text-intra-warning-text ${className}`.trim()}
+      className={`intra-badge intra-badge-warning w-fit ${className}`.trim()}
     >
-      <span aria-hidden="true">⭐</span>
+      <Star className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
       <span>{formatted}</span>
     </span>
   );

@@ -76,12 +76,12 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-3 py-4 sm:px-5 sm:py-6"
+      className="intra-modal-backdrop px-3 py-4 sm:px-5 sm:py-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
     >
-      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[22px] bg-intra-card shadow-2xl">
+      <div className="intra-modal-panel flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
         <div className="flex items-start gap-4 px-5 pb-4 pt-5 sm:px-8 sm:pt-7">
           <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success sm:flex">
             <FileText className="h-8 w-8" />
@@ -97,14 +97,14 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-intra-blue transition hover:bg-intra-success-soft"
+            className="intra-icon-button h-10 w-10 shrink-0 border-transparent"
             aria-label="Cerrar ventana legal"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        <div className="mx-5 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-intra-border-soft bg-intra-card sm:mx-8">
+        <div className="mx-5 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card sm:mx-8">
           <div className="flex flex-wrap items-center gap-3 border-b border-intra-border-soft px-4 py-3 text-sm text-intra-blue">
             <FileText className="h-4 w-4 shrink-0 text-intra-text-subtle" />
             <span className="min-w-0 flex-1 truncate font-semibold">{content.shortTitle}</span>
@@ -133,7 +133,7 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
                       </ul>
                     ) : null}
                     {section.groups?.map((group) => (
-                      <div key={group.title} className="rounded-2xl bg-intra-bg-app p-4">
+                      <div key={group.title} className="rounded-[var(--intra-radius-xs)] bg-intra-bg-app p-4">
                         <h4 className="text-sm font-bold text-intra-blue">{group.title}</h4>
                         <div className="mt-2 space-y-2">
                           {renderTextBlocks(
@@ -176,14 +176,14 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
             <button
               type="button"
               onClick={onClose}
-              className="hidden min-h-11 flex-1 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card px-5 py-2 text-sm font-bold text-intra-blue transition hover:bg-intra-bg-app sm:inline-flex sm:flex-none"
+              className="intra-btn intra-btn-secondary hidden flex-1 px-5 py-2 text-sm sm:inline-flex sm:flex-none"
             >
               Cerrar
             </button>
             <button
               type="button"
               onClick={onAcceptAndContinue}
-              className="inline-flex min-h-11 w-full max-w-[19rem] items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-intra-green px-8 py-2 text-sm font-bold text-intra-card transition hover:bg-intra-green-hover sm:w-auto sm:max-w-none sm:flex-none sm:px-5"
+              className="intra-btn intra-btn-primary w-full max-w-[19rem] whitespace-nowrap px-8 py-2 text-sm sm:w-auto sm:max-w-none sm:flex-none sm:px-5"
             >
               <CheckCircle2 className="h-4 w-4" />
               Acepto y continúo
