@@ -312,8 +312,8 @@ function CompactCompatibleShipmentCard({
         <div className="min-w-0 pr-24 sm:pr-0">
           <p className="intra-h4">{shipment.title}</p>
           <div className="mt-1 flex flex-wrap items-center gap-2 intra-body">
-            <span>Cliente: {shipment.customerName}</span>
-            <div className="flex items-center">
+            <span className="min-w-0 break-words">Cliente: {shipment.customerName}</span>
+            <div className="flex shrink-0 items-center">
               <CustomerRatingBadge
                 avgRating={shipment.customerAvgRating}
                 totalReviews={shipment.customerTotalReviews}
