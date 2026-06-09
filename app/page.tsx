@@ -48,7 +48,7 @@ const atlasLandingHtml = String.raw`
     </div>
     <div class="nav-right">
       <a class="nav-cta nav-cta-outline" href="https://intra-chi.vercel.app/login">Iniciar sesión</a>
-      <a class="nav-cta nav-cta-solid" href="https://intra-chi.vercel.app/register">Registrarse gratis</a>
+      <a class="nav-cta nav-cta-solid" href="https://intra-chi.vercel.app/register">Registrarse</a>
     </div>
   </div>
 </header>
@@ -606,7 +606,7 @@ export default async function HomePage() {
     ? `<a class="nav-cta nav-cta-outline" href="/app">Abrir app</a>
       <a class="nav-cta nav-cta-solid" href="/app/shipments/new">Crear envío</a>`
     : `<a class="nav-cta nav-cta-outline" href="/login">Iniciar sesión</a>
-      <a class="nav-cta nav-cta-solid" href="/register">Registrarse gratis</a>`;
+      <a class="nav-cta nav-cta-solid" href="/register">Registrarse</a>`;
 
   const shipmentCtaHref = isAuthenticated
     ? "/app/shipments/new"
@@ -618,7 +618,7 @@ export default async function HomePage() {
   const landingHtml = atlasLandingHtml
     .replace(
       `<a class="nav-cta nav-cta-outline" href="https://intra-chi.vercel.app/login">Iniciar sesión</a>
-      <a class="nav-cta nav-cta-solid" href="https://intra-chi.vercel.app/register">Registrarse gratis</a>`,
+      <a class="nav-cta nav-cta-solid" href="https://intra-chi.vercel.app/register">Registrarse</a>`,
       navActionsHtml
     )
     .replace(
