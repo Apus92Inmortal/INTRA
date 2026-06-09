@@ -55,9 +55,9 @@ export default function DashboardPendingMatchActions({
           type="button"
           disabled={isPending}
           onClick={() => handleAction("reject")}
-          className="intra-btn intra-btn-secondary min-h-11 flex-1 gap-2 rounded-[var(--intra-radius-xs)] px-4 py-2.5 text-sm font-bold"
+          className="intra-btn min-h-11 flex-1 gap-2 rounded-[var(--intra-radius-xs)] border border-intra-danger-border bg-intra-danger-soft px-4 py-2.5 text-sm font-bold text-intra-danger hover:border-intra-danger hover:bg-intra-danger-soft"
         >
-          <XCircle className="h-4 w-4" />
+          <XCircle className="h-4 w-4 text-intra-danger" />
           {isPending && activeAction === "reject" ? "Procesando..." : "Rechazar"}
         </button>
       </div>
