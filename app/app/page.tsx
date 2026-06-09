@@ -448,25 +448,6 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
     throw new Error("No pudimos cargar tu dashboard en este momento.");
   }
 
-  // QA_DASHBOARD_TYPOGRAPHY_20260609 - Seed visual
-  const travelerQA = dashboard.activeShipments.find(s => s.hasPendingAction && s.pendingMatchId) || dashboard.activeShipments[0];
-  if (travelerQA) {
-    travelerQA.hasPendingAction = true;
-    travelerQA.pendingMatchId = travelerQA.pendingMatchId || "qa-match-id";
-    travelerQA.travelerName = "Viajero QA Verificado";
-    travelerQA.travelerVerified = true;
-    travelerQA.travelerCompletedDeliveriesCount = 12;
-    travelerQA.travelerDepartureLabel = travelerQA.travelerDepartureLabel || "15 jun. 2026 · 10:00 AM";
-  }
-  if (dashboard.monthlyRevenue) {
-    dashboard.monthlyRevenue.averageTicketLabel = "$9.000.000";
-    if (dashboard.monthlyRevenue.releasedAmount <= 0) {
-      dashboard.monthlyRevenue.releasedAmount = 1;
-      dashboard.monthlyRevenue.releasedAmountLabel = "$0";
-      dashboard.monthlyRevenue.deliveriesCount = 0;
-    }
-  }
-
   const greetingName = getGreetingName(dashboard.user.fullName, dashboard.user.email);
   const activeView = resolvedSearchParams?.view ?? "";
   const showAllPendingPayments = activeView === "pending-payments";
