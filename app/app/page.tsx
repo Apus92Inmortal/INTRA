@@ -572,20 +572,20 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                             />
                           </div>
 
-                          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-                            <div className="min-w-0">
-                              <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
+                          <div className="min-w-0">
+                            <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
+                            <div className="mt-0.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                               <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
-                            </div>
 
-                            <div className="flex flex-wrap items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-end">
-                              <span className="whitespace-nowrap intra-metric-sm">{shipment.amountLabel}</span>
-                              <Link
-                                href={shipment.checkoutHref}
-                                className="intra-btn min-h-11 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong"
-                              >
-                                Ir al checkout
-                              </Link>
+                              <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:justify-end">
+                                <span className="whitespace-nowrap intra-metric-sm">{shipment.amountLabel}</span>
+                                <Link
+                                  href={shipment.checkoutHref}
+                                  className="intra-btn min-h-11 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong"
+                                >
+                                  Ir al checkout
+                                </Link>
+                              </div>
                             </div>
                           </div>
                         </div>
