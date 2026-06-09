@@ -402,7 +402,7 @@ Resultado:
 
 ### TASK-019: Pulido tipografico menor Dashboard - card match pendiente
 
-Estado: TODO
+Estado: REVIEW
 Prioridad: Media
 Area: UI/UX / Dashboard / Tipografia
 
@@ -433,6 +433,18 @@ Alcance futuro sugerido:
 - No tocar Supabase.
 - No tocar pagos, wallet, admin, matches backend, auth, RLS ni realtime.
 - No agregar Market.
+
+Estado actual:
+
+- Rama: `uiux/dashboard-typography-polish-v2-2`.
+- Archivo de codigo modificado: `app/app/page.tsx`.
+- Se normalizaron clases tipograficas manuales del bloque de match pendiente/viajero interesado usando clases oficiales del sistema.
+- No se cambio layout, copy, acciones, comportamiento responsive, logica, Supabase, pagos, wallet, admin, Auth Gateway, RLS, realtime, landing ni Market.
+- Validaciones locales: `git diff --check`, `npm run lint`, `npm run test:unit` PASS.
+- Revision visual local con CSS real en desktop `1440x800` y mobile `390x844`: sin overflow horizontal; nombre, badges e iconos visibles; botones `Aceptar` y `Rechazar` sin cambio.
+- PR #133 creado hacia `main`; checks remotos `detect-impact`, `validate` y `Vercel` PASS.
+- Preview: `https://intra-git-uiux-d-23d0ec-aldo-antonio-altamar-cervantes-projects.vercel.app`.
+- Pendiente: revision/merge de PR; no hubo merge ni deploy manual.
 
 ### Frente A: Seguridad operativa del envio
 
