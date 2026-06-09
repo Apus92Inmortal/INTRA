@@ -16,7 +16,7 @@ describe("HomePage", () => {
     ).toHaveAttribute("href", "/login");
 
     expect(
-      screen.getByRole("link", { name: "Registrarse gratis" })
+      screen.getByRole("link", { name: "Registrarse" })
     ).toHaveAttribute("href", "/register");
 
     expect(
