@@ -561,28 +561,34 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
                     <div className="space-y-3">
                       {pendingPaymentItems.map((shipment) => (
-                        <div key={shipment.id} className="intra-card-compact p-4">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="min-w-0">
-                              <div className="mb-1 flex items-center gap-2">
-                                <span className="intra-pill bg-intra-warning-soft-alt text-intra-warning-text">
-                                  {shipment.paymentLabel}
-                                </span>
-                                <TrackingCodeBadge code={shipment.code} className="!bg-intra-warning-text-strong hover:!bg-intra-warning-text-strong" />
-                              </div>
-                              <p className="intra-h4">{shipment.title}</p>
-                              <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
-                            </div>
+                        <div key={shipment.id} className="intra-card-compact relative p-4">
+                          <div className="absolute right-4 top-4 max-w-[9rem] sm:max-w-[10rem]">
+                            <TrackingCodeBadge
+                              code={shipment.code}
+                              className="!min-w-0 max-w-full overflow-hidden !bg-intra-warning-text-strong px-2 hover:!bg-intra-warning-text-strong [&>span]:min-w-0 [&>span]:overflow-hidden [&>span>span]:truncate"
+                            />
+                          </div>
 
-                            <div className="flex flex-col items-start gap-3 sm:items-end">
-                              <span className="intra-metric-sm">{shipment.amountLabel}</span>
-                              <Link
-                                href={shipment.checkoutHref}
-                                className="intra-btn min-h-11 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong"
-                              >
-                                Ir al checkout
-                              </Link>
+                          <div className="min-w-0 pr-36 sm:pr-44">
+                            <div className="mb-1 flex items-center gap-2">
+                              <span className="intra-pill bg-intra-warning-soft-alt text-intra-warning-text">
+                                {shipment.paymentLabel}
+                              </span>
                             </div>
+                            <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
+                            <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
+                          </div>
+
+                          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                            <div className="flex items-center sm:justify-end">
+                              <span className="intra-metric-sm">{shipment.amountLabel}</span>
+                            </div>
+                            <Link
+                              href={shipment.checkoutHref}
+                              className="intra-btn min-h-11 items-center justify-center self-end rounded-[var(--intra-radius-xs)] bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong sm:self-auto"
+                            >
+                              Ir al checkout
+                            </Link>
                           </div>
                         </div>
                       ))}
