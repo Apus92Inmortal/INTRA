@@ -2,93 +2,115 @@
 
 ## Fecha
 
-2026-06-07
+2026-06-08
 
 ## Objetivo de la sesion
 
-Adoptar el Manual Oficial UI/UX INTRA v2.2 como fuente unica vigente para gobierno documental UI/UX del repo.
+Cerrar memoria tecnica de la barrida UI/UX INTRA v2.2 ejecutada sobre foundation components, Auth Gateway, Dashboard Home y landing publica.
 
 ## Estado actual
 
-- Rama de trabajo creada: `docs/adopt-uiux-manual-v2-2`.
-- Commit documental creado:
-  - `866f41a` (`docs: adopt UI/UX manual v2.2 as source of truth`).
-- La rama `docs/adopt-uiux-manual-v2-2` fue integrada a `main` por fast-forward.
-- `main` fue subido a `origin/main`.
-- `origin/main` contiene el Manual UI/UX INTRA v2.2 como fuente oficial vigente.
-- No se hizo deploy.
-- No se inicio barrida UI/UX.
-- No se creo rama de pantallas.
-- No se modificaron pantallas.
-- El PDF adjunto por Aldo fue incorporado en:
-  - `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`.
-- Se creo la referencia rectora:
-  - `docs/ui-ux/README.md`.
-- Se actualizo memoria/instrucciones para declarar el Manual UI/UX INTRA v2.2 como fuente unica vigente:
-  - `AGENTS.md`.
-  - `README.md`.
-  - `docs/agent/PROJECT_STATE.md`.
-  - `docs/agent/DECISIONS.md`.
-  - `docs/agent/TASKS.md`.
-- Se reviso navegacion oficial:
-  - `components/app-navbar-client.tsx` no contiene item oficial `Market`.
-  - `/app/market` existe como redirect tecnico heredado hacia `/app`.
-  - `MarketRealtime` y `MatchButton` viven integrados en `/app`, no como modulo oficial independiente.
-- Se marco la mencion historica de Market en `docs/roadmap-3.5-dashboard-homepage.md` como referencia historica no vigente.
+- `main` esta sincronizado con `origin/main`.
+- No hay rama UI nueva creada para el siguiente ajuste.
+- No hubo deploy manual durante el cierre documental.
+- No se tocaron Supabase, RLS, pagos, wallet, admin, auth, realtime ni logica sensible en este cierre.
+- Market sigue fuera de la navegacion oficial.
 
-## Manual UI/UX vigente
+## Frentes UI/UX v2.2 cerrados
 
-El manual oficial y vigente de UI/UX para INTRA es:
+### Foundation components
 
-`docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`
+- PR: #129.
+- Rama: `uiux/foundation-components-v2-2`.
+- Merge commit en `main`: `9d48c03a4340996bd8aa5513d90631407fd67612`.
+- Estado: cerrado e integrado.
 
-El README rector esta en:
+### Auth Gateway
 
-`docs/ui-ux/README.md`
+- PR: #130.
+- Rama: `uiux/auth-gateway-v2-2`.
+- Merge commit en `main`: `58515a39bd62f59e6a959e82ab3504c1eb23b61c`.
+- Estado: cerrado e integrado.
 
-Este manual reemplaza y deroga manuales anteriores, anexos tecnicos de viewport, anexos de QA visual, anexos de iconografia proporcional y documentos previos relacionados con reglas visuales de INTRA.
+### Dashboard Home
 
-## Documentos antiguos encontrados
+- PR: #131.
+- Rama: `uiux/dashboard-home-v2-2`.
+- Merge commit en `main`: `b9e06d7cec8f09d0bf3df2b717c08f3e305323c3`.
+- Estado: cerrado e integrado.
+- Dashboard Home `/app` fue aprobado visualmente por Aldo en desktop y mobile.
+- Se ajustaron cards de pendientes de pago, envios activos, envio compatible, Mis viajes, Ganancias y CTA `Rechazar` danger soft segun Manual UI/UX INTRA v2.2.
+- QA data `QA_DASHBOARD_20260608` fue limpiada por Aldo en Supabase y verificada en `0`.
+- Rama local y remota eliminadas.
+- No hubo deploy manual.
+- No se toco logica sensible.
 
-- No se encontraron manuales UI/UX anteriores ni anexos tecnicos UI/UX versionados en el arbol actual del repo.
-- Referencia historica encontrada:
-  - `docs/roadmap-3.5-dashboard-homepage.md`, menciona evaluar `Market` en navegacion mobile dentro de un roadmap historico.
+### Landing CTA copy
 
-## Archivos archivados o eliminados
+- PR: #132.
+- Rama: `uiux/landing-cta-copy-v2-2`.
+- Merge commit en `main`: `ec7719149d0bd96ea88ce7820eeb960868ff2d77`.
+- Estado: cerrado e integrado.
+- Cambio aplicado en landing publica `/`:
+  - `Registrarse gratis` -> `Registrarse`.
+- Archivos modificados:
+  - `app/page.tsx`.
+  - `tests/unit/app/home-page.test.tsx`.
+- Validaciones reportadas:
+  - `git diff --check`: PASS.
+  - `npm run lint`: PASS.
+  - `npm run test:unit`: PASS.
+  - Checks remotos: PASS.
+- No hubo deploy manual.
+- App autenticada `/app` no fue tocada.
 
-- No se eliminaron ni archivaron documentos antiguos porque no habia manuales/anexos UI/UX antiguos versionados en el arbol actual.
-- Se creo `docs/archive/ui-ux-derogados/` como ruta prevista para cualquier documento UI/UX derogado que aparezca posteriormente.
+## Pendiente menor para manana
 
-## Verificacion realizada
+Durante la revision final del Dashboard contra el Manual UI/UX INTRA v2.2 quedo una observacion menor, no bloqueante:
 
-- `git status`: working tree limpio en `main`.
-- `git diff --check`: PASS antes y despues del merge.
-- `git pull origin main`: `Already up to date` antes del merge.
-- `git merge docs/adopt-uiux-manual-v2-2`: fast-forward limpio.
-- `git push origin main`: aceptado.
-- `origin/main`: `866f41a`.
-- `file docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`: PDF valido, version 1.4, 21 paginas.
-- Busqueda de manuales/anexos UI/UX antiguos en el repo excluyendo `node_modules`, `.next` y `.vercel`.
-- Busqueda de referencias a:
-  - `Manual UI/UX INTRA`.
-  - `Manual Oficial UI/UX INTRA`.
-  - `Anexo Tecnico`.
-  - `Anexo Técnico`.
-  - `QA Visual`.
-  - `Iconografia`.
-  - `Iconografía`.
-  - `Design System anterior`.
-  - `Market`.
-- Revision de navegacion real:
-  - `components/app-navbar-client.tsx`.
-  - `components/app-navbar.tsx`.
-  - `app/app/market/page.tsx`.
+- En la card de match pendiente dentro de `Mis envios activos`, cuando aparece un viajero interesado, todavia hay clases tipograficas manuales en `app/app/page.tsx`.
+- Clases observadas:
+  - `text-[16px]`.
+  - `text-sm`.
+  - `text-[10px]`.
+  - `sm:text-xs`.
+- Tambien hay tamanos de iconos manuales:
+  - `h-3.5 w-3.5`.
+  - `h-4 w-4`.
+- Bloque aproximado:
+  - nombre del viajero.
+  - texto `Quiere transportar tu envio`.
+  - badge entrega completada.
+  - badge viajero verificado.
+  - linea de salida.
 
-## Riesgos activos
+Este pendiente no bloquea el Dashboard ni rompe visualmente la pantalla. Aldo decidio dejarlo para revisar manana.
 
-- No se pudo extraer texto del PDF con la herramienta PDF del runtime, pero el archivo fue validado como PDF local de 21 paginas.
-- `docs/roadmap-3.5-dashboard-homepage.md` sigue existiendo como documento historico; ya no debe usarse como fuente UI/UX vigente.
+## Tarea futura sugerida
 
-## Proximo paso recomendado
+Cuando Aldo lo ordene, crear una rama pequena:
 
-Abrir manana una nueva rama desde `main` actualizado para la barrida UI/UX. No crear esa rama en esta sesion.
+`uiux/dashboard-typography-polish-v2-2`
+
+Alcance sugerido:
+
+- Normalizar solo la tipografia menor del bloque de match pendiente/viajero interesado.
+- Reemplazar tamanos manuales por clases oficiales cuando aplique:
+  - `intra-h4`.
+  - `intra-body`.
+  - `intra-caption`.
+  - `intra-badge-text`.
+- Mantener layout, textos y logica igual.
+- No tocar Supabase.
+- No tocar pagos, wallet, admin, matches backend, auth, RLS ni realtime.
+- No agregar Market.
+
+## Verificacion de cierre
+
+- PR #129: `MERGED`.
+- PR #130: `MERGED`.
+- PR #131: `MERGED`.
+- PR #132: `MERGED`.
+- `main` actualizado y sincronizado con `origin/main`.
+- No se creo rama nueva para el pendiente.
+- No hubo deploy manual.

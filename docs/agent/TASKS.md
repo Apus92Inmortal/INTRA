@@ -356,6 +356,84 @@ Estado actual:
 - No se creo rama de barrida UI/UX.
 - `main` contiene el Manual UI/UX INTRA v2.2 como fuente oficial vigente.
 
+### TASK-018: Barrida UI/UX v2.2 - Foundation, Auth Gateway, Dashboard Home y Landing
+
+Estado: DONE
+Prioridad: Alta
+Area: UI/UX / Pantallas / QA visual responsive
+
+Resumen:
+
+- Ejecutar y cerrar los frentes iniciales de la barrida UI/UX INTRA v2.2 usando el Manual UI/UX INTRA v2.2 como fuente oficial.
+- Mantener Market fuera de navegacion.
+- No tocar pagos, wallet, admin, auth sensible, Supabase, RLS, realtime ni deploy manual fuera del alcance aprobado.
+
+Resultado:
+
+- Foundation components:
+  - PR #129 mergeado a `main`.
+  - Rama: `uiux/foundation-components-v2-2`.
+  - Merge commit: `9d48c03a4340996bd8aa5513d90631407fd67612`.
+  - Estado: cerrado e integrado.
+- Auth Gateway:
+  - PR #130 mergeado a `main`.
+  - Rama: `uiux/auth-gateway-v2-2`.
+  - Merge commit: `58515a39bd62f59e6a959e82ab3504c1eb23b61c`.
+  - Estado: cerrado e integrado.
+- Dashboard Home:
+  - PR #131 mergeado a `main`.
+  - Rama: `uiux/dashboard-home-v2-2`.
+  - Merge commit: `b9e06d7cec8f09d0bf3df2b717c08f3e305323c3`.
+  - Dashboard Home `/app` aprobado visualmente por Aldo en desktop y mobile.
+  - QA data `QA_DASHBOARD_20260608` limpiada en Supabase por Aldo y verificada en `0`.
+  - Rama local y remota eliminadas.
+  - No hubo deploy manual.
+  - Market sigue fuera de navegacion.
+  - No se toco logica sensible.
+- Landing CTA copy:
+  - PR #132 mergeado a `main`.
+  - Rama: `uiux/landing-cta-copy-v2-2`.
+  - Merge commit: `ec7719149d0bd96ea88ce7820eeb960868ff2d77`.
+  - Cambio: landing publica `/`, CTA navbar `Registrarse gratis` -> `Registrarse`.
+  - Archivos modificados: `app/page.tsx` y `tests/unit/app/home-page.test.tsx`.
+  - Validaciones: `git diff --check`, `npm run lint`, `npm run test:unit` y checks remotos PASS.
+  - Rama local y remota eliminadas.
+  - No hubo deploy manual.
+
+### TASK-019: Pulido tipografico menor Dashboard - card match pendiente
+
+Estado: TODO
+Prioridad: Media
+Area: UI/UX / Dashboard / Tipografia
+
+Resumen:
+
+- Pendiente menor no bloqueante detectado durante la revision final del Dashboard contra el Manual UI/UX INTRA v2.2.
+- En la card de match pendiente dentro de `Mis envios activos`, cuando aparece un viajero interesado, quedan clases tipograficas manuales en `app/app/page.tsx`.
+- Aldo decidio dejarlo para revisar manana.
+
+Alcance futuro sugerido:
+
+- Crear rama solo cuando Aldo lo ordene, sugerida:
+  - `uiux/dashboard-typography-polish-v2-2`.
+- Reemplazar tamanos manuales por clases oficiales cuando aplique:
+  - `intra-h4`.
+  - `intra-body`.
+  - `intra-caption`.
+  - `intra-badge-text`.
+- Revisar clases observadas:
+  - `text-[16px]`.
+  - `text-sm`.
+  - `text-[10px]`.
+  - `sm:text-xs`.
+- Revisar tamanos manuales de iconos:
+  - `h-3.5 w-3.5`.
+  - `h-4 w-4`.
+- Mantener layout, textos y logica igual.
+- No tocar Supabase.
+- No tocar pagos, wallet, admin, matches backend, auth, RLS ni realtime.
+- No agregar Market.
+
 ### Frente A: Seguridad operativa del envio
 
 Prioridad: Critica
