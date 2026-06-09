@@ -395,7 +395,7 @@ function CompactCompatibleShipmentCard({
           <div className="row-span-2">
             <InitialPhotoThumbnail shipment={shipment} size="action" />
           </div>
-          <CompatibleShipmentEarnings shipment={shipment} className="w-full flex-none" />
+          <CompatibleShipmentEarnings shipment={shipment} className="w-full flex-none justify-center" />
           {shipment.matchingTripId ? (
             <div className="[&>div]:w-full [&_button]:w-full">
               <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} />
