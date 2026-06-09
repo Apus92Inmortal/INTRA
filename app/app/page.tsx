@@ -403,12 +403,11 @@ function CompactCompatibleShipmentCard({
 
         <div className="min-w-0 flex-1">
           <CompatibleShipmentInfo shipment={shipment} />
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <CompatibleShipmentEarnings shipment={shipment} className="sm:flex-none" />
+            {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
+          </div>
         </div>
-      </div>
-
-      <div className="mt-4 hidden items-center gap-3 sm:flex sm:justify-end">
-        <CompatibleShipmentEarnings shipment={shipment} className="sm:flex-none" />
-        {shipment.matchingTripId ? <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} /> : null}
       </div>
     </div>
   );
