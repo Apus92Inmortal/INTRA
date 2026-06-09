@@ -6,7 +6,7 @@
 
 ## Objetivo de la sesion
 
-Cerrar el pulido tipografico menor del Dashboard Home `/app` y sembrar datos QA reales `QA_DASHBOARD_TYPOGRAPHY_20260609` para el usuario actual de Aldo/Linda, evitando mocks en codigo runtime.
+Cerrar el pulido tipografico menor del Dashboard Home `/app`, validar visualmente con datos QA reales `QA_DASHBOARD_TYPOGRAPHY_20260609` para el usuario actual de Aldo/Linda y limpiar la data temporal antes de merge, evitando mocks en codigo runtime.
 
 ## Estado actual
 
@@ -14,7 +14,7 @@ Cerrar el pulido tipografico menor del Dashboard Home `/app` y sembrar datos QA 
 - Archivo de codigo modificado:
   - `app/app/page.tsx` (estilos normalizados).
 - PR #133 actualizado (revertido el mock runtime).
-- Datos QA inyectados directamente en Supabase vinculados a `a3c@hotmail.es`.
+- Datos QA temporales `QA_DASHBOARD_TYPOGRAPHY_20260609` limpiados de Supabase real despues de aprobacion visual.
 
 ## Cambios realizados
 
@@ -26,6 +26,12 @@ Cerrar el pulido tipografico menor del Dashboard Home `/app` y sembrar datos QA 
    - Match: `pending` activo.
    - Historia Viajero: 12 entregas completadas.
    - Revenue Viajero: Promedio "$9.000.000" (inyectados pagos `released`).
+4. Cleanup DB real ejecutado para `QA_DASHBOARD_TYPOGRAPHY_20260609`:
+   - shipments, trips, matches, payments, notifications, reviews, evidence, storage objects, messages, report events, declarations, wallet ledger, user verifications y usuarios/perfiles QA quedaron en `0`.
+   - Usuario real de Aldo (`48bcad86-bdb0-4699-9c1e-1946e0087938`) preservado.
+5. Auditoria tipografica final Dashboard:
+   - `app/app/page.tsx`: sin `text-[...]` ni escalas `text-xs/sm/base/lg/xl/2xl/3xl`; queda `leading-[inherit]` en una etiqueta responsive no critica.
+   - `app/app/_components/dashboard/DashboardPendingMatchActions.tsx`: quedan dos `text-sm` visibles en botones `Aceptar` y `Rechazar`; recomendado corregir antes de merge usando clase CTA oficial equivalente, sin tocar logica.
 
 ## Confirmaciones de alcance
 
@@ -40,12 +46,14 @@ Cerrar el pulido tipografico menor del Dashboard Home `/app` y sembrar datos QA 
 - `acceptMatchAction`: no tocado.
 - `rejectMatchAction`: no tocado.
 - Supabase, pagos, wallet, admin, Auth Gateway, RLS, realtime, landing y Market: no tocados.
+- No hubo cambios de schema ni RLS; solo seed/cleanup temporal autorizado de data QA.
 
 ## Verificacion
 
 - `git diff --check`: PASS.
 - `npm run lint`: PASS.
 - `npm run test:unit`: PASS, 42 tests.
+- Query de cleanup QA: todos los conteos `QA_DASHBOARD_TYPOGRAPHY_20260609` en `0`; usuario real de Aldo preservado.
 - Checks remotos PR #133:
   - `detect-impact`: PASS.
   - `validate`: PASS.
@@ -65,5 +73,6 @@ Nota de validacion visual:
 
 ## Pendiente
 
-- Esperar revision/aprobacion antes de merge.
+- Corregir o justificar antes de merge los `text-sm` visibles de `DashboardPendingMatchActions`.
+- Esperar autorizacion explicita antes de merge.
 - No desplegar manualmente.
