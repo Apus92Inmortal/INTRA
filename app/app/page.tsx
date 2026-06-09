@@ -275,16 +275,21 @@ function InitialPhotoThumbnail({
   size = "media",
 }: {
   shipment: DashboardCompatibleShipmentCard;
-  size?: "compact" | "media";
+  size?: "action" | "compact" | "media";
 }) {
   const isCompact = size === "compact";
+  const isAction = size === "action";
   const thumbnailShellClassName = isCompact
     ? "h-14 w-14 shrink-0"
-    : "h-24 w-24 shrink-0 sm:h-36 sm:w-36 lg:h-40 lg:w-40";
+    : isAction
+      ? "h-28 w-24 shrink-0"
+      : "h-24 w-24 shrink-0 sm:h-36 sm:w-36 lg:h-40 lg:w-40";
   const thumbnailClassName = isCompact
     ? "h-14 w-14 rounded-[var(--intra-radius-xs)] border border-intra-border-soft object-cover"
-    : "h-24 w-24 rounded-[var(--intra-radius-sm)] border border-intra-border-soft object-cover sm:h-36 sm:w-36 lg:h-40 lg:w-40";
-  const iconClassName = isCompact ? "h-5 w-5" : "h-7 w-7";
+    : isAction
+      ? "h-28 w-24 rounded-[var(--intra-radius-sm)] border border-intra-border-soft object-cover"
+      : "h-24 w-24 rounded-[var(--intra-radius-sm)] border border-intra-border-soft object-cover sm:h-36 sm:w-36 lg:h-40 lg:w-40";
+  const iconClassName = isCompact ? "h-5 w-5" : isAction ? "h-6 w-6" : "h-7 w-7";
 
   return (
     <div className={thumbnailShellClassName}>
@@ -366,7 +371,7 @@ function CompatibleShipmentEarnings({
         <span className="hidden whitespace-nowrap intra-body-strong text-intra-text-success sm:inline">
           Ganancia
         </span>
-        <p className="min-w-0 break-words intra-metric-sm text-intra-green">
+        <p className="min-w-0 whitespace-nowrap intra-metric-sm text-intra-green">
           {shipment.travelerEarningsLabel ?? "Por confirmar"}
         </p>
       </div>
@@ -386,14 +391,13 @@ function CompactCompatibleShipmentCard({
       <div className="sm:hidden">
         <CompatibleShipmentInfo shipment={shipment} />
 
-        <div className="mt-3 flex items-center">
-          <InitialPhotoThumbnail shipment={shipment} size="compact" />
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <CompatibleShipmentEarnings shipment={shipment} className="min-w-[9.5rem]" />
+        <div className="mt-3 grid grid-cols-[6rem_minmax(0,1fr)] gap-3">
+          <div className="row-span-2">
+            <InitialPhotoThumbnail shipment={shipment} size="action" />
+          </div>
+          <CompatibleShipmentEarnings shipment={shipment} className="w-full flex-none" />
           {shipment.matchingTripId ? (
-            <div className="shrink-0">
+            <div className="[&>div]:w-full [&_button]:w-full">
               <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} />
             </div>
           ) : null}
