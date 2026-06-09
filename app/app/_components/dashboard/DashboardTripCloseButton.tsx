@@ -69,13 +69,13 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
         aria-label="Abrir acciones del viaje"
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-intra-blue/10 bg-intra-card text-intra-blue transition hover:bg-intra-neutral-pill disabled:cursor-not-allowed disabled:opacity-60 sm:h-9 sm:w-9"
+        className="intra-icon-button h-10 w-10 disabled:cursor-not-allowed disabled:opacity-60 sm:h-9 sm:w-9"
       >
         <MoreVertical className="intra-icon-body" />
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-12 z-20 min-w-[180px] overflow-hidden rounded-2xl border border-intra-border bg-intra-card shadow-xl">
+        <div className="intra-popover-surface absolute right-0 top-12 z-20 min-w-[180px] overflow-hidden">
           <button
             type="button"
             onClick={handleClick}
@@ -88,7 +88,7 @@ export default function DashboardTripCloseButton({ tripId }: { tripId: string })
         </div>
       ) : null}
 
-      {error ? <p className="intra-caption text-intra-danger">{error}</p> : null}
+      {error ? <p className="intra-field-error max-w-44 text-right">{error}</p> : null}
     </div>
   );
 }
