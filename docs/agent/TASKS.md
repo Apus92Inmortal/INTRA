@@ -437,13 +437,13 @@ Alcance futuro sugerido:
 Estado actual:
 
 - Rama: `uiux/dashboard-typography-polish-v2-2`.
-- Archivo de codigo modificado: `app/app/page.tsx`.
-- Se normalizaron clases tipograficas manuales del bloque de match pendiente/viajero interesado usando clases oficiales del sistema.
-- No se cambio layout, copy, acciones, comportamiento responsive, logica, Supabase, pagos, wallet, admin, Auth Gateway, RLS, realtime, landing ni Market.
+- Archivo de codigo modificado: `app/app/page.tsx` (normalizacion tipografica).
+- PR #133 actualizado.
+- Datos QA inyectados en DB: `QA_DASHBOARD_TYPOGRAPHY_20260609` (real para el usuario de Aldo).
+- Mock runtime revertido para no ensuciar el codigo.
 - Validaciones locales: `git diff --check`, `npm run lint`, `npm run test:unit` PASS.
-- Revision visual local con CSS real en desktop `1440x800` y mobile `390x844`: sin overflow horizontal; nombre, badges e iconos visibles; botones `Aceptar` y `Rechazar` sin cambio.
-- PR #133 creado hacia `main`; checks remotos `detect-impact`, `validate` y `Vercel` PASS.
-- Preview: `https://intra-git-uiux-d-23d0ec-aldo-antonio-altamar-cervantes-projects.vercel.app`.
+- Revision visual local PASS.
+- Preview actualizado con data real vinculada al usuario de Aldo.
 - Pendiente: revision/merge de PR; no hubo merge ni deploy manual.
 
 ### Frente A: Seguridad operativa del envio

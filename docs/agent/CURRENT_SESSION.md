@@ -6,31 +6,26 @@
 
 ## Objetivo de la sesion
 
-Cerrar el pulido tipografico menor del Dashboard Home `/app` para la card de envio activo con viajero interesado / match pendiente, alineando el bloque al Manual UI/UX INTRA v2.2 sin redisenar ni cambiar logica.
+Cerrar el pulido tipografico menor del Dashboard Home `/app` y sembrar datos QA reales `QA_DASHBOARD_TYPOGRAPHY_20260609` para el usuario actual de Aldo/Linda, evitando mocks en codigo runtime.
 
 ## Estado actual
 
 - Rama activa: `uiux/dashboard-typography-polish-v2-2`.
-- Base: `main` limpio y sincronizado con `origin/main` antes de crear la rama.
 - Archivo de codigo modificado:
-  - `app/app/page.tsx`.
-- Memoria operativa actualizada:
-  - `docs/agent/CURRENT_SESSION.md`.
-  - `docs/agent/TASKS.md`.
-- No hubo merge.
-- No hubo deploy manual.
-- PR creado hacia `main`: #133.
-- Vercel Preview: `https://intra-git-uiux-d-23d0ec-aldo-antonio-altamar-cervantes-projects.vercel.app`.
+  - `app/app/page.tsx` (estilos normalizados).
+- PR #133 actualizado (revertido el mock runtime).
+- Datos QA inyectados directamente en Supabase vinculados a `a3c@hotmail.es`.
 
-## Cambio realizado
+## Cambios realizados
 
-En `Dashboard Home /app` -> `Mis envios activos` -> card de match pendiente/viajero interesado:
-
-- `text-[16px] font-bold leading-6` fue reemplazado por `intra-h4`.
-- `text-sm leading-5` fue reemplazado por `intra-body`.
-- `text-[10px] font-semibold sm:text-xs` fue reemplazado por `intra-badge-text`.
-- `h-3.5 w-3.5` fue reemplazado por `intra-icon-compact`.
-- `h-4 w-4` fue reemplazado por `intra-icon-body`.
+1. Normalizacion tipografica: clases manuales reemplazadas por `intra-h4`, `intra-body`, etc.
+2. Reversion de mock runtime: commit `b1a771a` para mantener el codigo limpio.
+3. Seeding DB real `QA_DASHBOARD_TYPOGRAPHY_20260609`:
+   - Owner Envio: Aldo Antonio Altamar Cervantes (`48bcad86-bdb0-4699-9c1e-1946e0087938`).
+   - Viajero: "Viajero QA Verificado" (`8042e774-06e0-40fd-a08f-c9caee144784`).
+   - Match: `pending` activo.
+   - Historia Viajero: 12 entregas completadas.
+   - Revenue Viajero: Promedio "$9.000.000" (inyectados pagos `released`).
 
 ## Confirmaciones de alcance
 
