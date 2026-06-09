@@ -313,17 +313,22 @@ function InitialPhotoThumbnail({
   );
 }
 
+function CompatibleShipmentWeightBadge({ shipment }: { shipment: DashboardCompatibleShipmentCard }) {
+  return (
+    <span className="intra-pill absolute right-4 top-4 shrink-0 bg-intra-neutral-pill text-intra-blue">
+      Peso: {shipment.weightLabel}
+    </span>
+  );
+}
+
 function CompatibleShipmentInfo({ shipment }: { shipment: DashboardCompatibleShipmentCard }) {
   return (
     <>
-      <div className="flex flex-wrap items-start gap-2">
-        <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
-        <span className="intra-pill shrink-0 bg-intra-neutral-pill text-intra-blue">
-          Peso: {shipment.weightLabel}
-        </span>
-      </div>
+      <p className="min-w-0 break-words pr-24 intra-h4 sm:pr-28">{shipment.title}</p>
       <div className="mt-1 flex flex-wrap items-center gap-2 intra-body">
-        <span className="min-w-0 break-words">Cliente: {shipment.customerName}</span>
+        <span className="min-w-0 break-words">
+          <span className="intra-body-strong">Cliente:</span> {shipment.customerName}
+        </span>
         <div className="flex shrink-0 items-center">
           <CustomerRatingBadge
             avgRating={shipment.customerAvgRating}
@@ -375,7 +380,9 @@ function CompactCompatibleShipmentCard({
   shipment: DashboardCompatibleShipmentCard;
 }) {
   return (
-    <div className="intra-card-compact p-4">
+    <div className="intra-card-compact relative p-4">
+      <CompatibleShipmentWeightBadge shipment={shipment} />
+
       <div className="sm:hidden">
         <CompatibleShipmentInfo shipment={shipment} />
 
