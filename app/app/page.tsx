@@ -386,16 +386,18 @@ function CompactCompatibleShipmentCard({
       <div className="sm:hidden">
         <CompatibleShipmentInfo shipment={shipment} />
 
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-3 flex items-center">
           <InitialPhotoThumbnail shipment={shipment} size="compact" />
-          <CompatibleShipmentEarnings shipment={shipment} />
         </div>
 
-        {shipment.matchingTripId ? (
-          <div className="mt-3 [&>div]:w-full [&_button]:w-full">
-            <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} />
-          </div>
-        ) : null}
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <CompatibleShipmentEarnings shipment={shipment} className="min-w-[9.5rem]" />
+          {shipment.matchingTripId ? (
+            <div className="shrink-0">
+              <MatchButton shipmentId={shipment.id} tripId={shipment.matchingTripId} />
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="hidden items-start gap-3 sm:flex">
