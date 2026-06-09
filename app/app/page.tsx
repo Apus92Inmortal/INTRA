@@ -280,10 +280,10 @@ function InitialPhotoThumbnail({
   const isCompact = size === "compact";
   const thumbnailShellClassName = isCompact
     ? "h-14 w-14 shrink-0"
-    : "h-24 w-24 shrink-0 sm:h-28 sm:w-28";
+    : "h-24 w-24 shrink-0 sm:h-36 sm:w-36 lg:h-40 lg:w-40";
   const thumbnailClassName = isCompact
     ? "h-14 w-14 rounded-[var(--intra-radius-xs)] border border-intra-border-soft object-cover"
-    : "h-24 w-24 rounded-[var(--intra-radius-sm)] border border-intra-border-soft object-cover sm:h-28 sm:w-28";
+    : "h-24 w-24 rounded-[var(--intra-radius-sm)] border border-intra-border-soft object-cover sm:h-36 sm:w-36 lg:h-40 lg:w-40";
   const iconClassName = isCompact ? "h-5 w-5" : "h-7 w-7";
 
   return (
