@@ -561,34 +561,32 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
 
                     <div className="space-y-3">
                       {pendingPaymentItems.map((shipment) => (
-                        <div key={shipment.id} className="intra-card-compact relative p-4">
-                          <div className="absolute right-4 top-4 max-w-[9rem] sm:max-w-[10rem]">
+                        <div key={shipment.id} className="intra-card-compact p-4">
+                          <div className="mb-3 flex items-start justify-between gap-3">
+                            <span className="intra-pill shrink-0 bg-intra-warning-soft-alt text-intra-warning-text">
+                              {shipment.paymentLabel}
+                            </span>
                             <TrackingCodeBadge
                               code={shipment.code}
-                              className="!min-w-0 max-w-full overflow-hidden !bg-intra-warning-text-strong px-2 hover:!bg-intra-warning-text-strong [&>span]:min-w-0 [&>span]:overflow-hidden [&>span>span]:truncate"
+                              className="!min-w-0 max-w-[9rem] overflow-hidden !bg-intra-warning-text-strong px-2 hover:!bg-intra-warning-text-strong sm:max-w-[10rem] [&>span]:min-w-0 [&>span]:overflow-hidden [&>span>span]:truncate"
                             />
                           </div>
 
-                          <div className="min-w-0 pr-36 sm:pr-44">
-                            <div className="mb-1 flex items-center gap-2">
-                              <span className="intra-pill bg-intra-warning-soft-alt text-intra-warning-text">
-                                {shipment.paymentLabel}
-                              </span>
+                          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                            <div className="min-w-0">
+                              <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
+                              <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
                             </div>
-                            <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
-                            <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
-                          </div>
 
-                          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                            <div className="flex items-center sm:justify-end">
-                              <span className="intra-metric-sm">{shipment.amountLabel}</span>
+                            <div className="flex flex-wrap items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-end">
+                              <span className="whitespace-nowrap intra-metric-sm">{shipment.amountLabel}</span>
+                              <Link
+                                href={shipment.checkoutHref}
+                                className="intra-btn min-h-11 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong"
+                              >
+                                Ir al checkout
+                              </Link>
                             </div>
-                            <Link
-                              href={shipment.checkoutHref}
-                              className="intra-btn min-h-11 items-center justify-center self-end rounded-[var(--intra-radius-xs)] bg-intra-warning px-4 py-2 text-intra-card transition hover:bg-intra-warning-text-strong sm:self-auto"
-                            >
-                              Ir al checkout
-                            </Link>
                           </div>
                         </div>
                       ))}
