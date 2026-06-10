@@ -402,7 +402,7 @@ Resultado:
 
 ### TASK-019: Pulido tipografico menor Dashboard - card match pendiente
 
-Estado: TODO
+Estado: REVIEW
 Prioridad: Media
 Area: UI/UX / Dashboard / Tipografia
 
@@ -433,6 +433,20 @@ Alcance futuro sugerido:
 - No tocar Supabase.
 - No tocar pagos, wallet, admin, matches backend, auth, RLS ni realtime.
 - No agregar Market.
+
+Estado actual:
+
+- Rama: `uiux/dashboard-typography-polish-v2-2`.
+- Archivo de codigo modificado: `app/app/page.tsx` (normalizacion tipografica).
+- PR #133 actualizado.
+- Datos QA inyectados en DB: `QA_DASHBOARD_TYPOGRAPHY_20260609` (real para el usuario de Aldo) y limpiados despues de aprobacion visual.
+- Mock runtime revertido para no ensuciar el codigo.
+- Cleanup QA verificado: auth users, profiles, shipments, trips, matches, payments, notifications, reviews, evidence, storage objects, messages, report events, declarations, wallet ledger y user verifications en `0`; usuario real de Aldo preservado.
+- Auditoria tipografica final: quedan dos `text-sm` visibles en `DashboardPendingMatchActions` para botones `Aceptar` y `Rechazar`; recomendado corregir o justificar antes de merge.
+- Validaciones locales: `git diff --check`, `npm run lint`, `npm run test:unit` PASS.
+- Revision visual local PASS.
+- Preview actualizado con data real vinculada al usuario de Aldo.
+- Pendiente: revision/merge de PR; no hubo merge ni deploy manual.
 
 ### Frente A: Seguridad operativa del envio
 

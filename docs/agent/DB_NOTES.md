@@ -41,6 +41,29 @@
 - Las policies deben limitar acceso a usuarios relacionados y admins.
 - No asociar liberacion de pagos solo a carga de evidencia sin regla operativa aprobada.
 
+## QA temporal Dashboard Typography - 2026-06-09
+
+- Marker temporal: `QA_DASHBOARD_TYPOGRAPHY_20260609`.
+- Objetivo: validar visualmente en PR #133 el bloque de viajero interesado del Dashboard `/app` con nombre visible, badge `Viajero verificado`, `12 entregas completadas` y promedio grande de ganancias.
+- No se aplicaron migraciones, cambios de schema, RLS, Storage policies, wallet logic ni reglas de pagos.
+- Cleanup ejecutado despues de aprobacion visual:
+  - auth users QA: `0`.
+  - profiles QA: `0`.
+  - shipments QA: `0`.
+  - trips QA: `0`.
+  - matches QA: `0`.
+  - payments QA: `0`.
+  - notifications QA: `0`.
+  - reviews QA: `0`.
+  - shipment evidence QA: `0`.
+  - storage evidence QA: `0`.
+  - messages QA: `0`.
+  - shipment report events QA: `0`.
+  - shipment declarations QA: `0`.
+  - wallet ledger QA: `0`.
+  - user verifications QA: `0`.
+- Usuario real de Aldo preservado: `48bcad86-bdb0-4699-9c1e-1946e0087938`.
+
 ## Evidencias de envio
 
 - Tabla existente: `shipment_evidence`.
