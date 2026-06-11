@@ -599,7 +599,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               />
             </div>
 
-            <div className="mt-2.5 flex flex-wrap gap-2">
+            <div className="mt-2.5 grid grid-cols-3 gap-2">
               {[
                 { label: "Frágil", active: view.isFragile },
                 { label: "Urgente", active: view.isUrgent },
@@ -607,7 +607,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               ].map((item) => (
                 <span
                   key={item.label}
-                  className={`inline-flex items-center rounded-full border px-3 py-1 intra-badge-text ${
+                  className={`inline-flex items-center justify-center rounded-full border px-2 py-1 text-center intra-badge-text ${
                     item.active
                       ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                       : "border-intra-border-soft bg-intra-bg-app text-intra-text-muted"
@@ -622,9 +622,11 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                 <div className="min-w-0 flex-1">
                   <p className="intra-h4">Foto inicial del paquete</p>
-                  <p className="mt-1 intra-body text-intra-text-subtle">
-                    Sube una foto clara del paquete cerrado.
-                  </p>
+                  {!initialEvidenceReady && !initialEvidencePreviewUrl ? (
+                    <p className="mt-1 intra-body text-intra-text-subtle">
+                      Sube una foto clara del paquete cerrado.
+                    </p>
+                  ) : null}
                   {initialEvidenceReady ? (
                     <div className="mt-3 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3 py-2 intra-caption-strong text-intra-text-success">
                       Foto inicial registrada. No necesitas subir otra para este intento.
