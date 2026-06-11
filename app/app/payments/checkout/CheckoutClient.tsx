@@ -140,9 +140,9 @@ function SummaryRow({
     <div className="flex items-start gap-2.5 rounded-2xl border border-intra-border-soft bg-intra-card p-3 lg:p-2.5">
       <IconShell>{icon}</IconShell>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-muted">{label}</p>
-        <div className="mt-0.5 text-sm font-semibold leading-5 text-intra-blue">{value}</div>
-        {detail ? <div className="mt-0.5 text-[11px] leading-4 text-intra-text-muted">{detail}</div> : null}
+        <p className="intra-badge-text uppercase text-intra-text-muted">{label}</p>
+        <div className="mt-0.5 intra-body-strong">{value}</div>
+        {detail ? <div className="mt-0.5 intra-caption">{detail}</div> : null}
       </div>
     </div>
   )
@@ -514,19 +514,19 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
     <main className="intra-page-shell px-4 py-3 sm:px-6 lg:px-8 lg:py-3">
       <div className="mx-auto max-w-6xl">
         <div className="mb-3 flex flex-col gap-1 lg:mb-3.5">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-intra-text-success">
+          <p className="intra-badge-text uppercase text-intra-text-success">
             Checkout seguro
           </p>
-          <h1 className="max-w-4xl text-2xl font-bold tracking-tight text-intra-blue sm:text-3xl lg:text-[28px] lg:leading-tight">
+          <h1 className="max-w-4xl intra-h1">
             Confirma tu pago
           </h1>
-          <p className="max-w-4xl text-sm leading-5 text-intra-text-subtle lg:text-[14px]">
+          <p className="max-w-4xl intra-body text-intra-text-subtle">
             Revisa los datos del envío y confirma el cobro. El dinero queda protegido hasta que se complete la entrega.
           </p>
         </div>
 
         {view.isRetry ? (
-          <div className="mb-5 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm text-intra-warning-text">
+          <div className="mb-5 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text">
             {view.retryPaymentId
               ? "El pago anterior no se completó correctamente. Reintenta el pago para continuar con la confirmación del envío."
               : "Tienes un envío pendiente de pago. Completa el checkout para publicarlo y continuar con el proceso."}
@@ -537,16 +537,16 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
           <div className="rounded-[24px] border border-intra-border-soft bg-intra-card p-3.5 shadow-sm sm:p-4">
             <div className="mb-3 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-base font-semibold text-intra-blue">Resumen del envío</h2>
+                <h2 className="intra-h3">Resumen del envío</h2>
               </div>
-              <div className="rounded-full bg-intra-success-soft px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-intra-text-success">
+              <div className="rounded-full bg-intra-success-soft px-3 py-1.5 intra-badge-text uppercase text-intra-text-success">
                 Tarifa confirmada
               </div>
             </div>
 
             <div className="rounded-[24px] border border-intra-border-soft bg-intra-bg-app p-3 sm:p-3.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-muted">Ruta</p>
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-lg font-bold text-intra-blue sm:text-[24px] sm:leading-tight">
+              <p className="intra-badge-text uppercase text-intra-text-muted">Ruta</p>
+              <div className="mt-1 flex flex-wrap items-center gap-2 intra-h2">
                 <span>{view.origin}</span>
                 <span className="text-intra-green">→</span>
                 <span>{view.destination}</span>
@@ -597,8 +597,8 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             </div>
 
             <div className="mt-2.5 rounded-[24px] border border-intra-border-soft bg-intra-card p-3 sm:p-3.5">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-intra-text-muted">Descripción</p>
-              <p className="mt-1 text-sm leading-5 text-intra-text-subtle lg:max-h-10 lg:overflow-hidden">{view.description}</p>
+              <p className="intra-badge-text uppercase text-intra-text-muted">Descripción</p>
+              <p className="mt-1 intra-body text-intra-text-subtle lg:max-h-10 lg:overflow-hidden">{view.description}</p>
             </div>
 
             <div className="mt-2.5 flex flex-wrap gap-2">
@@ -609,7 +609,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               ].map((item) => (
                 <span
                   key={item.label}
-                  className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${
+                  className={`inline-flex items-center rounded-full border px-3 py-1 intra-badge-text ${
                     item.active
                       ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                       : "border-intra-border-soft bg-intra-bg-app text-intra-text-muted"
@@ -623,21 +623,21 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             <div className="mt-3 rounded-[24px] border border-intra-border-soft bg-intra-bg-app p-3 sm:p-3.5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-intra-blue">Foto inicial del paquete</p>
-                  <p className="mt-1 text-xs leading-5 text-intra-text-subtle">
+                  <p className="intra-h4">Foto inicial del paquete</p>
+                  <p className="mt-1 intra-body text-intra-text-subtle">
                     Sube una foto clara del paquete cerrado para que el viajero pueda verificar su estado antes de aceptar transportarlo.
                   </p>
                   {initialEvidenceReady ? (
-                    <div className="mt-3 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3 py-2 text-xs font-semibold text-intra-text-success">
+                    <div className="mt-3 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3 py-2 intra-caption-strong text-intra-text-success">
                       Foto inicial registrada. No necesitas subir otra para este intento.
                     </div>
                   ) : (
-                    <label className="mt-3 block text-xs font-semibold text-intra-text-muted">
+                    <label className="mt-3 block intra-caption-strong text-intra-text-muted">
                       Imagen obligatoria
                       <input
                         type="file"
                         accept="image/*"
-                        className="mt-2 block w-full rounded-2xl border border-intra-border-strong bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                        className="mt-2 block w-full rounded-2xl border border-intra-border-strong bg-intra-card px-3 py-3 intra-body-strong"
                         onChange={(event) => handleInitialEvidenceFileChange(event.target.files?.[0] ?? null)}
                       />
                     </label>
@@ -659,7 +659,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
             <div className="mt-3 space-y-2">
               {!view.isRetry ? (
-                <div className="flex items-start gap-3 text-sm text-intra-text-subtle">
+                <div className="flex items-start gap-3 intra-body text-intra-text-subtle">
                   <input
                     id="shipment-declaration-acceptance"
                     type="checkbox"
@@ -673,7 +673,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                       <button
                         type="button"
                         onClick={() => setLegalModalKey("shipping-policy")}
-                        className="font-semibold text-intra-text-success underline underline-offset-4"
+                        className="intra-body-strong text-intra-text-success underline underline-offset-4"
                       >
                         Política de envíos
                       </button>
@@ -683,7 +683,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                       <button
                         type="button"
                         onClick={() => setLegalModalKey("shipping-policy")}
-                        className="font-semibold text-intra-text-success underline underline-offset-4"
+                        className="intra-body-strong text-intra-text-success underline underline-offset-4"
                       >
                         Política de Envíos y Artículos Prohibidos
                       </button>
@@ -693,7 +693,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 </div>
               ) : null}
 
-              <div className="flex items-start gap-3 text-sm text-intra-text-subtle">
+              <div className="flex items-start gap-3 intra-body text-intra-text-subtle">
                 <input
                   id="payment-conditions-acceptance"
                   type="checkbox"
@@ -707,7 +707,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <button
                       type="button"
                       onClick={() => setLegalModalKey("payments-policy")}
-                      className="font-semibold text-intra-text-success underline underline-offset-4"
+                      className="intra-body-strong text-intra-text-success underline underline-offset-4"
                     >
                       Política de pagos
                     </button>
@@ -717,7 +717,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <button
                       type="button"
                       onClick={() => setLegalModalKey("payments-policy")}
-                      className="font-semibold text-intra-text-success underline underline-offset-4"
+                      className="intra-body-strong text-intra-text-success underline underline-offset-4"
                     >
                       Política de Pagos, Retenciones, Reembolsos y Disputas
                     </button>
@@ -731,35 +731,35 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
           <aside className="rounded-[24px] border border-intra-border-soft bg-intra-card p-3.5 shadow-sm sm:p-4 lg:sticky lg:top-16">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-intra-text-muted">
+              <p className="intra-badge-text uppercase text-intra-text-muted">
                 Resumen de pago
               </p>
             </div>
 
             <div className="mt-2.5 space-y-2 rounded-[24px] bg-intra-bg-app p-3">
-              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
+              <div className="flex items-center justify-between gap-4 intra-body text-intra-text-subtle">
                 <span>Valor del transporte</span>
-                <span className="font-semibold text-intra-blue">{formatCurrency(travelerAmount)}</span>
+                <span className="intra-body-strong">{formatCurrency(travelerAmount)}</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
+              <div className="flex items-center justify-between gap-4 intra-body text-intra-text-subtle">
                 <span>Servicio de plataforma</span>
-                <span className="font-semibold text-intra-blue">{formatCurrency(intraFee)}</span>
+                <span className="intra-body-strong">{formatCurrency(intraFee)}</span>
               </div>
-              <div className="flex items-center justify-between gap-4 text-[13px] text-intra-text-subtle">
+              <div className="flex items-center justify-between gap-4 intra-body text-intra-text-subtle">
                 <span>Procesamiento de pago</span>
-                <span className="font-semibold text-intra-blue">{formatCurrency(gatewayFee)}</span>
+                <span className="intra-body-strong">{formatCurrency(gatewayFee)}</span>
               </div>
             </div>
 
             <div className="mt-3 rounded-[24px] bg-intra-blue px-3.5 py-4 text-intra-card">
-              <p className="text-xs uppercase tracking-wide text-intra-card/70">Total a pagar</p>
-              <p className="mt-1.5 text-center text-[30px] font-extrabold leading-[36px] text-intra-green sm:text-[30px] sm:leading-[36px]">
+              <p className="intra-caption uppercase text-intra-card/70">Total a pagar</p>
+              <p className="mt-1.5 text-center intra-metric text-intra-green">
                 {formatCurrency(totalAmount)}
               </p>
             </div>
 
             {errorMsg ? (
-              <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-sm text-intra-danger">
+              <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body-strong text-intra-danger">
                 {errorMsg}
               </div>
             ) : null}
@@ -768,7 +768,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               type="button"
               onClick={handlePayment}
               disabled={loading}
-              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-intra-green px-5 py-3 text-[15px] font-bold text-intra-card transition hover:bg-intra-green-hover disabled:cursor-not-allowed disabled:opacity-60"
+              className="intra-btn intra-btn-primary mt-3 w-full"
             >
               {loading ? "Preparando checkout..." : "Pagar con Wompi"}
             </button>
