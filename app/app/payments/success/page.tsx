@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { CheckCircle2 } from "lucide-react"
 import { AppNavbar } from "@/components/app-navbar"
 import { formatCop, getPaymentResultLabel } from "@/lib/payments/wallet"
 import { createClient } from "@/lib/supabase/server"
@@ -45,69 +46,61 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
       ? "Wompi"
       : payment?.payment_method ?? "Pago seguro"
   const isConfirmed = paymentStatus === "held" || paymentStatus === "released"
-  const eyebrow = isConfirmed ? "Pago seguro confirmado" : "Pago en validación"
-  const title = isConfirmed ? "Tu pago quedó registrado" : "Estamos confirmando tu pago"
+  const eyebrow = isConfirmed ? "PAGO CONFIRMADO" : "PAGO EN VALIDACIÓN"
+  const title = isConfirmed ? "Tu envío quedó confirmado" : "Estamos confirmando tu pago"
   const description = isConfirmed
-    ? "El dinero quedó bajo retención temporal y se liberará al viajero cuando confirmes la entrega, o automáticamente al cumplirse la ventana configurada."
-    : "Wompi ya recibió la transacción. Estamos esperando la confirmación final para dejar el pago en retención temporal."
+    ? "Ya puedes volver al inicio y seguir el estado de tus envíos."
+    : "Te mostraremos la actualización cuando el estado esté listo."
 
   return (
     <>
       <AppNavbar />
-      <main className="intra-page-shell px-4 py-8 sm:px-6">
-        <div className="mx-auto max-w-3xl">
-          <section className="rounded-3xl border border-intra-success-border bg-intra-card p-6 shadow-sm sm:p-8">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
-              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
+      <main className="intra-page-shell px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl items-center">
+          <section className="w-full rounded-[24px] border border-intra-success-border bg-intra-card p-5 shadow-sm sm:p-7">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
+              <CheckCircle2 className="h-7 w-7" strokeWidth={1.8} aria-hidden="true" />
             </div>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm font-semibold uppercase tracking-wide text-intra-text-success">{eyebrow}</p>
-              <h1 className="mt-2 text-3xl font-bold text-intra-blue">{title}</h1>
-              <p className="mt-3 text-sm leading-6 text-intra-text-muted sm:text-base">
+            <div className="mt-5 text-center">
+              <p className="intra-badge-text text-intra-text-success">{eyebrow}</p>
+              <h1 className="mt-2 intra-h1 text-intra-blue">{title}</h1>
+              <p className="mx-auto mt-3 max-w-xl intra-body text-intra-text-muted">
                 {description}
               </p>
             </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="rounded-2xl bg-intra-bg-app p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Monto</p>
-                <p className="mt-2 text-xl font-bold text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
+                <p className="intra-badge-text uppercase text-intra-text-muted">Monto</p>
+                <p className="mt-2 intra-metric text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
               </div>
               <div className="rounded-2xl bg-intra-bg-app p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Estado</p>
-                <p className="mt-2 text-xl font-bold text-intra-blue">{getPaymentResultLabel(paymentStatus)}</p>
+                <p className="intra-badge-text uppercase text-intra-text-muted">Estado</p>
+                <p className="mt-2 intra-body-strong text-intra-blue">{getPaymentResultLabel(paymentStatus)}</p>
               </div>
               <div className="rounded-2xl bg-intra-bg-app p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Referencia</p>
-                <p className="mt-2 break-all text-sm font-semibold text-intra-blue">{reference}</p>
+                <p className="intra-badge-text uppercase text-intra-text-muted">Referencia</p>
+                <p className="mt-2 break-all intra-body-strong text-intra-blue">{reference}</p>
               </div>
               <div className="rounded-2xl bg-intra-bg-app p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Método</p>
-                <p className="mt-2 text-sm font-semibold text-intra-blue">{method}</p>
+                <p className="intra-badge-text uppercase text-intra-text-muted">Método</p>
+                <p className="mt-2 intra-body-strong text-intra-blue">{method}</p>
               </div>
             </div>
 
             {!paymentId || !payment ? (
-              <div className="mt-6 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm text-intra-warning-text">
-                No pudimos recuperar todos los detalles del pago desde este enlace, pero el flujo quedó protegido sin exponer datos en la URL.
+              <div className="mt-5 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text">
+                No pudimos cargar el detalle completo de este pago.
               </div>
             ) : null}
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <div className="mt-7 flex justify-center">
               <Link
-                href="/app/matches"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-intra-blue px-5 py-3 text-sm font-semibold text-intra-card transition hover:bg-intra-blue-hover-card"
+                href="/app"
+                className="intra-btn intra-btn-primary w-full sm:w-auto"
               >
-                Ir a mis matches
-              </Link>
-              <Link
-                href="/app/wallet"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-intra-border-soft px-5 py-3 text-sm font-semibold text-intra-text-subtle transition hover:bg-intra-bg-app"
-              >
-                Ver wallet
+                Volver al inicio
               </Link>
             </div>
           </section>
