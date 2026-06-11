@@ -119,7 +119,7 @@ function getShipmentKindLabel(kind: string) {
 
 function IconShell({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-intra-success-soft text-intra-text-success lg:h-7 lg:w-7">
+    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl bg-intra-success-soft text-intra-text-success sm:h-8 sm:w-8 lg:h-7 lg:w-7">
       {children}
     </span>
   )
@@ -139,12 +139,12 @@ function SummaryRow({
   valueClassName?: string
 }) {
   return (
-    <div className="flex h-full items-start gap-2.5 rounded-2xl border border-intra-border-soft bg-intra-card p-3 lg:p-2.5">
+    <div className="flex h-full items-start gap-2 rounded-2xl border border-intra-border-soft bg-intra-card p-2.5 sm:gap-2.5 sm:p-3 lg:p-2.5">
       <IconShell>{icon}</IconShell>
       <div className="min-w-0 flex-1">
         <p className="intra-badge-text uppercase text-intra-text-muted">{label}</p>
         <div className={valueClassName}>{value}</div>
-        {detail ? <div className="mt-0.5 intra-caption">{detail}</div> : null}
+        {detail ? <div className="mt-0.5 hidden intra-caption lg:block">{detail}</div> : null}
       </div>
     </div>
   )
@@ -622,19 +622,34 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 <div className="min-w-0 flex-1">
                   <p className="intra-h4">Foto inicial del paquete</p>
                   <p className="mt-1 intra-body text-intra-text-subtle">
-                    Sube una foto clara del paquete cerrado para que el viajero pueda verificar su estado antes de aceptar transportarlo.
+                    Sube una foto clara del paquete cerrado.
                   </p>
                   {initialEvidenceReady ? (
                     <div className="mt-3 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3 py-2 intra-caption-strong text-intra-text-success">
                       Foto inicial registrada. No necesitas subir otra para este intento.
                     </div>
                   ) : (
-                    <label className="mt-3 block intra-caption-strong text-intra-text-muted">
-                      Imagen obligatoria
+                    <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-intra-border-strong bg-intra-card px-3 py-5 text-center transition hover:border-intra-success-border hover:bg-intra-success-soft/40 sm:py-6">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 16V4m0 0 4 4m-4-4-4 4M5 17v1a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-1" />
+                        </svg>
+                      </span>
+                      <span className="mt-2 intra-body-strong text-intra-blue">
+                        Subir foto
+                      </span>
+                      <span className="mt-0.5 intra-caption text-intra-text-muted">
+                        JPG, PNG hasta 10 MB
+                      </span>
+                      {initialEvidenceFile ? (
+                        <span className="mt-2 intra-caption-strong text-intra-text-success">
+                          Foto seleccionada
+                        </span>
+                      ) : null}
                       <input
                         type="file"
                         accept="image/*"
-                        className="mt-2 block w-full rounded-2xl border border-intra-border-strong bg-intra-card px-3 py-3 intra-body-strong"
+                        className="sr-only"
                         onChange={(event) => handleInitialEvidenceFileChange(event.target.files?.[0] ?? null)}
                       />
                     </label>
@@ -642,7 +657,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 </div>
 
                 {initialEvidencePreviewUrl ? (
-                  <div className="h-28 w-full overflow-hidden rounded-2xl border border-intra-border-soft bg-intra-card sm:w-36">
+                  <div className="h-24 w-full overflow-hidden rounded-2xl border border-intra-border-soft bg-intra-card sm:h-28 sm:w-36">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={initialEvidencePreviewUrl}
@@ -654,7 +669,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               </div>
             </div>
 
-            <div className="mt-3 space-y-2">
+            <div className="mt-4 space-y-3 rounded-[24px] border border-intra-border-soft bg-intra-card p-3">
               {!view.isRetry ? (
                 <div className="flex items-start gap-3 intra-body text-intra-text-subtle">
                   <input
