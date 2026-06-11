@@ -130,18 +130,20 @@ function SummaryRow({
   label,
   value,
   detail,
+  valueClassName = "mt-0.5 intra-body-strong",
 }: {
   icon: ReactNode
   label: string
   value: ReactNode
   detail?: ReactNode
+  valueClassName?: string
 }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-2xl border border-intra-border-soft bg-intra-card p-3 lg:p-2.5">
+    <div className="flex h-full items-start gap-2.5 rounded-2xl border border-intra-border-soft bg-intra-card p-3 lg:p-2.5">
       <IconShell>{icon}</IconShell>
       <div className="min-w-0 flex-1">
         <p className="intra-badge-text uppercase text-intra-text-muted">{label}</p>
-        <div className="mt-0.5 intra-body-strong">{value}</div>
+        <div className={valueClassName}>{value}</div>
         {detail ? <div className="mt-0.5 intra-caption">{detail}</div> : null}
       </div>
     </div>
@@ -521,7 +523,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
             Confirma tu pago
           </h1>
           <p className="max-w-4xl intra-body text-intra-text-subtle">
-            Revisa los datos del envío y confirma el cobro. El dinero queda protegido hasta que se complete la entrega.
+            Revisa los datos del envío y confirma el pago.
           </p>
         </div>
 
@@ -553,7 +555,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               </div>
             </div>
 
-            <div className="mt-2.5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div className="mt-2.5 grid grid-cols-2 gap-2.5">
               <SummaryRow
                 label="Tipo de envío"
                 value={getShipmentKindLabel(view.kind)}
@@ -585,20 +587,15 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                 detail="Referencia del contenido reportado."
               />
               <SummaryRow
-                label="Pago protegido"
-                value="Retención temporal hasta la entrega"
+                label="Descripción"
+                value={view.description}
                 icon={
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 3l7 4v5c0 4.97-3.05 7.97-7 9-3.95-1.03-7-4.03-7-9V7l7-4Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M6 4h9l3 3v13H6V4Zm8 0v4h4M9 11h6M9 15h6" />
                   </svg>
                 }
-                detail="El saldo se libera cuando el cierre sea correcto y no exista disputa."
+                valueClassName="mt-0.5 line-clamp-2 intra-body text-intra-text-subtle"
               />
-            </div>
-
-            <div className="mt-2.5 rounded-[24px] border border-intra-border-soft bg-intra-card p-3 sm:p-3.5">
-              <p className="intra-badge-text uppercase text-intra-text-muted">Descripción</p>
-              <p className="mt-1 intra-body text-intra-text-subtle lg:max-h-10 lg:overflow-hidden">{view.description}</p>
             </div>
 
             <div className="mt-2.5 flex flex-wrap gap-2">
