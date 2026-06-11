@@ -61,7 +61,7 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
   const description = isConfirmed
     ? "Ya puedes volver al inicio y seguir el estado de tus envíos."
     : "Te mostraremos la actualización cuando el estado esté listo."
-  const visibleStatus = isConfirmed ? "Envío confirmado" : "Pago en validación"
+  const visibleStatus = isConfirmed ? "Confirmado" : "En validación"
   const trackingCode = buildTrackingCode(payment?.external_reference, paymentId)
 
   return (
@@ -83,21 +83,21 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-intra-bg-app p-4">
+              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3.5 sm:p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Monto pagado</p>
-                <p className="mt-2 intra-body-strong text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
+                <p className="intra-body-strong text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
               </div>
-              <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-intra-bg-app p-4">
-                <p className="intra-badge-text uppercase text-intra-text-muted">Estado</p>
-                <p className="mt-2 intra-body-strong text-intra-blue">{visibleStatus}</p>
+              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3.5 sm:p-4">
+                <p className="intra-badge-text uppercase text-intra-text-muted">Estado del envío</p>
+                <p className="intra-body-strong text-intra-blue">{visibleStatus}</p>
               </div>
-              <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-intra-bg-app p-4">
+              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3.5 sm:p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Código de rastreo</p>
-                <p className="mt-2 intra-body-strong text-intra-blue">{trackingCode}</p>
+                <p className="intra-body-strong text-intra-blue">{trackingCode}</p>
               </div>
-              <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-intra-bg-app p-4">
+              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3.5 sm:p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Método</p>
-                <p className="mt-2 intra-body-strong text-intra-blue">{method}</p>
+                <p className="intra-body-strong text-intra-blue">{method}</p>
               </div>
             </div>
 
@@ -110,7 +110,7 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
             <div className="mt-7 flex justify-center">
               <Link
                 href="/app"
-                className="intra-btn intra-btn-primary w-full sm:w-auto"
+                className="intra-btn intra-btn-primary min-h-12 w-full sm:w-56"
               >
                 Volver al inicio
               </Link>
