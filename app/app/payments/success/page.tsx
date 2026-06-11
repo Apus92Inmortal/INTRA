@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { CheckCircle2 } from "lucide-react"
 import { AppNavbar } from "@/components/app-navbar"
-import { formatCop, getPaymentResultLabel } from "@/lib/payments/wallet"
+import { formatCop } from "@/lib/payments/wallet"
 import { createClient } from "@/lib/supabase/server"
 
 type PaymentSuccessPageProps = {
@@ -16,6 +16,17 @@ type PaymentRow = {
   status: string | null
   external_reference: string | null
   payment_method: string | null
+}
+
+function buildTrackingCode(reference: string | null | undefined, paymentId: string | null | undefined) {
+  const source = reference?.trim() || paymentId?.trim() || ""
+  const compact = source.replace(/[^a-zA-Z0-9]/g, "").toUpperCase()
+
+  if (!compact) {
+    return "INTRA-PENDIENTE"
+  }
+
+  return `INTRA-${compact.slice(-6)}`
 }
 
 export default async function PaymentSuccessPage({ searchParams }: PaymentSuccessPageProps) {
@@ -38,7 +49,6 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
   const payment = (paymentRes.data ?? null) as PaymentRow | null
   const amount = Number(payment?.amount ?? 0)
   const paymentStatus = payment?.status ?? "processing"
-  const reference = payment?.external_reference ?? "Pendiente"
   const method =
     payment?.payment_method === "simulated"
       ? "Pago seguro"
@@ -51,6 +61,8 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
   const description = isConfirmed
     ? "Ya puedes volver al inicio y seguir el estado de tus envíos."
     : "Te mostraremos la actualización cuando el estado esté listo."
+  const visibleStatus = isConfirmed ? "Envío confirmado" : "Pago en validación"
+  const trackingCode = buildTrackingCode(payment?.external_reference, paymentId)
 
   return (
     <>
@@ -71,19 +83,19 @@ export default async function PaymentSuccessPage({ searchParams }: PaymentSucces
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-intra-bg-app p-4">
-                <p className="intra-badge-text uppercase text-intra-text-muted">Monto</p>
-                <p className="mt-2 intra-metric text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
+              <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-intra-bg-app p-4">
+                <p className="intra-badge-text uppercase text-intra-text-muted">Monto pagado</p>
+                <p className="mt-2 intra-body-strong text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
               </div>
-              <div className="rounded-2xl bg-intra-bg-app p-4">
+              <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-intra-bg-app p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Estado</p>
-                <p className="mt-2 intra-body-strong text-intra-blue">{getPaymentResultLabel(paymentStatus)}</p>
+                <p className="mt-2 intra-body-strong text-intra-blue">{visibleStatus}</p>
               </div>
-              <div className="rounded-2xl bg-intra-bg-app p-4">
-                <p className="intra-badge-text uppercase text-intra-text-muted">Referencia</p>
-                <p className="mt-2 break-all intra-body-strong text-intra-blue">{reference}</p>
+              <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-intra-bg-app p-4">
+                <p className="intra-badge-text uppercase text-intra-text-muted">Código de rastreo</p>
+                <p className="mt-2 intra-body-strong text-intra-blue">{trackingCode}</p>
               </div>
-              <div className="rounded-2xl bg-intra-bg-app p-4">
+              <div className="flex min-h-24 flex-col justify-between rounded-2xl bg-intra-bg-app p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Método</p>
                 <p className="mt-2 intra-body-strong text-intra-blue">{method}</p>
               </div>
