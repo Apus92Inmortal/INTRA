@@ -1,7 +1,15 @@
 "use client"
 
 import type { ReactNode } from "react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import {
+  CircleDollarSign,
+  FileText,
+  Package,
+  Scale,
+  Upload,
+  X,
+} from "lucide-react"
 import {
   createClient,
   hasSupabaseEnv,
@@ -262,6 +270,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialEvidenceRequired = searchParams.get("evidenceRequired") === "1"
+  const initialEvidenceInputRef = useRef<HTMLInputElement | null>(null)
 
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(
@@ -306,6 +315,14 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
 
     if (file) {
       setErrorMsg(null)
+    }
+  }
+
+  function handleRemoveInitialEvidenceFile() {
+    setInitialEvidenceFile(null)
+
+    if (initialEvidenceInputRef.current) {
+      initialEvidenceInputRef.current.value = ""
     }
   }
 
@@ -559,41 +576,25 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
               <SummaryRow
                 label="Tipo de envío"
                 value={getShipmentKindLabel(view.kind)}
-                icon={
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 7.5 12 3l9 4.5M3 7.5V16.5L12 21m-9-13.5L12 12m9-4.5V16.5L12 21m0-9v9" />
-                  </svg>
-                }
+                icon={<Package className="h-4 w-4" strokeWidth={1.7} aria-hidden="true" />}
                 detail="Visible para el viajero al aceptar."
               />
               <SummaryRow
                 label="Peso estimado"
                 value={view.weight !== null ? `${view.weight} kg` : "No especificado"}
-                icon={
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M7 6h10m-8 0V4a3 3 0 0 1 6 0v2m-8 0a4 4 0 1 0 8 0m-11 3h14l1 10H5L4 9Z" />
-                  </svg>
-                }
+                icon={<Scale className="h-4 w-4" strokeWidth={1.7} aria-hidden="true" />}
                 detail="Referencia para capacidad y manejo."
               />
               <SummaryRow
                 label="Valor declarado"
                 value={formatCurrency(view.declared)}
-                icon={
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 6v12m4-9a4 4 0 0 0-8 0c0 5 8 3 8 8a4 4 0 0 1-8 0" />
-                  </svg>
-                }
+                icon={<CircleDollarSign className="h-4 w-4" strokeWidth={1.7} aria-hidden="true" />}
                 detail="Referencia del contenido reportado."
               />
               <SummaryRow
                 label="Descripción"
                 value={view.description}
-                icon={
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M6 4h9l3 3v13H6V4Zm8 0v4h4M9 11h6M9 15h6" />
-                  </svg>
-                }
+                icon={<FileText className="h-4 w-4" strokeWidth={1.7} aria-hidden="true" />}
                 valueClassName="mt-0.5 line-clamp-2 intra-body text-intra-text-subtle"
               />
             </div>
@@ -628,12 +629,27 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     <div className="mt-3 rounded-2xl border border-intra-success-border bg-intra-success-soft px-3 py-2 intra-caption-strong text-intra-text-success">
                       Foto inicial registrada. No necesitas subir otra para este intento.
                     </div>
+                  ) : initialEvidencePreviewUrl ? (
+                    <div className="relative mt-3 h-40 w-full overflow-hidden rounded-2xl border border-intra-border-soft bg-intra-card sm:h-48">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={initialEvidencePreviewUrl}
+                        alt="Vista previa de la foto inicial del paquete"
+                        className="h-full w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveInitialEvidenceFile}
+                        aria-label="Quitar foto seleccionada"
+                        className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full border border-intra-border-soft bg-intra-card/90 text-intra-blue shadow-sm transition hover:bg-intra-bg-app"
+                      >
+                        <X className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                      </button>
+                    </div>
                   ) : (
                     <label className="mt-3 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-intra-border-strong bg-intra-card px-3 py-5 text-center transition hover:border-intra-success-border hover:bg-intra-success-soft/40 sm:py-6">
                       <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success">
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 16V4m0 0 4 4m-4-4-4 4M5 17v1a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-1" />
-                        </svg>
+                        <Upload className="h-5 w-5" strokeWidth={1.7} aria-hidden="true" />
                       </span>
                       <span className="mt-2 intra-body-strong text-intra-blue">
                         Subir foto
@@ -647,6 +663,7 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                         </span>
                       ) : null}
                       <input
+                        ref={initialEvidenceInputRef}
                         type="file"
                         accept="image/*"
                         className="sr-only"
@@ -655,17 +672,6 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
                     </label>
                   )}
                 </div>
-
-                {initialEvidencePreviewUrl ? (
-                  <div className="h-24 w-full overflow-hidden rounded-2xl border border-intra-border-soft bg-intra-card sm:h-28 sm:w-36">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={initialEvidencePreviewUrl}
-                      alt="Vista previa de la foto inicial del paquete"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ) : null}
               </div>
             </div>
 
