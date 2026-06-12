@@ -82,13 +82,13 @@ type PreferenceToggleProps = {
 
 function SectionHeader({ step, title, description }: SectionHeaderProps) {
   return (
-    <div className="mb-3 flex items-start gap-2.5">
-      <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-2xl bg-intra-success-soft text-[12px] font-bold text-intra-text-success">
+    <div className="mb-4 flex items-start gap-3">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-intra-success-soft intra-badge-text text-intra-text-success">
         {step}
       </div>
       <div>
-        <h2 className="text-[15px] font-semibold text-intra-blue">{title}</h2>
-        <p className="mt-0.5 text-[12px] leading-4 text-intra-text-subtle">{description}</p>
+        <h2 className="intra-h4">{title}</h2>
+        <p className="mt-1 intra-caption text-intra-text-subtle">{description}</p>
       </div>
     </div>
   )
@@ -96,17 +96,17 @@ function SectionHeader({ step, title, description }: SectionHeaderProps) {
 
 function PreferenceToggle({ label, value, onChange, icon: Icon }: PreferenceToggleProps) {
   return (
-    <div className="rounded-2xl border border-intra-border-soft bg-intra-card px-2.5 py-2">
-      <div className="mb-2 flex items-center gap-2 text-[12px] font-medium text-intra-blue">
+    <div className="rounded-2xl border border-intra-border-soft bg-intra-bg-app p-3">
+      <div className="mb-3 flex items-center gap-2 intra-caption-strong text-intra-blue">
         <Icon className="h-3.5 w-3.5 text-intra-blue" />
         <span>{label}</span>
       </div>
 
-      <div className="inline-flex rounded-full border border-intra-border-strong bg-intra-bg-app p-1 shadow-[inset_0_1px_2px_rgba(11,44,74,0.06)]">
+      <div className="grid grid-cols-2 rounded-full border border-intra-border-strong bg-intra-card p-1 shadow-[inset_0_1px_2px_rgba(11,44,74,0.06)]">
         <button
           type="button"
           onClick={() => onChange(true)}
-          className={`min-w-[56px] rounded-full px-3 py-0.5 text-[11px] font-semibold transition ${
+          className={`rounded-full px-3 py-1 intra-badge-text transition ${
             value ? "bg-intra-green text-intra-card shadow-sm" : "text-intra-text-subtle"
           }`}
         >
@@ -115,7 +115,7 @@ function PreferenceToggle({ label, value, onChange, icon: Icon }: PreferenceTogg
         <button
           type="button"
           onClick={() => onChange(false)}
-          className={`min-w-[56px] rounded-full px-3 py-0.5 text-[11px] font-semibold transition ${
+          className={`rounded-full px-3 py-1 intra-badge-text transition ${
             !value ? "bg-intra-card text-intra-blue shadow-sm" : "text-intra-text-subtle"
           }`}
         >
@@ -146,14 +146,14 @@ function RouteGraphic({
   destinationName: string
 }) {
   return (
-    <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-3 py-2">
+    <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-3 py-3">
       <div className="flex items-center gap-3">
         <div className="flex min-w-[54px] flex-col items-center text-center">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-intra-card text-intra-green shadow-sm">
             <MapPinned className="h-3.5 w-3.5" />
           </span>
-          <span className="mt-0.5 text-[10px] font-semibold text-intra-blue">{originName}</span>
-          <span className="text-[10px] uppercase tracking-[0.18em] text-intra-text-muted/60">{originCode}</span>
+          <span className="mt-1 intra-caption-strong text-intra-blue">{originName}</span>
+          <span className="intra-badge-text uppercase text-intra-text-muted/60">{originCode}</span>
         </div>
 
         <div className="relative h-px flex-1 border-t border-dashed border-intra-success-border">
@@ -166,8 +166,8 @@ function RouteGraphic({
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-intra-card text-intra-green shadow-sm">
             <MapPinned className="h-3.5 w-3.5" />
           </span>
-          <span className="mt-0.5 text-[10px] font-semibold text-intra-blue">{destinationName}</span>
-          <span className="text-[10px] uppercase tracking-[0.18em] text-intra-text-muted/60">{destinationCode}</span>
+          <span className="mt-1 intra-caption-strong text-intra-blue">{destinationName}</span>
+          <span className="intra-badge-text uppercase text-intra-text-muted/60">{destinationCode}</span>
         </div>
       </div>
     </div>
@@ -485,7 +485,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors)
       setLoading(false)
-      setMsg("❌ Revisa los campos marcados antes de continuar.")
+      setMsg("Revisa los campos marcados antes de continuar.")
       return
     }
 
@@ -518,8 +518,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     router.push(`/app/payments/checkout?${params.toString()}`)
   }
 
-  const fieldBaseClassName =
-    "w-full rounded-2xl border border-intra-border-strong bg-intra-card px-3 py-2 text-[13px] text-intra-blue outline-none transition placeholder:text-intra-text-muted/60 focus:border-intra-blue focus:ring-4 focus:ring-intra-blue/10"
+  const fieldBaseClassName = "intra-input"
 
   const displayOriginName = originCity?.name ?? "N/A"
   const displayDestinationName = destinationCity?.name ?? "N/A"
@@ -553,7 +552,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     Boolean(paymentQuote?.success)
 
   return (
-    <div className="grid gap-3 pb-32 sm:pb-0 lg:grid-cols-[minmax(0,1.58fr)_340px] lg:items-start">
+    <div className="grid gap-3 lg:grid-cols-[minmax(0,1.58fr)_340px] lg:items-start">
       <form onSubmit={onSubmit} className="min-w-0">
         <div className="rounded-[24px] border border-intra-border-strong bg-intra-card p-3 shadow-[var(--intra-shadow-base)] sm:p-4 lg:p-4">
           <section>
@@ -567,14 +566,14 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               <div className="min-w-0">
                 <label
                   htmlFor="shipment-origin-city"
-                  className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle"
+                  className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
                 >
                   Origen
                 </label>
                 <select
                   id="shipment-origin-city"
                   name="originCityId"
-                  className={`${fieldBaseClassName} ${errors.originCityId ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
+                  className={`${fieldBaseClassName} ${errors.originCityId ? "intra-input-error" : ""}`}
                   value={originCityId}
                   onChange={(e) => {
                     setOriginCityId(e.target.value)
@@ -591,7 +590,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   ))}
                 </select>
                 {errors.originCityId ? (
-                  <p className="mt-1 text-[10px] text-intra-danger">{errors.originCityId}</p>
+                  <p className="intra-field-error">{errors.originCityId}</p>
                 ) : null}
               </div>
 
@@ -607,14 +606,14 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               <div className="min-w-0">
                 <label
                   htmlFor="shipment-destination-city"
-                  className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle"
+                  className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
                 >
                   Destino
                 </label>
                 <select
                   id="shipment-destination-city"
                   name="destinationCityId"
-                  className={`${fieldBaseClassName} ${errors.destinationCityId ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
+                  className={`${fieldBaseClassName} ${errors.destinationCityId ? "intra-input-error" : ""}`}
                   value={destinationCityId}
                   onChange={(e) => {
                     setDestinationCityId(e.target.value)
@@ -631,7 +630,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   ))}
                 </select>
                 {errors.destinationCityId ? (
-                  <p className="mt-1 text-[10px] text-intra-danger">{errors.destinationCityId}</p>
+                  <p className="intra-field-error">{errors.destinationCityId}</p>
                 ) : null}
               </div>
             </div>
@@ -658,14 +657,14 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 <div>
                   <label
                     htmlFor="shipment-kind"
-                    className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle"
+                    className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
                   >
                     Tipo de envío
                   </label>
                   <select
                     id="shipment-kind"
                     name="kind"
-                    className={`${fieldBaseClassName} ${errors.kind ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
+                    className={`${fieldBaseClassName} ${errors.kind ? "intra-input-error" : ""}`}
                     value={kind}
                     onChange={(e) => {
                       setKind(e.target.value as ShipmentKindValue)
@@ -678,21 +677,21 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                     <option value="ecommerce">Ecommerce</option>
                   </select>
                   {errors.kind ? (
-                    <p className="mt-1 text-[10px] text-intra-danger">{errors.kind}</p>
+                    <p className="intra-field-error">{errors.kind}</p>
                   ) : null}
                 </div>
 
                 <div>
                   <label
                     htmlFor="shipment-description"
-                    className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle"
+                    className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
                   >
                     Descripción
                   </label>
                   <textarea
                     id="shipment-description"
                     name="description"
-                    className={`${fieldBaseClassName} h-[42px] resize-none ${errors.description ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
+                    className={`${fieldBaseClassName} h-[42px] resize-none ${errors.description ? "intra-input-error" : ""}`}
                     value={description}
                     onChange={(e) => {
                       setDescription(e.target.value)
@@ -703,7 +702,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                     placeholder="Ej: sobre con documentos o caja pequeña."
                   />
                   {errors.description ? (
-                    <p className="mt-1 text-[10px] text-intra-danger">{errors.description}</p>
+                    <p className="intra-field-error">{errors.description}</p>
                   ) : null}
                 </div>
               </div>
@@ -712,14 +711,14 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 <div className="min-w-0">
                   <label
                     htmlFor="shipment-weight-kg"
-                    className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle"
+                    className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
                   >
                     Peso (kg)
                   </label>
                   <input
                     id="shipment-weight-kg"
                     name="weightKg"
-                    className={`${fieldBaseClassName} ${errors.weightKg ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
+                    className={`${fieldBaseClassName} ${errors.weightKg ? "intra-input-error" : ""}`}
                     type="text"
                     inputMode="decimal"
                     value={weightKg}
@@ -729,23 +728,23 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                     required
                   />
                   {errors.weightKg ? (
-                    <p className="mt-1 text-[10px] text-intra-danger">{errors.weightKg}</p>
+                    <p className="intra-field-error">{errors.weightKg}</p>
                   ) : (
-                    <p className="mt-1 text-[10px] text-intra-text-muted">Máximo {SHIPMENT_MAX_WEIGHT_KG} kg por envío.</p>
+                    <p className="mt-1 intra-caption text-intra-text-muted">Máximo {SHIPMENT_MAX_WEIGHT_KG} kg por envío.</p>
                   )}
                 </div>
 
                 <div className="min-w-0">
                   <label
                     htmlFor="shipment-declared-value"
-                    className="mb-1 block text-[10px] font-medium uppercase tracking-[0.16em] text-intra-text-subtle"
+                    className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
                   >
                     Valor declarado (COP)
                   </label>
                   <input
                     id="shipment-declared-value"
                     name="declaredValueCop"
-                    className={`${fieldBaseClassName} ${errors.declaredValueCop ? "border-intra-danger-border bg-intra-danger-soft" : ""}`}
+                    className={`${fieldBaseClassName} ${errors.declaredValueCop ? "intra-input-error" : ""}`}
                     type="text"
                     inputMode="numeric"
                     value={declaredValueCop}
@@ -755,9 +754,9 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                     required
                   />
                   {errors.declaredValueCop ? (
-                    <p className="mt-1 text-[10px] text-intra-danger">{errors.declaredValueCop}</p>
+                    <p className="intra-field-error">{errors.declaredValueCop}</p>
                   ) : (
-                    <p className="mt-1 text-[10px] text-intra-text-muted">
+                    <p className="mt-1 intra-caption text-intra-text-muted">
                       Límite actual: {formatCop(declaredValueLimit)}.
                     </p>
                   )}
@@ -801,43 +800,37 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 <PackageCheck className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-[12px] font-semibold text-intra-blue">Foto inicial obligatoria</p>
-                <p className="mt-0.5 text-[11px] leading-4 text-intra-text-subtle">
-                  En el checkout subirás una foto clara del paquete cerrado para que el viajero pueda verificar su estado antes de aceptar transportarlo.
+                <p className="intra-body-strong text-intra-blue">Foto inicial obligatoria</p>
+                <p className="mt-1 intra-caption text-intra-text-subtle">
+                  Subirás la foto del paquete en el checkout.
                 </p>
               </div>
             </div>
           </div>
 
           {msg ? (
-            <div
-              className={`mt-3 rounded-2xl border px-3.5 py-2 text-sm ${
-                msg.startsWith("✅")
-                  ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
-                  : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-              }`}
-            >
+            <div className="mt-3 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-3.5 py-2 intra-body text-intra-danger">
               {msg}
             </div>
           ) : null}
 
-          <div className="fixed inset-x-0 bottom-0 z-30 border-t border-intra-border-strong bg-intra-card/95 p-4 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:mt-3 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+          <div className="mt-3">
             <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row">
               <button
                 disabled={loading || routeLoading || quoteLoading}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-intra-green px-5 py-3 text-sm font-semibold text-intra-card shadow-[0_12px_22px_rgba(46,204,113,0.20)] transition hover:bg-intra-green-hover-alt disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+                className="intra-btn intra-btn-primary w-full sm:flex-1"
               >
                 <CreditCard className="mr-2 h-4 w-4" />
-                {loading ? "Procesando..." : "Continuar"}
+                {loading ? "Procesando..." : "Continuar al checkout"}
               </button>
 
               <button
                 type="button"
                 onClick={() => router.push("/app")}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-intra-border-strong bg-intra-card px-5 py-3 text-sm font-semibold text-intra-blue transition hover:bg-intra-bg-app sm:flex-1"
+                className="intra-btn intra-btn-secondary w-full sm:flex-1"
               >
                 <House className="mr-2 h-4 w-4" />
-                Volver a inicio
+                Volver al inicio
               </button>
             </div>
           </div>
@@ -848,13 +841,13 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
         <div className="rounded-[24px] border border-intra-border-strong bg-intra-card p-3 shadow-[var(--intra-shadow-base)] lg:h-full lg:min-h-0">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[14px] font-semibold text-intra-blue">Resumen del envío</p>
+              <p className="intra-h4">Resumen del envío</p>
             </div>
             <div
-              className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+              className={`intra-badge ${
                 isReadyToContinue
-                  ? "bg-intra-success-soft text-intra-text-success"
-                  : "bg-intra-warning-soft text-intra-warning-text"
+                  ? "intra-badge-success"
+                  : "intra-badge-warning"
               }`}
             >
               {isReadyToContinue ? "Listo" : "Pendiente"}
@@ -909,10 +902,10 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   <div className="flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-xl bg-intra-bg-app text-intra-blue">
                     <item.icon className="h-3.5 w-3.5" />
                   </div>
-                  <p className="whitespace-nowrap text-[12px] text-intra-text-subtle">{item.label}</p>
+                  <p className="whitespace-nowrap intra-caption text-intra-text-subtle">{item.label}</p>
                 </div>
                 <p
-                  className={`max-w-[56%] truncate whitespace-nowrap text-right text-[12px] font-semibold leading-4 ${
+                  className={`max-w-[56%] truncate whitespace-nowrap text-right intra-caption-strong ${
                     item.value === "Por definir" ? "text-intra-text-muted/60" : "text-intra-blue"
                   }`}
                   title={item.value}
@@ -924,13 +917,13 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
           </div>
 
           {routeLoading ? (
-            <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-2 text-[12px] text-intra-text-subtle">
+            <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-2 intra-caption text-intra-text-subtle">
               Consultando tarifa de la ruta...
             </div>
           ) : null}
 
           {!routeLoading && errors.route ? (
-            <div className="mt-2 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-3 py-2 text-[12px] text-intra-danger">
+            <div className="mt-2 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-3 py-2 intra-caption text-intra-danger">
               {errors.route}
             </div>
           ) : null}
@@ -939,11 +932,11 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
             {summaryChips.map((chip) => (
               <div
                 key={chip.label}
-                className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-intra-border-strong bg-intra-card px-1.5 py-1 text-[10px] whitespace-nowrap text-intra-text-subtle"
+                className="inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-intra-border-strong bg-intra-card px-2 py-1 intra-badge-text whitespace-nowrap text-intra-text-subtle"
               >
                 <chip.icon className="h-2.5 w-2.5 shrink-0 text-intra-blue" />
                 <span className="truncate">{chip.label}</span>
-                <span className="font-semibold text-intra-blue">{chip.value}</span>
+                <span className="intra-badge-text text-intra-blue">{chip.value}</span>
               </div>
             ))}
           </div>
@@ -960,28 +953,28 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   <Receipt className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-[13px] font-semibold text-intra-blue">Resumen del servicio</p>
-                  <p className="mt-0.5 text-[11px] text-intra-text-subtle">
+                  <p className="intra-body-strong text-intra-blue">Resumen del servicio</p>
+                  <p className="mt-1 intra-caption text-intra-text-subtle">
                     Pago seguro con tarifa operativa incluida.
                   </p>
                 </div>
               </div>
 
-              <div className="mt-3 space-y-2 text-[12px] text-intra-text-subtle">
+              <div className="mt-3 space-y-2 intra-caption text-intra-text-subtle">
                 <div className="flex items-center justify-between gap-3">
                   <span>Tarifa operativa incluida</span>
-                  <span className="font-semibold text-intra-blue">
+                  <span className="intra-caption-strong text-intra-blue">
                     Ruta {routeCategoryLabel.toLowerCase()}
                   </span>
                 </div>
               </div>
 
               <div className="mt-3 border-t border-intra-border-soft pt-3">
-                <p className="text-[11px] text-intra-text-subtle">Total a pagar</p>
-                <p className="mt-1 text-[28px] font-bold leading-none text-intra-green">
+                <p className="intra-badge-text text-intra-text-subtle">Total a pagar</p>
+                <p className="mt-1 intra-metric text-intra-green">
                   ${(paymentQuote.amount ?? 0).toLocaleString("es-CO")}
                 </p>
-                <p className="mt-2 text-[11px] leading-4 text-intra-text-subtle">
+                <p className="mt-2 intra-caption text-intra-text-subtle">
                   Pago protegido. Total con tarifa operativa incluida.
                 </p>
               </div>
@@ -1004,22 +997,22 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                 <ShieldCheck className="h-3.5 w-3.5" />
               </div>
               <div>
-                <p className="text-[12px] font-semibold text-intra-blue">
+                <p className="intra-body-strong text-intra-blue">
                   {isReadyToContinue ? "Todo listo para continuar" : "Completa los datos obligatorios"}
                 </p>
                 <p
-                  className={`mt-0.5 text-[11px] leading-4 ${
+                  className={`mt-1 intra-caption ${
                     isReadyToContinue ? "text-intra-text-subtle" : "text-intra-warning-text"
                   }`}
                 >
-                  Tu envío podrá pasar a checkout y luego publicarse para conectar con viajeros compatibles.
+                  Tu envío podrá pasar al checkout seguro.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mt-1.5 rounded-2xl border border-intra-border-soft bg-intra-card px-2.5 py-2 text-[11px] leading-4 text-intra-text-subtle">
-            <p className="font-medium text-intra-blue">Privacidad</p>
+          <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-card px-3 py-2 intra-caption text-intra-text-subtle">
+            <p className="intra-caption-strong text-intra-blue">Privacidad</p>
             <p className="mt-0.5">
               Tu información estará protegida y solo se compartirá con personas interesadas en la ruta y entrega.
             </p>
