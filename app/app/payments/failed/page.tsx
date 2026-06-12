@@ -54,37 +54,37 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
   return (
     <>
       <AppNavbar />
-      <main className="intra-page-shell px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <main className="intra-page-shell px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl items-center">
-          <section className="w-full rounded-[24px] border border-intra-danger-border bg-intra-card p-5 shadow-sm sm:p-7">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-intra-danger-soft text-intra-danger">
-              <CircleAlert className="h-7 w-7" strokeWidth={1.8} aria-hidden="true" />
+          <section className="w-full rounded-[24px] border border-intra-danger-border bg-intra-card p-4 shadow-sm sm:p-7">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-intra-danger-soft text-intra-danger sm:h-14 sm:w-14">
+              <CircleAlert className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} aria-hidden="true" />
             </div>
 
-            <div className="mt-5 text-center">
+            <div className="mt-4 text-center sm:mt-5">
               <p className="intra-badge-text text-intra-danger">PAGO NO COMPLETADO</p>
-              <h1 className="mt-2 intra-h1 text-intra-blue">No pudimos completar el pago</h1>
-              <p className="mx-auto mt-3 max-w-xl intra-body text-intra-text-muted">
+              <h1 className="mt-2 intra-h1 text-intra-blue">No se completó el pago</h1>
+              <p className="mx-auto mt-2 max-w-xl intra-body text-intra-text-muted sm:mt-3">
                 Revisa el método de pago e inténtalo nuevamente.
               </p>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3.5 sm:p-4">
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:mt-6 sm:grid-cols-2">
+              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3 sm:p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Monto</p>
                 <p className="intra-body-strong text-intra-blue">{formatCop(Number.isFinite(amount) ? amount : 0)}</p>
               </div>
-              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3.5 sm:p-4">
+              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3 sm:p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Estado</p>
                 <p className="intra-body-strong text-intra-blue">Pago no completado</p>
               </div>
-              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3.5 sm:p-4">
+              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3 sm:p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Código de rastreo</p>
                 <p className="intra-body-strong text-intra-blue">{trackingCode}</p>
               </div>
-              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3.5 sm:p-4">
+              <div className="flex min-h-20 flex-col gap-1.5 rounded-2xl bg-intra-bg-app p-3 sm:p-4">
                 <p className="intra-badge-text uppercase text-intra-text-muted">Recomendación</p>
-                <p className="intra-body-strong text-intra-blue">Reintentar pago</p>
+                <p className="intra-body-strong text-intra-blue">Revisa tu método</p>
               </div>
             </div>
 
@@ -94,7 +94,7 @@ export default async function PaymentFailedPage({ searchParams }: PaymentFailedP
               </div>
             ) : null}
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row sm:justify-center">
               <Link
                 href={retryHref}
                 className="intra-btn intra-btn-primary min-h-12 w-full sm:w-56"
