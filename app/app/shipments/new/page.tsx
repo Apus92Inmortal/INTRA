@@ -40,7 +40,7 @@ export default async function NewShipmentPage() {
       <AppNavbar />
 
       <main className="intra-page-shell px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-5xl">
           <section className="mb-4">
             <p className="intra-badge-text uppercase text-intra-text-success">NUEVO ENVÍO</p>
             <h1 className="mt-1 intra-h1">
