@@ -9,6 +9,7 @@ import {
   CreditCard,
   House,
   PackageCheck,
+  Route,
 } from "lucide-react"
 import {
   buildFixedRouteQuote,
@@ -557,18 +558,20 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-2">
-              <div className="flex min-w-0 items-center gap-2">
-                <ArrowRightLeft className="h-4 w-4 shrink-0 text-intra-blue" />
-                <span className="truncate intra-body-strong text-intra-blue">
-                  {routeSummaryLabel}
-                </span>
-              </div>
-              <div className="flex min-w-0 items-center justify-end gap-2">
-                <CircleDollarSign className="h-4 w-4 shrink-0 text-intra-green" />
-                <span className="truncate intra-body-strong text-intra-green">
-                  {routeFeeLabel}
-                </span>
+            <div className="mt-3 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-2">
+              <div className="mx-auto grid w-full max-w-3xl grid-cols-2 gap-2 px-1 sm:px-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <Route className="h-4 w-4 shrink-0 text-intra-blue" />
+                  <span className="truncate intra-body-strong text-intra-blue">
+                    {routeSummaryLabel}
+                  </span>
+                </div>
+                <div className="flex min-w-0 items-center justify-end gap-2">
+                  <CircleDollarSign className="h-4 w-4 shrink-0 text-intra-green" />
+                  <span className="truncate intra-body-strong text-intra-green">
+                    {routeFeeLabel}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -579,7 +582,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
             ) : null}
           </section>
 
-          <section className="mt-3 border-t border-intra-border-soft pt-3">
+          <section className="mt-2 border-t border-intra-border-soft pt-2">
             <SectionHeader
               step="2"
               title="Información del envío"
