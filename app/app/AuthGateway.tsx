@@ -269,7 +269,7 @@ export default function AuthGateway({
             </Link>
 
             <div className="mt-5 max-w-lg">
-              <h1 className="text-[30px] font-bold leading-[36px] text-white sm:text-[34px] sm:leading-[40px]">
+              <h1 className="intra-h1 text-white">
                 Bienvenido a INTRA
               </h1>
               <p className="intra-on-dark-body mt-2.5 max-w-md">
@@ -306,7 +306,7 @@ export default function AuthGateway({
             {isSafeInternalPath(nextPath) ? (
               <div className="intra-auth-highlight mt-3 hidden items-start gap-3 sm:flex">
                 <CheckCircle2 className="intra-icon-lg mt-0.5 shrink-0" aria-hidden="true" />
-                <span>Después de entrar te llevaremos a <span className="font-bold">{nextPath}</span>.</span>
+                <span>Después de entrar te llevaremos a <span className="intra-body-strong text-white">{nextPath}</span>.</span>
               </div>
             ) : null}
 
@@ -318,7 +318,7 @@ export default function AuthGateway({
                 <button
                   type="button"
                   onClick={() => switchTab("login")}
-                  className={`inline-flex min-h-11 items-center justify-center rounded-[10px] px-4 text-sm font-semibold transition ${
+                  className={`inline-flex min-h-11 items-center justify-center rounded-[10px] px-4 intra-body-strong transition ${
                     tab === "login"
                       ? "bg-intra-card text-intra-blue shadow-sm"
                       : "text-intra-text-subtle hover:text-intra-blue"
@@ -329,7 +329,7 @@ export default function AuthGateway({
                 <button
                   type="button"
                   onClick={() => switchTab("register")}
-                  className={`inline-flex min-h-11 items-center justify-center rounded-[10px] px-4 text-sm font-semibold transition ${
+                  className={`inline-flex min-h-11 items-center justify-center rounded-[10px] px-4 intra-body-strong transition ${
                     tab === "register"
                       ? "bg-intra-card text-intra-blue shadow-sm"
                       : "text-intra-text-subtle hover:text-intra-blue"
@@ -453,7 +453,7 @@ export default function AuthGateway({
                 )}
 
                 {tab === "register" ? (
-                  <div className="space-y-2 rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-3 py-3 text-sm leading-5 text-intra-text-subtle">
+                  <div className="space-y-2 rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-3 py-3 intra-body text-intra-text-subtle">
                     <div className="flex items-start gap-3">
                       <input
                         id="terms-conditions-acceptance"
@@ -468,7 +468,7 @@ export default function AuthGateway({
                         <button
                           type="button"
                           onClick={() => setLegalModalKey("terms-conditions")}
-                          className="font-semibold text-intra-text-success underline underline-offset-4"
+                          className="intra-link text-intra-text-success underline underline-offset-4"
                         >
                           Términos y Condiciones
                         </button>
@@ -489,7 +489,7 @@ export default function AuthGateway({
                         <button
                           type="button"
                           onClick={() => setLegalModalKey("privacy-policy")}
-                          className="font-semibold text-intra-text-success underline underline-offset-4"
+                          className="intra-link text-intra-text-success underline underline-offset-4"
                         >
                           Política de Privacidad
                         </button>

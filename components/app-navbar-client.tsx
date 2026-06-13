@@ -193,7 +193,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`inline-flex min-h-11 items-center gap-2 rounded-[var(--intra-radius-xs)] px-4 py-2.5 text-sm font-medium transition ${
+                  className={`inline-flex min-h-11 items-center gap-2 rounded-[var(--intra-radius-xs)] px-4 py-2.5 intra-body-strong transition ${
                     isActive
                       ? "bg-intra-blue text-intra-card"
                       : "text-intra-text-subtle hover:bg-intra-bg-app hover:text-intra-blue"
@@ -202,7 +202,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                   <span>{link.label}</span>
                   {showPending ? (
                     <span
-                      className={`intra-badge min-w-[1.5rem] justify-center px-2 py-0.5 text-[11px] ${
+                      className={`intra-badge intra-badge-text min-w-[1.5rem] justify-center px-2 py-0.5 ${
                         isActive ? "bg-intra-card/20 text-intra-card" : "bg-intra-success-soft text-intra-text-success"
                       }`}
                     >
@@ -224,7 +224,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                 <Link
                   key={action.href}
                   href={action.href}
-                  className={`intra-btn px-4 py-2.5 text-sm ${getDesktopActionClassName(
+                  className={`intra-btn px-4 py-2.5 ${getDesktopActionClassName(
                     action.variant
                   )}`}
                 >
@@ -265,7 +265,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                       key={link.href}
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex min-h-11 items-center gap-3 rounded-[var(--intra-radius-xs)] border px-4 py-3 text-sm font-medium transition ${
+                      className={`flex min-h-11 items-center gap-3 rounded-[var(--intra-radius-xs)] border px-4 py-3 intra-body-strong transition ${
                         isActive
                           ? "border-intra-blue bg-intra-blue text-intra-card"
                           : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:bg-intra-bg-app"
@@ -275,7 +275,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                       <span className="flex-1">{link.mobileLabel}</span>
                       {showPending ? (
                         <span
-                          className={`intra-badge min-w-[1.5rem] justify-center px-2 py-0.5 text-[11px] ${
+                          className={`intra-badge intra-badge-text min-w-[1.5rem] justify-center px-2 py-0.5 ${
                             isActive ? "bg-intra-card/20 text-intra-card" : "bg-intra-success-soft text-intra-text-success"
                           }`}
                         >
@@ -298,7 +298,7 @@ export function AppNavbarClient({ context }: { context: AppNavbarContext }) {
                       key={action.href}
                       href={action.href}
                       onClick={() => setMobileOpen(false)}
-                      className={`intra-btn px-4 py-3 text-sm ${getMobileActionClassName(
+                      className={`intra-btn px-4 py-3 ${getMobileActionClassName(
                         action.variant
                       )}`}
                     >
