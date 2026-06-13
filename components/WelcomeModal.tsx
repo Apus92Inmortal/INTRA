@@ -60,16 +60,16 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
   return (
     <div className="intra-modal-backdrop p-4">
       <div className="intra-modal-panel w-full max-w-md p-6">
-        <h2 className="text-2xl font-bold text-intra-blue">
+        <h2 className="intra-h2 text-intra-blue">
           Bienvenido a INTRA
         </h2>
 
-        <p className="mt-3 text-sm leading-6 text-intra-text-subtle">
+        <p className="mt-3 intra-body text-intra-text-subtle">
           Estás a un paso de empezar en INTRA. Completa tu perfil para publicar envíos,
           ofrecer espacio en tus viajes y conectar con otros usuarios.
         </p>
 
-        <p className="mt-2 text-xs text-intra-text-muted/70">
+        <p className="mt-2 intra-caption text-intra-text-muted/70">
           Te tomará menos de un minuto.
         </p>
 
@@ -77,7 +77,7 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
           <button
             onClick={handleCompleteProfile}
             disabled={loading}
-            className="intra-btn flex-1 bg-intra-blue px-4 py-3 text-center text-sm text-intra-card hover:opacity-95 disabled:opacity-50"
+            className="intra-btn flex-1 bg-intra-blue px-4 py-3 text-center text-intra-card hover:opacity-95 disabled:opacity-50"
           >
             {loading ? "Abriendo perfil..." : "Completar perfil"}
           </button>
@@ -85,7 +85,7 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
           <button
             onClick={handleClose}
             disabled={loading}
-            className="intra-btn flex-1 border border-intra-border-soft bg-intra-card px-4 py-3 text-sm text-intra-blue hover:bg-intra-bg-app disabled:opacity-50"
+            className="intra-btn flex-1 border border-intra-border-soft bg-intra-card px-4 py-3 text-intra-blue hover:bg-intra-bg-app disabled:opacity-50"
           >
             {loading ? "Cerrando..." : "Ahora no"}
           </button>

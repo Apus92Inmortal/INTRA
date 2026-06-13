@@ -185,7 +185,7 @@ function DashboardStatCard({
         </div>
         <p className={accent ? "intra-metric leading-none text-intra-green" : "intra-metric leading-none"}>{value}</p>
         {label === "Envíos activos" ? (
-          <p className="min-w-0 intra-caption leading-4 sm:leading-[inherit]">
+          <p className="min-w-0 intra-caption">
             <span className="sm:hidden">Envíos<br />activos</span>
             <span className="hidden sm:inline">Envíos activos</span>
           </p>

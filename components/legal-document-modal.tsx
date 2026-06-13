@@ -89,7 +89,7 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
           <div className="min-w-0 flex-1">
             <h2
               id={titleId}
-              className="text-xl font-extrabold leading-7 text-intra-blue sm:text-3xl sm:leading-9"
+              className="intra-h2 text-intra-blue"
             >
               {content.title}
             </h2>
@@ -105,26 +105,26 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
         </div>
 
         <div className="mx-5 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card sm:mx-8">
-          <div className="flex flex-wrap items-center gap-3 border-b border-intra-border-soft px-4 py-3 text-sm text-intra-blue">
+          <div className="flex flex-wrap items-center gap-3 border-b border-intra-border-soft px-4 py-3 intra-body text-intra-blue">
             <FileText className="h-4 w-4 shrink-0 text-intra-text-subtle" />
-            <span className="min-w-0 flex-1 truncate font-semibold">{content.shortTitle}</span>
+            <span className="min-w-0 flex-1 truncate intra-body-strong">{content.shortTitle}</span>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto bg-white px-5 py-5 sm:max-h-[50vh] sm:px-10 sm:py-7">
             <div className="mx-auto max-w-3xl space-y-5">
               {content.sections.map((section) => (
                 <section key={section.title} className="border-b border-intra-border-soft pb-5 last:border-b-0">
-                  <h3 className="text-base font-extrabold leading-6 text-intra-blue sm:text-lg">
+                  <h3 className="intra-h4 text-intra-blue">
                     {section.title}
                   </h3>
                   <div className="mt-3 space-y-3">
                     {renderTextBlocks(
                       section.paragraphs,
-                      "text-sm leading-7 text-intra-text-subtle",
-                      "space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle"
+                      "intra-body text-intra-text-subtle",
+                      "space-y-2 pl-5 intra-body text-intra-text-subtle"
                     )}
                     {section.bullets ? (
-                      <ul className="space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle">
+                      <ul className="space-y-2 pl-5 intra-body text-intra-text-subtle">
                         {section.bullets.map((bullet) => (
                           <li key={bullet} className="list-disc">
                             {bullet}
@@ -134,15 +134,15 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
                     ) : null}
                     {section.groups?.map((group) => (
                       <div key={group.title} className="rounded-[var(--intra-radius-xs)] bg-intra-bg-app p-4">
-                        <h4 className="text-sm font-bold text-intra-blue">{group.title}</h4>
+                        <h4 className="intra-body-strong text-intra-blue">{group.title}</h4>
                         <div className="mt-2 space-y-2">
                           {renderTextBlocks(
                             group.paragraphs,
-                            "text-sm leading-6 text-intra-text-subtle",
-                            "space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle"
+                            "intra-body text-intra-text-subtle",
+                            "space-y-2 pl-5 intra-body text-intra-text-subtle"
                           )}
                           {group.bullets ? (
-                            <ul className="space-y-2 pl-5 text-sm leading-6 text-intra-text-subtle">
+                            <ul className="space-y-2 pl-5 intra-body text-intra-text-subtle">
                               {group.bullets.map((bullet) => (
                                 <li key={bullet} className="list-disc">
                                   {bullet}
@@ -159,13 +159,13 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
             </div>
           </div>
 
-          <div className="flex h-10 shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-0 text-xs text-intra-text-subtle sm:h-auto sm:py-3">
+          <div className="flex h-10 shrink-0 items-center gap-2 border-t border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-0 intra-caption text-intra-text-subtle sm:h-auto sm:py-3">
             <ShieldCheck className="h-4 w-4 shrink-0 text-intra-text-success" />
-            <span className="flex min-w-0 flex-col leading-4 sm:inline sm:leading-normal">
+            <span className="flex min-w-0 flex-col sm:inline">
               <span>Documento v{content.version}.</span>
               <span>
                 Última actualización:{" "}
-                <span className="font-semibold text-intra-text-success">{content.updatedAtLabel}</span>
+                <span className="intra-caption-strong text-intra-text-success">{content.updatedAtLabel}</span>
               </span>
             </span>
           </div>
@@ -176,14 +176,14 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
             <button
               type="button"
               onClick={onClose}
-              className="intra-btn intra-btn-secondary hidden flex-1 px-5 py-2 text-sm sm:inline-flex sm:flex-none"
+              className="intra-btn intra-btn-secondary hidden flex-1 px-5 py-2 sm:inline-flex sm:flex-none"
             >
               Cerrar
             </button>
             <button
               type="button"
               onClick={onAcceptAndContinue}
-              className="intra-btn intra-btn-primary w-full max-w-[19rem] whitespace-nowrap px-8 py-2 text-sm sm:w-auto sm:max-w-none sm:flex-none sm:px-5"
+              className="intra-btn intra-btn-primary w-full max-w-[19rem] whitespace-nowrap px-8 py-2 sm:w-auto sm:max-w-none sm:flex-none sm:px-5"
             >
               <CheckCircle2 className="h-4 w-4" />
               Acepto y continúo
