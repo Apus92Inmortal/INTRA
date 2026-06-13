@@ -461,12 +461,17 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     router.push(`/app/payments/checkout?${params.toString()}`)
   }
 
-  const fieldBaseClassName = "intra-input"
+  const fieldBaseClassName = "intra-input h-12"
 
   const routeFeeLabel =
     paymentQuote?.success && paymentQuote.amount
-      ? `$${paymentQuote.amount.toLocaleString("es-CO")}`
-      : "Pendiente"
+      ? `$${paymentQuote.amount.toLocaleString("es-CO")} estimado`
+      : "Tarifa pendiente"
+  const routeSummaryLabel = routeLoading
+    ? "Consultando ruta"
+    : routeCategory
+      ? `Ruta ${routeCategoryLabel.toLowerCase()}`
+      : "Ruta por definir"
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -552,16 +557,18 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
               </div>
             </div>
 
-            <div className="mt-3 grid gap-2 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-2 sm:grid-cols-2">
-              <div>
-                <p className="intra-badge-text uppercase text-intra-text-subtle">Categoría de ruta</p>
-                <p className="mt-1 intra-body-strong text-intra-blue">
-                  {routeLoading ? "Consultando" : routeCategory ? `Ruta ${routeCategoryLabel.toLowerCase()}` : routeCategoryLabel}
-                </p>
+            <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl border border-intra-border-soft bg-intra-bg-app px-3 py-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <ArrowRightLeft className="h-4 w-4 shrink-0 text-intra-blue" />
+                <span className="truncate intra-body-strong text-intra-blue">
+                  {routeSummaryLabel}
+                </span>
               </div>
-              <div className="sm:text-right">
-                <p className="intra-badge-text uppercase text-intra-text-subtle">Tarifa estimada</p>
-                <p className="mt-1 intra-body-strong text-intra-green">{routeFeeLabel}</p>
+              <div className="flex min-w-0 items-center justify-end gap-2">
+                <CircleDollarSign className="h-4 w-4 shrink-0 text-intra-green" />
+                <span className="truncate intra-body-strong text-intra-green">
+                  {routeFeeLabel}
+                </span>
               </div>
             </div>
 
@@ -580,8 +587,8 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
             />
 
             <div className="grid gap-3">
-              <div className="grid gap-3 md:grid-cols-[0.9fr_1.35fr]">
-                <div>
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="min-w-0">
                   <label
                     htmlFor="shipment-kind"
                     className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
@@ -608,33 +615,6 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                   ) : null}
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="shipment-description"
-                    className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
-                  >
-                    Descripción
-                  </label>
-                  <textarea
-                    id="shipment-description"
-                    name="description"
-                    className={`${fieldBaseClassName} h-[42px] resize-none ${errors.description ? "intra-input-error" : ""}`}
-                    value={description}
-                    onChange={(e) => {
-                      setDescription(e.target.value)
-                      syncErrorsIfNeeded({ description: e.target.value })
-                    }}
-                    required
-                    rows={1}
-                    placeholder="Ej: sobre con documentos o caja pequeña."
-                  />
-                  {errors.description ? (
-                    <p className="intra-field-error">{errors.description}</p>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-2">
                 <div className="min-w-0">
                   <label
                     htmlFor="shipment-weight-kg"
@@ -688,6 +668,31 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
                     </p>
                   )}
                 </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="shipment-description"
+                  className="mb-1 block intra-badge-text uppercase text-intra-text-subtle"
+                >
+                  Descripción
+                </label>
+                <textarea
+                  id="shipment-description"
+                  name="description"
+                  className={`${fieldBaseClassName} resize-none ${errors.description ? "intra-input-error" : ""}`}
+                  value={description}
+                  onChange={(e) => {
+                    setDescription(e.target.value)
+                    syncErrorsIfNeeded({ description: e.target.value })
+                  }}
+                  required
+                  rows={2}
+                  placeholder="Ej: sobre con documentos o caja pequeña."
+                />
+                {errors.description ? (
+                  <p className="intra-field-error">{errors.description}</p>
+                ) : null}
               </div>
             </div>
           </section>
