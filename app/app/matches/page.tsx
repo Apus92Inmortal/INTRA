@@ -275,23 +275,25 @@ function PreferenceToggleColumn({
   items: Array<{ label: string; value: boolean | null | undefined; icon: ReactNode }>;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
       {items.map((item) => {
         const enabled = item.value === true;
 
         return (
           <span
             key={item.label}
-            className={`inline-flex min-w-0 items-center gap-2 rounded-full border px-3 py-1.5 intra-badge-text ${
+            className={`flex min-h-9 w-full min-w-0 items-center justify-between gap-3 rounded-full border px-3 py-1.5 intra-badge-text sm:w-auto sm:justify-start ${
               enabled
                 ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                 : "border-intra-border-strong bg-intra-bg-app text-intra-text-muted"
             }`}
           >
-            <span className={`shrink-0 ${enabled ? "text-intra-text-success" : "text-intra-text-muted"}`}>
-              {item.icon}
+            <span className="flex min-w-0 items-center gap-2">
+              <span className={`shrink-0 ${enabled ? "text-intra-text-success" : "text-intra-text-muted"}`}>
+                {item.icon}
+              </span>
+              <span className="truncate whitespace-nowrap">{item.label}</span>
             </span>
-            <span className="truncate">{item.label}</span>
             <span className="shrink-0">{enabled ? "Sí" : "No"}</span>
           </span>
         );
