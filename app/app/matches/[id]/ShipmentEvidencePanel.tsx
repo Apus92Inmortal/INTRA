@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Camera, ImageIcon, PackageCheck, ShieldAlert, Truck } from "lucide-react";
-import { EvidenceImagePreview } from "@/components/evidence-image-preview";
+import { ImageIcon, X, ZoomIn } from "lucide-react";
 import EvidenceUploader from "./EvidenceUploader";
 
 export type ShipmentEvidenceType =
@@ -71,22 +70,6 @@ function getPrimaryEvidence(
   return deliveryEvidence ?? pickupEvidence ?? initialEvidence;
 }
 
-function EvidenceIcon({ type }: { type: ShipmentEvidenceType }) {
-  if (type === "delivery_photo") {
-    return <Truck className="h-5 w-5" strokeWidth={2} />;
-  }
-
-  if (type === "pickup_photo") {
-    return <PackageCheck className="h-5 w-5" strokeWidth={2} />;
-  }
-
-  if (type === "suspicious_photo") {
-    return <ShieldAlert className="h-5 w-5" strokeWidth={2} />;
-  }
-
-  return <Camera className="h-5 w-5" strokeWidth={2} />;
-}
-
 function EvidenceThumbnail({
   evidence,
   compact = false,
@@ -94,6 +77,7 @@ function EvidenceThumbnail({
   evidence: ShipmentEvidenceViewItem;
   compact?: boolean;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
   const meta = EVIDENCE_META[evidence.evidenceType];
   const imageClassName = compact
     ? "h-14 w-14 rounded-xl"
@@ -114,14 +98,63 @@ function EvidenceThumbnail({
     </div>
   );
 
+  if (!evidence.signedUrl) {
+    return image;
+  }
+
   return (
-    <EvidenceImagePreview
-      src={evidence.signedUrl}
-      alt={`Evidencia ${meta.title.toLowerCase()}`}
-      modalTitle={meta.title}
-    >
-      {image}
-    </EvidenceImagePreview>
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="group relative block text-left"
+        aria-label={`Abrir evidencia ${meta.title.toLowerCase()}`}
+      >
+        {image}
+        <span className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-intra-blue/90 text-intra-card opacity-0 shadow-sm transition group-hover:opacity-100 group-focus-visible:opacity-100">
+          <ZoomIn className="h-4 w-4" strokeWidth={2} />
+        </span>
+      </button>
+
+      {isOpen ? (
+        <div
+          className="intra-modal-backdrop p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={meta.title}
+        >
+          <div className="intra-modal-panel relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
+            <div className="flex items-start justify-between gap-3 border-b border-intra-border px-4 py-3">
+              <div className="min-w-0">
+                <p className="intra-h3 text-intra-blue">{meta.title}</p>
+                <p className="mt-1 intra-caption text-intra-text-muted">
+                  Subida por {evidence.uploadedByName}
+                </p>
+                <p className="mt-0.5 intra-caption text-intra-text-muted">
+                  {formatEvidenceDate(evidence.createdAt)}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="intra-icon-button h-10 w-10 shrink-0"
+                aria-label="Cerrar imagen"
+              >
+                <X className="h-5 w-5" strokeWidth={2.2} />
+              </button>
+            </div>
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-intra-neutral-soft-alt p-3 sm:p-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={evidence.signedUrl}
+                alt={`Evidencia ${meta.title.toLowerCase()}`}
+                className="max-h-[78vh] max-w-full rounded-xl object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
 
@@ -156,13 +189,7 @@ export default function ShipmentEvidencePanel({
         <div className="mt-4 grid gap-3 sm:grid-cols-[148px_minmax(0,1fr)] sm:items-center">
           <EvidenceThumbnail evidence={primaryEvidence} />
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-intra-info">
-              <EvidenceIcon type={primaryEvidence.evidenceType} />
-              <p className="intra-body-strong text-intra-blue">{currentMeta.title}</p>
-            </div>
-            <p className="mt-1 intra-caption text-intra-text-muted">
-              Subida por {primaryEvidence.uploadedByName} · {formatEvidenceDate(primaryEvidence.createdAt)}
-            </p>
+            <p className="intra-body-strong text-intra-blue">{currentMeta.title}</p>
           </div>
         </div>
       ) : (

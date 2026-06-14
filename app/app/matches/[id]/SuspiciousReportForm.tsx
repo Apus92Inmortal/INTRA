@@ -202,7 +202,7 @@ export default function SuspiciousReportForm({
           }`}
         >
           <ShieldAlert className="h-4 w-4" strokeWidth={2.1} />
-          {hasActiveAlert ? "Alerta abierta" : "Reportar paquete sospechoso"}
+          {hasActiveAlert ? "Alerta abierta" : "Reportar novedad"}
         </button>
 
         {message ? (
@@ -223,7 +223,7 @@ export default function SuspiciousReportForm({
           className="fixed inset-0 z-50 flex items-center justify-center bg-intra-blue/75 p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Reportar paquete sospechoso"
+          aria-label="Reportar novedad"
         >
           <form
             onSubmit={onSubmit}
@@ -232,7 +232,7 @@ export default function SuspiciousReportForm({
             <div className="flex items-start justify-between gap-3 border-b border-intra-warning-border px-5 py-4">
               <div className="min-w-0">
                 <h3 className="intra-h3 text-intra-warning-text-strong">
-                  Reportar paquete sospechoso
+                  Reportar novedad
                 </h3>
                 <p className="mt-1 intra-caption text-intra-text-muted">
                   Adjunta una foto clara y describe qué debe revisar el equipo operativo.
