@@ -210,7 +210,7 @@ export default function ShipmentEvidencePanel({
                     expectedUploaderId={travelerId}
                     evidenceType="pickup_photo"
                     title="Recogí el paquete"
-                    description="Sube una foto clara del paquete recibido y agrega una descripción corta antes de cambiar el estado a en tránsito."
+                    description="Sube una foto y agrega una descripción corta."
                     triggerLabel="Recogí el paquete"
                     submitLabel="Confirmar recogida"
                     completeAction={pickupAction}
@@ -224,7 +224,7 @@ export default function ShipmentEvidencePanel({
                     expectedUploaderId={travelerId}
                     evidenceType="delivery_photo"
                     title="Reportar entrega"
-                    description="Sube una foto de soporte y agrega una descripción corta antes de reportar la entrega. No reemplaza la confirmación del cliente."
+                    description="Sube una foto y agrega una descripción corta."
                     triggerLabel="Reportar entrega"
                     submitLabel="Reportar entrega"
                     completeAction={deliveryAction}
@@ -247,7 +247,7 @@ export default function ShipmentEvidencePanel({
               expectedUploaderId={travelerId}
               evidenceType="pickup_photo"
               title="Recogí el paquete"
-              description="Sube una foto clara del paquete recibido y agrega una descripción corta antes de cambiar el estado a en tránsito."
+              description="Sube una foto y agrega una descripción corta."
               triggerLabel="Recogí el paquete"
               submitLabel="Confirmar recogida"
               completeAction={pickupAction}
@@ -261,7 +261,7 @@ export default function ShipmentEvidencePanel({
               expectedUploaderId={travelerId}
               evidenceType="delivery_photo"
               title="Reportar entrega"
-              description="Sube una foto de soporte y agrega una descripción corta antes de reportar la entrega. No reemplaza la confirmación del cliente."
+              description="Sube una foto y agrega una descripción corta."
               triggerLabel="Reportar entrega"
               submitLabel="Reportar entrega"
               completeAction={deliveryAction}
