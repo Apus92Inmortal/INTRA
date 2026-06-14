@@ -566,35 +566,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     </div>
 
                     {isTraveler ? (
-                      <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-center">
-                        <div className="space-y-3 intra-body">
-                          <p><span className="intra-body-strong">Tipo:</span> {getShipmentKindLabel(shipment?.kind)}</p>
-                          <p><span className="intra-body-strong">Valor:</span> {formatCurrency(shipment?.declared_value_cop)}</p>
-                          <p><span className="intra-body-strong">Descripción:</span> {shipment?.description?.trim() || "Sin descripción"}</p>
-                          <p><span className="intra-body-strong">Peso:</span> {shipment?.weight_kg ?? 0} kg</p>
-                        </div>
-
-                        {shipment?.id && ownerId && !isReviewStage ? (
-                          <div className="flex flex-col justify-center rounded-2xl border border-intra-warning-border bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-warning-soft)_100%)] p-4 shadow-sm">
-                            <div className="flex items-center gap-2 text-intra-warning-text">
-                              <div className="intra-icon-shell-body rounded-xl bg-intra-warning-soft-alt">
-                                <ShieldAlert className="intra-icon-body" strokeWidth={2} />
-                              </div>
-                              <p className="intra-caption-strong uppercase text-intra-warning-text">Protección del envío</p>
-                            </div>
-
-                            <div className="mt-3">
-                              <SuspiciousReportForm
-                                shipmentId={shipment.id}
-                                matchId={match.id}
-                                reporterName={participantNameById.get(user.id) ?? "El viajero"}
-                                recipientUserId={ownerId}
-                                hasActiveAlert={Boolean(activeAlert)}
-                                embedded
-                              />
-                            </div>
-                          </div>
-                        ) : null}
+                      <div className="mt-4 space-y-3 intra-body">
+                        <p><span className="intra-body-strong">Tipo:</span> {getShipmentKindLabel(shipment?.kind)}</p>
+                        <p><span className="intra-body-strong">Valor:</span> {formatCurrency(shipment?.declared_value_cop)}</p>
+                        <p><span className="intra-body-strong">Descripción:</span> {shipment?.description?.trim() || "Sin descripción"}</p>
+                        <p><span className="intra-body-strong">Peso:</span> {shipment?.weight_kg ?? 0} kg</p>
                       </div>
                     ) : (
                       <div className="mt-4 space-y-3 intra-body">
@@ -641,6 +617,17 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text xl:col-span-2">
                           En revisión operativa. No puedes avanzar el envío hasta que la alerta sea revisada.
                         </div>
+                      ) : null}
+
+                      {isTraveler && shipment?.id && ownerId ? (
+                        <SuspiciousReportForm
+                          shipmentId={shipment.id}
+                          matchId={match.id}
+                          reporterName={participantNameById.get(user.id) ?? "El viajero"}
+                          recipientUserId={ownerId}
+                          hasActiveAlert={Boolean(activeAlert)}
+                          embedded
+                        />
                       ) : null}
 
                       {canConfirmDelivery && confirmDeliverySubmitAction ? (
