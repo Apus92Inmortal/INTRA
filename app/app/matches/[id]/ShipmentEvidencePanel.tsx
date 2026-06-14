@@ -193,50 +193,52 @@ export default function ShipmentEvidencePanel({
     <section className="rounded-2xl border border-intra-border-strong bg-intra-card p-5 shadow-sm">
       <h2 className="intra-h3">Evidencia del envío</h2>
 
-      {primaryEvidence ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-[148px_minmax(0,1fr)] sm:items-center">
-          <EvidenceThumbnail evidence={primaryEvidence} />
-          <div className="min-w-0">
-            <div className="inline-flex items-center gap-2 text-intra-blue">
-              <EvidenceLabelIcon type={primaryEvidence.evidenceType} />
-              <p className="intra-body-strong">{currentMeta.title}</p>
+      <div className="lg:mt-4 lg:grid lg:grid-cols-[148px_minmax(0,1fr)_240px] lg:items-center lg:gap-4">
+        {primaryEvidence ? (
+          <div className="mt-4 grid gap-3 sm:grid-cols-[148px_minmax(0,1fr)] sm:items-center lg:contents">
+            <EvidenceThumbnail evidence={primaryEvidence} />
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-2 text-intra-blue">
+                <EvidenceLabelIcon type={primaryEvidence.evidenceType} />
+                <p className="intra-body-strong">{currentMeta.title}</p>
+              </div>
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="mt-4 rounded-2xl border border-dashed border-intra-border bg-intra-neutral-soft-alt px-4 py-4">
-          <p className="intra-body text-intra-text-muted">Sin evidencia visible todavía.</p>
-        </div>
-      )}
+        ) : (
+          <div className="mt-4 rounded-2xl border border-dashed border-intra-border bg-intra-neutral-soft-alt px-4 py-4 lg:col-span-2 lg:mt-0">
+            <p className="intra-body text-intra-text-muted">Sin evidencia visible todavía.</p>
+          </div>
+        )}
 
-      <div className="mt-4 grid gap-3">
-        {canUploadPickup ? (
-          <EvidenceUploader
-            shipmentId={shipmentId}
-            matchId={matchId}
-            expectedUploaderId={travelerId}
-            evidenceType="pickup_photo"
-            title="Recogí el paquete"
-            description="Sube una foto clara del paquete recibido y agrega una descripción corta antes de cambiar el estado a en tránsito."
-            triggerLabel="Recogí el paquete"
-            submitLabel="Guardar evidencia y marcar recogida"
-            completeAction={pickupAction}
-          />
-        ) : null}
+        <div className="mt-4 grid gap-3 lg:mt-0 lg:w-60 lg:justify-self-end">
+          {canUploadPickup ? (
+            <EvidenceUploader
+              shipmentId={shipmentId}
+              matchId={matchId}
+              expectedUploaderId={travelerId}
+              evidenceType="pickup_photo"
+              title="Recogí el paquete"
+              description="Sube una foto clara del paquete recibido y agrega una descripción corta antes de cambiar el estado a en tránsito."
+              triggerLabel="Recogí el paquete"
+              submitLabel="Guardar evidencia y marcar recogida"
+              completeAction={pickupAction}
+            />
+          ) : null}
 
-        {canUploadDelivery ? (
-          <EvidenceUploader
-            shipmentId={shipmentId}
-            matchId={matchId}
-            expectedUploaderId={travelerId}
-            evidenceType="delivery_photo"
-            title="Reportar entrega"
-            description="Sube una foto de soporte y agrega una descripción corta antes de reportar la entrega. No reemplaza la confirmación del cliente."
-            triggerLabel="Reportar entrega"
-            submitLabel="Guardar evidencia y reportar entrega"
-            completeAction={deliveryAction}
-          />
-        ) : null}
+          {canUploadDelivery ? (
+            <EvidenceUploader
+              shipmentId={shipmentId}
+              matchId={matchId}
+              expectedUploaderId={travelerId}
+              evidenceType="delivery_photo"
+              title="Reportar entrega"
+              description="Sube una foto de soporte y agrega una descripción corta antes de reportar la entrega. No reemplaza la confirmación del cliente."
+              triggerLabel="Reportar entrega"
+              submitLabel="Guardar evidencia y reportar entrega"
+              completeAction={deliveryAction}
+            />
+          ) : null}
+        </div>
       </div>
 
       {evidenceHistory.length > 0 ? (
