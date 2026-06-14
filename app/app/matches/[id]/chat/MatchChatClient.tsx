@@ -142,6 +142,7 @@ export default function MatchChatClient({
   const [sending, setSending] = useState(false);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
   const [channelReady, setChannelReady] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [readStateOverrides, setReadStateOverrides] = useState({
     lastReadByOwner: null as string | null,
     lastReadByTraveler: null as string | null,
@@ -164,6 +165,7 @@ export default function MatchChatClient({
     lastReadByTraveler,
   });
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const otherUserRoleLabel = viewerRole === "owner" ? "Viajero" : "Cliente";
   const otherUserInitials = getInitials(otherUserName);
 
@@ -201,6 +203,33 @@ export default function MatchChatClient({
     textarea.style.height = "0px";
     textarea.style.height = `${Math.min(textarea.scrollHeight, 140)}px`;
   }, [newMessage]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target;
+
+      if (!(target instanceof Node)) return;
+      if (menuRef.current?.contains(target)) return;
+
+      setMenuOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [menuOpen]);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
     bottomRef.current?.scrollIntoView({ behavior });
@@ -655,28 +684,37 @@ export default function MatchChatClient({
             </p>
           </div>
 
-          <details className="group relative shrink-0">
-            <summary
+          <div ref={menuRef} className="relative shrink-0">
+            <button
+              type="button"
               className="intra-icon-button h-10 w-10 cursor-pointer list-none [&::-webkit-details-marker]:hidden"
               aria-label="Opciones del chat"
+              aria-expanded={menuOpen}
+              aria-haspopup="menu"
+              onClick={() => setMenuOpen((open) => !open)}
             >
               <MoreVertical className="intra-icon-body" aria-hidden="true" />
-            </summary>
-            <div className="intra-popover-surface absolute right-0 top-12 z-20 w-60 space-y-2 p-2">
-              <Link
-                href={`/app/matches/${matchId}`}
-                className="flex min-h-11 items-center justify-center rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-neutral-pill px-3 py-3 text-center intra-caption-strong text-intra-blue transition hover:bg-intra-bg-app"
-              >
-                Ver detalle del match
-              </Link>
-              <Link
-                href={`/app/matches/${matchId}`}
-                className="flex min-h-11 items-center justify-center rounded-[var(--intra-radius-xs)] border border-intra-warning-border bg-intra-warning-soft px-3 py-3 text-center intra-caption-strong text-intra-warning-text transition hover:bg-intra-warning-soft-alt"
-              >
-                Reportar Novedad
-              </Link>
-            </div>
-          </details>
+            </button>
+
+            {menuOpen ? (
+              <div className="intra-popover-surface absolute right-0 top-12 z-20 w-60 space-y-2 p-2">
+                <Link
+                  href={`/app/matches/${matchId}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex min-h-11 items-center justify-center rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-neutral-pill px-3 py-3 text-center intra-caption-strong text-intra-blue transition hover:bg-intra-bg-app"
+                >
+                  Ver detalle del match
+                </Link>
+                <Link
+                  href={`/app/matches/${matchId}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex min-h-11 items-center justify-center rounded-[var(--intra-radius-xs)] border border-intra-warning-border bg-intra-warning-soft px-3 py-3 text-center intra-caption-strong text-intra-warning-text transition hover:bg-intra-warning-soft-alt"
+                >
+                  Reportar Novedad
+                </Link>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
 
