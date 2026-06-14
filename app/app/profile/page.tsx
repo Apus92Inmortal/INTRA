@@ -18,7 +18,7 @@ function getInitials(name: string | null | undefined, email: string | null | und
 function getVerificationLabel(status: string | null | undefined) {
   switch (status) {
     case "verified":
-      return "Verificada";
+      return "Cuenta verificada";
     case "pending":
       return "En revisión";
     case "rejected":
@@ -106,12 +106,12 @@ export default async function ProfilePage() {
                   {initials}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="intra-h3 truncate">{displayName}</h2>
+                  <h2 className="intra-h3 break-words">{displayName}</h2>
                   <p className="intra-body mt-1 break-all">{email || "Sin correo"}</p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
                 <span
                   className={`intra-pill intra-badge-text border ${
                     user.email_confirmed_at

@@ -136,7 +136,7 @@ function getVerificationTone(status: string | null, hasDocumentPhoto: boolean, h
   switch (status) {
     case "verified":
       return {
-        badgeLabel: "Verificada",
+        badgeLabel: "Cuenta verificada",
         badgeClasses: "border-intra-success-border bg-intra-success-soft text-intra-text-success",
         badgeIcon: "check" as const,
         note: "Tu identidad ya fue validada.",
@@ -293,6 +293,41 @@ export default function VerificationPanel({
       setLoading(false);
     }
   };
+
+  if (isVerified) {
+    return (
+      <section className="intra-card p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+          <div className="flex min-w-0 items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft text-intra-text-success">
+              <ShieldCheck className="intra-icon-lg" strokeWidth={1.9} />
+            </div>
+            <div className="min-w-0">
+              <h2 className="intra-h3">Verificación de identidad</h2>
+              <p className="intra-body mt-1">Tu identidad ya fue verificada.</p>
+              {reviewedAt ? (
+                <p className="intra-caption mt-1">
+                  Última revisión: <span className="intra-caption-strong">{formatDate(reviewedAt)}</span>
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <span className={`intra-pill intra-badge-text w-fit self-start border sm:justify-self-end ${tone.badgeClasses}`}>
+            <BadgeCheck className="intra-icon-xs" strokeWidth={2} />
+            {tone.badgeLabel}
+          </span>
+        </div>
+
+        <div className="mt-5 rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft px-4 py-3 intra-body text-intra-text-success">
+          <div className="flex items-start gap-2.5">
+            <ShieldCheck className="intra-icon-sm mt-0.5 shrink-0" strokeWidth={1.9} />
+            <p>Cuenta verificada.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="intra-card p-5 sm:p-6">
