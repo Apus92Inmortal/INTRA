@@ -662,16 +662,16 @@ export default function MatchChatClient({
             >
               <MoreVertical className="intra-icon-body" aria-hidden="true" />
             </summary>
-            <div className="intra-popover-surface absolute right-0 top-12 z-20 w-56 overflow-hidden p-1">
+            <div className="intra-popover-surface absolute right-0 top-12 z-20 w-60 space-y-2 p-2">
               <Link
                 href={`/app/matches/${matchId}`}
-                className="block rounded-[var(--intra-radius-xs)] px-3 py-3 intra-caption-strong hover:bg-intra-bg-app"
+                className="flex min-h-11 items-center justify-center rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-neutral-pill px-3 py-3 text-center intra-caption-strong text-intra-blue transition hover:bg-intra-bg-app"
               >
                 Ver detalle del match
               </Link>
               <Link
                 href={`/app/matches/${matchId}`}
-                className="block rounded-[var(--intra-radius-xs)] px-3 py-3 intra-caption-strong hover:bg-intra-bg-app"
+                className="flex min-h-11 items-center justify-center rounded-[var(--intra-radius-xs)] border border-intra-warning-border bg-intra-warning-soft px-3 py-3 text-center intra-caption-strong text-intra-warning-text transition hover:bg-intra-warning-soft-alt"
               >
                 Reportar Novedad
               </Link>
@@ -683,7 +683,7 @@ export default function MatchChatClient({
       <div
         ref={messagesViewportRef}
         onScroll={updateShouldStickToBottom}
-        className="flex-1 overflow-y-auto px-3 py-4 sm:px-5"
+        className="intra-chat-scrollbar flex-1 overflow-y-auto px-3 py-4 sm:px-5 lg:[&::-webkit-scrollbar-button]:h-0 lg:[&::-webkit-scrollbar-button]:w-0 lg:[&::-webkit-scrollbar-button]:hidden"
       >
         {messages.length === 0 ? (
           <div className="flex h-full min-h-60 items-center justify-center">
