@@ -15,32 +15,6 @@ function getInitials(name: string | null | undefined, email: string | null | und
     .toUpperCase();
 }
 
-function getVerificationLabel(status: string | null | undefined) {
-  switch (status) {
-    case "verified":
-      return "Cuenta verificada";
-    case "pending":
-      return "En revisión";
-    case "rejected":
-      return "Requiere corrección";
-    default:
-      return "Pendiente";
-  }
-}
-
-function getVerificationBadgeClass(status: string | null | undefined) {
-  switch (status) {
-    case "verified":
-      return "border-intra-success-border bg-intra-success-soft text-intra-text-success";
-    case "pending":
-      return "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text";
-    case "rejected":
-      return "border-intra-danger-border bg-intra-danger-soft text-intra-danger";
-    default:
-      return "border-intra-border-soft bg-intra-neutral-pill text-intra-blue";
-  }
-}
-
 export default async function ProfilePage() {
   const supabase = await createClient();
 
@@ -83,7 +57,6 @@ export default async function ProfilePage() {
 
   const displayName = profile?.full_name?.trim() || "Completa tu nombre";
   const email = user.email ?? "";
-  const verificationStatus = verification?.verification_status ?? null;
   const initials = getInitials(profile?.full_name, email);
 
   return (
@@ -100,30 +73,13 @@ export default async function ProfilePage() {
           </header>
 
           <section className="intra-card-compact p-5 sm:p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-intra-neutral-soft-alt intra-h3 text-intra-blue">
-                  {initials}
-                </div>
-                <div className="min-w-0">
-                  <h2 className="intra-h3 break-words">{displayName}</h2>
-                  <p className="intra-body mt-1 break-all">{email || "Sin correo"}</p>
-                </div>
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-intra-neutral-soft-alt intra-h3 text-intra-blue">
+                {initials}
               </div>
-
-              <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
-                <span
-                  className={`intra-pill intra-badge-text border ${
-                    user.email_confirmed_at
-                      ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
-                      : "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
-                  }`}
-                >
-                  {user.email_confirmed_at ? "Correo verificado" : "Correo pendiente"}
-                </span>
-                <span className={`intra-pill intra-badge-text border ${getVerificationBadgeClass(verificationStatus)}`}>
-                  {getVerificationLabel(verificationStatus)}
-                </span>
+              <div className="min-w-0">
+                <h2 className="intra-h3 break-words">{displayName}</h2>
+                <p className="intra-body mt-1 break-all">{email || "Sin correo"}</p>
               </div>
             </div>
           </section>
