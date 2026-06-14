@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ImageIcon, X, ZoomIn } from "lucide-react";
+import { Camera, ImageIcon, ShieldAlert, X, ZoomIn } from "lucide-react";
 import EvidenceUploader from "./EvidenceUploader";
 
 export type ShipmentEvidenceType =
@@ -39,13 +39,13 @@ type EvidenceMeta = {
 
 const EVIDENCE_META: Record<ShipmentEvidenceType, EvidenceMeta> = {
   customer_initial_photo: {
-    title: "Foto inicial",
+    title: "Foto Inicial",
   },
   pickup_photo: {
     title: "Recogida",
   },
   suspicious_photo: {
-    title: "Alerta sospechosa",
+    title: "Alerta",
   },
   delivery_photo: {
     title: "Entrega",
@@ -68,6 +68,14 @@ function getPrimaryEvidence(
   deliveryEvidence: ShipmentEvidenceViewItem | null
 ) {
   return deliveryEvidence ?? pickupEvidence ?? initialEvidence;
+}
+
+function EvidenceLabelIcon({ type }: { type: ShipmentEvidenceType }) {
+  if (type === "suspicious_photo") {
+    return <ShieldAlert className="h-4 w-4" strokeWidth={2} />;
+  }
+
+  return <Camera className="h-4 w-4" strokeWidth={2} />;
 }
 
 function EvidenceThumbnail({
@@ -189,7 +197,10 @@ export default function ShipmentEvidencePanel({
         <div className="mt-4 grid gap-3 sm:grid-cols-[148px_minmax(0,1fr)] sm:items-center">
           <EvidenceThumbnail evidence={primaryEvidence} />
           <div className="min-w-0">
-            <p className="intra-body-strong text-intra-blue">{currentMeta.title}</p>
+            <div className="inline-flex items-center gap-2 text-intra-blue">
+              <EvidenceLabelIcon type={primaryEvidence.evidenceType} />
+              <p className="intra-body-strong">{currentMeta.title}</p>
+            </div>
           </div>
         </div>
       ) : (
