@@ -1,11 +1,9 @@
 "use client";
 
 import {
-  AlertCircle,
   BadgeCheck,
   Clock3,
   FileText,
-  Lock,
   Send,
   ShieldCheck,
   UserRound,
@@ -178,11 +176,15 @@ export default function VerificationPanel({
   const [documentPhoto, setDocumentPhoto] = useState<File | null>(null);
   const [selfie, setSelfie] = useState<File | null>(null);
   const [acceptConsent, setAcceptConsent] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
 
   const isVerified = initialStatus === "verified";
+  const isPending = initialStatus === "pending";
+  const isRejected = initialStatus === "rejected";
   const isLocked = initialStatus === "pending" || isVerified;
   const canSubmit = !loading && !isLocked && Boolean(documentPhoto) && Boolean(selfie) && acceptConsent;
 
@@ -285,6 +287,8 @@ export default function VerificationPanel({
       setDocumentPhoto(null);
       setSelfie(null);
       setAcceptConsent(false);
+      setCurrentStep(1);
+      setIsModalOpen(false);
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "No se pudo enviar la verificación.");
@@ -293,6 +297,49 @@ export default function VerificationPanel({
       setLoading(false);
     }
   };
+
+  const openVerificationModal = () => {
+    setMessage(null);
+    setMessageType(null);
+    setCurrentStep(1);
+    setIsModalOpen(true);
+  };
+
+  const closeVerificationModal = () => {
+    if (loading) return;
+    setIsModalOpen(false);
+  };
+
+  const goToNextStep = () => {
+    setMessage(null);
+    setMessageType(null);
+    setCurrentStep((step) => {
+      if (step === 1) return 2;
+      if (step === 2) return 3;
+      if (step === 3) return 4;
+      return 4;
+    });
+  };
+
+  const goToPreviousStep = () => {
+    setMessage(null);
+    setMessageType(null);
+    setCurrentStep((step) => {
+      if (step === 4) return 3;
+      if (step === 3) return 2;
+      if (step === 2) return 1;
+      return 1;
+    });
+  };
+
+  const canContinue =
+    currentStep === 1
+      ? acceptConsent
+      : currentStep === 2
+        ? Boolean(documentPhoto)
+        : currentStep === 3
+          ? Boolean(selfie)
+          : canSubmit;
 
   if (isVerified) {
     return (
@@ -326,23 +373,18 @@ export default function VerificationPanel({
     <section className="intra-card p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
         <div className="flex min-w-0 items-start gap-4">
-          <div
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] ${
-              isVerified ? "bg-intra-success-soft text-intra-text-success" : "bg-intra-warning-soft text-intra-warning-text"
-            }`}
-          >
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-warning-soft text-intra-warning-text">
             <ShieldCheck className="intra-icon-lg" strokeWidth={1.9} />
           </div>
           <div className="min-w-0">
             <h2 className="intra-h3">Verificación de identidad</h2>
             <p className="intra-body mt-1 max-w-[40ch]">
-              Carga tu documento y selfie.
+              {isPending
+                ? "Estamos revisando tus evidencias."
+                : isRejected
+                  ? "Corrige tus evidencias para volver a enviarlas."
+                  : "Aumenta la confianza en tus envíos y viajes."}
             </p>
-            {isVerified && reviewedAt ? (
-              <p className="intra-caption mt-1">
-                Última revisión: <span className="intra-caption-strong">{formatDate(reviewedAt)}</span>
-              </p>
-            ) : null}
           </div>
         </div>
 
@@ -355,122 +397,162 @@ export default function VerificationPanel({
         </span>
       </div>
 
-      {initialStatus !== "rejected" && !isVerified ? (
-        <div className="mt-5 rounded-[var(--intra-radius-xs)] border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text">
-          <div className="flex items-start gap-2.5">
-            <AlertCircle className="intra-icon-sm mt-0.5 shrink-0" strokeWidth={1.9} />
-            <div>
-              <p>{initialStatus === "pending" ? tone.note : "Carga tu documento y una selfie."}</p>
-              {reviewedAt ? (
-                <p className="intra-caption mt-1">
-                  Última revisión: <span className="intra-caption-strong">{formatDate(reviewedAt)}</span>
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       {initialRejectionReason ? (
         <div className="mt-4 rounded-[var(--intra-radius-xs)] border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body text-intra-danger">
           Motivo de rechazo: {initialRejectionReason}
         </div>
       ) : null}
 
-      <form onSubmit={onSubmit} className="mt-5 space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <UploadField
-            title="Documento"
-            helper="JPG o PNG"
-            selectedFile={documentPhoto}
-            hasUploaded={hasDocumentPhoto}
-            disabled={isLocked}
-            icon="document"
-            onChange={setDocumentPhoto}
-          />
-
-          <UploadField
-            title="Selfie"
-            helper="JPG o PNG"
-            selectedFile={selfie}
-            hasUploaded={hasSelfie}
-            disabled={isLocked}
-            icon="selfie"
-            onChange={setSelfie}
-          />
-        </div>
-
-        <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card px-4 py-4">
-          <p className="intra-body-strong">Autorización</p>
-          <label
-            className={`intra-body mt-3 flex items-start gap-3 ${
-              isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={acceptConsent || isLocked}
-              disabled={isLocked}
-              onChange={(event) => setAcceptConsent(event.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-intra-border-soft accent-intra-green"
-            />
-            <span>
-              Autorizo a INTRA a revisar estas evidencias para validar mi identidad.
-            </span>
-          </label>
-        </div>
-
-        {initialStatus === "pending" ? (
-          <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body">
-            <div className="flex items-start gap-2.5">
-              <Lock className="intra-icon-sm mt-0.5 shrink-0" strokeWidth={1.9} />
-              <p>
-                Estamos revisando tus archivos.
-              </p>
-            </div>
-          </div>
-        ) : null}
-
-        {message ? (
-          <div
-            className={`rounded-[var(--intra-radius-xs)] border px-4 py-3 intra-body ${
-              messageType === "success"
-                ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
-                : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-            }`}
-          >
-            {message}
-          </div>
-        ) : null}
-
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,220px)_minmax(0,1fr)] sm:items-center">
+      {!isPending ? (
+        <div className="mt-5">
           <button
-            type="submit"
-            disabled={!canSubmit}
-            className="intra-btn intra-btn-primary disabled:cursor-not-allowed"
+            type="button"
+            onClick={openVerificationModal}
+            className="intra-btn intra-btn-primary w-full sm:w-auto"
           >
-            {initialStatus === "verified" ? (
-              <BadgeCheck className="intra-icon-sm" strokeWidth={1.9} />
-            ) : (
-              <Send className="intra-icon-sm" strokeWidth={1.9} />
-            )}
-            {loading
-              ? "Enviando a revisión..."
-              : isLocked
-                ? initialStatus === "verified"
-                  ? "Verificación completada"
-                  : "En revisión"
-                : "Enviar a revisión"}
+            <ShieldCheck className="intra-icon-sm" strokeWidth={1.9} />
+            {isRejected ? "Corregir verificación" : "Iniciar verificación"}
           </button>
+        </div>
+      ) : null}
 
-          <div className="rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft px-4 py-3 intra-caption text-intra-text-success">
-            <div className="flex items-start gap-2.5">
-              <ShieldCheck className="intra-icon-sm mt-0.5 shrink-0" strokeWidth={1.9} />
-              <p>Tus archivos se protegen durante la revisión.</p>
+      {isModalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-intra-blue/60 px-4 py-4 sm:items-center">
+          <div className="intra-card max-h-screen w-full max-w-xl overflow-y-auto p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="intra-caption-strong text-intra-text-muted">
+                  Paso {currentStep} de 4
+                </p>
+                <h3 className="intra-h3 mt-1">
+                  {currentStep === 1
+                    ? "Autoriza la revisión de identidad"
+                    : currentStep === 2
+                      ? "Documento de identidad"
+                      : currentStep === 3
+                        ? "Selfie"
+                        : "Enviar verificación"}
+                </h3>
+                <p className="intra-body mt-1">
+                  {currentStep === 1
+                    ? "INTRA revisará tus evidencias para validar tu cuenta."
+                    : currentStep === 2
+                      ? "Sube una foto clara de tu documento."
+                      : currentStep === 3
+                        ? "Sube una selfie clara."
+                        : "Revisaremos tus evidencias manualmente."}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeVerificationModal}
+                className="intra-link intra-caption-strong"
+                disabled={loading}
+              >
+                Cerrar
+              </button>
             </div>
+
+            <form onSubmit={onSubmit} className="mt-5 space-y-4">
+              {currentStep === 1 ? (
+                <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card px-4 py-4">
+                  <label className="intra-body flex cursor-pointer items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={acceptConsent}
+                      onChange={(event) => setAcceptConsent(event.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-intra-border-soft accent-intra-green"
+                    />
+                    <span>
+                      Autorizo a INTRA a revisar estas evidencias para validar mi identidad.
+                    </span>
+                  </label>
+                </div>
+              ) : null}
+
+              {currentStep === 2 ? (
+                <UploadField
+                  title="Documento de identidad"
+                  helper="Sube una foto clara de tu documento."
+                  selectedFile={documentPhoto}
+                  hasUploaded={false}
+                  icon="document"
+                  onChange={setDocumentPhoto}
+                />
+              ) : null}
+
+              {currentStep === 3 ? (
+                <UploadField
+                  title="Selfie"
+                  helper="Sube una selfie clara."
+                  selectedFile={selfie}
+                  hasUploaded={false}
+                  icon="selfie"
+                  onChange={setSelfie}
+                />
+              ) : null}
+
+              {currentStep === 4 ? (
+                <div className="grid gap-3">
+                  <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body">
+                    Documento listo: <span className="intra-body-strong">{documentPhoto ? "Sí" : "No"}</span>
+                  </div>
+                  <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body">
+                    Selfie lista: <span className="intra-body-strong">{selfie ? "Sí" : "No"}</span>
+                  </div>
+                  <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body">
+                    Autorización aceptada: <span className="intra-body-strong">{acceptConsent ? "Sí" : "No"}</span>
+                  </div>
+                </div>
+              ) : null}
+
+              {message ? (
+                <div
+                  className={`rounded-[var(--intra-radius-xs)] border px-4 py-3 intra-body ${
+                    messageType === "success"
+                      ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                      : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
+                  }`}
+                >
+                  {message}
+                </div>
+              ) : null}
+
+              <div className="flex flex-col gap-3 border-t border-intra-border-soft pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <button
+                  type="button"
+                  onClick={goToPreviousStep}
+                  className="intra-btn intra-btn-secondary w-full sm:w-auto"
+                  disabled={currentStep === 1 || loading}
+                >
+                  Atrás
+                </button>
+
+                {currentStep < 4 ? (
+                  <button
+                    type="button"
+                    onClick={goToNextStep}
+                    className="intra-btn intra-btn-primary w-full sm:w-auto"
+                    disabled={!canContinue}
+                  >
+                    Continuar
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={!canSubmit}
+                    className="intra-btn intra-btn-primary w-full disabled:cursor-not-allowed sm:w-auto"
+                  >
+                    <Send className="intra-icon-sm" strokeWidth={1.9} />
+                    {loading ? "Enviando a revisión..." : "Enviar a revisión"}
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
         </div>
-      </form>
+      ) : null}
     </section>
   );
 }
