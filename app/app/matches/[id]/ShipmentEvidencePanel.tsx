@@ -193,14 +193,43 @@ export default function ShipmentEvidencePanel({
     <section className="h-full rounded-2xl border border-intra-border-strong bg-intra-card p-5 shadow-sm">
       <h2 className="intra-h3">Evidencia del envío</h2>
 
-      <div className="lg:mt-4 lg:grid lg:grid-cols-[148px_minmax(0,1fr)_240px] lg:items-center lg:gap-4">
+      <div className="lg:mt-4 lg:grid lg:grid-cols-[132px_minmax(0,1fr)] lg:items-center lg:gap-4">
         {primaryEvidence ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-[148px_minmax(0,1fr)] sm:items-center lg:contents">
+          <div className="mt-4 grid gap-3 sm:grid-cols-[148px_minmax(0,1fr)] sm:items-center lg:mt-0 lg:contents">
             <EvidenceThumbnail evidence={primaryEvidence} />
-            <div className="min-w-0">
+            <div className="min-w-0 lg:flex lg:flex-col lg:justify-center lg:gap-3">
               <div className="inline-flex items-center gap-2 text-intra-blue">
                 <EvidenceLabelIcon type={primaryEvidence.evidenceType} />
                 <p className="intra-body-strong">{currentMeta.title}</p>
+              </div>
+              <div className="hidden lg:grid lg:gap-3">
+                {canUploadPickup ? (
+                  <EvidenceUploader
+                    shipmentId={shipmentId}
+                    matchId={matchId}
+                    expectedUploaderId={travelerId}
+                    evidenceType="pickup_photo"
+                    title="Recogí el paquete"
+                    description="Sube una foto clara del paquete recibido y agrega una descripción corta antes de cambiar el estado a en tránsito."
+                    triggerLabel="Recogí el paquete"
+                    submitLabel="Guardar evidencia y marcar recogida"
+                    completeAction={pickupAction}
+                  />
+                ) : null}
+
+                {canUploadDelivery ? (
+                  <EvidenceUploader
+                    shipmentId={shipmentId}
+                    matchId={matchId}
+                    expectedUploaderId={travelerId}
+                    evidenceType="delivery_photo"
+                    title="Reportar entrega"
+                    description="Sube una foto de soporte y agrega una descripción corta antes de reportar la entrega. No reemplaza la confirmación del cliente."
+                    triggerLabel="Reportar entrega"
+                    submitLabel="Guardar evidencia y reportar entrega"
+                    completeAction={deliveryAction}
+                  />
+                ) : null}
               </div>
             </div>
           </div>
@@ -210,7 +239,7 @@ export default function ShipmentEvidencePanel({
           </div>
         )}
 
-        <div className="mt-4 grid gap-3 lg:mt-0 lg:w-60 lg:justify-self-end">
+        <div className="mt-4 grid gap-3 lg:hidden">
           {canUploadPickup ? (
             <EvidenceUploader
               shipmentId={shipmentId}
