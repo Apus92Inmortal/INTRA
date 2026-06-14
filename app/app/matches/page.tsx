@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { ArrowRight, CheckCircle2, CircleDollarSign, Clock3, MessageCircle, PackageCheck, Route, ShieldAlert, Truck } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleDollarSign, Clock3, MessageCircle, PackageCheck, PlaneTakeoff, Route, ShieldAlert, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AppNavbar } from "@/components/app-navbar";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
@@ -235,17 +235,15 @@ function SummaryMetricCard({
   const currentTone = tones[tone];
 
   return (
-    <article
-      className={`min-w-0 rounded-2xl border p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4 ${currentTone.card}`}
-    >
+    <article className={`min-w-0 rounded-2xl border p-3 shadow-sm sm:p-4 ${currentTone.card}`}>
       <div className="flex items-center gap-3">
         <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 ${currentTone.bubble}`}>
           {icon}
         </div>
 
         <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
-          <p className={`max-w-[9rem] text-[10px] font-semibold uppercase leading-4 tracking-[0.08em] ${currentTone.title} sm:max-w-none sm:text-[11px] sm:tracking-wide`}>{title}</p>
-          <p className="shrink-0 text-[1.5rem] font-bold leading-none tracking-tight text-intra-blue sm:text-[1.65rem]">{value}</p>
+          <p className={`max-w-[9rem] intra-caption-strong uppercase ${currentTone.title} sm:max-w-none`}>{title}</p>
+          <p className="shrink-0 intra-metric-sm text-intra-blue">{value}</p>
         </div>
       </div>
     </article>
@@ -262,10 +260,10 @@ function DetailRow({
   className?: string;
 }) {
   return (
-    <div className={`flex items-start gap-2 text-[13px] leading-5 text-intra-text-muted ${className}`}>
+    <div className={`flex items-start gap-2 intra-body ${className}`}>
       <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-intra-green" />
       <p>
-        <span className="font-semibold text-intra-blue">{label}:</span> {value}
+        <span className="intra-body-strong">{label}:</span> {value}
       </p>
     </div>
   );
@@ -277,28 +275,26 @@ function PreferenceToggleColumn({
   items: Array<{ label: string; value: boolean | null | undefined; icon: ReactNode }>;
 }) {
   return (
-    <div className="space-y-2 lg:flex lg:h-full lg:flex-col lg:justify-between lg:space-y-0 lg:gap-2">
+    <div className="flex flex-col gap-2">
       {items.map((item) => {
         const enabled = item.value === true;
 
         return (
           <span
             key={item.label}
-            className={`flex w-full min-w-0 items-center justify-between gap-3 rounded-full border px-3 py-1.5 text-[13px] leading-5 ${
+            className={`flex min-h-9 w-full min-w-0 items-center justify-between gap-3 rounded-full border px-3 py-1.5 intra-badge-text ${
               enabled
-                ? "border-intra-success-border bg-[linear-gradient(180deg,var(--intra-success-soft-alt)_0%,var(--intra-success-soft)_100%)] text-intra-text-success"
-                : "border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-info-soft-alt)_100%)] text-intra-text-muted"
+                ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                : "border-intra-border-strong bg-intra-bg-app text-intra-text-muted"
             }`}
           >
-            <span className="flex min-w-0 items-center gap-2.5">
-              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${enabled ? "bg-intra-card/70 text-intra-text-success" : "bg-intra-bg-app text-intra-text-muted"}`}>
+            <span className="flex min-w-0 items-center gap-2">
+              <span className={`shrink-0 ${enabled ? "text-intra-text-success" : "text-intra-text-muted"}`}>
                 {item.icon}
               </span>
-              <span className="truncate font-semibold text-intra-blue">{item.label}</span>
+              <span className="truncate whitespace-nowrap">{item.label}</span>
             </span>
-            <span className={`shrink-0 font-medium ${enabled ? "text-intra-text-success" : "text-intra-text-muted"}`}>
-              {enabled ? "Sí" : "No"}
-            </span>
+            <span className="shrink-0">{enabled ? "Sí" : "No"}</span>
           </span>
         );
       })}
@@ -524,17 +520,16 @@ export default async function MatchesPage() {
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <MatchesRealtime currentUserId={user.id} />
 
-          <div className="mb-6">
+          <div className="mb-5">
             <h1 className="intra-page-title">
-              Mis matches
+              Matches
             </h1>
-            <p className="mt-1 max-w-2xl intra-body">
-              Administra tus conexiones activas, conversa en el chat y mantén
-              cada envío bajo control.
+            <p className="mt-2 max-w-2xl intra-body">
+              Revisa solicitudes, chats y entregas activas.
             </p>
           </div>
 
-          <section className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-3 xl:grid-cols-4">
+          <section className="mb-5 grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
             <SummaryMetricCard
               title="Pendientes"
               value={pendingMatchesCount}
@@ -636,16 +631,16 @@ export default async function MatchesPage() {
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div className="min-w-0">
                           <div className="min-w-0">
-                            <h2 className="text-[15px] font-semibold tracking-tight text-intra-blue sm:text-base">
+                            <h2 className="intra-h4">
                               {routeLabel}
                             </h2>
-                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 text-[12px] text-intra-text-muted sm:text-[13px]">
+                            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 intra-caption text-intra-text-muted">
                               <span>
-                                <span className="font-medium text-intra-blue">{otherUserRoleLabel}:</span> {otherUserName}
+                                <span className="intra-caption-strong text-intra-blue">{otherUserRoleLabel}:</span> {otherUserName}
                               </span>
                               {otherUserRating.totalReviews > 0 ? (
                                 <span className="inline-flex items-center gap-1">
-                                  <span className="font-medium text-intra-blue">Calificación:</span>
+                                  <span className="intra-caption-strong text-intra-blue">Calificación:</span>
                                   <RatingSummaryBadge
                                     avgRating={otherUserRating.avgRating}
                                     totalReviews={otherUserRating.totalReviews}
@@ -655,7 +650,7 @@ export default async function MatchesPage() {
                               <span>Creado: {formatDate(match.created_at)}</span>
                             </div>
                             {hasActiveAlert ? (
-                              <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-intra-warning-border bg-intra-warning-soft px-3 py-1 text-[12px] font-semibold text-intra-warning-text">
+                              <div className="mt-3 inline-flex w-fit items-center gap-2 rounded-full border border-intra-warning-border bg-intra-warning-soft px-3 py-1 intra-badge-text text-intra-warning-text">
                                 <ShieldAlert className="h-3.5 w-3.5" strokeWidth={2.1} />
                                 Paquete sospechoso
                               </div>
@@ -673,17 +668,13 @@ export default async function MatchesPage() {
                               <div className="mb-3 flex items-center gap-3">
                                 <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${isTraveler ? "bg-intra-warning-soft text-intra-warning" : "bg-intra-info-soft text-intra-info"}`}>
                                   {isTraveler ? (
-                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-                                    </svg>
+                                    <PackageCheck className="h-5 w-5" strokeWidth={1.9} />
                                   ) : (
-                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.5 19l19-7-19-7 5 7-5 7z" />
-                                    </svg>
+                                    <PlaneTakeoff className="h-5 w-5" strokeWidth={1.9} />
                                   )}
                                 </div>
                                 <div>
-                                  <h3 className="text-[15px] font-semibold text-intra-blue">{primaryPanelTitle}</h3>
+                                  <h3 className="intra-h4">{primaryPanelTitle}</h3>
                                 </div>
                               </div>
 
@@ -706,10 +697,10 @@ export default async function MatchesPage() {
 
                                   <div className="mt-4 lg:hidden">
                                     <div className="rounded-2xl border border-intra-border-soft bg-intra-card p-3">
-                                      <p className="text-[11px] font-semibold uppercase tracking-wide text-intra-text-muted">
+                                      <p className="intra-caption-strong uppercase text-intra-text-muted">
                                         Condiciones
                                       </p>
-                                      <p className="mt-1 text-[12px] leading-5 text-intra-text-muted">
+                                      <p className="mt-1 intra-caption text-intra-text-muted">
                                         Este viaje permite
                                       </p>
                                       <div className="mt-3">
@@ -722,10 +713,10 @@ export default async function MatchesPage() {
                             </div>
 
                             <div className={`rounded-2xl border border-intra-border-soft bg-intra-card p-3 ${!isTraveler ? "hidden lg:block" : ""}`}>
-                              <p className="text-[11px] font-semibold uppercase tracking-wide text-intra-text-muted">
+                              <p className="intra-caption-strong uppercase text-intra-text-muted">
                                 Condiciones
                               </p>
-                              <p className="mt-1 text-[12px] leading-5 text-intra-text-muted">
+                              <p className="mt-1 intra-caption text-intra-text-muted">
                                 {isTraveler ? "Este envío requiere" : "Este viaje permite"}
                               </p>
                               <div className="mt-3">
@@ -736,7 +727,7 @@ export default async function MatchesPage() {
                         </div>
 
                         <div className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-3.5 shadow-sm sm:p-4">
-                          <p className="text-[11px] font-semibold uppercase tracking-wide text-intra-info">
+                          <p className="intra-caption-strong uppercase text-intra-info">
                             Acciones del envío
                           </p>
 
@@ -744,7 +735,7 @@ export default async function MatchesPage() {
                           {match.status === "accepted" ? (
                             <>
                                 {hasActiveAlert ? (
-                                  <p className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-[12px] font-medium leading-5 text-intra-warning-text">
+                                  <p className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-caption-strong text-intra-warning-text">
                                     En revisión operativa. No puedes avanzar el envío hasta que la alerta sea revisada.
                                   </p>
                                 ) : null}
@@ -789,7 +780,7 @@ export default async function MatchesPage() {
 
                               <Link
                                 href={`/app/matches/${match.id}/chat`}
-                                className={`intra-btn min-h-11 w-full px-4 py-3 text-[13px] text-white hover:opacity-95 ${
+                                className={`intra-btn min-h-11 w-full px-4 py-3 text-intra-card hover:opacity-95 ${
                                   unread ? "bg-intra-info" : "bg-intra-blue"
                                 }`}
                               >
@@ -799,7 +790,7 @@ export default async function MatchesPage() {
 
                               <Link
                                 href={`/app/matches/${match.id}`}
-                                className="intra-btn intra-btn-secondary min-h-11 w-full px-4 py-3 text-[13px]"
+                                className="intra-btn intra-btn-secondary min-h-11 w-full px-4 py-3"
                               >
                                 <ArrowRight className="mr-2 h-4 w-4" strokeWidth={1.9} />
                                 Ver detalle
@@ -808,7 +799,7 @@ export default async function MatchesPage() {
                                 {shipment?.status === "in_transit" &&
                                   isTraveler &&
                                   payment?.traveler_delivered_at && (
-                                    <p className="rounded-2xl border border-intra-success-border bg-intra-success-soft px-4 py-3 text-[12px] font-medium leading-4 text-intra-text-success">
+                                    <p className="rounded-2xl border border-intra-success-border bg-intra-success-soft px-4 py-3 intra-caption-strong text-intra-text-success">
                                       Entrega reportada. Esperando confirmación del cliente.
                                     </p>
                                   )}
@@ -817,7 +808,7 @@ export default async function MatchesPage() {
                             <>
                               <Link
                                 href={`/app/matches/${match.id}`}
-                                className="intra-btn intra-btn-secondary min-h-11 w-full px-4 py-3 text-[13px]"
+                                className="intra-btn intra-btn-secondary min-h-11 w-full px-4 py-3"
                               >
                                 <ArrowRight className="mr-2 h-4 w-4" strokeWidth={1.9} />
                                 Ver detalle

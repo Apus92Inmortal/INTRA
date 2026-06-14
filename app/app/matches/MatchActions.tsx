@@ -79,7 +79,7 @@ export default function MatchActions({
         {showDetail ? (
           <Link
             href={`/app/matches/${matchId}`}
-            className="intra-btn intra-btn-secondary h-12 px-4 text-sm"
+            className="intra-btn intra-btn-secondary w-full"
           >
             Ver detalle
           </Link>
@@ -87,13 +87,13 @@ export default function MatchActions({
 
         <Link
           href={`/app/matches/${matchId}/chat`}
-          className="intra-btn h-12 bg-intra-blue px-4 text-sm text-white hover:opacity-95"
+          className="intra-btn w-full bg-intra-blue text-intra-card hover:opacity-95"
         >
           Abrir chat
         </Link>
 
         {msg ? (
-          <div className="rounded-2xl border border-intra-border bg-intra-card px-4 py-3 text-sm text-intra-text-muted">
+          <div className="rounded-2xl border border-intra-border bg-intra-card px-4 py-3 intra-body">
             {msg}
           </div>
         ) : null}
@@ -107,20 +107,20 @@ export default function MatchActions({
         {showDetail ? (
           <Link
             href={`/app/matches/${matchId}`}
-            className="intra-btn intra-btn-secondary h-12 px-4 text-sm"
+            className="intra-btn intra-btn-secondary w-full"
           >
             Ver detalle
           </Link>
         ) : null}
 
         {showStatusMessage ? (
-          <div className="rounded-2xl border border-intra-border bg-intra-card px-4 py-3 text-sm text-intra-text-muted">
-            Estado: <span className="font-semibold">{getStatusLabel(matchStatus)}</span>
+          <div className="rounded-2xl border border-intra-border bg-intra-card px-4 py-3 intra-body">
+            Estado: <span className="intra-body-strong">{getStatusLabel(matchStatus)}</span>
           </div>
         ) : null}
 
         {msg ? (
-          <div className="rounded-2xl border border-intra-border bg-intra-card px-4 py-3 text-sm text-intra-text-muted">
+          <div className="rounded-2xl border border-intra-border bg-intra-card px-4 py-3 intra-body">
             {msg}
           </div>
         ) : null}
@@ -133,7 +133,7 @@ export default function MatchActions({
       {showDetail ? (
         <Link
           href={`/app/matches/${matchId}`}
-          className="intra-btn intra-btn-secondary h-12 px-4 text-sm"
+          className="intra-btn intra-btn-secondary w-full"
         >
           Ver detalle
         </Link>
@@ -142,7 +142,7 @@ export default function MatchActions({
       {isClient ? (
         <>
           {showStatusMessage ? (
-            <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm text-intra-warning-text">
+            <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text">
               El viajero solicitó transportar tu envío.
             </div>
           ) : null}
@@ -150,7 +150,7 @@ export default function MatchActions({
           <button
             disabled={loading || done}
             onClick={() => call("accept_match")}
-            className="intra-btn h-12 bg-intra-blue px-4 text-sm text-white disabled:opacity-60"
+            className="intra-btn w-full bg-intra-blue text-intra-card disabled:opacity-60"
           >
             {loading ? "Procesando..." : "Aceptar solicitud"}
           </button>
@@ -158,7 +158,7 @@ export default function MatchActions({
           <button
             disabled={loading || done}
             onClick={() => call("reject_match")}
-            className="intra-btn intra-btn-secondary h-12 px-4 text-sm text-intra-text-muted disabled:opacity-60"
+            className="intra-btn intra-btn-secondary w-full text-intra-text-muted disabled:opacity-60"
           >
             {loading ? "Procesando..." : "Rechazar solicitud"}
           </button>
@@ -166,7 +166,7 @@ export default function MatchActions({
       ) : (
         <>
           {showStatusMessage ? (
-            <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm text-intra-warning-text">
+            <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text">
               Solicitud enviada. Esperando respuesta del cliente.
             </div>
           ) : null}
@@ -174,7 +174,7 @@ export default function MatchActions({
           <button
             disabled={loading || done}
             onClick={() => call("cancel_match")}
-            className="intra-btn intra-btn-secondary h-12 px-4 text-sm text-intra-text-muted disabled:opacity-60"
+            className="intra-btn intra-btn-secondary w-full text-intra-text-muted disabled:opacity-60"
           >
             {loading ? "Procesando..." : "Cancelar solicitud"}
           </button>
@@ -182,7 +182,7 @@ export default function MatchActions({
       )}
 
       {msg ? (
-        <div className="rounded-2xl border border-intra-border bg-intra-card px-4 py-3 text-sm text-intra-text-muted">
+        <div className="rounded-2xl border border-intra-border bg-intra-card px-4 py-3 intra-body">
           {msg}
         </div>
       ) : null}
