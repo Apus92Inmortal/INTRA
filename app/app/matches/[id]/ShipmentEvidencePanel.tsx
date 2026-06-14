@@ -165,7 +165,7 @@ export default function ShipmentEvidencePanel({
     <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
       <div>
         <h2 className="intra-h3">Evidencias del envío</h2>
-        <p className="mt-1 text-xs leading-5 text-intra-text-muted">
+        <p className="mt-1 intra-caption text-intra-text-muted">
           Mostramos la evidencia principal según el avance del envío. Las fotos son soporte: no confirman entrega ni liberan pagos automáticamente.
         </p>
       </div>
@@ -176,11 +176,11 @@ export default function ShipmentEvidencePanel({
             {primaryEvidence ? <EvidenceIcon type={primaryEvidence.evidenceType} /> : <Camera className="h-5 w-5" strokeWidth={2} />}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-intra-info">
+            <p className="intra-caption-strong uppercase text-intra-info">
               {currentMeta.eyebrow}
             </p>
-            <h3 className="mt-1 text-base font-semibold text-intra-blue">{currentMeta.title}</h3>
-            <p className="mt-1 text-xs leading-5 text-intra-text-muted">{currentMeta.description}</p>
+            <h3 className="mt-1 intra-h4 text-intra-blue">{currentMeta.title}</h3>
+            <p className="mt-1 intra-caption text-intra-text-muted">{currentMeta.description}</p>
           </div>
         </div>
 
@@ -188,18 +188,18 @@ export default function ShipmentEvidencePanel({
           <div className="mt-4 grid gap-3 sm:grid-cols-[160px_minmax(0,1fr)]">
             <EvidenceThumbnail evidence={primaryEvidence} />
             <div className="min-w-0 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-3">
-              <p className="text-xs font-semibold text-intra-blue">
+              <p className="intra-body-strong text-intra-blue">
                 {primaryEvidence.signedUrl ? "Evidencia principal disponible" : "Imagen no disponible"}
               </p>
-              <p className="mt-1 text-xs leading-5 text-intra-text-muted">
+              <p className="mt-1 intra-caption text-intra-text-muted">
                 Subida por {primaryEvidence.uploadedByName} · {formatEvidenceDate(primaryEvidence.createdAt)}
               </p>
               {primaryEvidence.note ? (
-                <p className="mt-2 line-clamp-4 text-xs leading-5 text-intra-blue">
+                <p className="mt-2 line-clamp-4 intra-body text-intra-blue">
                   {primaryEvidence.note}
                 </p>
               ) : (
-                <p className="mt-2 text-xs leading-5 text-intra-text-muted">
+                <p className="mt-2 intra-caption text-intra-text-muted">
                   Sin descripción adicional.
                 </p>
               )}
@@ -207,14 +207,14 @@ export default function ShipmentEvidencePanel({
           </div>
         ) : (
           <div className="mt-4 rounded-2xl border border-dashed border-intra-border bg-intra-neutral-soft-alt px-4 py-3">
-            <p className="text-xs leading-5 text-intra-text-muted">{currentMeta.emptyText}</p>
+            <p className="intra-caption text-intra-text-muted">{currentMeta.emptyText}</p>
           </div>
         )}
       </div>
 
       {evidenceHistory.length > 0 ? (
         <div className="mt-4 rounded-2xl border border-intra-border bg-intra-card p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">
+          <p className="intra-caption-strong uppercase text-intra-text-muted">
             Historial de soporte
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -225,8 +225,8 @@ export default function ShipmentEvidencePanel({
                 <div key={evidence.evidenceType} className="flex items-center gap-3 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-3">
                   <EvidenceThumbnail evidence={evidence} compact />
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-intra-blue">{meta.title}</p>
-                    <p className="mt-0.5 line-clamp-1 text-xs text-intra-text-muted">
+                    <p className="intra-body-strong text-intra-blue">{meta.title}</p>
+                    <p className="mt-0.5 line-clamp-1 intra-caption text-intra-text-muted">
                       {formatEvidenceDate(evidence.createdAt)}
                     </p>
                   </div>
