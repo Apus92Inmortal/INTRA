@@ -212,7 +212,7 @@ export default function ShipmentEvidencePanel({
                     title="Recogí el paquete"
                     description="Sube una foto clara del paquete recibido y agrega una descripción corta antes de cambiar el estado a en tránsito."
                     triggerLabel="Recogí el paquete"
-                    submitLabel="Guardar evidencia y marcar recogida"
+                    submitLabel="Confirmar recogida"
                     completeAction={pickupAction}
                   />
                 ) : null}
@@ -226,7 +226,7 @@ export default function ShipmentEvidencePanel({
                     title="Reportar entrega"
                     description="Sube una foto de soporte y agrega una descripción corta antes de reportar la entrega. No reemplaza la confirmación del cliente."
                     triggerLabel="Reportar entrega"
-                    submitLabel="Guardar evidencia y reportar entrega"
+                    submitLabel="Reportar entrega"
                     completeAction={deliveryAction}
                   />
                 ) : null}
@@ -249,7 +249,7 @@ export default function ShipmentEvidencePanel({
               title="Recogí el paquete"
               description="Sube una foto clara del paquete recibido y agrega una descripción corta antes de cambiar el estado a en tránsito."
               triggerLabel="Recogí el paquete"
-              submitLabel="Guardar evidencia y marcar recogida"
+              submitLabel="Confirmar recogida"
               completeAction={pickupAction}
             />
           ) : null}
@@ -263,7 +263,7 @@ export default function ShipmentEvidencePanel({
               title="Reportar entrega"
               description="Sube una foto de soporte y agrega una descripción corta antes de reportar la entrega. No reemplaza la confirmación del cliente."
               triggerLabel="Reportar entrega"
-              submitLabel="Guardar evidencia y reportar entrega"
+              submitLabel="Reportar entrega"
               completeAction={deliveryAction}
             />
           ) : null}
