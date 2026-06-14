@@ -318,13 +318,6 @@ export default function VerificationPanel({
             {tone.badgeLabel}
           </span>
         </div>
-
-        <div className="mt-5 rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft px-4 py-3 intra-body text-intra-text-success">
-          <div className="flex items-start gap-2.5">
-            <ShieldCheck className="intra-icon-sm mt-0.5 shrink-0" strokeWidth={1.9} />
-            <p>Cuenta verificada.</p>
-          </div>
-        </div>
       </section>
     );
   }
