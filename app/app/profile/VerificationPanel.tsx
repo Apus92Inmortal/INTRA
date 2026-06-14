@@ -66,66 +66,54 @@ function UploadField({
   const isReady = Boolean(selectedFile) || hasUploaded;
 
   return (
-    <div className={`rounded-[20px] border border-[#E4E7EC] bg-white p-4 ${disabled ? "opacity-80" : ""}`}>
+    <div className={`rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card p-4 ${disabled ? "opacity-80" : ""}`}>
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#F9FAFB] text-[#667085]">
-            {icon === "document" ? (
-              <FileText className="h-4 w-4" strokeWidth={1.9} />
-            ) : (
-              <UserRound className="h-4 w-4" strokeWidth={1.9} />
-            )}
-          </div>
-          <div>
-            <p className="text-[14px] font-bold leading-5 text-[#0B2C4A]">{title}</p>
-            <p className="mt-1 text-[12px] leading-[18px] text-[#667085]">{helper}</p>
-          </div>
+        <div>
+          <p className="intra-body-strong">{title}</p>
+          <p className="intra-caption mt-1">{helper}</p>
         </div>
 
         {isReady ? (
-          <span className="inline-flex rounded-full bg-[#EFFBF4] px-2.5 py-1 text-[12px] font-bold leading-4 text-[#1E8C4E]">
+          <span className="intra-pill intra-badge-text border border-intra-success-border bg-intra-success-soft text-intra-text-success">
             Cargado
           </span>
         ) : null}
       </div>
 
-      <div className="mt-4 rounded-[16px] border border-dashed border-[#E4E7EC] bg-[#FCFCFD] px-4 py-5 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F9FAFB] text-[#667085]">
+      <label
+        className={`mt-4 block rounded-[var(--intra-radius-xs)] border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-center transition ${
+          disabled ? "cursor-not-allowed" : "cursor-pointer hover:border-intra-green"
+        }`}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+        />
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-neutral-pill text-intra-text-muted">
           {icon === "document" ? (
-            <FileText className="h-7 w-7" strokeWidth={1.8} />
+            <FileText className="intra-icon-xl" strokeWidth={1.8} />
           ) : (
-            <UserRound className="h-7 w-7" strokeWidth={1.8} />
+            <UserRound className="intra-icon-xl" strokeWidth={1.8} />
           )}
         </div>
-        <p className="mt-3 text-[12px] leading-[18px] text-[#667085]">
+        <p className="intra-caption-strong mt-3 text-intra-blue">
+          {selectedFile || hasUploaded ? "Foto seleccionada" : "Subir foto"}
+        </p>
+        <p className="intra-caption mt-1 break-all">
           {selectedFile
             ? selectedFile.name
             : hasUploaded
-              ? "Ya hay un archivo cargado."
-              : "Sube una imagen clara para iniciar la revisión."}
+              ? "Archivo cargado."
+              : "JPG o PNG"}
         </p>
-      </div>
+      </label>
 
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <label
-          className={`inline-flex min-h-11 items-center justify-center rounded-2xl border px-4 py-2.5 text-[14px] font-semibold transition ${
-            disabled
-              ? "cursor-not-allowed border-[#E4E7EC] bg-[#F9FAFB] text-[#98A2B3]"
-              : "cursor-pointer border-[#E4E7EC] bg-white text-[#0B2C4A] hover:bg-[#F9FAFB]"
-          }`}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            className="sr-only"
-            disabled={disabled}
-            onChange={(event) => onChange(event.target.files?.[0] ?? null)}
-          />
-          Seleccionar archivo
-        </label>
-
-        {selectedFile && !disabled ? (
+      {selectedFile && !disabled ? (
+        <div className="mt-3 flex justify-end">
           <button
             type="button"
             onClick={() => {
@@ -134,12 +122,12 @@ function UploadField({
                 inputRef.current.value = "";
               }
             }}
-            className="text-[12px] font-semibold text-[#667085] transition hover:text-[#0B2C4A]"
+            className="intra-link intra-caption-strong"
           >
             Quitar
           </button>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -149,30 +137,30 @@ function getVerificationTone(status: string | null, hasDocumentPhoto: boolean, h
     case "verified":
       return {
         badgeLabel: "Verificada",
-        badgeClasses: "bg-[#EFFBF4] text-[#1E8C4E]",
+        badgeClasses: "border-intra-success-border bg-intra-success-soft text-intra-text-success",
         badgeIcon: "check" as const,
-        note: "Tu identidad ya fue validada manualmente por el equipo.",
+        note: "Tu identidad ya fue validada.",
       };
     case "pending":
       return {
         badgeLabel: "En revisión",
-        badgeClasses: "bg-[#FFF7E8] text-[#D4A017]",
+        badgeClasses: "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text",
         badgeIcon: "clock" as const,
-        note: "Ya recibimos tus archivos. El equipo los revisará manualmente.",
+        note: "Estamos revisando tus archivos.",
       };
     case "rejected":
       return {
         badgeLabel: "Requiere corrección",
-        badgeClasses: "bg-[#FEF3F2] text-[#D92D20]",
+        badgeClasses: "border-intra-danger-border bg-intra-danger-soft text-intra-danger",
         badgeIcon: null,
         note: "Corrige los archivos y vuelve a enviarlos para continuar.",
       };
     default:
       return {
-        badgeLabel: hasDocumentPhoto && hasSelfie ? "Lista para envío" : "Pendiente de envío",
-        badgeClasses: "bg-[#FFF7E8] text-[#D4A017]",
+        badgeLabel: hasDocumentPhoto && hasSelfie ? "Lista para envío" : "Pendiente",
+        badgeClasses: "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text",
         badgeIcon: "clock" as const,
-        note: "Aún falta cargar tu documento y selfie para iniciar la revisión.",
+        note: "Carga tu documento y una selfie.",
       };
   }
 }
@@ -307,47 +295,47 @@ export default function VerificationPanel({
   };
 
   return (
-    <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
+    <section className="intra-card p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
         <div className="flex min-w-0 items-start gap-4">
           <div
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
-              isVerified ? "bg-[#EFFBF4] text-[#1E8C4E]" : "bg-[#FFF7E8] text-[#D4A017]"
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] ${
+              isVerified ? "bg-intra-success-soft text-intra-text-success" : "bg-intra-warning-soft text-intra-warning-text"
             }`}
           >
-            <ShieldCheck className="h-5 w-5" strokeWidth={1.9} />
+            <ShieldCheck className="intra-icon-lg" strokeWidth={1.9} />
           </div>
           <div className="min-w-0">
-            <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">Verificación de identidad</h2>
-            <p className="mt-1 max-w-[40ch] text-[14px] leading-[22px] text-[#667085]">
+            <h2 className="intra-h3">Verificación de identidad</h2>
+            <p className="intra-body mt-1 max-w-[40ch]">
               Carga tu documento y selfie.
             </p>
             {isVerified && reviewedAt ? (
-              <p className="mt-1 text-[12px] leading-[18px] text-[#667085]">
-                Última revisión: <span className="font-semibold text-[#0B2C4A]">{formatDate(reviewedAt)}</span>
+              <p className="intra-caption mt-1">
+                Última revisión: <span className="intra-caption-strong">{formatDate(reviewedAt)}</span>
               </p>
             ) : null}
           </div>
         </div>
 
         <span
-          className={`inline-flex w-fit self-start sm:justify-self-end items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-bold leading-4 ${tone.badgeClasses}`}
+          className={`intra-pill intra-badge-text w-fit self-start border sm:justify-self-end ${tone.badgeClasses}`}
         >
-          {tone.badgeIcon === "clock" ? <Clock3 className="h-3.5 w-3.5" strokeWidth={2} /> : null}
-          {tone.badgeIcon === "check" ? <BadgeCheck className="h-3.5 w-3.5" strokeWidth={2} /> : null}
+          {tone.badgeIcon === "clock" ? <Clock3 className="intra-icon-xs" strokeWidth={2} /> : null}
+          {tone.badgeIcon === "check" ? <BadgeCheck className="intra-icon-xs" strokeWidth={2} /> : null}
           {tone.badgeLabel}
         </span>
       </div>
 
       {initialStatus !== "rejected" && !isVerified ? (
-        <div className="mt-5 rounded-[18px] border border-[#FDE7B2] bg-[#FFF9EC] px-4 py-3 text-[14px] leading-[22px] text-[#8A6C12]">
+        <div className="mt-5 rounded-[var(--intra-radius-xs)] border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text">
           <div className="flex items-start gap-2.5">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
+            <AlertCircle className="intra-icon-sm mt-0.5 shrink-0" strokeWidth={1.9} />
             <div>
-              <p>{initialStatus === "pending" ? tone.note : "Necesitamos tu documento y una selfie para continuar."}</p>
+              <p>{initialStatus === "pending" ? tone.note : "Carga tu documento y una selfie."}</p>
               {reviewedAt ? (
-                <p className="mt-1 text-[12px] leading-[18px] text-[#667085]">
-                  Última revisión: <span className="font-semibold text-[#0B2C4A]">{formatDate(reviewedAt)}</span>
+                <p className="intra-caption mt-1">
+                  Última revisión: <span className="intra-caption-strong">{formatDate(reviewedAt)}</span>
                 </p>
               ) : null}
             </div>
@@ -356,7 +344,7 @@ export default function VerificationPanel({
       ) : null}
 
       {initialRejectionReason ? (
-        <div className="mt-4 rounded-[18px] border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-[14px] leading-[22px] text-intra-danger">
+        <div className="mt-4 rounded-[var(--intra-radius-xs)] border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body text-intra-danger">
           Motivo de rechazo: {initialRejectionReason}
         </div>
       ) : null}
@@ -364,7 +352,7 @@ export default function VerificationPanel({
       <form onSubmit={onSubmit} className="mt-5 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <UploadField
-            title="Documento requerido"
+            title="Documento"
             helper="JPG o PNG"
             selectedFile={documentPhoto}
             hasUploaded={hasDocumentPhoto}
@@ -374,7 +362,7 @@ export default function VerificationPanel({
           />
 
           <UploadField
-            title="Selfie requerida"
+            title="Selfie"
             helper="JPG o PNG"
             selectedFile={selfie}
             hasUploaded={hasSelfie}
@@ -384,10 +372,10 @@ export default function VerificationPanel({
           />
         </div>
 
-        <div className="rounded-[20px] border border-[#E4E7EC] bg-white px-4 py-4">
-          <p className="text-[14px] font-bold leading-5 text-[#0B2C4A]">Autorización</p>
+        <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card px-4 py-4">
+          <p className="intra-body-strong">Autorización</p>
           <label
-            className={`mt-3 flex items-start gap-3 text-[14px] leading-[22px] text-[#667085] ${
+            className={`intra-body mt-3 flex items-start gap-3 ${
               isLocked ? "cursor-not-allowed opacity-70" : "cursor-pointer"
             }`}
           >
@@ -396,20 +384,20 @@ export default function VerificationPanel({
               checked={acceptConsent || isLocked}
               disabled={isLocked}
               onChange={(event) => setAcceptConsent(event.target.checked)}
-              className="mt-1 h-4 w-4 rounded border-[#D0D5DD] text-[#2ECC71] focus:ring-[#2ECC71]/20"
+              className="mt-1 h-4 w-4 rounded border-intra-border-soft accent-intra-green"
             />
             <span>
-              Acepto que INTRA revise manualmente estas evidencias para validar mi identidad.
+              Autorizo a INTRA a revisar estas evidencias para validar mi identidad.
             </span>
           </label>
         </div>
 
         {initialStatus === "pending" ? (
-          <div className="rounded-[18px] border border-[#E4E7EC] bg-[#F9FAFB] px-4 py-3 text-[14px] leading-[22px] text-[#667085]">
+          <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body">
             <div className="flex items-start gap-2.5">
-              <Lock className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
+              <Lock className="intra-icon-sm mt-0.5 shrink-0" strokeWidth={1.9} />
               <p>
-                Tu verificación está en revisión. Mientras el equipo responde, el envío queda bloqueado para evitar duplicados.
+                Estamos revisando tus archivos.
               </p>
             </div>
           </div>
@@ -417,7 +405,7 @@ export default function VerificationPanel({
 
         {message ? (
           <div
-            className={`rounded-[18px] border px-4 py-3 text-[14px] leading-[22px] ${
+            className={`rounded-[var(--intra-radius-xs)] border px-4 py-3 intra-body ${
               messageType === "success"
                 ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                 : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
@@ -431,12 +419,12 @@ export default function VerificationPanel({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-[14px] font-bold leading-5 text-white transition hover:bg-[#27AE60] disabled:cursor-not-allowed disabled:opacity-60"
+            className="intra-btn intra-btn-primary disabled:cursor-not-allowed"
           >
             {initialStatus === "verified" ? (
-              <BadgeCheck className="h-4 w-4" strokeWidth={1.9} />
+              <BadgeCheck className="intra-icon-sm" strokeWidth={1.9} />
             ) : (
-              <Send className="h-4 w-4" strokeWidth={1.9} />
+              <Send className="intra-icon-sm" strokeWidth={1.9} />
             )}
             {loading
               ? "Enviando a revisión..."
@@ -447,9 +435,9 @@ export default function VerificationPanel({
                 : "Enviar a revisión"}
           </button>
 
-          <div className="rounded-[18px] border border-[#CFEAD7] bg-[#EFFBF4] px-4 py-3 text-[12px] leading-[18px] text-[#1E8C4E]">
+          <div className="rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft px-4 py-3 intra-caption text-intra-text-success">
             <div className="flex items-start gap-2.5">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.9} />
+              <ShieldCheck className="intra-icon-sm mt-0.5 shrink-0" strokeWidth={1.9} />
               <p>Tus archivos se protegen durante la revisión.</p>
             </div>
           </div>
