@@ -553,9 +553,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
             </div>
 
             <div className="px-4 py-5 sm:px-8 sm:py-6">
-              <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="space-y-5">
-                  <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-info-soft-alt)_100%)] p-5 shadow-sm">
+              <div className="space-y-5">
+                <div className="grid gap-5 xl:grid-cols-2 xl:items-stretch">
+                  <section className="h-full rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-info-soft-alt)_100%)] p-5 shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isTraveler ? "bg-intra-warning-soft text-intra-warning" : "bg-intra-info-soft text-intra-info"}`}>
                         {isTraveler ? <PackageCheck className="intra-icon-body" strokeWidth={2.1} /> : <Route className="intra-icon-body" strokeWidth={2.1} />}
@@ -607,88 +607,86 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   </section>
 
                   {shipment?.id && markInTransitSubmitAction && markDeliveredSubmitAction ? (
-                    <ShipmentEvidencePanel
-                      shipmentId={shipment.id}
-                      matchId={match.id}
-                      travelerId={travelerId ?? ""}
-                      initialEvidence={shipmentEvidenceByType.get("customer_initial_photo") ?? null}
-                      pickupEvidence={shipmentEvidenceByType.get("pickup_photo") ?? null}
-                      suspiciousEvidence={shipmentEvidenceByType.get("suspicious_photo") ?? null}
-                      deliveryEvidence={shipmentEvidenceByType.get("delivery_photo") ?? null}
-                      canUploadPickup={canUploadPickupEvidence}
-                      canUploadDelivery={canUploadDeliveryEvidence}
-                      pickupAction={markInTransitSubmitAction}
-                      deliveryAction={markDeliveredSubmitAction}
-                    />
+                    <div className="h-full">
+                      <ShipmentEvidencePanel
+                        shipmentId={shipment.id}
+                        matchId={match.id}
+                        travelerId={travelerId ?? ""}
+                        initialEvidence={shipmentEvidenceByType.get("customer_initial_photo") ?? null}
+                        pickupEvidence={shipmentEvidenceByType.get("pickup_photo") ?? null}
+                        suspiciousEvidence={shipmentEvidenceByType.get("suspicious_photo") ?? null}
+                        deliveryEvidence={shipmentEvidenceByType.get("delivery_photo") ?? null}
+                        canUploadPickup={canUploadPickupEvidence}
+                        canUploadDelivery={canUploadDeliveryEvidence}
+                        pickupAction={markInTransitSubmitAction}
+                        deliveryAction={markDeliveredSubmitAction}
+                      />
+                    </div>
                   ) : null}
-
                 </div>
 
-                <div className="space-y-5">
-                  {isReviewStage ? (
-                    <ReviewComposer
-                      matchId={match.id}
-                      existingRating={existingReview?.rating ?? null}
-                      isExpired={!existingReview && reviewWindow.isExpired}
-                      otherUserName={otherUserName}
-                    />
-                  ) : (
-                    <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
-                      <h2 className="intra-h3">Acciones del match</h2>
+                {isReviewStage ? (
+                  <ReviewComposer
+                    matchId={match.id}
+                    existingRating={existingReview?.rating ?? null}
+                    isExpired={!existingReview && reviewWindow.isExpired}
+                    otherUserName={otherUserName}
+                  />
+                ) : (
+                  <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
+                    <h2 className="intra-h3">Acciones del match</h2>
 
-                      <div className="mt-5 space-y-3">
-                        {activeAlert ? (
-                          <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text">
-                            En revisión operativa. No puedes avanzar el envío hasta que la alerta sea revisada.
-                          </div>
-                        ) : null}
+                    <div className="mt-5 space-y-3 xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:items-start xl:gap-3 xl:space-y-0">
+                      {activeAlert ? (
+                        <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text xl:col-span-2">
+                          En revisión operativa. No puedes avanzar el envío hasta que la alerta sea revisada.
+                        </div>
+                      ) : null}
 
-                        {canConfirmDelivery && confirmDeliverySubmitAction ? (
-                          <form action={confirmDeliverySubmitAction}>
-                            <button
-                              type="submit"
-                              className={primaryActionButtonClass}
-                            >
-                              <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
-                              Confirmar recepción
-                            </button>
-                          </form>
-                        ) : canOpenChat ? (
-                          <Link
-                            href={`/app/matches/${match.id}/chat`}
-                            className={chatActionButtonClass}
+                      {canConfirmDelivery && confirmDeliverySubmitAction ? (
+                        <form action={confirmDeliverySubmitAction}>
+                          <button
+                            type="submit"
+                            className={primaryActionButtonClass}
                           >
-                            <MessageCircle className="intra-icon-body" strokeWidth={2.1} />
-                            Abrir chat
-                          </Link>
-                        ) : (
-                          <MatchDetailActions
-                            matchId={match.id}
-                            status={match.status}
-                            canAccept={canAccept}
-                            canCancel={canCancel}
-                            onAccept={acceptMatchAction}
-                            onReject={rejectMatchAction}
-                            onCancel={cancelMatchAction}
-                          />
-                        )}
+                            <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
+                            Confirmar recepción
+                          </button>
+                        </form>
+                      ) : canOpenChat ? (
+                        <Link
+                          href={`/app/matches/${match.id}/chat`}
+                          className={chatActionButtonClass}
+                        >
+                          <MessageCircle className="intra-icon-body" strokeWidth={2.1} />
+                          Abrir chat
+                        </Link>
+                      ) : (
+                        <MatchDetailActions
+                          matchId={match.id}
+                          status={match.status}
+                          canAccept={canAccept}
+                          canCancel={canCancel}
+                          onAccept={acceptMatchAction}
+                          onReject={rejectMatchAction}
+                          onCancel={cancelMatchAction}
+                        />
+                      )}
 
-                        {canOpenDispute && openDisputeSubmitAction ? (
-                          <form action={openDisputeSubmitAction}>
-                            <button
-                              type="submit"
-                              className={warningActionButtonClass}
-                            >
-                              <ShieldAlert className="intra-icon-body" strokeWidth={2.1} />
-                              Solicitar revisión
-                            </button>
-                          </form>
-                        ) : null}
-                      </div>
-                    </section>
-                  )}
-
-                </div>
+                      {canOpenDispute && openDisputeSubmitAction ? (
+                        <form action={openDisputeSubmitAction}>
+                          <button
+                            type="submit"
+                            className={warningActionButtonClass}
+                          >
+                            <ShieldAlert className="intra-icon-body" strokeWidth={2.1} />
+                            Solicitar revisión
+                          </button>
+                        </form>
+                      ) : null}
+                    </div>
+                  </section>
+                )}
               </div>
 
             </div>

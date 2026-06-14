@@ -190,7 +190,7 @@ export default function ShipmentEvidencePanel({
     : EVIDENCE_META.customer_initial_photo;
 
   return (
-    <section className="rounded-2xl border border-intra-border-strong bg-intra-card p-5 shadow-sm">
+    <section className="h-full rounded-2xl border border-intra-border-strong bg-intra-card p-5 shadow-sm">
       <h2 className="intra-h3">Evidencia del envío</h2>
 
       <div className="lg:mt-4 lg:grid lg:grid-cols-[148px_minmax(0,1fr)_240px] lg:items-center lg:gap-4">
