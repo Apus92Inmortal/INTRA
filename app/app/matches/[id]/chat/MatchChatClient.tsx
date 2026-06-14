@@ -745,7 +745,7 @@ export default function MatchChatClient({
               sendTypingEvent();
             }}
             rows={1}
-            className="intra-input max-h-36 min-h-11 flex-1 resize-none rounded-[var(--intra-radius-sm)]"
+            className="intra-chat-textarea-scrollbar intra-input max-h-36 min-h-11 flex-1 resize-none rounded-[var(--intra-radius-sm)] lg:[&::-webkit-scrollbar-button]:h-0 lg:[&::-webkit-scrollbar-button]:w-0 lg:[&::-webkit-scrollbar-button]:hidden"
             placeholder="Escribe un mensaje..."
             maxLength={1000}
           />
