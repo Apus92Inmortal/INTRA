@@ -220,7 +220,7 @@ export default function ProfileForm({
             disabled={isBusy}
             type="button"
             onClick={onLogout}
-            className="intra-btn intra-btn-secondary w-full text-intra-text-muted sm:w-auto"
+            className="intra-btn intra-btn-secondary w-full border-intra-danger-border bg-intra-card text-intra-danger hover:bg-intra-danger-soft sm:w-auto"
           >
             <LogOut className="intra-icon-sm" strokeWidth={1.9} />
             {loadingAction === "logout" ? "Cerrando sesión..." : "Cerrar sesión"}
