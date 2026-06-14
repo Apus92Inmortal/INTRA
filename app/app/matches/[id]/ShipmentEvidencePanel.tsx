@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Camera, ImageIcon, PackageCheck, ShieldAlert, Truck } from "lucide-react";
 import { EvidenceImagePreview } from "@/components/evidence-image-preview";
 import EvidenceUploader from "./EvidenceUploader";
@@ -35,35 +36,20 @@ type ShipmentEvidencePanelProps = {
 
 type EvidenceMeta = {
   title: string;
-  eyebrow: string;
-  description: string;
-  emptyText: string;
 };
 
 const EVIDENCE_META: Record<ShipmentEvidenceType, EvidenceMeta> = {
   customer_initial_photo: {
     title: "Foto inicial",
-    eyebrow: "Antes de recogida",
-    description: "Referencia subida por el cliente antes del pago.",
-    emptyText: "Aún no hay foto inicial disponible.",
   },
   pickup_photo: {
     title: "Recogida",
-    eyebrow: "Después de recoger",
-    description: "Estado recibido por el viajero al recoger el paquete.",
-    emptyText: "Aún no hay evidencia de recogida.",
   },
   suspicious_photo: {
     title: "Alerta sospechosa",
-    eyebrow: "Soporte de alerta",
-    description: "Foto vinculada a un reporte de paquete sospechoso o incidente operativo.",
-    emptyText: "Aún no hay evidencia de alerta sospechosa.",
   },
   delivery_photo: {
     title: "Entrega",
-    eyebrow: "Después de entregar",
-    description: "Soporte visual de entrega. No reemplaza la confirmación del cliente.",
-    emptyText: "Aún no hay evidencia de entrega.",
   },
 };
 
@@ -111,7 +97,7 @@ function EvidenceThumbnail({
   const meta = EVIDENCE_META[evidence.evidenceType];
   const imageClassName = compact
     ? "h-14 w-14 rounded-xl"
-    : "h-32 w-full rounded-2xl sm:h-36";
+    : "h-32 w-full rounded-2xl";
 
   const image = (
     <div className={`flex shrink-0 items-center justify-center overflow-hidden border border-intra-border bg-intra-card ${imageClassName}`}>
@@ -152,6 +138,7 @@ export default function ShipmentEvidencePanel({
   pickupAction,
   deliveryAction,
 }: ShipmentEvidencePanelProps) {
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const primaryEvidence = getPrimaryEvidence(initialEvidence, pickupEvidence, deliveryEvidence);
   const evidenceHistory = [suspiciousEvidence, initialEvidence, pickupEvidence, deliveryEvidence].filter(
     (evidence): evidence is ShipmentEvidenceViewItem =>
@@ -162,80 +149,27 @@ export default function ShipmentEvidencePanel({
     : EVIDENCE_META.customer_initial_photo;
 
   return (
-    <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
-      <div>
-        <h2 className="intra-h3">Evidencias del envío</h2>
-        <p className="mt-1 intra-caption text-intra-text-muted">
-          Mostramos la evidencia principal según el avance del envío. Las fotos son soporte: no confirman entrega ni liberan pagos automáticamente.
-        </p>
-      </div>
+    <section className="rounded-2xl border border-intra-border-strong bg-intra-card p-5 shadow-sm">
+      <h2 className="intra-h3">Evidencia del envío</h2>
 
-      <div className="mt-4 rounded-2xl border border-intra-border bg-intra-card p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-intra-info-soft text-intra-info">
-            {primaryEvidence ? <EvidenceIcon type={primaryEvidence.evidenceType} /> : <Camera className="h-5 w-5" strokeWidth={2} />}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="intra-caption-strong uppercase text-intra-info">
-              {currentMeta.eyebrow}
-            </p>
-            <h3 className="mt-1 intra-h4 text-intra-blue">{currentMeta.title}</h3>
-            <p className="mt-1 intra-caption text-intra-text-muted">{currentMeta.description}</p>
-          </div>
-        </div>
-
-        {primaryEvidence ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-[160px_minmax(0,1fr)]">
-            <EvidenceThumbnail evidence={primaryEvidence} />
-            <div className="min-w-0 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-3">
-              <p className="intra-body-strong text-intra-blue">
-                {primaryEvidence.signedUrl ? "Evidencia principal disponible" : "Imagen no disponible"}
-              </p>
-              <p className="mt-1 intra-caption text-intra-text-muted">
-                Subida por {primaryEvidence.uploadedByName} · {formatEvidenceDate(primaryEvidence.createdAt)}
-              </p>
-              {primaryEvidence.note ? (
-                <p className="mt-2 line-clamp-4 intra-body text-intra-blue">
-                  {primaryEvidence.note}
-                </p>
-              ) : (
-                <p className="mt-2 intra-caption text-intra-text-muted">
-                  Sin descripción adicional.
-                </p>
-              )}
+      {primaryEvidence ? (
+        <div className="mt-4 grid gap-3 sm:grid-cols-[148px_minmax(0,1fr)] sm:items-center">
+          <EvidenceThumbnail evidence={primaryEvidence} />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-intra-info">
+              <EvidenceIcon type={primaryEvidence.evidenceType} />
+              <p className="intra-body-strong text-intra-blue">{currentMeta.title}</p>
             </div>
-          </div>
-        ) : (
-          <div className="mt-4 rounded-2xl border border-dashed border-intra-border bg-intra-neutral-soft-alt px-4 py-3">
-            <p className="intra-caption text-intra-text-muted">{currentMeta.emptyText}</p>
-          </div>
-        )}
-      </div>
-
-      {evidenceHistory.length > 0 ? (
-        <div className="mt-4 rounded-2xl border border-intra-border bg-intra-card p-4">
-          <p className="intra-caption-strong uppercase text-intra-text-muted">
-            Historial de soporte
-          </p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {evidenceHistory.map((evidence) => {
-              const meta = EVIDENCE_META[evidence.evidenceType];
-
-              return (
-                <div key={evidence.evidenceType} className="flex items-center gap-3 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-3">
-                  <EvidenceThumbnail evidence={evidence} compact />
-                  <div className="min-w-0">
-                    <p className="intra-body-strong text-intra-blue">{meta.title}</p>
-                    <p className="mt-0.5 line-clamp-1 intra-caption text-intra-text-muted">
-                      {formatEvidenceDate(evidence.createdAt)}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+            <p className="mt-1 intra-caption text-intra-text-muted">
+              Subida por {primaryEvidence.uploadedByName} · {formatEvidenceDate(primaryEvidence.createdAt)}
+            </p>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="mt-4 rounded-2xl border border-dashed border-intra-border bg-intra-neutral-soft-alt px-4 py-4">
+          <p className="intra-body text-intra-text-muted">Sin evidencia visible todavía.</p>
+        </div>
+      )}
 
       <div className="mt-4 grid gap-3">
         {canUploadPickup ? (
@@ -266,6 +200,39 @@ export default function ShipmentEvidencePanel({
           />
         ) : null}
       </div>
+
+      {evidenceHistory.length > 0 ? (
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setIsHistoryOpen((value) => !value)}
+            className="inline-flex min-h-10 items-center justify-center rounded-2xl px-2 intra-body-strong text-intra-blue transition hover:bg-intra-neutral-soft-alt"
+            aria-expanded={isHistoryOpen}
+          >
+            {isHistoryOpen ? "Ocultar historial" : "Ver historial"}
+          </button>
+
+          {isHistoryOpen ? (
+            <div className="mt-3 grid gap-3">
+              {evidenceHistory.map((evidence) => {
+                const meta = EVIDENCE_META[evidence.evidenceType];
+
+                return (
+                  <div key={evidence.evidenceType} className="flex items-center gap-3 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-3">
+                    <EvidenceThumbnail evidence={evidence} compact />
+                    <div className="min-w-0">
+                      <p className="intra-body-strong text-intra-blue">{meta.title}</p>
+                      <p className="mt-0.5 line-clamp-1 intra-caption text-intra-text-muted">
+                        {formatEvidenceDate(evidence.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }
