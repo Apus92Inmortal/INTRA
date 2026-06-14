@@ -197,17 +197,17 @@ export default function SuspiciousReportForm({
           type="button"
           onClick={() => setIsOpen(true)}
           disabled={hasActiveAlert}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-warning px-5 py-3 text-sm font-semibold text-intra-card transition hover:bg-intra-warning-text-strong disabled:cursor-not-allowed disabled:opacity-60 ${
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-warning px-5 py-3 intra-body-strong text-intra-card transition hover:bg-intra-warning-text-strong disabled:cursor-not-allowed disabled:opacity-60 ${
             embedded ? "w-full" : ""
           }`}
         >
           <ShieldAlert className="h-4 w-4" strokeWidth={2.1} />
-          {hasActiveAlert ? "Alerta abierta" : "Reportar paquete sospechoso"}
+          {hasActiveAlert ? "Alerta abierta" : "Reportar Novedad"}
         </button>
 
         {message ? (
           <div
-            className={`rounded-2xl border px-4 py-3 text-sm ${
+            className={`rounded-2xl border px-4 py-3 intra-body ${
               messageType === "success"
                 ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                 : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
@@ -223,18 +223,18 @@ export default function SuspiciousReportForm({
           className="fixed inset-0 z-50 flex items-center justify-center bg-intra-blue/75 p-4"
           role="dialog"
           aria-modal="true"
-          aria-label="Reportar paquete sospechoso"
+          aria-label="Reportar Novedad"
         >
           <form
             onSubmit={onSubmit}
-            className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-2xl border border-intra-warning-border bg-intra-card shadow-2xl"
+            className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-2xl border border-intra-warning-border bg-intra-card shadow-sm"
           >
             <div className="flex items-start justify-between gap-3 border-b border-intra-warning-border px-5 py-4">
               <div className="min-w-0">
-                <h3 className="text-base font-semibold text-intra-warning-text-strong">
-                  Reportar paquete sospechoso
+                <h3 className="intra-h3 text-intra-warning-text-strong">
+                  Reportar Novedad
                 </h3>
-                <p className="mt-1 text-xs leading-5 text-intra-text-muted">
+                <p className="mt-1 intra-caption text-intra-text-muted">
                   Adjunta una foto clara y describe qué debe revisar el equipo operativo.
                 </p>
               </div>
@@ -250,12 +250,12 @@ export default function SuspiciousReportForm({
             </div>
 
             <div className="space-y-4 px-5 py-5">
-              <label className="block text-sm font-medium text-intra-warning-text-strong">
+              <label className="block intra-body-strong text-intra-warning-text-strong">
                 Motivo obligatorio
                 <select
                   value={reportType}
                   onChange={(event) => setReportType(event.target.value as (typeof REPORT_TYPES)[number]["value"])}
-                  className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 intra-body text-intra-blue"
                 >
                   {REPORT_TYPES.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -265,33 +265,33 @@ export default function SuspiciousReportForm({
                 </select>
               </label>
 
-              <label className="block text-sm font-medium text-intra-warning-text-strong">
+              <label className="block intra-body-strong text-intra-warning-text-strong">
                 Foto obligatoria
-                <span className="mt-1 block text-xs font-normal leading-5 text-intra-text-muted">
+                <span className="mt-1 block intra-caption text-intra-text-muted">
                   Adjunta una imagen clara del paquete o del detalle que activa la alerta.
                 </span>
                 <input
                   id={inputId}
                   type="file"
                   accept="image/*"
-                  className="mt-2 block w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  className="mt-2 block w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 intra-body text-intra-blue"
                   onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                 />
               </label>
 
-              <label className="block text-sm font-medium text-intra-warning-text-strong">
+              <label className="block intra-body-strong text-intra-warning-text-strong">
                 Descripción obligatoria
                 <textarea
                   rows={4}
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  className="mt-2 w-full rounded-xl border border-intra-warning-border bg-intra-card px-3 py-3 intra-body text-intra-blue"
                   placeholder="Ej. el paquete no coincide con la descripción, presenta sellos alterados, olor extraño..."
                 />
               </label>
 
               {message && messageType === "error" ? (
-                <div className="rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-sm text-intra-danger">
+                <div className="rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body text-intra-danger">
                   {message}
                 </div>
               ) : null}
@@ -299,7 +299,7 @@ export default function SuspiciousReportForm({
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-intra-warning px-5 py-3 text-sm font-semibold text-intra-card transition hover:bg-intra-warning-text-strong disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-intra-warning px-5 py-3 intra-body-strong text-intra-card transition hover:bg-intra-warning-text-strong disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Enviando reporte..." : (
                   <>

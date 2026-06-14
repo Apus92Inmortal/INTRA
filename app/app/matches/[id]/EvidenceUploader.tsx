@@ -156,7 +156,7 @@ export default function EvidenceUploader({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="intra-btn intra-btn-primary min-h-11 w-full px-5 py-3 text-sm"
+        className="intra-btn intra-btn-primary min-h-11 w-full px-5 py-3"
       >
         {triggerLabel}
       </button>
@@ -170,12 +170,12 @@ export default function EvidenceUploader({
         >
           <form
             onSubmit={onSubmit}
-            className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-2xl border border-intra-border bg-intra-card shadow-2xl"
+            className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-2xl border border-intra-border bg-intra-card shadow-sm"
           >
             <div className="flex items-start justify-between gap-3 border-b border-intra-border px-5 py-4">
               <div className="min-w-0">
-                <h3 className="text-base font-semibold text-intra-blue">{title}</h3>
-                <p className="mt-1 text-xs leading-5 text-intra-text-muted">{description}</p>
+                <h3 className="intra-h3 text-intra-blue">{title}</h3>
+                <p className="mt-1 intra-caption text-intra-text-muted">{description}</p>
               </div>
               <button
                 type="button"
@@ -189,31 +189,31 @@ export default function EvidenceUploader({
             </div>
 
             <div className="space-y-4 px-5 py-5">
-              <label className="block text-sm font-medium text-intra-text-muted">
+              <label className="block intra-body-strong text-intra-text-muted">
                 Foto obligatoria
                 <input
                   id={inputId}
                   type="file"
                   accept="image/*"
-                  className="mt-2 block w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  className="mt-2 block w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 intra-body text-intra-blue"
                   onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                 />
               </label>
 
-              <label className="block text-sm font-medium text-intra-text-muted">
+              <label className="block intra-body-strong text-intra-text-muted">
                 Descripción
                 <textarea
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
                   rows={4}
-                  className="mt-2 w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 text-sm text-intra-blue"
+                  className="mt-2 w-full rounded-xl border border-intra-border bg-intra-card px-3 py-3 intra-body text-intra-blue"
                   placeholder="Ej. paquete recibido sin novedad, sellado, entregado a las 5:20 pm..."
                 />
               </label>
 
               {message ? (
                 <div
-                  className={`rounded-2xl border px-4 py-3 text-xs ${
+                  className={`rounded-2xl border px-4 py-3 intra-caption ${
                     messageType === "success"
                       ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                       : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
@@ -226,7 +226,7 @@ export default function EvidenceUploader({
               <button
                 type="submit"
                 disabled={loading}
-                className="intra-btn intra-btn-primary min-h-11 w-full px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                className="intra-btn intra-btn-primary min-h-11 w-full px-5 py-3 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Guardando evidencia..." : submitLabel}
               </button>

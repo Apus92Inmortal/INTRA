@@ -51,12 +51,12 @@ export default function ReviewComposer({
   }
 
   return (
-    <section className="rounded-[24px] border border-[#e4e7ec] bg-white p-5 shadow-sm">
-      <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">
+    <section className="rounded-2xl border border-intra-border-strong bg-intra-card p-5 shadow-sm">
+      <h2 className="intra-h3 text-intra-blue">
         {isSent ? "Tu calificación" : "Califica tu experiencia"}
       </h2>
 
-      <p className="mt-3 text-[14px] font-normal leading-[22px] text-[#667085]">
+      <p className="mt-3 intra-body text-intra-text-muted">
         Para {otherUserName}.
       </p>
 
@@ -77,16 +77,16 @@ export default function ReviewComposer({
               }}
               onMouseLeave={() => setHoveredRating(null)}
               disabled={isDisabled}
-              className={`flex min-h-[60px] flex-col items-center justify-center rounded-2xl border px-2 py-2 text-[12px] font-semibold leading-[18px] transition ${
+              className={`flex min-h-14 flex-col items-center justify-center rounded-2xl border px-2 py-2 intra-badge-text transition ${
                 isActive
-                  ? "border-[#fbbf24] bg-[#FFF7ED] text-[#0B2C4A]"
-                  : "border-[#e4e7ec] bg-white text-[#667085] hover:border-[#fbbf24] hover:bg-[#FFF7ED]"
+                  ? "border-intra-rating-star bg-intra-warning-soft text-intra-blue"
+                  : "border-intra-border bg-intra-card text-intra-text-muted hover:border-intra-rating-star hover:bg-intra-warning-soft"
               } disabled:cursor-not-allowed disabled:opacity-80`}
               aria-label={`Calificar con ${value} estrella${value === 1 ? "" : "s"}`}
               aria-pressed={rating === value || sentRating === value}
             >
               <Star
-                className={`h-6 w-6 ${isActive ? "fill-[#fbbf24] text-[#fbbf24]" : "text-[#98A2B3]"}`}
+                className={`h-6 w-6 ${isActive ? "fill-intra-rating-star text-intra-rating-star" : "text-intra-text-muted"}`}
                 strokeWidth={1.9}
               />
               <span className="mt-1">{value}</span>
@@ -95,20 +95,20 @@ export default function ReviewComposer({
         })}
       </div>
 
-      <p className="mt-4 text-[14px] font-normal leading-[22px] text-[#667085]">
+      <p className="mt-4 intra-body text-intra-text-muted">
         {isSent
           ? "Gracias por calificar."
           : "Las calificaciones ayudan a mejorar la comunidad."}
       </p>
 
       {isExpired && !isSent ? (
-        <p className="mt-3 rounded-2xl border border-[#e4e7ec] bg-[#f5f8fb] px-4 py-3 text-[12px] font-normal leading-[18px] text-[#667085]">
+        <p className="mt-3 rounded-2xl border border-intra-border bg-intra-neutral-soft-alt px-4 py-3 intra-caption text-intra-text-muted">
           La ventana de calificación de 12 horas ya terminó.
         </p>
       ) : null}
 
       {isSent ? (
-        <p className="mt-4 flex items-center gap-2 text-[14px] font-bold leading-5 text-[#1e8c4e]">
+        <p className="mt-4 flex items-center gap-2 intra-body-strong text-intra-text-success">
           <CheckCircle2 className="h-4 w-4" strokeWidth={2} />
           Calificación enviada
         </p>
@@ -117,13 +117,13 @@ export default function ReviewComposer({
           type="button"
           onClick={handleSubmit}
           disabled={isPending || rating < 1 || isExpired}
-          className="mt-4 min-h-11 w-full rounded-2xl bg-[#2ECC71] px-5 py-2.5 text-[14px] font-bold leading-5 text-white transition hover:bg-[#27ae60] disabled:cursor-not-allowed disabled:opacity-50"
+          className="intra-btn mt-4 min-h-11 w-full rounded-2xl bg-intra-success-bright px-5 py-2.5 text-intra-card transition hover:bg-intra-success-bright-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isPending ? "Enviando..." : "Enviar calificación"}
         </button>
       )}
 
-      {error ? <p className="mt-3 text-[14px] leading-[22px] text-intra-danger">{error}</p> : null}
+      {error ? <p className="mt-3 intra-body text-intra-danger">{error}</p> : null}
     </section>
   );
 }

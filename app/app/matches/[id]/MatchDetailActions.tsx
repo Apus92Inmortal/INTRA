@@ -102,7 +102,7 @@ export default function MatchDetailActions({
           <button
             onClick={handleAccept}
             disabled={isPending}
-            className="intra-btn w-full gap-2 rounded-2xl bg-intra-blue px-5 py-2.5 text-white hover:opacity-95 disabled:opacity-50 sm:w-auto"
+            className="intra-btn w-full gap-2 rounded-2xl bg-intra-blue px-5 py-2.5 text-intra-card hover:opacity-95 disabled:opacity-50 sm:w-auto"
           >
             <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
             {isPending && activeAction === "accept"

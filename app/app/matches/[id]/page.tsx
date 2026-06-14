@@ -383,7 +383,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
   const primaryActionButtonClass =
     "intra-btn intra-btn-primary min-h-11 w-full gap-2 rounded-2xl px-5 py-2.5";
   const chatActionButtonClass =
-    "intra-btn min-h-11 w-full gap-2 rounded-2xl bg-intra-info px-5 py-2.5 text-white hover:opacity-95";
+    "intra-btn min-h-11 w-full gap-2 rounded-2xl bg-intra-info px-5 py-2.5 text-intra-card hover:opacity-95";
   const warningActionButtonClass =
     "intra-btn min-h-11 w-full gap-2 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-5 py-2.5 text-intra-warning-text hover:bg-intra-warning-soft-alt";
 
@@ -456,7 +456,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
         <MatchDetailRealtime matchId={match.id} shipmentId={shipment?.id ?? null} />
 
         <div className="mx-auto max-w-5xl">
-          <div className="overflow-hidden rounded-[28px] border border-intra-border-strong bg-intra-card shadow-sm">
+          <div className="overflow-hidden rounded-3xl border border-intra-border-strong bg-intra-card shadow-sm">
             <div className="border-b border-intra-border-strong bg-[linear-gradient(90deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] px-6 py-6 sm:px-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
@@ -471,7 +471,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
                       {getStatusLabel(match.status)}
                     </span>
                     {activeAlert ? (
-                      <span className="inline-flex min-h-8 w-fit items-center gap-1.5 rounded-full border border-intra-warning-border bg-intra-warning-soft px-3 py-1 text-xs font-semibold text-intra-warning-text">
+                      <span className="inline-flex min-h-8 w-fit items-center gap-1.5 rounded-full border border-intra-warning-border bg-intra-warning-soft px-3 py-1 intra-badge-text text-intra-warning-text">
                         <ShieldAlert className="h-3.5 w-3.5" strokeWidth={2.1} />
                         Paquete sospechoso
                       </span>
@@ -506,18 +506,18 @@ export default async function MatchDetailPage({ params }: PageProps) {
                         <ShieldAlert className="h-5 w-5" strokeWidth={2.1} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-warning-text">
+                        <p className="intra-caption-strong uppercase text-intra-warning-text">
                           Paquete sospechoso
                         </p>
-                        <h2 className="mt-1 text-base font-semibold text-intra-warning-text-strong">
+                        <h2 className="mt-1 intra-h4 text-intra-warning-text-strong">
                           {activeAlertLabel}
                         </h2>
-                        <p className="mt-1 text-xs leading-5 text-intra-warning-text">
+                        <p className="mt-1 intra-caption text-intra-warning-text">
                           Reportado por {activeAlertReporterName} el {formatDate(activeAlert.created_at)}. El equipo operativo debe revisar la alerta antes de cerrar el caso.
                         </p>
                       </div>
                     </div>
-                    <span className="inline-flex w-fit shrink-0 items-center rounded-full border border-intra-warning-border bg-intra-card px-3 py-1 text-xs font-semibold text-intra-warning-text">
+                    <span className="inline-flex w-fit shrink-0 items-center rounded-full border border-intra-warning-border bg-intra-card px-3 py-1 intra-badge-text text-intra-warning-text">
                       En revisión
                     </span>
                   </div>
@@ -525,7 +525,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
               ) : null}
 
               <div className="mt-5">
-                <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted">Progreso del envío</p>
+                <p className="intra-caption-strong uppercase text-intra-text-muted">Progreso del envío</p>
                 <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
                   {progressSteps.map((step, index) => {
                     const isDone = index <= progressIndex;
@@ -553,9 +553,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
             </div>
 
             <div className="px-4 py-5 sm:px-8 sm:py-6">
-              <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-                <div className="space-y-5">
-                  <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-info-soft-alt)_100%)] p-5 shadow-sm">
+              <div className="space-y-5">
+                <div className="grid gap-5 xl:grid-cols-2 xl:items-stretch">
+                  <section className="h-full rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-info-soft-alt)_100%)] p-5 shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isTraveler ? "bg-intra-warning-soft text-intra-warning" : "bg-intra-info-soft text-intra-info"}`}>
                         {isTraveler ? <PackageCheck className="intra-icon-body" strokeWidth={2.1} /> : <Route className="intra-icon-body" strokeWidth={2.1} />}
@@ -566,35 +566,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
                     </div>
 
                     {isTraveler ? (
-                      <div className="mt-4 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-center">
-                        <div className="space-y-3 intra-body">
-                          <p><span className="intra-body-strong">Tipo:</span> {getShipmentKindLabel(shipment?.kind)}</p>
-                          <p><span className="intra-body-strong">Valor:</span> {formatCurrency(shipment?.declared_value_cop)}</p>
-                          <p><span className="intra-body-strong">Descripción:</span> {shipment?.description?.trim() || "Sin descripción"}</p>
-                          <p><span className="intra-body-strong">Peso:</span> {shipment?.weight_kg ?? 0} kg</p>
-                        </div>
-
-                        {shipment?.id && ownerId && !isReviewStage ? (
-                          <div className="flex flex-col justify-center rounded-2xl border border-intra-warning-border bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-warning-soft)_100%)] p-4 shadow-sm">
-                            <div className="flex items-center gap-2 text-intra-warning-text">
-                              <div className="intra-icon-shell-body rounded-xl bg-intra-warning-soft-alt">
-                                <ShieldAlert className="intra-icon-body" strokeWidth={2} />
-                              </div>
-                              <p className="intra-caption-strong uppercase tracking-wide text-intra-warning-text">Protección del envío</p>
-                            </div>
-
-                            <div className="mt-3">
-                              <SuspiciousReportForm
-                                shipmentId={shipment.id}
-                                matchId={match.id}
-                                reporterName={participantNameById.get(user.id) ?? "El viajero"}
-                                recipientUserId={ownerId}
-                                hasActiveAlert={Boolean(activeAlert)}
-                                embedded
-                              />
-                            </div>
-                          </div>
-                        ) : null}
+                      <div className="mt-4 space-y-3 intra-body">
+                        <p><span className="intra-body-strong">Tipo:</span> {getShipmentKindLabel(shipment?.kind)}</p>
+                        <p><span className="intra-body-strong">Valor:</span> {formatCurrency(shipment?.declared_value_cop)}</p>
+                        <p><span className="intra-body-strong">Descripción:</span> {shipment?.description?.trim() || "Sin descripción"}</p>
+                        <p><span className="intra-body-strong">Peso:</span> {shipment?.weight_kg ?? 0} kg</p>
                       </div>
                     ) : (
                       <div className="mt-4 space-y-3 intra-body">
@@ -607,88 +583,97 @@ export default async function MatchDetailPage({ params }: PageProps) {
                   </section>
 
                   {shipment?.id && markInTransitSubmitAction && markDeliveredSubmitAction ? (
-                    <ShipmentEvidencePanel
-                      shipmentId={shipment.id}
-                      matchId={match.id}
-                      travelerId={travelerId ?? ""}
-                      initialEvidence={shipmentEvidenceByType.get("customer_initial_photo") ?? null}
-                      pickupEvidence={shipmentEvidenceByType.get("pickup_photo") ?? null}
-                      suspiciousEvidence={shipmentEvidenceByType.get("suspicious_photo") ?? null}
-                      deliveryEvidence={shipmentEvidenceByType.get("delivery_photo") ?? null}
-                      canUploadPickup={canUploadPickupEvidence}
-                      canUploadDelivery={canUploadDeliveryEvidence}
-                      pickupAction={markInTransitSubmitAction}
-                      deliveryAction={markDeliveredSubmitAction}
-                    />
+                    <div className="h-full">
+                      <ShipmentEvidencePanel
+                        shipmentId={shipment.id}
+                        matchId={match.id}
+                        travelerId={travelerId ?? ""}
+                        initialEvidence={shipmentEvidenceByType.get("customer_initial_photo") ?? null}
+                        pickupEvidence={shipmentEvidenceByType.get("pickup_photo") ?? null}
+                        suspiciousEvidence={shipmentEvidenceByType.get("suspicious_photo") ?? null}
+                        deliveryEvidence={shipmentEvidenceByType.get("delivery_photo") ?? null}
+                        canUploadPickup={canUploadPickupEvidence}
+                        canUploadDelivery={canUploadDeliveryEvidence}
+                        pickupAction={markInTransitSubmitAction}
+                        deliveryAction={markDeliveredSubmitAction}
+                      />
+                    </div>
                   ) : null}
-
                 </div>
 
-                <div className="space-y-5">
-                  {isReviewStage ? (
-                    <ReviewComposer
-                      matchId={match.id}
-                      existingRating={existingReview?.rating ?? null}
-                      isExpired={!existingReview && reviewWindow.isExpired}
-                      otherUserName={otherUserName}
-                    />
-                  ) : (
-                    <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
-                      <h2 className="intra-h3">Acciones del match</h2>
+                {isReviewStage ? (
+                  <ReviewComposer
+                    matchId={match.id}
+                    existingRating={existingReview?.rating ?? null}
+                    isExpired={!existingReview && reviewWindow.isExpired}
+                    otherUserName={otherUserName}
+                  />
+                ) : (
+                  <section className="rounded-2xl border border-intra-border-strong bg-[linear-gradient(180deg,var(--intra-card)_0%,var(--intra-neutral-soft-alt)_100%)] p-5 shadow-sm">
+                    <h2 className="intra-h3">Acciones del match</h2>
 
-                      <div className="mt-5 space-y-3">
-                        {activeAlert ? (
-                          <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm leading-5 text-intra-warning-text">
-                            En revisión operativa. No puedes avanzar el envío hasta que la alerta sea revisada.
-                          </div>
-                        ) : null}
+                    <div className="mt-5 space-y-3 xl:grid xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:items-start xl:gap-3 xl:space-y-0">
+                      {activeAlert ? (
+                        <div className="rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text xl:col-span-2">
+                          En revisión operativa. No puedes avanzar el envío hasta que la alerta sea revisada.
+                        </div>
+                      ) : null}
 
-                        {canConfirmDelivery && confirmDeliverySubmitAction ? (
-                          <form action={confirmDeliverySubmitAction}>
-                            <button
-                              type="submit"
-                              className={primaryActionButtonClass}
-                            >
-                              <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
-                              Confirmar recepción
-                            </button>
-                          </form>
-                        ) : canOpenChat ? (
-                          <Link
-                            href={`/app/matches/${match.id}/chat`}
-                            className={chatActionButtonClass}
+                      {isTraveler && shipment?.id && ownerId ? (
+                        <SuspiciousReportForm
+                          shipmentId={shipment.id}
+                          matchId={match.id}
+                          reporterName={participantNameById.get(user.id) ?? "El viajero"}
+                          recipientUserId={ownerId}
+                          hasActiveAlert={Boolean(activeAlert)}
+                          embedded
+                        />
+                      ) : null}
+
+                      {canConfirmDelivery && confirmDeliverySubmitAction ? (
+                        <form action={confirmDeliverySubmitAction}>
+                          <button
+                            type="submit"
+                            className={primaryActionButtonClass}
                           >
-                            <MessageCircle className="intra-icon-body" strokeWidth={2.1} />
-                            Abrir chat
-                          </Link>
-                        ) : (
-                          <MatchDetailActions
-                            matchId={match.id}
-                            status={match.status}
-                            canAccept={canAccept}
-                            canCancel={canCancel}
-                            onAccept={acceptMatchAction}
-                            onReject={rejectMatchAction}
-                            onCancel={cancelMatchAction}
-                          />
-                        )}
+                            <CheckCircle2 className="intra-icon-body" strokeWidth={2.1} />
+                            Confirmar recepción
+                          </button>
+                        </form>
+                      ) : canOpenChat ? (
+                        <Link
+                          href={`/app/matches/${match.id}/chat`}
+                          className={chatActionButtonClass}
+                        >
+                          <MessageCircle className="intra-icon-body" strokeWidth={2.1} />
+                          Abrir chat
+                        </Link>
+                      ) : (
+                        <MatchDetailActions
+                          matchId={match.id}
+                          status={match.status}
+                          canAccept={canAccept}
+                          canCancel={canCancel}
+                          onAccept={acceptMatchAction}
+                          onReject={rejectMatchAction}
+                          onCancel={cancelMatchAction}
+                        />
+                      )}
 
-                        {canOpenDispute && openDisputeSubmitAction ? (
-                          <form action={openDisputeSubmitAction}>
-                            <button
-                              type="submit"
-                              className={warningActionButtonClass}
-                            >
-                              <ShieldAlert className="intra-icon-body" strokeWidth={2.1} />
-                              Solicitar revisión
-                            </button>
-                          </form>
-                        ) : null}
-                      </div>
-                    </section>
-                  )}
-
-                </div>
+                      {canOpenDispute && openDisputeSubmitAction ? (
+                        <form action={openDisputeSubmitAction}>
+                          <button
+                            type="submit"
+                            className={warningActionButtonClass}
+                          >
+                            <ShieldAlert className="intra-icon-body" strokeWidth={2.1} />
+                            Solicitar revisión
+                          </button>
+                        </form>
+                      ) : null}
+                    </div>
+                  </section>
+                )}
               </div>
 
             </div>
