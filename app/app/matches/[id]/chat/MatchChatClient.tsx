@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, MoreVertical } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { RatingSummaryBadge } from "@/components/rating-summary-badge";
-import { TrackingCodeBadge } from "@/components/tracking-code-badge";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 type Message = {
@@ -60,10 +59,6 @@ type MatchUpdatePayload = {
 function formatMessageTime(dateString: string) {
   const date = new Date(dateString);
 
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = String(date.getFullYear()).slice(-2);
-
   let hours = date.getHours();
   const minutes = String(date.getMinutes()).padStart(2, "0");
   const ampm = hours >= 12 ? "p. m." : "a. m.";
@@ -71,7 +66,7 @@ function formatMessageTime(dateString: string) {
   hours = hours % 12;
   if (hours === 0) hours = 12;
 
-  return `${day}/${month}/${year}, ${hours}:${minutes} ${ampm}`;
+  return `${hours}:${minutes} ${ampm}`;
 }
 
 function sortMessages(list: Message[]) {
@@ -112,17 +107,27 @@ function getMessagePreview(message: string, maxLength = 60) {
   return `${normalized.slice(0, maxLength).trimEnd()}...`;
 }
 
+function getInitials(name: string) {
+  const parts = name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (parts.length === 0) return "IN";
+
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
 export default function MatchChatClient({
   matchId,
   currentUserId,
   otherUserId,
   currentUserName,
   otherUserName,
-  otherUserAvgRating,
-  otherUserTotalReviews,
-  shipmentTrackingCode,
-  shipmentRouteLabel,
-  shipmentDescription,
   initialMessages,
   viewerRole,
   lastReadByOwner,
@@ -159,6 +164,8 @@ export default function MatchChatClient({
     lastReadByTraveler,
   });
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const otherUserRoleLabel = viewerRole === "owner" ? "Viajero" : "Cliente";
+  const otherUserInitials = getInitials(otherUserName);
 
   const readState = useMemo(
     () => ({
@@ -624,44 +631,52 @@ export default function MatchChatClient({
   }
 
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col overflow-hidden rounded-none bg-intra-bg-app sm:min-h-[calc(100dvh-7rem)] sm:rounded-3xl sm:border sm:border-intra-border sm:bg-intra-card sm:shadow-sm">
+    <div className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col overflow-hidden bg-intra-bg-app sm:min-h-[calc(100dvh-7rem)] sm:rounded-[var(--intra-radius-sm)] sm:border sm:border-intra-border sm:bg-intra-card sm:shadow-[var(--intra-shadow-base)]">
       <div className="sticky top-0 z-10 border-b border-intra-border bg-intra-card/95 px-4 py-3 backdrop-blur sm:px-5">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-base font-semibold text-intra-blue">Chat con {otherUserName}</p>
-              <RatingSummaryBadge
-                avgRating={otherUserAvgRating}
-                totalReviews={otherUserTotalReviews}
-              />
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <p className="text-xs text-intra-text-muted">
-                {otherUserTyping ? `${otherUserName} está escribiendo...` : "Mensajes en tiempo real"}
-              </p>
-              {shipmentTrackingCode ? <TrackingCodeBadge code={shipmentTrackingCode} className="!bg-intra-blue hover:!bg-intra-blue" /> : null}
-            </div>
-            <p className="mt-1 text-xs font-medium text-intra-text-muted">Ruta: {shipmentRouteLabel}</p>
-            {shipmentDescription ? (
-              <p className="mt-1 text-xs text-intra-text-muted">Contenido declarado: {shipmentDescription}</p>
-            ) : null}
-          </div>
-
-          <span className="rounded-full bg-intra-neutral-pill px-3 py-1 text-xs font-medium text-intra-blue">
-            {viewerRole === "owner" ? "Cliente" : "Viajero"}
-          </span>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-3">
           <Link
             href={`/app/matches/${matchId}`}
-            className="inline-flex min-h-9 items-center justify-center rounded-full border border-intra-border px-3 py-1.5 text-xs font-semibold text-intra-text-muted transition hover:bg-intra-bg-app"
+            aria-label="Volver al detalle del match"
+            className="intra-icon-button h-10 w-10 shrink-0"
           >
-            ← Ver detalle del match
+            <ArrowLeft className="intra-icon-body" aria-hidden="true" />
           </Link>
-          <span className="inline-flex rounded-full bg-intra-neutral-pill px-3 py-1.5 text-xs text-intra-text-muted">
-            Usa este chat para coordinar entrega, recogida y confirmaciones.
+
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-intra-neutral-soft-alt intra-badge-text text-intra-blue">
+            {otherUserInitials}
           </span>
+
+          <div className="min-w-0 flex-1">
+            <h1 className="intra-h4 truncate">{otherUserName}</h1>
+            <p className="intra-caption mt-0.5 truncate">
+              {otherUserTyping
+                ? "Está escribiendo..."
+                : `${otherUserRoleLabel} · Match aceptado`}
+            </p>
+          </div>
+
+          <details className="group relative shrink-0">
+            <summary
+              className="intra-icon-button h-10 w-10 cursor-pointer list-none [&::-webkit-details-marker]:hidden"
+              aria-label="Opciones del chat"
+            >
+              <MoreVertical className="intra-icon-body" aria-hidden="true" />
+            </summary>
+            <div className="intra-popover-surface absolute right-0 top-12 z-20 w-56 overflow-hidden p-1">
+              <Link
+                href={`/app/matches/${matchId}`}
+                className="block rounded-[var(--intra-radius-xs)] px-3 py-3 intra-caption-strong hover:bg-intra-bg-app"
+              >
+                Ver detalle del match
+              </Link>
+              <Link
+                href={`/app/matches/${matchId}`}
+                className="block rounded-[var(--intra-radius-xs)] px-3 py-3 intra-caption-strong hover:bg-intra-bg-app"
+              >
+                Reportar Novedad
+              </Link>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -672,8 +687,9 @@ export default function MatchChatClient({
       >
         {messages.length === 0 ? (
           <div className="flex h-full min-h-60 items-center justify-center">
-            <div className="max-w-sm rounded-3xl border border-dashed border-intra-border bg-intra-card px-5 py-6 text-center text-sm text-intra-text-muted">
-              Aún no hay mensajes. Rompe el hielo confirmando punto de entrega, horario o dudas del paquete.
+            <div className="intra-empty-state max-w-sm">
+              <p className="intra-body-strong">Aún no hay mensajes.</p>
+              <p className="intra-caption mt-1">Coordina por aquí la entrega.</p>
             </div>
           </div>
         ) : (
@@ -689,19 +705,19 @@ export default function MatchChatClient({
                 >
                   <div className="max-w-[85%] sm:max-w-[75%]">
                     <div
-                      className={`rounded-[22px] px-4 py-3 shadow-sm ${
+                      className={`rounded-[var(--intra-radius-sm)] px-4 py-3 shadow-sm ${
                         isMine
-                          ? "rounded-br-md bg-intra-blue text-intra-card"
-                          : "rounded-bl-md border border-intra-border bg-intra-card text-intra-blue"
+                          ? "rounded-br-[var(--intra-radius-xs)] bg-intra-blue text-intra-card"
+                          : "rounded-bl-[var(--intra-radius-xs)] border border-intra-border bg-intra-card text-intra-blue"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                      <p className={`intra-body whitespace-pre-wrap break-words ${isMine ? "text-intra-card" : "text-intra-blue"}`}>
                         {msg.message}
                       </p>
 
                       <div
                         suppressHydrationWarning
-                        className={`mt-2 flex items-center justify-end gap-2 text-[11px] ${
+                        className={`intra-caption mt-2 flex items-center justify-end gap-2 ${
                           isMine ? "text-intra-card/70" : "text-intra-text-muted/70"
                         }`}
                       >
@@ -729,14 +745,14 @@ export default function MatchChatClient({
               sendTypingEvent();
             }}
             rows={1}
-            className="max-h-36 min-h-11 flex-1 resize-none rounded-3xl border border-intra-border bg-intra-card px-4 py-3 text-base text-intra-blue outline-none transition placeholder:text-intra-text-muted/70 focus:border-intra-blue focus:ring-2 focus:ring-intra-blue/10"
+            className="intra-input max-h-36 min-h-11 flex-1 resize-none rounded-[var(--intra-radius-sm)]"
             placeholder="Escribe un mensaje..."
             maxLength={1000}
           />
           <button
             type="submit"
             disabled={sending || !newMessage.trim()}
-            className="inline-flex min-h-11 items-center justify-center rounded-3xl bg-intra-blue px-4 py-3 text-sm font-semibold text-intra-card transition disabled:opacity-50 sm:px-5"
+            className="intra-btn intra-btn-primary min-h-11 shrink-0 rounded-[var(--intra-radius-sm)] px-4 sm:px-5"
           >
             {sending ? "Enviando..." : "Enviar"}
           </button>
