@@ -6,39 +6,25 @@
 
 ## Objetivo de la sesion
 
-Ajustar PR #147 `TASK-020 Admin IA + UI/UX redesign v2.2` para que las cinco secciones admin funcionen como bandejas operativas internas de dos estados, reducir el copy de Admin al minimo operativo y limpiar la navegacion Admin mobile.
+TASK-020.1 - corregir el posicionamiento del modal de confirmacion para borrar todas las notificaciones.
 
 ## Estado actual
 
-- Rama activa: `uiux/admin-ia-redesign-v2-2`.
-- PR #147: abierto, Draft, base `main`.
-- Alcance ejecutado: UI/presentacion admin.
-- No se tocaron migrations, schemas, tablas, columnas, RLS, Storage, RPCs, `requireAdminUser`, `createAdminClient`, actions admin, actions wallet ni logica de pagos/wallet/verificacion/disputas/alertas.
+- Rama activa: `fix/notification-clear-modal-position`.
+- PR #148: Draft, base `main`.
+- Alcance ejecutado: UI/render del modal de confirmacion de borrado masivo de notificaciones.
+- No se tocaron queries, actions, Supabase, RLS, tablas, migrations, RPCs, realtime, rutas ni logica de borrado de notificaciones.
 
-## Cambios realizados
+## Cambio realizado
 
-- `app/app/admin/AdminUi.tsx`: agregado helper compartido `AdminInboxTabs` para chips internos consistentes.
-- `app/app/admin/payouts/PayoutReviewClient.tsx`: Retiros separado en `Pendientes` (`status = pending`) y `Gestionados` (`approved`, `rejected`, `paid`).
-- `app/app/admin/payout-accounts/PayoutAccountsReviewClient.tsx`: Cuentas separado en `Pendientes` (`verification_status = pending` o sin estado) y `Revisadas` (`verified`, `rejected`).
-- `app/app/admin/verifications/VerificationReviewClient.tsx`: Verificaciones conservado como `Pendientes` y `Revisadas` con el mismo patron visual.
-- `app/app/admin/disputes/DisputesReviewClient.tsx`: Disputas separado en `Abiertas` (`open`, `reviewing`) y `Resueltas` (`resolved`); Alertas separado en `Activas` (`open`, `reviewing`) y `Resueltas` (`resolved`) segun `scope`.
-- `components/admin-tabs.tsx`: normalizacion tipografica para eliminar `text-sm font-semibold`.
-- Recorte de copy admin:
-  - empty states largos reemplazados por `Sin registros.`, `Sin pendientes.`, `Sin revisadas.`, `Sin abiertas.`, `Sin resueltas.`, `Sin alertas activas.` o `Sin resultados.`.
-  - botones largos reducidos a `Aprobar`, `Rechazar`, `Verificar`, `Abrir`, `Cerrar`, `Escalar`, `Permitir` y equivalentes operativos.
-  - textos tutoriales de archivos, acciones admin y placeholders con `Ej:` eliminados.
-  - fallbacks visibles de carga en modulos admin reducidos a `Error de carga.` donde aplicaba.
-- Archivos adicionales ajustados por copy:
-  - `app/app/admin/payouts/page.tsx`.
-  - `app/app/admin/payout-accounts/page.tsx`.
-  - `app/app/admin/verifications/page.tsx`.
-  - `app/app/admin/disputes/page.tsx`.
-  - `app/app/admin/alerts/page.tsx`.
-- `app/app/admin/AdminSectionNav.tsx`: navegacion principal Admin actualizada:
-  - mobile usa selector compacto nativo con la seccion activa.
-  - mobile elimina scroll horizontal y los 5 iconos visibles.
-  - desktop conserva chips horizontales con seccion activa clara.
-  - sin cambios de rutas ni estructura de modulos.
+- Archivo responsable localizado: `components/notifications-bell.tsx`.
+- Causa: el modal se renderizaba acoplado al componente del bell/dropdown, por lo que quedaba condicionado por el flujo visual del dropdown y podia aparecer cortado o demasiado arriba.
+- Solucion: el modal ahora se renderiza con `createPortal` en `document.body`, usando el backdrop modal global existente y panel centrado `w-full max-w-sm`.
+- Copy reducido a:
+  - `Borrar notificaciones`.
+  - `Esta accion no se puede deshacer.`
+  - `Cancelar`.
+  - `Borrar`.
 
 ## Verificacion
 
@@ -47,7 +33,7 @@ Ajustar PR #147 `TASK-020 Admin IA + UI/UX redesign v2.2` para que las cinco sec
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 13 archivos / 42 tests.
 - `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
-- Auditoria admin:
+- Auditoria en archivo tocado:
   - `text-[...]`: 0.
   - `text-xs/sm/base/lg/xl/2xl/3xl`: 0.
   - `font-[...]`: 0.
@@ -59,6 +45,7 @@ Ajustar PR #147 `TASK-020 Admin IA + UI/UX redesign v2.2` para que las cinco sec
 
 ## Pendiente
 
-- Esperar revision visual de Aldo.
+- Esperar preview/checks remotos del PR #148.
+- Mantener PR #148 en Draft.
 - No merge.
 - No deploy manual.

@@ -12,6 +12,41 @@
 
 ## P0 - En revision
 
+### TASK-020.1: Fix notification clear-all modal position
+
+Estado: REVIEW
+Prioridad: Alta
+Area: Notificaciones / UI / Modal
+
+Resumen:
+
+- PR #148 corrige el posicionamiento del modal de confirmacion para borrar todas las notificaciones.
+- El modal se desacopla del bell/dropdown y se renderiza con portal global en `document.body`.
+- El backdrop usa el patron modal global existente para quedar centrado, visible completo y con overlay.
+- Copy reducido a lenguaje operativo corto:
+  - `Borrar notificaciones`.
+  - `Esta accion no se puede deshacer.`
+  - `Cancelar`.
+  - `Borrar`.
+- No se tocaron queries, actions, Supabase, RLS, tablas, migrations, RPCs, realtime, rutas ni logica de borrado de notificaciones.
+
+Verificacion local:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS.
+
+Pendiente:
+
+- Esperar checks remotos y preview del PR #148.
+- Mantener PR #148 en Draft.
+- No merge.
+- No deploy manual.
+
+---
+
 ### TASK-020: Admin IA + UI/UX redesign v2.2
 
 Estado: REVIEW
