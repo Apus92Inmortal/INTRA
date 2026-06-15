@@ -64,6 +64,11 @@ function UploadField({
     [selectedFile]
   );
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    onChange(event.currentTarget.files?.[0] ?? null);
+  };
+
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -79,7 +84,7 @@ function UploadField({
       accept="image/*"
       className="sr-only"
       disabled={disabled}
-      onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+      onChange={handleFileChange}
     />
   );
 
@@ -97,7 +102,8 @@ function UploadField({
         {!disabled ? (
           <button
             type="button"
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               onChange(null);
               if (inputRef.current) {
                 inputRef.current.value = "";
@@ -345,6 +351,18 @@ export default function VerificationPanel({
     });
   };
 
+  const handleDocumentPhotoChange = (file: File | null) => {
+    setMessage(null);
+    setMessageType(null);
+    setDocumentPhoto(file);
+  };
+
+  const handleSelfieChange = (file: File | null) => {
+    setMessage(null);
+    setMessageType(null);
+    setSelfie(file);
+  };
+
   const canContinue =
     currentStep === 1
       ? acceptConsent
@@ -490,7 +508,7 @@ export default function VerificationPanel({
                   selectedFile={documentPhoto}
                   hasUploaded={false}
                   icon="document"
-                  onChange={setDocumentPhoto}
+                  onChange={handleDocumentPhotoChange}
                 />
               ) : null}
 
@@ -500,7 +518,7 @@ export default function VerificationPanel({
                   selectedFile={selfie}
                   hasUploaded={false}
                   icon="selfie"
-                  onChange={setSelfie}
+                  onChange={handleSelfieChange}
                 />
               ) : null}
 
