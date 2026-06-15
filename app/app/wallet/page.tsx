@@ -73,8 +73,8 @@ function WalletEmptyState({
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-intra-card text-intra-text-muted shadow-sm">
         {icon}
       </div>
-      <p className="mt-4 text-sm font-semibold text-intra-blue">{title}</p>
-      <p className="mt-1 max-w-xs text-sm text-intra-text-subtle">{description}</p>
+      <p className="mt-4 intra-body-strong text-intra-blue">{title}</p>
+      <p className="mt-1 max-w-xs intra-caption text-intra-text-subtle">{description}</p>
     </div>
   )
 }
@@ -106,8 +106,8 @@ function WalletMetricCard({
       <div className="flex items-center gap-4">
         <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${iconShellClass}`}>{icon}</div>
         <div className="min-w-0 flex-1">
-          <p className={`text-sm font-semibold ${labelClass}`}>{label}</p>
-          <p className="mt-1 text-[30px] font-extrabold leading-none tracking-[-0.02em] text-intra-blue">{value}</p>
+          <p className={`intra-caption-strong ${labelClass}`}>{label}</p>
+          <p className="mt-1 intra-h2 text-intra-blue">{value}</p>
         </div>
         <ChevronRight className={`h-5 w-5 shrink-0 ${chevronClass}`} />
       </div>
@@ -190,9 +190,9 @@ export default async function WalletPage() {
                     <Wallet className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-intra-card/70">INTRA Pay</p>
-                    <h1 className="mt-2 text-2xl font-bold text-intra-card sm:text-3xl">Mi wallet</h1>
-                    <p className="mt-2 max-w-xl text-sm leading-6 text-intra-card/70 sm:text-[15px]">
+                    <p className="intra-caption-strong uppercase tracking-wide text-intra-card/70">INTRA Pay</p>
+                    <h1 className="mt-2 intra-h1 text-intra-card">Mi wallet</h1>
+                    <p className="mt-2 max-w-xl intra-body text-intra-card/70">
                       Gestiona tus movimientos, ganancias y retiros desde un solo lugar.
                     </p>
                   </div>
@@ -202,14 +202,14 @@ export default async function WalletPage() {
               <div className="flex flex-col gap-3 sm:flex-row lg:shrink-0">
                 <Link
                   href="/app/wallet/payout"
-                  className="intra-btn flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-card px-5 py-3 text-sm font-semibold text-intra-blue hover:bg-intra-bg-app"
+                  className="intra-btn intra-caption-strong flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-card px-5 py-3 text-intra-blue hover:bg-intra-bg-app"
                 >
                   <ArrowUpFromLine className="h-4 w-4" />
                   Solicitar retiro
                 </Link>
                 <Link
                   href="/app/wallet/history"
-                  className="intra-btn flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-card/20 px-5 py-3 text-sm font-semibold text-intra-card hover:bg-intra-card/10"
+                  className="intra-btn intra-caption-strong flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-card/20 px-5 py-3 text-intra-card hover:bg-intra-card/10"
                 >
                   <ReceiptText className="h-4 w-4" />
                   Ver historial
@@ -228,13 +228,13 @@ export default async function WalletPage() {
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/app/wallet/payout/accounts"
-                  className="intra-btn min-h-11 rounded-2xl bg-intra-green px-5 py-3 text-sm font-semibold text-intra-card hover:bg-intra-green-hover"
+                  className="intra-btn intra-caption-strong min-h-11 rounded-2xl bg-intra-green px-5 py-3 text-intra-card hover:bg-intra-green-hover"
                 >
                   Configurar cuenta de retiro
                 </Link>
                 <Link
                   href="/app/matches"
-                  className="intra-btn intra-btn-secondary min-h-11 rounded-2xl px-5 py-3 text-sm font-semibold"
+                  className="intra-btn intra-btn-secondary intra-caption-strong min-h-11 rounded-2xl px-5 py-3"
                 >
                   Ir a mis matches
                 </Link>
@@ -270,7 +270,7 @@ export default async function WalletPage() {
                   </div>
                   <h2 className="intra-h4">Últimos movimientos</h2>
                 </div>
-                <Link href="/app/wallet/history" className="intra-link flex items-center gap-1 text-sm font-semibold">
+                <Link href="/app/wallet/history" className="intra-link intra-caption-strong flex items-center gap-1">
                   Ver todo
                   <ChevronRight className="h-4 w-4" />
                 </Link>
@@ -287,8 +287,8 @@ export default async function WalletPage() {
                   {movementEntries.map((entry) => (
                     <div key={entry.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="min-w-0">
-                        <p className="font-medium text-intra-blue">{getLedgerEntryLabel(entry.entry_type, entry.description)}</p>
-                        <p className="mt-1 text-sm text-intra-text-muted">
+                        <p className="intra-body-strong text-intra-blue">{getLedgerEntryLabel(entry.entry_type, entry.description)}</p>
+                        <p className="mt-1 intra-caption text-intra-text-muted">
                           {entry.entry_type === "release_available_credit" && entry.match_id && trackingCodes.get(entry.match_id)
                             ? `Guía: ${trackingCodes.get(entry.match_id)}`
                             : formatDateTime(entry.created_at)}
@@ -296,14 +296,14 @@ export default async function WalletPage() {
                       </div>
                       <div className="shrink-0 text-left sm:text-right">
                         <p
-                          className={`text-base font-semibold ${
+                          className={`intra-body-strong ${
                             entry.direction === "credit" ? "text-intra-text-success" : "text-intra-blue"
                           }`}
                         >
                           {entry.direction === "credit" ? "+" : "-"}
                           {formatCop(entry.amount ?? 0)}
                         </p>
-                        <p className="mt-1 text-xs uppercase tracking-wide text-intra-text-muted/70">
+                        <p className="mt-1 intra-badge-text uppercase tracking-wide text-intra-text-muted/70">
                           {getWalletMovementToneLabel(entry.entry_type)}
                         </p>
                       </div>
@@ -322,26 +322,26 @@ export default async function WalletPage() {
                     </div>
                     <h2 className="intra-h4">Retiro rápido</h2>
                   </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-intra-success-border bg-intra-success-soft px-3 py-1 text-xs font-semibold text-intra-text-success">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-intra-success-border bg-intra-success-soft px-3 py-1 intra-badge-text text-intra-text-success">
                     <span className="h-2 w-2 rounded-full bg-intra-green" />
                     Listo para retirar
                   </span>
                 </div>
 
-                <p className="mt-4 text-[30px] font-extrabold leading-none tracking-[-0.02em] text-intra-blue">
+                <p className="mt-4 intra-h2 text-intra-blue">
                   {formatCop(withdrawableBalance)}
                 </p>
 
                 <div className="mt-5 space-y-3">
                   <Link
                     href={hasPayoutAccount ? "/app/wallet/payout" : "/app/wallet/payout/accounts"}
-                    className="intra-btn flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-intra-green px-5 py-3 text-sm font-bold text-intra-card hover:bg-intra-green-hover"
+                    className="intra-btn intra-caption-strong flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-intra-green px-5 py-3 text-intra-card hover:bg-intra-green-hover"
                   >
                     <Landmark className="h-4 w-4" />
                     {hasPayoutAccount ? "Solicitar retiro" : "Agregar cuenta de retiro"}
                   </Link>
 
-                  <div className="flex items-center gap-2 rounded-xl border border-intra-success-border bg-intra-success-soft px-3 py-2 text-xs font-medium text-intra-text-success">
+                  <div className="flex items-center gap-2 rounded-xl border border-intra-success-border bg-intra-success-soft px-3 py-2 intra-caption-strong text-intra-text-success">
                     <ShieldCheck className="h-4 w-4 shrink-0" />
                     <span>Mínimo operativo: retiro desde $10.000 COP.</span>
                   </div>
@@ -356,7 +356,7 @@ export default async function WalletPage() {
                     </div>
                     <h2 className="intra-h4">Solicitudes recientes</h2>
                   </div>
-                  <Link href="/app/wallet/payout" className="intra-link flex items-center gap-1 text-sm font-semibold">
+                  <Link href="/app/wallet/payout" className="intra-link intra-caption-strong flex items-center gap-1">
                     Ver retiros
                     <ChevronRight className="h-4 w-4" />
                   </Link>
@@ -374,14 +374,14 @@ export default async function WalletPage() {
                       <article key={payout.id} className="rounded-2xl border border-intra-border-soft p-4">
                         <div className="flex items-center justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="font-semibold text-intra-blue">{formatCop(payout.amount ?? 0)}</p>
-                            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-intra-text-muted/70">
+                            <p className="intra-body-strong text-intra-blue">{formatCop(payout.amount ?? 0)}</p>
+                            <p className="mt-1 intra-badge-text uppercase tracking-wide text-intra-text-muted/70">
                               {payout.payout_code || "Sin referencia"}
                             </p>
-                            <p className="mt-1 text-xs text-intra-text-muted">{formatDateTime(payout.requested_at)}</p>
+                            <p className="mt-1 intra-caption text-intra-text-muted">{formatDateTime(payout.requested_at)}</p>
                           </div>
                           <span
-                            className={`inline-flex shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${getPayoutStatusClasses(
+                            className={`inline-flex shrink-0 rounded-full border px-3 py-1 intra-badge-text ${getPayoutStatusClasses(
                               payout.status
                             )}`}
                           >
