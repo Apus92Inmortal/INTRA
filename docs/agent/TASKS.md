@@ -36,6 +36,10 @@ Resumen:
   - textos explicativos y tutoriales de Admin reducidos a lenguaje operativo corto.
   - empty states normalizados a `Sin registros.`, `Sin pendientes.`, `Sin revisadas.`, `Sin abiertas.`, `Sin resueltas.`, `Sin alertas activas.` y `Sin resultados.`.
   - botones largos reducidos a acciones directas como `Aprobar`, `Rechazar`, `Verificar`, `Abrir`, `Cerrar`, `Escalar` y `Permitir`.
+- Ajuste de navegacion mobile 2026-06-15:
+  - `app/app/admin/AdminSectionNav.tsx` usa selector compacto en mobile.
+  - mobile queda sin scroll horizontal y sin 5 iconos visibles.
+  - desktop conserva tabs/chips horizontales.
 - No se mezclan cuentas con retiros, retiros con cuentas, disputas con alertas ni alertas con disputas.
 - No se tocaron migrations, schemas, tablas, columnas, RLS, Storage, RPCs, `requireAdminUser`, `createAdminClient`, actions admin, actions wallet ni logica sensible de pagos/wallet/verificacion/disputas/alertas.
 

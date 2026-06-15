@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   BadgeCheck,
   Bell,
@@ -40,32 +40,51 @@ const ADMIN_SECTIONS = [
 
 export default function AdminSectionNav() {
   const pathname = usePathname()
+  const router = useRouter()
+  const activeSection =
+    ADMIN_SECTIONS.find(
+      (section) =>
+        pathname === section.href || pathname.startsWith(`${section.href}/`),
+    ) ?? ADMIN_SECTIONS[0]
 
   return (
-    <nav
-      aria-label="Secciones admin"
-      className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
-    >
-      {ADMIN_SECTIONS.map((section) => {
-        const isActive =
-          pathname === section.href || pathname.startsWith(`${section.href}/`)
-        const Icon = section.icon
+    <nav aria-label="Secciones admin" className="w-full">
+      <div className="sm:hidden">
+        <select
+          aria-label="Sección admin"
+          value={activeSection.href}
+          onChange={(event) => router.push(event.target.value)}
+          className="intra-input min-h-11 w-full px-4 py-2.5 intra-badge-text"
+        >
+          {ADMIN_SECTIONS.map((section) => (
+            <option key={section.href} value={section.href}>
+              {section.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        return (
-          <Link
-            key={section.href}
-            href={section.href}
-            className={`inline-flex min-h-11 shrink-0 items-center gap-2 rounded-[var(--intra-radius-xs)] border px-4 py-2.5 intra-badge-text transition ${
-              isActive
-                ? "border-intra-blue bg-intra-blue text-intra-card"
-                : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue hover:text-intra-blue"
-            }`}
-          >
-            <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-            {section.label}
-          </Link>
-        )
-      })}
+      <div className="hidden flex-wrap gap-2 sm:flex">
+        {ADMIN_SECTIONS.map((section) => {
+          const isActive = activeSection.href === section.href
+          const Icon = section.icon
+
+          return (
+            <Link
+              key={section.href}
+              href={section.href}
+              className={`inline-flex min-h-11 items-center gap-2 rounded-[var(--intra-radius-xs)] border px-4 py-2.5 intra-badge-text transition ${
+                isActive
+                  ? "border-intra-blue bg-intra-blue text-intra-card"
+                  : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue hover:text-intra-blue"
+              }`}
+            >
+              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+              {section.label}
+            </Link>
+          )
+        })}
+      </div>
     </nav>
   )
 }

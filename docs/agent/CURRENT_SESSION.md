@@ -6,7 +6,7 @@
 
 ## Objetivo de la sesion
 
-Ajustar PR #147 `TASK-020 Admin IA + UI/UX redesign v2.2` para que las cinco secciones admin funcionen como bandejas operativas internas de dos estados y para reducir el copy de Admin al minimo operativo.
+Ajustar PR #147 `TASK-020 Admin IA + UI/UX redesign v2.2` para que las cinco secciones admin funcionen como bandejas operativas internas de dos estados, reducir el copy de Admin al minimo operativo y limpiar la navegacion Admin mobile.
 
 ## Estado actual
 
@@ -34,6 +34,11 @@ Ajustar PR #147 `TASK-020 Admin IA + UI/UX redesign v2.2` para que las cinco sec
   - `app/app/admin/verifications/page.tsx`.
   - `app/app/admin/disputes/page.tsx`.
   - `app/app/admin/alerts/page.tsx`.
+- `app/app/admin/AdminSectionNav.tsx`: navegacion principal Admin actualizada:
+  - mobile usa selector compacto nativo con la seccion activa.
+  - mobile elimina scroll horizontal y los 5 iconos visibles.
+  - desktop conserva chips horizontales con seccion activa clara.
+  - sin cambios de rutas ni estructura de modulos.
 
 ## Verificacion
 
