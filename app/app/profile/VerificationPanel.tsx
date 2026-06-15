@@ -2,6 +2,7 @@
 
 import {
   BadgeCheck,
+  CheckCircle,
   Clock3,
   FileText,
   Send,
@@ -485,7 +486,7 @@ export default function VerificationPanel({
                       ? "Sube una foto clara de tu documento."
                       : currentStep === 3
                         ? "Sube una selfie clara."
-                        : "Revisaremos tus evidencias manualmente."}
+                        : "Revisa que todo esté listo antes de enviar."}
                 </p>
               </div>
 
@@ -537,16 +538,34 @@ export default function VerificationPanel({
               ) : null}
 
               {currentStep === 4 ? (
-                <div className="grid gap-3">
-                  <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body">
-                    Documento listo: <span className="intra-body-strong">{documentPhoto ? "Sí" : "No"}</span>
+                <div className="space-y-3">
+                  <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-intra-success-border bg-intra-success-soft text-intra-text-success">
+                        <CheckCircle className="intra-icon-sm" strokeWidth={2} />
+                      </div>
+                      <p className="intra-body-strong text-intra-blue">Listo para revisión</p>
+                    </div>
+
+                    <div className="mt-4 grid gap-3">
+                      <div className="flex items-center gap-3 intra-body">
+                        <CheckCircle className="intra-icon-sm shrink-0 text-intra-text-success" strokeWidth={2} />
+                        <span>Documento cargado</span>
+                      </div>
+                      <div className="flex items-center gap-3 intra-body">
+                        <CheckCircle className="intra-icon-sm shrink-0 text-intra-text-success" strokeWidth={2} />
+                        <span>Selfie cargada</span>
+                      </div>
+                      <div className="flex items-center gap-3 intra-body">
+                        <CheckCircle className="intra-icon-sm shrink-0 text-intra-text-success" strokeWidth={2} />
+                        <span>Autorización aceptada</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body">
-                    Selfie lista: <span className="intra-body-strong">{selfie ? "Sí" : "No"}</span>
-                  </div>
-                  <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body">
-                    Autorización aceptada: <span className="intra-body-strong">{acceptConsent ? "Sí" : "No"}</span>
-                  </div>
+
+                  <p className="intra-caption text-intra-text-muted">
+                    Tus evidencias serán revisadas manualmente por INTRA.
+                  </p>
                 </div>
               ) : null}
 
