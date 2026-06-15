@@ -10,6 +10,56 @@
 
 ---
 
+## P0 - En revision
+
+### TASK-020: Admin IA + UI/UX redesign v2.2
+
+Estado: REVIEW
+Prioridad: Alta
+Area: Admin / UI/UX v2.2 / Operacion interna
+
+Resumen:
+
+- PR #147 ajusta el panel admin para separar las categorias principales en cinco modulos:
+  - `/app/admin/payouts` -> Retiros.
+  - `/app/admin/payout-accounts` -> Cuentas.
+  - `/app/admin/verifications` -> Verificaciones.
+  - `/app/admin/disputes` -> Disputas.
+  - `/app/admin/alerts` -> Alertas.
+- Ajuste 2026-06-15: cada modulo queda como bandeja operativa interna de dos estados:
+  - Retiros: `Pendientes` / `Gestionados`.
+  - Cuentas: `Pendientes` / `Revisadas`.
+  - Verificaciones: `Pendientes` / `Revisadas`.
+  - Disputas: `Abiertas` / `Resueltas`.
+  - Alertas: `Activas` / `Resueltas`.
+- Ajuste de copy 2026-06-15:
+  - textos explicativos y tutoriales de Admin reducidos a lenguaje operativo corto.
+  - empty states normalizados a `Sin registros.`, `Sin pendientes.`, `Sin revisadas.`, `Sin abiertas.`, `Sin resueltas.`, `Sin alertas activas.` y `Sin resultados.`.
+  - botones largos reducidos a acciones directas como `Aprobar`, `Rechazar`, `Verificar`, `Abrir`, `Cerrar`, `Escalar` y `Permitir`.
+- Ajuste de navegacion mobile 2026-06-15:
+  - `app/app/admin/AdminSectionNav.tsx` usa selector compacto en mobile.
+  - mobile queda sin scroll horizontal y sin 5 iconos visibles.
+  - desktop conserva tabs/chips horizontales.
+- No se mezclan cuentas con retiros, retiros con cuentas, disputas con alertas ni alertas con disputas.
+- No se tocaron migrations, schemas, tablas, columnas, RLS, Storage, RPCs, `requireAdminUser`, `createAdminClient`, actions admin, actions wallet ni logica sensible de pagos/wallet/verificacion/disputas/alertas.
+
+Verificacion local:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS.
+
+Pendiente:
+
+- Revision visual de Aldo.
+- Mantener PR #147 en Draft.
+- No merge.
+- No deploy manual.
+
+---
+
 ## P0 - Critico
 
 ### TASK-011: Auditoria funcional full del repo

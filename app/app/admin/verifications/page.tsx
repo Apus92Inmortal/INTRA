@@ -45,7 +45,7 @@ export default async function AdminVerificationsPage() {
     const { data: verificationRows, error: verificationError } = await admin
       .from("user_verifications")
       .select(
-        "id, user_id, verification_status, document_photo_url, selfie_url, rejection_reason, reviewed_at, created_at"
+        "id, user_id, verification_status, document_photo_url, selfie_url, rejection_reason, reviewed_at, created_at",
       )
       .order("created_at", { ascending: false })
 
@@ -53,7 +53,9 @@ export default async function AdminVerificationsPage() {
       loadError = verificationError.message
     } else {
       const rows = (verificationRows ?? []) as VerificationRow[]
-      const userIds = Array.from(new Set(rows.map((row) => row.user_id).filter(Boolean)))
+      const userIds = Array.from(
+        new Set(rows.map((row) => row.user_id).filter(Boolean)),
+      )
 
       const { data: profileRows, error: profileError } = userIds.length
         ? await admin
@@ -66,7 +68,10 @@ export default async function AdminVerificationsPage() {
         loadError = profileError.message
       } else {
         const profiles = new Map(
-          ((profileRows ?? []) as ProfileRow[]).map((profile) => [profile.id, profile])
+          ((profileRows ?? []) as ProfileRow[]).map((profile) => [
+            profile.id,
+            profile,
+          ]),
         )
 
         const statusPriority: Record<string, number> = {
@@ -96,7 +101,7 @@ export default async function AdminVerificationsPage() {
             return {
               id: row.id,
               userId: row.user_id,
-              fullName: profile?.full_name || "Usuario sin nombre",
+              fullName: profile?.full_name || "Sin nombre",
               phone: profile?.phone ?? null,
               documentNumber: profile?.document_number ?? null,
               verificationStatus: row.verification_status,
@@ -106,7 +111,7 @@ export default async function AdminVerificationsPage() {
               reviewedAt: row.reviewed_at,
               createdAt: row.created_at,
             }
-          })
+          }),
         )
 
         verifications = verifications.sort((a, b) => {
@@ -118,23 +123,23 @@ export default async function AdminVerificationsPage() {
             return statusDiff
           }
 
-          return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+          return (
+            new Date(b.createdAt ?? 0).getTime() -
+            new Date(a.createdAt ?? 0).getTime()
+          )
         })
       }
     }
   } catch (error) {
-    loadError = error instanceof Error ? error.message : "No pudimos cargar las verificaciones."
+    loadError = error instanceof Error ? error.message : "Error de carga."
   }
 
   if (loadError || !hasAccess) {
     return (
       <section className="rounded-3xl border border-intra-danger-border bg-intra-card p-6 shadow-sm sm:p-8">
-        <h2 className="text-2xl font-bold text-intra-blue">Verificaciones</h2>
-        <p className="mt-2 text-sm text-intra-text-subtle sm:text-base">
-          No pudimos cargar este módulo administrativo en este entorno.
-        </p>
+        <h2 className="intra-h2 text-intra-blue">Verificaciones</h2>
         {loadError ? (
-          <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-sm text-intra-danger">
+          <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body text-intra-danger">
             {loadError}
           </div>
         ) : null}

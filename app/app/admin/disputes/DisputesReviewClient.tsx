@@ -2,9 +2,21 @@
 
 import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { reviewDisputeAction, reviewShipmentAlertAction } from "@/app/app/admin/actions"
+import {
+  reviewDisputeAction,
+  reviewShipmentAlertAction,
+} from "@/app/app/admin/actions"
+import {
+  AdminEmptyState,
+  AdminFeedback,
+  AdminInboxTabs,
+  AdminMetricCard,
+} from "@/app/app/admin/AdminUi"
 import { formatCop, formatDateTime } from "@/lib/payments/wallet"
-import { AdminCaseEvidencePanel, type AdminCaseFile } from "./AdminCaseEvidencePanel"
+import {
+  AdminCaseEvidencePanel,
+  type AdminCaseFile,
+} from "./AdminCaseEvidencePanel"
 
 type AdminDispute = {
   id: string
@@ -47,7 +59,7 @@ type AdminAlert = {
   caseFile: AdminCaseFile
 }
 
-type CaseFilter = "all" | "open" | "resolved"
+type CaseFilter = "open" | "resolved"
 
 type Feedback = { type: "success" | "error"; message: string } | null
 
@@ -65,7 +77,7 @@ function getCaseStateLabel(state: "open" | "reviewing" | "resolved") {
 function getCaseStateClasses(state: "open" | "reviewing" | "resolved") {
   switch (state) {
     case "reviewing":
-      return "border-intra-info/30 bg-intra-info-soft text-intra-info"
+      return "border-intra-border-soft bg-intra-info-soft text-intra-info"
     case "resolved":
       return "border-intra-success-border bg-intra-success-soft text-intra-text-success"
     default:
@@ -93,9 +105,9 @@ function getResolutionLabel(action: string | null) {
     case "rejected":
       return "Cerrada sin movimiento"
     case "allow_shipment":
-      return "Permitir envío"
+      return "Permitir"
     case "reject_shipment":
-      return "Rechazar envío"
+      return "Rechazar"
     case "escalate_to_dispute":
       return "Escalada a disputa"
     case "reprogram":
@@ -131,17 +143,19 @@ function matchesSearch(item: AdminDispute | AdminAlert, search: string) {
   return haystack.includes(search.toLowerCase())
 }
 
-function filterByState<T extends AdminDispute | AdminAlert>(items: T[], filter: CaseFilter, search: string) {
+function filterByState<T extends AdminDispute | AdminAlert>(
+  items: T[],
+  filter: CaseFilter,
+  search: string,
+) {
   return items.filter((item) => {
     if (!matchesSearch(item, search)) {
       return false
     }
 
-    if (filter === "all") {
-      return true
-    }
-
-    return filter === "open" ? item.state !== "resolved" : item.state === "resolved"
+    return filter === "open"
+      ? item.state !== "resolved"
+      : item.state === "resolved"
   })
 }
 
@@ -160,7 +174,10 @@ function DisputeCard({
   refundAmount: string
   onNotesChange: (value: string) => void
   onRefundAmountChange: (value: string) => void
-  onAction: (dispute: AdminDispute, action: "reviewing" | "customer_refund" | "traveler_release" | "rejected") => void
+  onAction: (
+    dispute: AdminDispute,
+    action: "reviewing" | "customer_refund" | "traveler_release" | "rejected",
+  ) => void
 }) {
   const isResolved = dispute.state === "resolved"
 
@@ -170,19 +187,28 @@ function DisputeCard({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-lg font-semibold text-intra-blue">Disputa · {dispute.trackingCode ? `Guía ${dispute.trackingCode}` : dispute.paymentId}</h3>
-              <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getCaseStateClasses(dispute.state)}`}>
+              <h3 className="intra-h4 text-intra-blue">
+                Disputa ·{" "}
+                {dispute.trackingCode
+                  ? `Guía ${dispute.trackingCode}`
+                  : dispute.paymentId}
+              </h3>
+              <span
+                className={`inline-flex rounded-full border px-3 py-1 intra-caption-strong ${getCaseStateClasses(dispute.state)}`}
+              >
                 {getCaseStateLabel(dispute.state)}
               </span>
             </div>
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-intra-text-subtle">
+            <div className="flex flex-wrap gap-x-5 gap-y-1 intra-body text-intra-text-subtle">
               <span>Reportó: {dispute.reporterName}</span>
               <span>Afectado: {dispute.affectedName}</span>
               <span>Abierta: {formatDateTime(dispute.createdAt)}</span>
             </div>
           </div>
 
-          <span className="text-sm font-medium text-intra-text-muted/70">Ver detalle</span>
+          <span className="intra-body-strong text-intra-text-muted/70">
+            Ver detalle
+          </span>
         </div>
       </summary>
 
@@ -190,82 +216,103 @@ function DisputeCard({
         <AdminCaseEvidencePanel caseFile={dispute.caseFile} />
 
         <div>
-          <p className="text-[11px] font-semibold uppercase text-intra-text-muted">Disputa formal</p>
-          <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
-            <span className="font-semibold text-intra-blue">Motivo:</span> {dispute.reason}
+          <p className="intra-caption-strong uppercase text-intra-text-muted">
+            Disputa
+          </p>
+          <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 intra-body text-intra-text-subtle">
+            <span className=" text-intra-blue">Motivo:</span> {dispute.reason}
           </div>
         </div>
 
-        <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 intra-body text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Pago retenido</p>
-            <p className="mt-1 text-intra-blue">{formatCop(dispute.suggestedAmount)}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              Pago retenido
+            </p>
+            <p className="mt-1 text-intra-blue">
+              {formatCop(dispute.suggestedAmount)}
+            </p>
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Pago viajero</p>
-            <p className="mt-1 text-intra-blue">{formatCop(dispute.travelerAmount)}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              Pago viajero
+            </p>
+            <p className="mt-1 text-intra-blue">
+              {formatCop(dispute.travelerAmount)}
+            </p>
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Estado pago</p>
-            <p className="mt-1 text-intra-blue">{dispute.paymentStatus || "Sin dato"}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              Estado pago
+            </p>
+            <p className="mt-1 text-intra-blue">
+              {dispute.paymentStatus || "Sin estado"}
+            </p>
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Resolución</p>
-            <p className="mt-1 text-intra-blue">{getResolutionLabel(dispute.resolutionAction)}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              Resolución
+            </p>
+            <p className="mt-1 text-intra-blue">
+              {getResolutionLabel(dispute.resolutionAction)}
+            </p>
           </div>
         </div>
 
         <label className="block space-y-2">
-          <span className="text-sm font-semibold text-intra-blue">Notas de resolución</span>
+          <span className="intra-body-strong text-intra-blue">
+            Notas de resolución
+          </span>
           <textarea
             rows={3}
             value={notes}
             readOnly={isResolved}
             onChange={(event) => onNotesChange(event.target.value)}
-            className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
-            placeholder="Ej: evidencia revisada y cierre aprobado por administración"
+            className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
+            placeholder="Nota"
           />
         </label>
 
         {!isResolved ? (
           <label className="block space-y-2">
-            <span className="text-sm font-semibold text-intra-blue">Monto devolución manual</span>
+            <span className="intra-body-strong text-intra-blue">
+              Monto devolución manual
+            </span>
             <input
               value={refundAmount}
               onChange={(event) => onRefundAmountChange(event.target.value)}
-              className="intra-input min-h-11 w-full px-4 py-3 text-sm"
-              placeholder={`Ej: ${Math.max(dispute.suggestedAmount, 0).toLocaleString("es-CO")}`}
+              className="intra-input min-h-11 w-full px-4 py-3 intra-body"
+              placeholder={Math.max(dispute.suggestedAmount, 0).toLocaleString("es-CO")}
             />
           </label>
         ) : null}
 
         {dispute.resolutionNotes ? (
-          <div className="rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-3 text-sm text-intra-text-subtle">
-            <span className="font-semibold text-intra-blue">Última nota:</span> {dispute.resolutionNotes}
+          <div className="rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-3 intra-body text-intra-text-subtle">
+            <span className=" text-intra-blue">Última nota:</span>{" "}
+            {dispute.resolutionNotes}
           </div>
         ) : null}
 
         {!isResolved ? (
           <div className="space-y-3 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3">
-            <p className="text-sm font-semibold text-intra-warning-text">Acciones admin</p>
-            <p className="text-xs leading-5 text-intra-warning-text">
-              Resolver a favor del cliente o viajero puede afectar pago, wallet o liberación según la lógica ya existente.
-              Revisa el expediente antes de ejecutar.
+            <p className="intra-body-strong text-intra-warning-text">
+              Acciones
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 type="button"
                 disabled={isPending}
                 onClick={() => onAction(dispute, "reviewing")}
-                className="intra-btn intra-btn-secondary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+                className="intra-btn intra-btn-secondary min-h-11 px-4 py-2.5 intra-body disabled:opacity-50"
               >
-                Marcar en revisión
+                En revisión
               </button>
               <button
                 type="button"
                 disabled={isPending}
                 onClick={() => onAction(dispute, "customer_refund")}
-                className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+                className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 intra-body disabled:opacity-50"
               >
                 A favor del cliente
               </button>
@@ -273,7 +320,7 @@ function DisputeCard({
                 type="button"
                 disabled={isPending}
                 onClick={() => onAction(dispute, "traveler_release")}
-                className="intra-btn min-h-11 rounded-2xl border border-intra-success-border bg-intra-card px-4 py-2.5 text-sm font-semibold text-intra-text-success transition hover:bg-intra-success-soft disabled:opacity-50"
+                className="intra-btn min-h-11 rounded-2xl border border-intra-success-border bg-intra-card px-4 py-2.5 intra-body-strong text-intra-text-success transition hover:bg-intra-success-soft disabled:opacity-50"
               >
                 A favor del viajero
               </button>
@@ -281,9 +328,9 @@ function DisputeCard({
                 type="button"
                 disabled={isPending}
                 onClick={() => onAction(dispute, "rejected")}
-                className="intra-btn min-h-11 rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-2.5 text-sm font-semibold text-intra-text-subtle transition hover:border-intra-blue/20 disabled:opacity-50"
+                className="intra-btn min-h-11 rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-2.5 intra-body-strong text-intra-text-subtle transition hover:border-intra-blue disabled:opacity-50"
               >
-                Cerrar sin movimiento
+                Cerrar
               </button>
             </div>
           </div>
@@ -310,22 +357,22 @@ function AlertCard({
   const actionButtons =
     alert.reportType === "suspicious_package"
       ? [
-          { key: "reviewing", label: "Marcar en revisión" },
-          { key: "allow_shipment", label: "Permitir envío" },
-          { key: "reject_shipment", label: "Rechazar envío" },
-          { key: "escalate_to_dispute", label: "Escalar a disputa" },
+          { key: "reviewing", label: "En revisión" },
+          { key: "allow_shipment", label: "Permitir" },
+          { key: "reject_shipment", label: "Rechazar" },
+          { key: "escalate_to_dispute", label: "Escalar" },
         ]
       : alert.reportType === "incident"
         ? [
-            { key: "reviewing", label: "Marcar en revisión" },
+            { key: "reviewing", label: "En revisión" },
             { key: "reprogram", label: "Reprogramar" },
-            { key: "cancel_match", label: "Cancelar match" },
+            { key: "cancel_match", label: "Cancelar" },
             { key: "dismiss", label: "Descartar" },
           ]
         : [
-            { key: "reviewing", label: "Marcar en revisión" },
-            { key: "escalate_to_dispute", label: "Escalar a disputa" },
-            { key: "cancel_match", label: "Cancelar match" },
+            { key: "reviewing", label: "En revisión" },
+            { key: "escalate_to_dispute", label: "Escalar" },
+            { key: "cancel_match", label: "Cancelar" },
             { key: "dismiss", label: "Descartar" },
           ]
 
@@ -335,22 +382,26 @@ function AlertCard({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-lg font-semibold text-intra-blue">
+              <h3 className="intra-h4 text-intra-blue">
                 {getReportTypeLabel(alert.reportType)}
                 {alert.trackingCode ? ` · Guía ${alert.trackingCode}` : ""}
               </h3>
-              <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getCaseStateClasses(alert.state)}`}>
+              <span
+                className={`inline-flex rounded-full border px-3 py-1 intra-caption-strong ${getCaseStateClasses(alert.state)}`}
+              >
                 {getCaseStateLabel(alert.state)}
               </span>
             </div>
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-intra-text-subtle">
+            <div className="flex flex-wrap gap-x-5 gap-y-1 intra-body text-intra-text-subtle">
               <span>Reportó: {alert.reporterName}</span>
               <span>Afectado: {alert.affectedName}</span>
               <span>Creada: {formatDateTime(alert.createdAt)}</span>
             </div>
           </div>
 
-          <span className="text-sm font-medium text-intra-text-muted/70">Ver detalle</span>
+          <span className="intra-body-strong text-intra-text-muted/70">
+            Ver detalle
+          </span>
         </div>
       </summary>
 
@@ -358,50 +409,66 @@ function AlertCard({
         <AdminCaseEvidencePanel caseFile={alert.caseFile} />
 
         <div>
-          <p className="text-[11px] font-semibold uppercase text-intra-text-muted">Reporte sospechoso / alerta</p>
-          <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
-            <span className="font-semibold text-intra-blue">Motivo:</span> {alert.reason}
+          <p className="intra-caption-strong uppercase text-intra-text-muted">
+            Alerta
+          </p>
+          <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 intra-body text-intra-text-subtle">
+            <span className=" text-intra-blue">Motivo:</span> {alert.reason}
           </div>
         </div>
 
-        <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-3 intra-body text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Tipo</p>
-            <p className="mt-1 text-intra-blue">{getReportTypeLabel(alert.reportType)}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              Tipo
+            </p>
+            <p className="mt-1 text-intra-blue">
+              {getReportTypeLabel(alert.reportType)}
+            </p>
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Resolución</p>
-            <p className="mt-1 text-intra-blue">{getResolutionLabel(alert.resolutionAction)}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              Resolución
+            </p>
+            <p className="mt-1 text-intra-blue">
+              {getResolutionLabel(alert.resolutionAction)}
+            </p>
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Última actualización</p>
-            <p className="mt-1 text-intra-blue">{formatDateTime(alert.resolvedAt || alert.createdAt)}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              Actualizada
+            </p>
+            <p className="mt-1 text-intra-blue">
+              {formatDateTime(alert.resolvedAt || alert.createdAt)}
+            </p>
           </div>
         </div>
 
         <label className="block space-y-2">
-          <span className="text-sm font-semibold text-intra-blue">Notas de resolución</span>
+          <span className="intra-body-strong text-intra-blue">
+            Notas de resolución
+          </span>
           <textarea
             rows={3}
             value={notes}
             readOnly={isResolved}
             onChange={(event) => onNotesChange(event.target.value)}
-            className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
-            placeholder="Ej: evidencia revisada y caso escalado según protocolo"
+            className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
+            placeholder="Nota"
           />
         </label>
 
         {alert.resolutionNotes ? (
-          <div className="rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-3 text-sm text-intra-text-subtle">
-            <span className="font-semibold text-intra-blue">Última nota:</span> {alert.resolutionNotes}
+          <div className="rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-3 intra-body text-intra-text-subtle">
+            <span className=" text-intra-blue">Última nota:</span>{" "}
+            {alert.resolutionNotes}
           </div>
         ) : null}
 
         {!isResolved ? (
           <div className="space-y-3 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3">
-            <p className="text-sm font-semibold text-intra-warning-text">Acciones admin</p>
-            <p className="text-xs leading-5 text-intra-warning-text">
-              Algunas acciones pueden cancelar el envío, escalar a disputa o desbloquear el flujo operativo según la lógica ya existente.
+            <p className="intra-body-strong text-intra-warning-text">
+              Acciones
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               {actionButtons.map((button) => (
@@ -410,14 +477,15 @@ function AlertCard({
                   type="button"
                   disabled={isPending}
                   onClick={() => onAction(alert, button.key)}
-                  className={`intra-btn min-h-11 px-4 py-2.5 text-sm disabled:opacity-50 ${
+                  className={`intra-btn min-h-11 px-4 py-2.5 intra-body disabled:opacity-50 ${
                     button.key === "reviewing"
                       ? "intra-btn-secondary"
-                      : button.key === "reject_shipment" || button.key === "cancel_match"
+                      : button.key === "reject_shipment" ||
+                          button.key === "cancel_match"
                         ? "border border-intra-danger-border text-intra-danger hover:bg-intra-danger-soft"
                         : button.key === "allow_shipment"
                           ? "border border-intra-success-border text-intra-text-success hover:bg-intra-success-soft"
-                          : "border border-intra-border-soft text-intra-text-subtle hover:border-intra-blue/20"
+                          : "border border-intra-border-soft text-intra-text-subtle hover:border-intra-blue"
                   }`}
                 >
                   {button.label}
@@ -431,36 +499,105 @@ function AlertCard({
   )
 }
 
-export default function DisputesReviewClient({ disputes, alerts }: { disputes: AdminDispute[]; alerts: AdminAlert[] }) {
+export default function DisputesReviewClient({
+  disputes,
+  alerts,
+  scope = "all",
+}: {
+  disputes: AdminDispute[]
+  alerts: AdminAlert[]
+  scope?: "all" | "disputes" | "alerts"
+}) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<Feedback>(null)
   const [search, setSearch] = useState("")
   const [caseFilter, setCaseFilter] = useState<CaseFilter>("open")
   const [notesByKey, setNotesByKey] = useState<Record<string, string>>({})
-  const [refundByPaymentId, setRefundByPaymentId] = useState<Record<string, string>>({})
+  const [refundByPaymentId, setRefundByPaymentId] = useState<
+    Record<string, string>
+  >({})
 
-  const filteredDisputes = useMemo(() => filterByState(disputes, caseFilter, search), [caseFilter, disputes, search])
-  const filteredAlerts = useMemo(() => filterByState(alerts, caseFilter, search), [alerts, caseFilter, search])
+  const filteredDisputes = useMemo(
+    () => filterByState(disputes, caseFilter, search),
+    [caseFilter, disputes, search],
+  )
+  const filteredAlerts = useMemo(
+    () => filterByState(alerts, caseFilter, search),
+    [alerts, caseFilter, search],
+  )
 
   const counters = useMemo(
     () => ({
       openDisputes: disputes.filter((item) => item.state !== "resolved").length,
-      resolvedDisputes: disputes.filter((item) => item.state === "resolved").length,
+      resolvedDisputes: disputes.filter((item) => item.state === "resolved")
+        .length,
       openAlerts: alerts.filter((item) => item.state !== "resolved").length,
       resolvedAlerts: alerts.filter((item) => item.state === "resolved").length,
     }),
-    [alerts, disputes]
+    [alerts, disputes],
+  )
+  const showDisputes = scope !== "alerts"
+  const showAlerts = scope !== "disputes"
+  const openTabLabel = scope === "alerts" ? "Activas" : "Abiertas"
+  const activeSectionLabel =
+    caseFilter === "open" ? openTabLabel : "Resueltas"
+  const emptyDisputesText =
+    search.trim().length > 0
+      ? "Sin resultados."
+      : caseFilter === "open"
+        ? "Sin abiertas."
+        : "Sin resueltas."
+  const emptyAlertsText =
+    search.trim().length > 0
+      ? "Sin resultados."
+      : caseFilter === "open"
+        ? "Sin alertas activas."
+        : "Sin resueltas."
+  const inboxTabs = useMemo(
+    () => [
+      {
+        key: "open",
+        label: openTabLabel,
+        count:
+          scope === "alerts"
+            ? counters.openAlerts
+            : scope === "disputes"
+              ? counters.openDisputes
+              : counters.openDisputes + counters.openAlerts,
+      },
+      {
+        key: "resolved",
+        label: "Resueltas",
+        count:
+          scope === "alerts"
+            ? counters.resolvedAlerts
+            : scope === "disputes"
+              ? counters.resolvedDisputes
+              : counters.resolvedDisputes + counters.resolvedAlerts,
+      },
+    ],
+    [
+      counters.openAlerts,
+      counters.openDisputes,
+      counters.resolvedAlerts,
+      counters.resolvedDisputes,
+      openTabLabel,
+      scope,
+    ],
   )
 
   function handleDisputeAction(
     dispute: AdminDispute,
-    action: "reviewing" | "customer_refund" | "traveler_release" | "rejected"
+    action: "reviewing" | "customer_refund" | "traveler_release" | "rejected",
   ) {
     if (action === "customer_refund") {
       const rawAmount = (refundByPaymentId[dispute.paymentId] ?? "").trim()
       if (!rawAmount) {
-        setFeedback({ type: "error", message: "Escribe el monto manual antes de resolver a favor del cliente." })
+        setFeedback({
+          type: "error",
+          message: "Monto requerido.",
+        })
         return
       }
     }
@@ -474,17 +611,26 @@ export default function DisputesReviewClient({ disputes, alerts }: { disputes: A
         formData.set("matchId", dispute.matchId)
       }
       formData.set("action", action)
-      formData.set("resolutionNotes", notesByKey[`dispute:${dispute.paymentId}`] ?? "")
+      formData.set(
+        "resolutionNotes",
+        notesByKey[`dispute:${dispute.paymentId}`] ?? "",
+      )
       formData.set("refundAmount", refundByPaymentId[dispute.paymentId] ?? "")
 
       const result = await reviewDisputeAction(formData)
 
       if (!result.success) {
-        setFeedback({ type: "error", message: result.error ?? "No pudimos actualizar la disputa." })
+        setFeedback({
+          type: "error",
+          message: "Error al actualizar.",
+        })
         return
       }
 
-      setFeedback({ type: "success", message: result.message ?? "Disputa actualizada." })
+      setFeedback({
+        type: "success",
+        message: result.message ?? "Disputa actualizada.",
+      })
       router.refresh()
     })
   }
@@ -501,11 +647,17 @@ export default function DisputesReviewClient({ disputes, alerts }: { disputes: A
       const result = await reviewShipmentAlertAction(formData)
 
       if (!result.success) {
-        setFeedback({ type: "error", message: result.error ?? "No pudimos actualizar la alerta." })
+        setFeedback({
+          type: "error",
+          message: "Error al actualizar.",
+        })
         return
       }
 
-      setFeedback({ type: "success", message: result.message ?? "Alerta actualizada." })
+      setFeedback({
+        type: "success",
+        message: result.message ?? "Alerta actualizada.",
+      })
       router.refresh()
     })
   }
@@ -515,141 +667,145 @@ export default function DisputesReviewClient({ disputes, alerts }: { disputes: A
       <section className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-intra-blue sm:text-3xl">Disputas y alertas</h2>
-            <p className="mt-2 text-sm text-intra-text-subtle sm:text-base">
-              Revisa disputas abiertas, alertas operativas y el historial de casos ya resueltos.
-            </p>
+            <h2 className="intra-h2 text-intra-blue ">
+              {scope === "alerts"
+                ? "Alertas"
+                : scope === "disputes"
+                  ? "Disputas"
+                  : "Disputas y alertas"}
+            </h2>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Disputas abiertas</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{counters.openDisputes}</p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Disputas resueltas</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{counters.resolvedDisputes}</p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Alertas abiertas</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{counters.openAlerts}</p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Alertas resueltas</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{counters.resolvedAlerts}</p>
-            </div>
+            {showDisputes ? (
+              <>
+                <AdminMetricCard
+                  label="Abiertas"
+                  value={counters.openDisputes}
+                />
+                <AdminMetricCard
+                  label="Resueltas"
+                  value={counters.resolvedDisputes}
+                />
+              </>
+            ) : null}
+            {showAlerts ? (
+              <>
+                <AdminMetricCard
+                  label={scope === "alerts" ? "Activas" : "Abiertas"}
+                  value={counters.openAlerts}
+                />
+                <AdminMetricCard
+                  label="Resueltas"
+                  value={counters.resolvedAlerts}
+                />
+              </>
+            ) : null}
           </div>
         </div>
 
         <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {([
-              { key: "open", label: "Abiertas / en revisión" },
-              { key: "resolved", label: "Resueltas" },
-              { key: "all", label: "Todas" },
-            ] as Array<{ key: CaseFilter; label: string }>).map((filter) => (
-              <button
-                key={filter.key}
-                type="button"
-                onClick={() => setCaseFilter(filter.key)}
-                className={`rounded-2xl border px-4 py-2 text-sm font-semibold transition ${
-                  caseFilter === filter.key
-                    ? "border-intra-blue bg-intra-blue text-intra-card"
-                    : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue/20 hover:text-intra-blue"
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
+          <AdminInboxTabs
+            tabs={inboxTabs}
+            activeTab={caseFilter}
+            onTabChange={(tab) => setCaseFilter(tab as CaseFilter)}
+          />
 
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="intra-input min-h-11 w-full max-w-md px-4 py-3 text-sm"
-            placeholder="Buscar por guía, motivo o usuario"
+            className="intra-input min-h-11 w-full max-w-md px-4 py-3 intra-body"
+            placeholder="Buscar"
           />
         </div>
 
         {feedback ? (
-          <div
-            className={`mt-5 rounded-2xl px-4 py-3 text-sm ${
-              feedback.type === "error"
-                ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-                : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
-            }`}
-          >
-            {feedback.message}
+          <div className="mt-5">
+            <AdminFeedback type={feedback.type}>
+              {feedback.message}
+            </AdminFeedback>
           </div>
         ) : null}
       </section>
 
-      <section className="space-y-4">
-        <div>
-          <h3 className="text-xl font-semibold text-intra-blue">Disputas</h3>
-        </div>
+      {showDisputes ? (
+        <section className="space-y-4">
+          <div>
+            <h3 className="intra-h3 text-intra-blue">
+              {activeSectionLabel}
+            </h3>
+          </div>
 
-        {filteredDisputes.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-            No hay disputas para este filtro.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredDisputes.map((dispute) => (
-              <DisputeCard
-                key={dispute.paymentId}
-                dispute={dispute}
-                isPending={isPending}
-                notes={notesByKey[`dispute:${dispute.paymentId}`] ?? dispute.resolutionNotes ?? ""}
-                refundAmount={refundByPaymentId[dispute.paymentId] ?? ""}
-                onNotesChange={(value) =>
-                  setNotesByKey((current) => ({
-                    ...current,
-                    [`dispute:${dispute.paymentId}`]: value,
-                  }))
-                }
-                onRefundAmountChange={(value) =>
-                  setRefundByPaymentId((current) => ({
-                    ...current,
-                    [dispute.paymentId]: value,
-                  }))
-                }
-                onAction={handleDisputeAction}
-              />
-            ))}
-          </div>
-        )}
-      </section>
+          {filteredDisputes.length === 0 ? (
+            <AdminEmptyState>{emptyDisputesText}</AdminEmptyState>
+          ) : (
+            <div className="space-y-4">
+              {filteredDisputes.map((dispute) => (
+                <DisputeCard
+                  key={dispute.paymentId}
+                  dispute={dispute}
+                  isPending={isPending}
+                  notes={
+                    notesByKey[`dispute:${dispute.paymentId}`] ??
+                    dispute.resolutionNotes ??
+                    ""
+                  }
+                  refundAmount={refundByPaymentId[dispute.paymentId] ?? ""}
+                  onNotesChange={(value) =>
+                    setNotesByKey((current) => ({
+                      ...current,
+                      [`dispute:${dispute.paymentId}`]: value,
+                    }))
+                  }
+                  onRefundAmountChange={(value) =>
+                    setRefundByPaymentId((current) => ({
+                      ...current,
+                      [dispute.paymentId]: value,
+                    }))
+                  }
+                  onAction={handleDisputeAction}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      ) : null}
 
-      <section className="space-y-4">
-        <div>
-          <h3 className="text-xl font-semibold text-intra-blue">Alertas</h3>
-        </div>
+      {showAlerts ? (
+        <section className="space-y-4">
+          <div>
+            <h3 className="intra-h3 text-intra-blue">
+              {activeSectionLabel}
+            </h3>
+          </div>
 
-        {filteredAlerts.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-            No hay alertas para este filtro.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredAlerts.map((alert) => (
-              <AlertCard
-                key={alert.id}
-                alert={alert}
-                isPending={isPending}
-                notes={notesByKey[`alert:${alert.id}`] ?? alert.resolutionNotes ?? ""}
-                onNotesChange={(value) =>
-                  setNotesByKey((current) => ({
-                    ...current,
-                    [`alert:${alert.id}`]: value,
-                  }))
-                }
-                onAction={handleAlertAction}
-              />
-            ))}
-          </div>
-        )}
-      </section>
+          {filteredAlerts.length === 0 ? (
+            <AdminEmptyState>{emptyAlertsText}</AdminEmptyState>
+          ) : (
+            <div className="space-y-4">
+              {filteredAlerts.map((alert) => (
+                <AlertCard
+                  key={alert.id}
+                  alert={alert}
+                  isPending={isPending}
+                  notes={
+                    notesByKey[`alert:${alert.id}`] ??
+                    alert.resolutionNotes ??
+                    ""
+                  }
+                  onNotesChange={(value) =>
+                    setNotesByKey((current) => ({
+                      ...current,
+                      [`alert:${alert.id}`]: value,
+                    }))
+                  }
+                  onAction={handleAlertAction}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      ) : null}
     </div>
   )
 }

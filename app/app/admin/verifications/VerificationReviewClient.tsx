@@ -2,6 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import {
+  AdminEmptyState,
+  AdminFeedback,
+  AdminInboxTabs,
+  AdminMetricCard,
+} from "@/app/app/admin/AdminUi"
 import { reviewUserVerificationAction } from "@/app/app/admin/actions"
 import { getVerificationBadge } from "@/lib/trust"
 
@@ -19,7 +25,7 @@ type AdminVerification = {
   createdAt: string | null
 }
 
-type ReviewedFilter = "all" | "verified" | "rejected"
+type VerificationInboxTab = "pending" | "reviewed"
 
 function formatDateTime(dateString: string | null) {
   if (!dateString) {
@@ -49,17 +55,23 @@ function matchesSearch(verification: AdminVerification, search: string) {
   return haystack.includes(search.toLowerCase())
 }
 
-function VerificationImage({ title, url }: { title: string; url: string | null }) {
+function VerificationImage({
+  title,
+  url,
+}: {
+  title: string
+  url: string | null
+}) {
   return (
     <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-intra-blue">{title}</p>
+        <p className="intra-body-strong text-intra-blue">{title}</p>
         {url ? (
           <a
             href={url}
             target="_blank"
             rel="noreferrer"
-            className="text-xs font-semibold text-intra-blue hover:underline"
+            className="intra-caption-strong text-intra-blue hover:underline"
           >
             Abrir
           </a>
@@ -74,28 +86,34 @@ function VerificationImage({ title, url }: { title: string; url: string | null }
           className="aspect-[4/3] w-full rounded-2xl object-cover"
         />
       ) : (
-        <div className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-intra-border-soft bg-intra-card text-sm text-intra-text-muted/70">
-          Archivo no disponible
+        <div className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-intra-border-soft bg-intra-card intra-body text-intra-text-muted/70">
+          Sin archivo
         </div>
       )}
     </div>
   )
 }
 
-function VerificationLinkCard({ title, url }: { title: string; url: string | null }) {
+function VerificationLinkCard({
+  title,
+  url,
+}: {
+  title: string
+  url: string | null
+}) {
   return (
     <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4">
-      <p className="text-sm font-semibold text-intra-blue">{title}</p>
-      <p className="mt-1 text-sm text-intra-text-subtle">
-        {url ? "Abre el archivo completo solo cuando lo necesites revisar." : "Archivo no disponible."}
-      </p>
+      <p className="intra-body-strong text-intra-blue">{title}</p>
+      {!url ? (
+        <p className="mt-1 intra-body text-intra-text-subtle">Sin archivo.</p>
+      ) : null}
 
       {url ? (
         <a
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="intra-btn intra-btn-secondary mt-4 min-h-11 border-intra-blue/15 px-4 py-2.5 text-sm"
+          className="intra-btn intra-btn-secondary mt-4 min-h-11 border-intra-border-soft px-4 py-2.5 intra-body"
         >
           Abrir {title.toLowerCase()}
         </a>
@@ -127,47 +145,68 @@ function ReviewedVerificationRow({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-lg font-semibold text-intra-blue">{verification.fullName}</h3>
-              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badge.classes}`}>
+              <h3 className="intra-h4 text-intra-blue">
+                {verification.fullName}
+              </h3>
+              <span
+                className={`inline-flex rounded-full px-3 py-1 intra-caption-strong ${badge.classes}`}
+              >
                 {badge.label}
               </span>
             </div>
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-intra-text-subtle">
-              <span>Documento: {verification.documentNumber || "Sin dato"}</span>
+            <div className="flex flex-wrap gap-x-5 gap-y-1 intra-body text-intra-text-subtle">
+              <span>
+                Documento: {verification.documentNumber || "Sin dato"}
+              </span>
               <span>Teléfono: {verification.phone || "Sin dato"}</span>
               <span>Revisada: {formatDateTime(verification.reviewedAt)}</span>
             </div>
           </div>
 
-          <span className="text-sm font-medium text-intra-text-muted/70">Ver detalle</span>
+          <span className="intra-body-strong text-intra-text-muted/70">
+            Ver detalle
+          </span>
         </div>
       </summary>
 
       <div className="mt-5 space-y-4 border-t border-intra-border-soft pt-5">
         <div className="grid gap-4 lg:grid-cols-2">
-          <VerificationLinkCard title="Documento" url={verification.documentPhotoUrl} />
+          <VerificationLinkCard
+            title="Documento"
+            url={verification.documentPhotoUrl}
+          />
           <VerificationLinkCard title="Selfie" url={verification.selfieUrl} />
         </div>
 
-        <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2">
+        <div className="grid gap-3 intra-body text-intra-text-subtle sm:grid-cols-2">
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Enviada</p>
-            <p className="mt-1 text-intra-blue">{formatDateTime(verification.createdAt)}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              Enviada
+            </p>
+            <p className="mt-1 text-intra-blue">
+              {formatDateTime(verification.createdAt)}
+            </p>
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">ID usuario</p>
-            <p className="mt-1 break-all text-intra-blue">{verification.userId}</p>
+            <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+              ID usuario
+            </p>
+            <p className="mt-1 break-all text-intra-blue">
+              {verification.userId}
+            </p>
           </div>
         </div>
 
         <label className="block space-y-2">
-          <span className="text-sm font-semibold text-intra-blue">Motivo de rechazo</span>
+          <span className="intra-body-strong text-intra-blue">
+            Motivo de rechazo
+          </span>
           <textarea
             rows={3}
             value={reason}
             onChange={(event) => onReasonChange(event.target.value)}
-            className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
-            placeholder="Ej: la selfie no coincide con el documento"
+            className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
+            placeholder="Motivo"
           />
         </label>
 
@@ -176,17 +215,17 @@ function ReviewedVerificationRow({
             type="button"
             disabled={isPending || !canApprove}
             onClick={() => onReview(verification.id, "verified")}
-            className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+            className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 intra-body disabled:opacity-50"
           >
-            Aprobar verificación
+            Aprobar
           </button>
           <button
             type="button"
             disabled={isPending || !canReject}
             onClick={() => onReview(verification.id, "rejected")}
-            className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
+            className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 intra-body text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
           >
-            Rechazar verificación
+            Rechazar
           </button>
         </div>
       </div>
@@ -194,22 +233,36 @@ function ReviewedVerificationRow({
   )
 }
 
-export default function VerificationReviewClient({ verifications }: { verifications: AdminVerification[] }) {
+export default function VerificationReviewClient({
+  verifications,
+}: {
+  verifications: AdminVerification[]
+}) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error"
+    message: string
+  } | null>(null)
   const [reasonsById, setReasonsById] = useState<Record<string, string>>({})
   const [search, setSearch] = useState("")
-  const [reviewedFilter, setReviewedFilter] = useState<ReviewedFilter>("all")
+  const [activeTab, setActiveTab] =
+    useState<VerificationInboxTab>("pending")
 
   const pendingVerifications = useMemo(
-    () => verifications.filter((verification) => verification.verificationStatus === "pending"),
-    [verifications]
+    () =>
+      verifications.filter(
+        (verification) => verification.verificationStatus === "pending",
+      ),
+    [verifications],
   )
 
   const reviewedVerifications = useMemo(() => {
     return verifications.filter((verification) => {
-      if (verification.verificationStatus !== "verified" && verification.verificationStatus !== "rejected") {
+      if (
+        verification.verificationStatus !== "verified" &&
+        verification.verificationStatus !== "rejected"
+      ) {
         return false
       }
 
@@ -217,32 +270,53 @@ export default function VerificationReviewClient({ verifications }: { verificati
         return false
       }
 
-      if (reviewedFilter === "all") {
-        return true
-      }
-
-      return verification.verificationStatus === reviewedFilter
+      return true
     })
-  }, [reviewedFilter, search, verifications])
+  }, [search, verifications])
 
   const reviewedCounts = useMemo(
     () => ({
       all: verifications.filter(
-        (verification) => verification.verificationStatus === "verified" || verification.verificationStatus === "rejected"
+        (verification) =>
+          verification.verificationStatus === "verified" ||
+          verification.verificationStatus === "rejected",
       ).length,
-      verified: verifications.filter((verification) => verification.verificationStatus === "verified").length,
-      rejected: verifications.filter((verification) => verification.verificationStatus === "rejected").length,
+      verified: verifications.filter(
+        (verification) => verification.verificationStatus === "verified",
+      ).length,
+      rejected: verifications.filter(
+        (verification) => verification.verificationStatus === "rejected",
+      ).length,
     }),
-    [verifications]
+    [verifications],
   )
 
-  function handleReview(verificationId: string, status: "verified" | "rejected") {
+  const inboxTabs = useMemo(
+    () => [
+      {
+        key: "pending",
+        label: "Pendientes",
+        count: pendingVerifications.length,
+      },
+      {
+        key: "reviewed",
+        label: "Revisadas",
+        count: reviewedCounts.all,
+      },
+    ],
+    [pendingVerifications.length, reviewedCounts.all],
+  )
+
+  function handleReview(
+    verificationId: string,
+    status: "verified" | "rejected",
+  ) {
     const rejectionReason = (reasonsById[verificationId] ?? "").trim()
 
     if (status === "rejected" && !rejectionReason) {
       setFeedback({
         type: "error",
-        message: "Escribe un motivo antes de rechazar la verificación.",
+        message: "Motivo requerido.",
       })
       return
     }
@@ -258,11 +332,17 @@ export default function VerificationReviewClient({ verifications }: { verificati
       const result = await reviewUserVerificationAction(formData)
 
       if (!result.success) {
-        setFeedback({ type: "error", message: result.error ?? "No pudimos actualizar la verificación." })
+        setFeedback({
+          type: "error",
+          message: "Error al actualizar.",
+        })
         return
       }
 
-      setFeedback({ type: "success", message: result.message ?? "Verificación actualizada." })
+      setFeedback({
+        type: "success",
+        message: result.message ?? "Verificación actualizada.",
+      })
       router.refresh()
     })
   }
@@ -272,110 +352,141 @@ export default function VerificationReviewClient({ verifications }: { verificati
       <section className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-intra-blue sm:text-3xl">Verificaciones</h2>
+            <h2 className="intra-h2 text-intra-blue ">Verificaciones</h2>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Pendientes</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{pendingVerifications.length}</p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Aprobadas</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.verified}</p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Rechazadas</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.rejected}</p>
-            </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <AdminMetricCard
+              label="Pendientes"
+              value={pendingVerifications.length}
+            />
+            <AdminMetricCard label="Revisadas" value={reviewedCounts.all} />
           </div>
         </div>
 
+        <div className="mt-5">
+          <AdminInboxTabs
+            tabs={inboxTabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as VerificationInboxTab)}
+          />
+        </div>
+
         {feedback ? (
-          <div
-            className={`mt-5 rounded-2xl px-4 py-3 text-sm ${
-              feedback.type === "error"
-                ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-                : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
-            }`}
-          >
-            {feedback.message}
+          <div className="mt-5">
+            <AdminFeedback type={feedback.type}>
+              {feedback.message}
+            </AdminFeedback>
           </div>
         ) : null}
       </section>
 
       {verifications.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-          No hay verificaciones cargadas todavía.
-        </section>
+        <AdminEmptyState>Sin registros.</AdminEmptyState>
       ) : (
         <>
+          {activeTab === "pending" ? (
           <section className="space-y-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-intra-blue">Pendientes</h3>
+                <h3 className="intra-h3 text-intra-blue">Pendientes</h3>
               </div>
             </div>
 
             {pendingVerifications.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-                No hay verificaciones pendientes ahora mismo.
-              </div>
+              <AdminEmptyState>Sin pendientes.</AdminEmptyState>
             ) : (
               <div className="space-y-4">
                 {pendingVerifications.map((verification) => {
-                  const badge = getVerificationBadge(verification.verificationStatus)
+                  const badge = getVerificationBadge(
+                    verification.verificationStatus,
+                  )
 
                   return (
-                    <article key={verification.id} className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm">
+                    <article
+                      key={verification.id}
+                      className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm"
+                    >
                       <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                         <div className="space-y-4 xl:max-w-sm">
                           <div className="flex flex-wrap items-center gap-3">
-                            <h3 className="text-xl font-semibold text-intra-blue">{verification.fullName}</h3>
-                            <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badge.classes}`}>
+                            <h3 className="intra-h3 text-intra-blue">
+                              {verification.fullName}
+                            </h3>
+                            <span
+                              className={`inline-flex rounded-full px-3 py-1 intra-caption-strong ${badge.classes}`}
+                            >
                               {badge.label}
                             </span>
                           </div>
 
-                          <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-1">
+                          <div className="grid gap-3 intra-body text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-1">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Documento</p>
-                              <p className="mt-1 font-medium text-intra-blue">{verification.documentNumber || "Sin dato"}</p>
+                              <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+                                Documento
+                              </p>
+                              <p className="mt-1  text-intra-blue">
+                                {verification.documentNumber || "Sin dato"}
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Teléfono</p>
-                              <p className="mt-1 font-medium text-intra-blue">{verification.phone || "Sin dato"}</p>
+                              <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+                                Teléfono
+                              </p>
+                              <p className="mt-1  text-intra-blue">
+                                {verification.phone || "Sin dato"}
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Enviada</p>
-                              <p className="mt-1">{formatDateTime(verification.createdAt)}</p>
+                              <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+                                Enviada
+                              </p>
+                              <p className="mt-1">
+                                {formatDateTime(verification.createdAt)}
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">ID usuario</p>
-                              <p className="mt-1 break-all">{verification.userId}</p>
+                              <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
+                                ID usuario
+                              </p>
+                              <p className="mt-1 break-all">
+                                {verification.userId}
+                              </p>
                             </div>
                           </div>
                         </div>
 
                         <div className="flex-1 space-y-4">
                           <div className="grid gap-4 lg:grid-cols-2">
-                            <VerificationImage title="Documento" url={verification.documentPhotoUrl} />
-                            <VerificationImage title="Selfie" url={verification.selfieUrl} />
+                            <VerificationImage
+                              title="Documento"
+                              url={verification.documentPhotoUrl}
+                            />
+                            <VerificationImage
+                              title="Selfie"
+                              url={verification.selfieUrl}
+                            />
                           </div>
 
                           <label className="block space-y-2">
-                            <span className="text-sm font-semibold text-intra-blue">Motivo de rechazo</span>
+                            <span className="intra-body-strong text-intra-blue">
+                              Motivo de rechazo
+                            </span>
                             <textarea
                               rows={3}
-                              value={reasonsById[verification.id] ?? verification.rejectionReason ?? ""}
+                              value={
+                                reasonsById[verification.id] ??
+                                verification.rejectionReason ??
+                                ""
+                              }
                               onChange={(event) =>
                                 setReasonsById((current) => ({
                                   ...current,
                                   [verification.id]: event.target.value,
                                 }))
                               }
-                              className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
-                              placeholder="Ej: la selfie no coincide con el documento"
+                              className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
+                              placeholder="Motivo"
                             />
                           </label>
 
@@ -383,18 +494,22 @@ export default function VerificationReviewClient({ verifications }: { verificati
                             <button
                               type="button"
                               disabled={isPending}
-                              onClick={() => handleReview(verification.id, "verified")}
-                              className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+                              onClick={() =>
+                                handleReview(verification.id, "verified")
+                              }
+                              className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 intra-body disabled:opacity-50"
                             >
-                              Aprobar verificación
+                              Aprobar
                             </button>
                             <button
                               type="button"
                               disabled={isPending}
-                              onClick={() => handleReview(verification.id, "rejected")}
-                              className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
+                              onClick={() =>
+                                handleReview(verification.id, "rejected")
+                              }
+                              className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 intra-body text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
                             >
-                              Rechazar verificación
+                              Rechazar
                             </button>
                           </div>
                         </div>
@@ -405,52 +520,27 @@ export default function VerificationReviewClient({ verifications }: { verificati
               </div>
             )}
           </section>
+          ) : null}
 
+          {activeTab === "reviewed" ? (
           <section className="space-y-4">
             <div className="flex flex-col gap-4 intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
               <div className="shrink-0">
-                <h3 className="text-xl font-semibold text-intra-blue">Revisadas</h3>
+                <h3 className="intra-h3 text-intra-blue">Revisadas</h3>
               </div>
 
-              <div className="flex w-full flex-col gap-3 xl:max-w-4xl xl:flex-row xl:items-center xl:justify-end">
+              <div className="flex w-full flex-col gap-3 xl:max-w-md">
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Buscar por nombre, teléfono o documento"
-                  className="intra-input min-h-11 w-full px-4 py-3 text-sm xl:max-w-md"
+                  placeholder="Buscar"
+                  className="intra-input min-h-11 w-full px-4 py-3 intra-body xl:max-w-md"
                 />
-
-                <div className="flex flex-wrap gap-2 xl:flex-nowrap xl:justify-end">
-                  {([
-                    ["all", `Todas (${reviewedCounts.all})`],
-                    ["verified", `Aprobadas (${reviewedCounts.verified})`],
-                    ["rejected", `Rechazadas (${reviewedCounts.rejected})`],
-                  ] as Array<[ReviewedFilter, string]>).map(([value, label]) => {
-                    const isActive = reviewedFilter === value
-
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setReviewedFilter(value)}
-                        className={`whitespace-nowrap rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ${
-                          isActive
-                            ? "border-intra-blue bg-intra-blue text-intra-card"
-                            : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue/20 hover:text-intra-blue"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    )
-                  })}
-                </div>
               </div>
             </div>
 
             {reviewedVerifications.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-                No encontramos verificaciones revisadas con esos filtros.
-              </div>
+              <AdminEmptyState>Sin resultados.</AdminEmptyState>
             ) : (
               <div className="space-y-3">
                 {reviewedVerifications.map((verification) => (
@@ -458,7 +548,11 @@ export default function VerificationReviewClient({ verifications }: { verificati
                     key={verification.id}
                     verification={verification}
                     isPending={isPending}
-                    reason={reasonsById[verification.id] ?? verification.rejectionReason ?? ""}
+                    reason={
+                      reasonsById[verification.id] ??
+                      verification.rejectionReason ??
+                      ""
+                    }
                     onReasonChange={(value) =>
                       setReasonsById((current) => ({
                         ...current,
@@ -471,6 +565,7 @@ export default function VerificationReviewClient({ verifications }: { verificati
               </div>
             )}
           </section>
+          ) : null}
         </>
       )}
     </div>

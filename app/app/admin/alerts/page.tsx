@@ -1,11 +1,11 @@
 import { requireAdminUser } from "@/lib/auth/admin"
 import { createAdminClient } from "@/lib/supabase/admin"
-import AdminDisputesRealtime from "./AdminDisputesRealtime"
-import DisputesReviewClient from "./DisputesReviewClient"
+import AdminDisputesRealtime from "../disputes/AdminDisputesRealtime"
 import type {
   AdminCaseEvidenceType,
   AdminCaseFile,
-} from "./AdminCaseEvidencePanel"
+} from "../disputes/AdminCaseEvidencePanel"
+import AlertsReviewClient from "./AlertsReviewClient"
 
 type JsonObject = Record<string, unknown>
 
@@ -139,7 +139,7 @@ function normalizeAlertState(
   return null
 }
 
-export default async function AdminDisputesPage() {
+export default async function AdminAlertsPage() {
   let loadError: string | null = null
   let hasAccess = false
   let disputes: Array<{
@@ -644,7 +644,7 @@ export default async function AdminDisputesPage() {
   if (loadError || !hasAccess) {
     return (
       <section className="rounded-3xl border border-intra-danger-border bg-intra-card p-6 shadow-sm sm:p-8">
-        <h2 className="intra-h2 text-intra-blue">Disputas</h2>
+        <h2 className="intra-h2 text-intra-blue">Alertas</h2>
         {loadError ? (
           <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body text-intra-danger">
             {loadError}
@@ -657,11 +657,7 @@ export default async function AdminDisputesPage() {
   return (
     <>
       <AdminDisputesRealtime />
-      <DisputesReviewClient
-        disputes={disputes}
-        alerts={alerts}
-        scope="disputes"
-      />
+      <AlertsReviewClient disputes={disputes} alerts={alerts} />
     </>
   )
 }

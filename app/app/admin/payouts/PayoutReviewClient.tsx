@@ -2,13 +2,17 @@
 
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition } from "react"
-import { reviewPayoutAccountAction } from "@/app/app/admin/actions"
+import {
+  AdminEmptyState,
+  AdminFeedback,
+  AdminField,
+  AdminInboxTabs,
+  AdminMetricCard,
+} from "@/app/app/admin/AdminUi"
 import { updatePayoutStatusAction } from "@/app/app/wallet/actions"
 import {
   formatCop,
   formatDateTime,
-  getPayoutAccountVerificationClasses,
-  getPayoutAccountVerificationLabel,
   getPayoutStatusClasses,
   getPayoutStatusLabel,
 } from "@/lib/payments/wallet"
@@ -29,23 +33,7 @@ type AdminPayout = {
   brebKey: string | null
 }
 
-type AdminPayoutAccount = {
-  id: string
-  travelerUserId: string
-  travelerName: string
-  accountHolderName: string
-  documentNumber: string
-  accountLabel: string
-  accountNumber: string
-  brebKey: string | null
-  isDefault: boolean | null
-  verificationStatus: string | null
-  verificationNotes: string | null
-  verifiedAt: string | null
-  createdAt: string | null
-}
-
-type ReviewedFilter = "all" | "approved" | "rejected" | "paid"
+type PayoutInboxTab = "pending" | "managed"
 
 function matchesSearch(payout: AdminPayout, search: string) {
   if (!search) {
@@ -67,6 +55,105 @@ function matchesSearch(payout: AdminPayout, search: string) {
   return haystack.includes(search.toLowerCase())
 }
 
+function PayoutBadge({ status }: { status: string | null }) {
+  return (
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 intra-badge-text ${getPayoutStatusClasses(status)}`}
+    >
+      {getPayoutStatusLabel(status)}
+    </span>
+  )
+}
+
+function PayoutDetails({
+  payout,
+  notes,
+  reference,
+  isReadOnly,
+  onNotesChange,
+  onReferenceChange,
+}: {
+  payout: AdminPayout
+  notes: string
+  reference: string
+  isReadOnly: boolean
+  onNotesChange: (value: string) => void
+  onReferenceChange: (value: string) => void
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+          <AdminField label="Referencia">
+            {payout.payoutCode || "Sin código"}
+          </AdminField>
+        </div>
+        <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+          <AdminField label="Cuenta">
+            <span>{payout.accountLabel}</span>
+            <span className="block intra-body text-intra-text-subtle">
+              {payout.accountNumber}
+            </span>
+          </AdminField>
+        </div>
+        <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+          <AdminField label="Solicitado">
+            {formatDateTime(payout.requested_at)}
+          </AdminField>
+        </div>
+        <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+          <AdminField label="Revisión">
+            {formatDateTime(payout.reviewed_at)}
+          </AdminField>
+        </div>
+        <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
+          <AdminField label="Pago">
+            {payout.paid_reference || "Sin referencia"}
+          </AdminField>
+        </div>
+      </div>
+
+      {payout.brebKey ? (
+        <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 intra-body text-intra-text-subtle">
+          <span className="intra-body-strong text-intra-blue">
+            Llave BRE-B:
+          </span>{" "}
+          {payout.brebKey}
+        </div>
+      ) : null}
+
+      <label className="block space-y-2">
+        <span className="intra-body-strong text-intra-blue">
+          Notas de revisión
+        </span>
+        <textarea
+          rows={3}
+          value={notes}
+          readOnly={isReadOnly}
+          onChange={(event) => onNotesChange(event.target.value)}
+          className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
+          placeholder="Nota"
+        />
+      </label>
+
+      {!isReadOnly ? (
+        <label className="block space-y-2">
+          <span className="intra-body-strong text-intra-blue">
+            Referencia de pago
+          </span>
+          <input
+            value={reference}
+            readOnly={isReadOnly}
+            onChange={(event) => onReferenceChange(event.target.value)}
+            className="intra-input min-h-11 w-full px-4 py-3 intra-body"
+            placeholder="Referencia"
+          />
+        </label>
+      ) : null}
+    </div>
+  )
+}
+
 function ReviewedPayoutRow({
   payout,
   isPending,
@@ -82,7 +169,10 @@ function ReviewedPayoutRow({
   reference: string
   onNotesChange: (value: string) => void
   onReferenceChange: (value: string) => void
-  onStatusChange: (payoutId: string, status: "approved" | "rejected" | "paid") => void
+  onStatusChange: (
+    payoutId: string,
+    status: "approved" | "rejected" | "paid",
+  ) => void
 }) {
   const canApprove = payout.status === "pending"
   const canReject = payout.status === "pending" || payout.status === "approved"
@@ -96,83 +186,31 @@ function ReviewedPayoutRow({
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-lg font-semibold text-intra-blue">{payout.travelerName}</h3>
-              <span
-                className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getPayoutStatusClasses(
-                  payout.status
-                )}`}
-              >
-                {getPayoutStatusLabel(payout.status)}
-              </span>
+              <h3 className="intra-h4">{payout.travelerName}</h3>
+              <PayoutBadge status={payout.status} />
             </div>
-
-            <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-intra-text-subtle">
+            <div className="flex flex-wrap gap-x-5 gap-y-1 intra-body text-intra-text-subtle">
               <span>Ref: {payout.payoutCode || "Sin código"}</span>
               <span>Monto: {formatCop(payout.amount ?? 0)}</span>
               <span>Cuenta: {payout.accountLabel}</span>
-              <span>Revisión: {formatDateTime(payout.reviewed_at)}</span>
             </div>
           </div>
 
-          <span className="text-sm font-medium text-intra-text-muted/70">Ver detalle</span>
+          <span className="intra-caption-strong text-intra-text-muted">
+            Ver detalle
+          </span>
         </div>
       </summary>
 
       <div className="mt-5 space-y-4 border-t border-intra-border-soft pt-5">
-        <div className="grid gap-3 text-sm text-intra-text-subtle sm:grid-cols-2 xl:grid-cols-5">
-          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Referencia</p>
-            <p className="mt-1 break-all text-intra-blue">{payout.payoutCode || "Sin código"}</p>
-          </div>
-          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Cuenta</p>
-            <p className="mt-1 font-medium text-intra-blue">{payout.accountLabel}</p>
-            <p className="text-intra-text-subtle">{payout.accountNumber}</p>
-          </div>
-          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Solicitado</p>
-            <p className="mt-1 text-intra-blue">{formatDateTime(payout.requested_at)}</p>
-          </div>
-          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Pagado</p>
-            <p className="mt-1 text-intra-blue">{formatDateTime(payout.paid_at)}</p>
-          </div>
-          <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Ref. pago</p>
-            <p className="mt-1 break-all text-intra-blue">{payout.paid_reference || "Sin referencia"}</p>
-          </div>
-        </div>
-
-        {payout.brebKey ? (
-          <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 text-sm text-intra-text-subtle">
-            <span className="font-semibold text-intra-blue">Llave BRE-B:</span> {payout.brebKey}
-          </div>
-        ) : null}
-
-        <label className="block space-y-2">
-          <span className="text-sm font-semibold text-intra-blue">Notas de revisión</span>
-          <textarea
-            rows={3}
-            value={notes}
-            readOnly={isReadOnly}
-            onChange={(event) => onNotesChange(event.target.value)}
-            className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
-            placeholder="Ej: validar cuenta antes de pagar"
-          />
-        </label>
-
-        {!isReadOnly ? (
-          <label className="block space-y-2">
-            <span className="text-sm font-semibold text-intra-blue">Referencia de pago</span>
-            <input
-              value={reference}
-              readOnly={isReadOnly}
-              onChange={(event) => onReferenceChange(event.target.value)}
-              className="intra-input min-h-11 w-full px-4 py-3 text-sm"
-              placeholder="Transferencia 123456"
-            />
-          </label>
-        ) : null}
+        <PayoutDetails
+          payout={payout}
+          notes={notes}
+          reference={reference}
+          isReadOnly={isReadOnly}
+          onNotesChange={onNotesChange}
+          onReferenceChange={onReferenceChange}
+        />
 
         {showActions ? (
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -180,7 +218,7 @@ function ReviewedPayoutRow({
               type="button"
               disabled={isPending || !canApprove}
               onClick={() => onStatusChange(payout.id, "approved")}
-              className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+              className="intra-btn intra-btn-primary disabled:opacity-50"
             >
               Aprobar
             </button>
@@ -188,7 +226,7 @@ function ReviewedPayoutRow({
               type="button"
               disabled={isPending || !canReject}
               onClick={() => onStatusChange(payout.id, "rejected")}
-              className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
+              className="intra-btn intra-btn-secondary border-intra-danger-border text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
             >
               Rechazar
             </button>
@@ -196,7 +234,7 @@ function ReviewedPayoutRow({
               type="button"
               disabled={isPending || !canMarkPaid}
               onClick={() => onStatusChange(payout.id, "paid")}
-              className="intra-btn min-h-11 rounded-2xl border border-intra-success-border bg-intra-card px-4 py-2.5 text-sm font-semibold text-intra-text-success transition hover:bg-intra-success-soft disabled:opacity-50"
+              className="intra-btn border border-intra-success-border bg-intra-card text-intra-text-success hover:bg-intra-success-soft disabled:opacity-50"
             >
               Marcar pagado
             </button>
@@ -209,37 +247,23 @@ function ReviewedPayoutRow({
 
 export default function PayoutReviewClient({
   payouts,
-  payoutAccounts,
 }: {
   payouts: AdminPayout[]
-  payoutAccounts: AdminPayoutAccount[]
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error"
+    message: string
+  } | null>(null)
   const [notesById, setNotesById] = useState<Record<string, string>>({})
-  const [accountNotesById, setAccountNotesById] = useState<Record<string, string>>({})
   const [referenceById, setReferenceById] = useState<Record<string, string>>({})
   const [search, setSearch] = useState("")
-  const [reviewedFilter, setReviewedFilter] = useState<ReviewedFilter>("all")
-
-  const reviewablePayoutAccounts = useMemo(
-    () => payoutAccounts.filter((account) => account.verificationStatus !== "verified"),
-    [payoutAccounts]
-  )
-
-  const payoutAccountCounts = useMemo(
-    () => ({
-      pending: payoutAccounts.filter((account) => account.verificationStatus === "pending").length,
-      verified: payoutAccounts.filter((account) => account.verificationStatus === "verified").length,
-      rejected: payoutAccounts.filter((account) => account.verificationStatus === "rejected").length,
-    }),
-    [payoutAccounts]
-  )
+  const [activeTab, setActiveTab] = useState<PayoutInboxTab>("pending")
 
   const pendingPayouts = useMemo(
     () => payouts.filter((payout) => payout.status === "pending"),
-    [payouts]
+    [payouts],
   )
 
   const reviewedCounts = useMemo(
@@ -247,9 +271,27 @@ export default function PayoutReviewClient({
       approved: payouts.filter((payout) => payout.status === "approved").length,
       rejected: payouts.filter((payout) => payout.status === "rejected").length,
       paid: payouts.filter((payout) => payout.status === "paid").length,
-      all: payouts.filter((payout) => payout.status && payout.status !== "pending").length,
+      all: payouts.filter(
+        (payout) => payout.status && payout.status !== "pending",
+      ).length,
     }),
-    [payouts]
+    [payouts],
+  )
+
+  const inboxTabs = useMemo(
+    () => [
+      {
+        key: "pending",
+        label: "Pendientes",
+        count: pendingPayouts.length,
+      },
+      {
+        key: "managed",
+        label: "Gestionados",
+        count: reviewedCounts.all,
+      },
+    ],
+    [pendingPayouts.length, reviewedCounts.all],
   )
 
   const reviewedPayouts = useMemo(() => {
@@ -262,15 +304,14 @@ export default function PayoutReviewClient({
         return false
       }
 
-      if (reviewedFilter === "all") {
-        return true
-      }
-
-      return payout.status === reviewedFilter
+      return true
     })
-  }, [payouts, reviewedFilter, search])
+  }, [payouts, search])
 
-  function handleStatusChange(payoutId: string, status: "approved" | "rejected" | "paid") {
+  function handleStatusChange(
+    payoutId: string,
+    status: "approved" | "rejected" | "paid",
+  ) {
     setFeedback(null)
 
     startTransition(async () => {
@@ -283,32 +324,17 @@ export default function PayoutReviewClient({
       const result = await updatePayoutStatusAction(formData)
 
       if (!result.success) {
-        setFeedback({ type: "error", message: result.error ?? "No pudimos actualizar el retiro." })
+        setFeedback({
+          type: "error",
+          message: "Error al actualizar.",
+        })
         return
       }
 
-      setFeedback({ type: "success", message: result.message ?? "Retiro actualizado." })
-      router.refresh()
-    })
-  }
-
-  function handlePayoutAccountReview(accountId: string, status: "verified" | "rejected") {
-    setFeedback(null)
-
-    startTransition(async () => {
-      const formData = new FormData()
-      formData.set("accountId", accountId)
-      formData.set("status", status)
-      formData.set("verificationNotes", accountNotesById[accountId] ?? "")
-
-      const result = await reviewPayoutAccountAction(formData)
-
-      if (!result.success) {
-        setFeedback({ type: "error", message: result.error ?? "No pudimos revisar la cuenta." })
-        return
-      }
-
-      setFeedback({ type: "success", message: result.message ?? "Cuenta revisada." })
+      setFeedback({
+        type: "success",
+        message: result.message ?? "Retiro actualizado.",
+      })
       router.refresh()
     })
   }
@@ -317,260 +343,128 @@ export default function PayoutReviewClient({
     <div className="space-y-6">
       <section className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-intra-blue sm:text-3xl">Retiros</h2>
-          </div>
+          <h2 className="intra-h2">Retiros</h2>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Pendientes</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{pendingPayouts.length}</p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Aprobados</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.approved}</p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Rechazados</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.rejected}</p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-              <p className="font-semibold text-intra-blue">Pagados</p>
-              <p className="mt-1 text-2xl font-bold text-intra-blue">{reviewedCounts.paid}</p>
-            </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <AdminMetricCard label="Pendientes" value={pendingPayouts.length} />
+            <AdminMetricCard
+              label="Gestionados"
+              value={reviewedCounts.all}
+            />
           </div>
         </div>
 
+        <div className="mt-5">
+          <AdminInboxTabs
+            tabs={inboxTabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as PayoutInboxTab)}
+          />
+        </div>
+
         {feedback ? (
-          <div
-            className={`mt-5 rounded-2xl px-4 py-3 text-sm ${
-              feedback.type === "error"
-                ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-                : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
-            }`}
-          >
-            {feedback.message}
+          <div className="mt-5">
+            <AdminFeedback type={feedback.type}>
+              {feedback.message}
+            </AdminFeedback>
           </div>
         ) : null}
       </section>
 
-      <section className="space-y-4">
-        <div className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <h3 className="text-xl font-semibold text-intra-blue">Cuentas de retiro</h3>
-              <p className="mt-1 text-sm text-intra-text-subtle">
-                Solo las cuentas verificadas pueden usarse para solicitar retiros.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-                <p className="font-semibold text-intra-blue">En revision</p>
-                <p className="mt-1 text-2xl font-bold text-intra-blue">{payoutAccountCounts.pending}</p>
-              </div>
-              <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-                <p className="font-semibold text-intra-blue">Verificadas</p>
-                <p className="mt-1 text-2xl font-bold text-intra-blue">{payoutAccountCounts.verified}</p>
-              </div>
-              <div className="rounded-2xl bg-intra-bg-app px-4 py-3 text-sm text-intra-text-subtle">
-                <p className="font-semibold text-intra-blue">Rechazadas</p>
-                <p className="mt-1 text-2xl font-bold text-intra-blue">{payoutAccountCounts.rejected}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {reviewablePayoutAccounts.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-            No hay cuentas pendientes de revision.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {reviewablePayoutAccounts.map((account) => (
-              <article key={account.id} className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h4 className="text-lg font-semibold text-intra-blue">{account.accountHolderName}</h4>
-                      <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getPayoutAccountVerificationClasses(
-                          account.verificationStatus
-                        )}`}
-                      >
-                        {getPayoutAccountVerificationLabel(account.verificationStatus)}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 text-sm text-intra-text-subtle sm:grid-cols-2">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Usuario</p>
-                        <p className="mt-1 font-medium text-intra-blue">{account.travelerName}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Documento</p>
-                        <p className="mt-1 font-medium text-intra-blue">{account.documentNumber}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Cuenta</p>
-                        <p className="mt-1 font-medium text-intra-blue">{account.accountLabel}</p>
-                        <p className="text-intra-text-subtle">{account.accountNumber}</p>
-                        {account.brebKey ? <p className="text-intra-text-subtle">Llave BRE-B: {account.brebKey}</p> : null}
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Registrada</p>
-                        <p className="mt-1">{formatDateTime(account.createdAt)}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="w-full max-w-xl space-y-3">
-                    <label className="block space-y-2">
-                      <span className="text-sm font-semibold text-intra-blue">Notas de revision</span>
-                      <textarea
-                        rows={3}
-                        value={accountNotesById[account.id] ?? account.verificationNotes ?? ""}
-                        onChange={(event) =>
-                          setAccountNotesById((current) => ({
-                            ...current,
-                            [account.id]: event.target.value,
-                          }))
-                        }
-                        className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
-                        placeholder="Ej: titular coincide con documento"
-                      />
-                    </label>
-
-                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                      <button
-                        type="button"
-                        disabled={isPending}
-                        onClick={() => handlePayoutAccountReview(account.id, "verified")}
-                        className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
-                      >
-                        Verificar cuenta
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isPending}
-                        onClick={() => handlePayoutAccountReview(account.id, "rejected")}
-                        className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
-                      >
-                        Rechazar
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-
       {payouts.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-          No hay retiros cargados todavía.
-        </section>
+        <AdminEmptyState>Sin registros.</AdminEmptyState>
       ) : (
         <>
+          {activeTab === "pending" ? (
           <section className="space-y-4">
-            <div>
-              <h3 className="text-xl font-semibold text-intra-blue">Pendientes</h3>
-            </div>
+            <h3 className="intra-h3">Pendientes</h3>
 
             {pendingPayouts.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-                No hay retiros pendientes ahora mismo.
-              </div>
+              <AdminEmptyState>Sin pendientes.</AdminEmptyState>
             ) : (
               <div className="space-y-4">
                 {pendingPayouts.map((payout) => (
-                  <article key={payout.id} className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm">
+                  <article
+                    key={payout.id}
+                    className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm"
+                  >
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                       <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-3">
-                          <h3 className="text-xl font-semibold text-intra-blue">{formatCop(payout.amount ?? 0)}</h3>
-                          <span
-                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getPayoutStatusClasses(
-                              payout.status
-                            )}`}
-                          >
-                            {getPayoutStatusLabel(payout.status)}
-                          </span>
+                          <h3 className="intra-h3">
+                            {formatCop(payout.amount ?? 0)}
+                          </h3>
+                          <PayoutBadge status={payout.status} />
                         </div>
 
-                        <div className="grid grid-cols-1 gap-3 text-sm text-intra-text-subtle sm:grid-cols-2">
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Referencia</p>
-                            <p className="mt-1 font-medium text-intra-blue">{payout.payoutCode || "Sin código"}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Viajero</p>
-                            <p className="mt-1 font-medium text-intra-blue">{payout.travelerName}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Cuenta</p>
-                            <p className="mt-1 font-medium text-intra-blue">{payout.accountLabel}</p>
-                            <p className="text-intra-text-subtle">{payout.accountNumber}</p>
-                            {payout.brebKey ? <p className="text-intra-text-subtle">Llave BRE-B: {payout.brebKey}</p> : null}
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Solicitado</p>
-                            <p className="mt-1">{formatDateTime(payout.requested_at)}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted/70">Revisión</p>
-                            <p className="mt-1">{formatDateTime(payout.reviewed_at)}</p>
-                          </div>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <AdminField label="Referencia">
+                            {payout.payoutCode || "Sin código"}
+                          </AdminField>
+                          <AdminField label="Viajero">
+                            {payout.travelerName}
+                          </AdminField>
+                          <AdminField label="Cuenta">
+                            <span>{payout.accountLabel}</span>
+                            <span className="block intra-body text-intra-text-subtle">
+                              {payout.accountNumber}
+                            </span>
+                            {payout.brebKey ? (
+                              <span className="block intra-body text-intra-text-subtle">
+                                Llave BRE-B: {payout.brebKey}
+                              </span>
+                            ) : null}
+                          </AdminField>
+                          <AdminField label="Solicitado">
+                            {formatDateTime(payout.requested_at)}
+                          </AdminField>
                         </div>
                       </div>
 
                       <div className="w-full max-w-xl space-y-3">
-                        <label className="block space-y-2">
-                          <span className="text-sm font-semibold text-intra-blue">Notas de revisión</span>
-                          <textarea
-                            rows={3}
-                            value={notesById[payout.id] ?? payout.review_notes ?? ""}
-                            onChange={(event) =>
-                              setNotesById((current) => ({
-                                ...current,
-                                [payout.id]: event.target.value,
-                              }))
-                            }
-                            className="intra-input min-h-[88px] w-full px-4 py-3 text-sm"
-                            placeholder="Ej: validar cuenta antes de pagar"
-                          />
-                        </label>
-
-                        <label className="block space-y-2">
-                          <span className="text-sm font-semibold text-intra-blue">Referencia de pago</span>
-                          <input
-                            value={referenceById[payout.id] ?? payout.paid_reference ?? ""}
-                            onChange={(event) =>
-                              setReferenceById((current) => ({
-                                ...current,
-                                [payout.id]: event.target.value,
-                              }))
-                            }
-                            className="intra-input min-h-11 w-full px-4 py-3 text-sm"
-                            placeholder="Transferencia 123456"
-                          />
-                        </label>
+                        <PayoutDetails
+                          payout={payout}
+                          notes={
+                            notesById[payout.id] ?? payout.review_notes ?? ""
+                          }
+                          reference={
+                            referenceById[payout.id] ??
+                            payout.paid_reference ??
+                            ""
+                          }
+                          isReadOnly={false}
+                          onNotesChange={(value) =>
+                            setNotesById((current) => ({
+                              ...current,
+                              [payout.id]: value,
+                            }))
+                          }
+                          onReferenceChange={(value) =>
+                            setReferenceById((current) => ({
+                              ...current,
+                              [payout.id]: value,
+                            }))
+                          }
+                        />
 
                         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                           <button
                             type="button"
                             disabled={isPending}
-                            onClick={() => handleStatusChange(payout.id, "approved")}
-                            className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 text-sm disabled:opacity-50"
+                            onClick={() =>
+                              handleStatusChange(payout.id, "approved")
+                            }
+                            className="intra-btn intra-btn-primary disabled:opacity-50"
                           >
                             Aprobar
                           </button>
                           <button
                             type="button"
                             disabled={isPending}
-                            onClick={() => handleStatusChange(payout.id, "rejected")}
-                            className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 text-sm text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
+                            onClick={() =>
+                              handleStatusChange(payout.id, "rejected")
+                            }
+                            className="intra-btn intra-btn-secondary border-intra-danger-border text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
                           >
                             Rechazar
                           </button>
@@ -582,53 +476,25 @@ export default function PayoutReviewClient({
               </div>
             )}
           </section>
+          ) : null}
 
+          {activeTab === "managed" ? (
           <section className="space-y-4">
-            <div className="flex flex-col gap-4 intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
-              <div className="shrink-0">
-                <h3 className="text-xl font-semibold text-intra-blue">Historial</h3>
-              </div>
+            <div className="intra-card flex flex-col gap-4 rounded-3xl border border-intra-border-soft p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+              <h3 className="intra-h3 shrink-0">Gestionados</h3>
 
-              <div className="flex w-full flex-col gap-3 xl:max-w-4xl xl:flex-row xl:items-center xl:justify-end">
+              <div className="flex w-full flex-col gap-3 xl:max-w-md">
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Buscar por viajero, cuenta, llave o referencia"
-                  className="intra-input min-h-11 w-full px-4 py-3 text-sm xl:max-w-md"
+                  placeholder="Buscar"
+                  className="intra-input min-h-11 w-full px-4 py-3 intra-body xl:max-w-md"
                 />
-
-                <div className="flex flex-wrap gap-2 xl:flex-nowrap xl:justify-end">
-                  {([
-                    ["all", `Todos (${reviewedCounts.all})`],
-                    ["approved", `Aprobados (${reviewedCounts.approved})`],
-                    ["rejected", `Rechazados (${reviewedCounts.rejected})`],
-                    ["paid", `Pagados (${reviewedCounts.paid})`],
-                  ] as Array<[ReviewedFilter, string]>).map(([value, label]) => {
-                    const isActive = reviewedFilter === value
-
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setReviewedFilter(value)}
-                        className={`whitespace-nowrap rounded-2xl border px-4 py-2.5 text-sm font-semibold transition ${
-                          isActive
-                            ? "border-intra-blue bg-intra-blue text-intra-card"
-                            : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue/20 hover:text-intra-blue"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    )
-                  })}
-                </div>
               </div>
             </div>
 
             {reviewedPayouts.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 text-sm text-intra-text-subtle shadow-sm">
-                No encontramos retiros con esos filtros.
-              </div>
+              <AdminEmptyState>Sin resultados.</AdminEmptyState>
             ) : (
               <div className="space-y-3">
                 {reviewedPayouts.map((payout) => (
@@ -637,7 +503,9 @@ export default function PayoutReviewClient({
                     payout={payout}
                     isPending={isPending}
                     notes={notesById[payout.id] ?? payout.review_notes ?? ""}
-                    reference={referenceById[payout.id] ?? payout.paid_reference ?? ""}
+                    reference={
+                      referenceById[payout.id] ?? payout.paid_reference ?? ""
+                    }
                     onNotesChange={(value) =>
                       setNotesById((current) => ({
                         ...current,
@@ -656,6 +524,7 @@ export default function PayoutReviewClient({
               </div>
             )}
           </section>
+          ) : null}
         </>
       )}
     </div>
