@@ -4,6 +4,17 @@ import { AppNavbar } from "@/components/app-navbar";
 import ProfileForm from "./ProfileForm";
 import VerificationPanel from "./VerificationPanel";
 
+function getInitials(name: string | null | undefined, email: string | null | undefined) {
+  const source = name?.trim() || email?.split("@")[0] || "INTRA";
+  const parts = source.split(/\s+/).filter(Boolean);
+
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
 export default async function ProfilePage() {
   const supabase = await createClient();
 
@@ -44,6 +55,10 @@ export default async function ProfilePage() {
     throw new Error(`Error cargando verificación del perfil: ${verificationError.message}`);
   }
 
+  const displayName = profile?.full_name?.trim() || "Completa tu nombre";
+  const email = user.email ?? "";
+  const initials = getInitials(profile?.full_name, email);
+
   return (
     <>
       <AppNavbar />
@@ -51,11 +66,23 @@ export default async function ProfilePage() {
       <main className="intra-page-shell px-4 py-5 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-6xl flex-col gap-5">
           <header>
-            <h1 className="text-[28px] font-bold leading-[34px] text-[#0B2C4A]">Mi perfil</h1>
-            <p className="mt-1 text-[14px] leading-[22px] text-[#667085]">
-              Mantén tus datos actualizados y completa tu verificación para operar con más confianza en INTRA.
+            <h1 className="intra-h1">Mi perfil</h1>
+            <p className="intra-body mt-1">
+              Actualiza tus datos y verifica tu identidad.
             </p>
           </header>
+
+          <section className="intra-card-compact p-5 sm:p-6">
+            <div className="flex min-w-0 items-center gap-4">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-intra-neutral-soft-alt intra-h3 text-intra-blue">
+                {initials}
+              </div>
+              <div className="min-w-0">
+                <h2 className="intra-h3 break-words">{displayName}</h2>
+                <p className="intra-body mt-1 break-all">{email || "Sin correo"}</p>
+              </div>
+            </div>
+          </section>
 
           <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.96fr)] lg:items-start">
             <ProfileForm

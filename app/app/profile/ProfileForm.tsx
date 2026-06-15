@@ -1,6 +1,6 @@
 "use client";
 
-import { Save, LogOut, Mail, UserRound } from "lucide-react";
+import { LogOut, Mail, Save, UserRound } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -41,8 +41,8 @@ export default function ProfileForm({
   const [msgType, setMsgType] = useState<"success" | "error" | null>(null);
 
   const fieldClassName =
-    "intra-input min-h-11 rounded-xl border-[#E4E7EC] px-4 text-[14px] leading-[22px] text-[#0B2C4A]";
-  const labelClassName = "mb-2 block text-[14px] font-semibold leading-5 text-[#0B2C4A]";
+    "intra-input min-h-11 rounded-[var(--intra-radius-xs)]";
+  const labelClassName = "mb-2 block intra-caption-strong";
   const isBusy = loadingAction !== null;
 
   const onSave = async (e: React.FormEvent) => {
@@ -98,16 +98,14 @@ export default function ProfileForm({
   };
 
   return (
-    <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
+    <section className="intra-card p-5 sm:p-6">
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EFFBF4] text-[#2ECC71]">
-          <UserRound className="h-5 w-5" strokeWidth={1.9} />
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft text-intra-green">
+          <UserRound className="intra-icon-lg" strokeWidth={1.9} />
         </div>
         <div>
-          <h2 className="text-[18px] font-bold leading-6 text-[#0B2C4A]">Información personal</h2>
-          <p className="mt-1 text-[14px] leading-[22px] text-[#667085]">
-            Tus datos se usan para tu cuenta en INTRA.
-          </p>
+          <h2 className="intra-h3">Información personal</h2>
+          <p className="intra-body mt-1">Completa tus datos básicos.</p>
         </div>
       </div>
 
@@ -116,17 +114,17 @@ export default function ProfileForm({
           <label htmlFor="email" className={labelClassName}>
             Correo
           </label>
-          <div className="rounded-xl border border-[#E4E7EC] bg-[#F9FAFB] px-4 py-3 text-[14px] leading-[22px] text-[#0B2C4A]">
+          <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app px-4 py-3 intra-body text-intra-blue">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-[#667085]" strokeWidth={1.9} />
+                <Mail className="intra-icon-sm text-intra-text-muted" strokeWidth={1.9} />
                 <span className="break-all">{email || "Sin correo"}</span>
               </div>
               <span
-                className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-[12px] font-bold leading-4 ${
+                className={`intra-pill intra-badge-text w-fit border ${
                   isEmailVerified
-                    ? "bg-[#EFFBF4] text-[#1E8C4E]"
-                    : "bg-[#FFF7E8] text-[#D4A017]"
+                    ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
+                    : "border-intra-warning-border bg-intra-warning-soft text-intra-warning-text"
                 }`}
               >
                 {isEmailVerified ? "Correo verificado" : "Correo pendiente"}
@@ -198,7 +196,7 @@ export default function ProfileForm({
 
         {msg ? (
           <div
-            className={`rounded-[18px] border px-4 py-3 text-[14px] leading-[22px] ${
+            className={`rounded-[var(--intra-radius-xs)] border px-4 py-3 intra-body ${
               msgType === "success"
                 ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                 : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
@@ -208,13 +206,13 @@ export default function ProfileForm({
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-3 border-t border-[#E4E7EC] pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-t border-intra-border-soft pt-4 sm:flex-row sm:items-center sm:justify-between">
           <button
             disabled={isBusy}
             type="submit"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-[14px] font-bold leading-5 text-white transition hover:bg-[#27AE60] disabled:opacity-60"
+            className="intra-btn intra-btn-primary w-full sm:w-auto"
           >
-            <Save className="h-4 w-4" strokeWidth={1.9} />
+            <Save className="intra-icon-sm" strokeWidth={1.9} />
             {loadingAction === "save" ? "Guardando..." : "Guardar cambios"}
           </button>
 
@@ -222,9 +220,9 @@ export default function ProfileForm({
             disabled={isBusy}
             type="button"
             onClick={onLogout}
-            className="inline-flex min-h-11 items-center justify-center gap-2 self-center rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-[14px] font-semibold text-[#667085] transition hover:bg-[#F9FAFB] disabled:opacity-60 sm:self-auto"
+            className="intra-btn intra-btn-secondary w-full border-intra-danger-border bg-intra-card text-intra-danger hover:bg-intra-danger-soft sm:w-auto"
           >
-            <LogOut className="h-4 w-4" strokeWidth={1.9} />
+            <LogOut className="intra-icon-sm" strokeWidth={1.9} />
             {loadingAction === "logout" ? "Cerrando sesión..." : "Cerrar sesión"}
           </button>
         </div>
