@@ -67,7 +67,7 @@ const EMPTY_FORM: FormState = {
 
 function SurfaceIcon({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EFFBF4] text-[#2ECC71]">
+    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-intra-success-soft text-intra-green">
       {children}
     </div>
   )
@@ -190,25 +190,25 @@ export default function PayoutAccountsManager({
   }
 
   return (
-    <div className="space-y-5 text-[#0B2C4A]">
+    <div className="space-y-5 text-intra-blue">
       <header>
-        <h1 className="text-[28px] font-semibold leading-tight text-[#0B2C4A]">Métodos de retiro</h1>
-        <p className="mt-1 text-sm leading-6 text-[#667085] sm:text-[14px]">
+        <h1 className="intra-h1 text-intra-blue">Métodos de retiro</h1>
+        <p className="mt-1 intra-body text-intra-text-muted">
           Agrega tu cuenta para recibir tus retiros cuando tengas saldo disponible.
         </p>
       </header>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)] xl:items-start">
-        <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-[24px] border border-intra-border-soft bg-intra-card p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-center gap-4">
               <SurfaceIcon>
                 <Wallet className="h-5 w-5" strokeWidth={1.9} />
               </SurfaceIcon>
               <div>
-                <h2 className="text-[18px] font-semibold leading-tight text-[#0B2C4A]">Agregar método de retiro</h2>
+                <h2 className="intra-h4 text-intra-blue">Agregar método de retiro</h2>
                 {form.id ? (
-                  <p className="mt-1 text-sm text-[#667085]">Estás editando un método guardado.</p>
+                  <p className="mt-1 intra-caption text-intra-text-muted">Estás editando un método guardado.</p>
                 ) : null}
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function PayoutAccountsManager({
               <button
                 type="button"
                 onClick={resetForm}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB]"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-2.5 intra-caption-strong text-intra-blue transition hover:bg-intra-bg-app"
               >
                 Cancelar edición
               </button>
@@ -226,7 +226,7 @@ export default function PayoutAccountsManager({
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <label className="block space-y-2">
-              <span className="text-sm font-semibold text-[#0B2C4A]">Tipo de cuenta</span>
+              <span className="intra-caption-strong text-intra-blue">Tipo de cuenta</span>
               <select
                 value={form.accountType}
                 onChange={(event) =>
@@ -239,7 +239,7 @@ export default function PayoutAccountsManager({
                         : "",
                   }))
                 }
-                className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                className="intra-input min-h-11 rounded-2xl border-intra-border-soft px-4"
               >
                 <option value="">Selecciona una opción</option>
                 {ACCOUNT_OPTIONS.map((option) => (
@@ -252,21 +252,21 @@ export default function PayoutAccountsManager({
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Titular</span>
+                <span className="intra-caption-strong text-intra-blue">Titular</span>
                 <input
                   value={form.accountHolderName}
                   onChange={(event) => setForm((current) => ({ ...current, accountHolderName: event.target.value }))}
-                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  className="intra-input min-h-11 rounded-2xl border-intra-border-soft px-4"
                   placeholder="Nombre completo"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Documento</span>
+                <span className="intra-caption-strong text-intra-blue">Documento</span>
                 <input
                   value={form.documentNumber}
                   onChange={(event) => setForm((current) => ({ ...current, documentNumber: event.target.value }))}
-                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  className="intra-input min-h-11 rounded-2xl border-intra-border-soft px-4"
                   placeholder="Cédula o NIT"
                 />
               </label>
@@ -274,11 +274,11 @@ export default function PayoutAccountsManager({
 
             {isBankAccount ? (
               <label className="block space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Entidad bancaria</span>
+                <span className="intra-caption-strong text-intra-blue">Entidad bancaria</span>
                 <input
                   value={form.bankName}
                   onChange={(event) => setForm((current) => ({ ...current, bankName: event.target.value }))}
-                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  className="intra-input min-h-11 rounded-2xl border-intra-border-soft px-4"
                   placeholder="Ej. Davivienda"
                 />
               </label>
@@ -286,59 +286,59 @@ export default function PayoutAccountsManager({
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Número de cuenta o celular</span>
+                <span className="intra-caption-strong text-intra-blue">Número de cuenta o celular</span>
                 <input
                   value={form.accountNumber}
                   onChange={(event) => setForm((current) => ({ ...current, accountNumber: event.target.value }))}
-                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  className="intra-input min-h-11 rounded-2xl border-intra-border-soft px-4"
                   placeholder="Ej. 300 123 4567"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-semibold text-[#0B2C4A]">Llave Bre-B</span>
+                <span className="intra-caption-strong text-intra-blue">Llave Bre-B</span>
                 <input
                   value={form.brebKey}
                   onChange={(event) => setForm((current) => ({ ...current, brebKey: event.target.value }))}
-                  className="intra-input min-h-11 rounded-2xl border-[#E4E7EC] px-4"
+                  className="intra-input min-h-11 rounded-2xl border-intra-border-soft px-4"
                   placeholder="@tullave"
                 />
               </label>
             </div>
 
-            <div className="flex items-start gap-2 rounded-[16px] text-sm text-[#667085]">
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#667085]" strokeWidth={1.9} />
+            <div className="flex items-start gap-2 rounded-[16px] intra-caption text-intra-text-muted">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-intra-text-muted" strokeWidth={1.9} />
               <p>Usaremos esta informacion para revisar tu cuenta. Si editas un metodo verificado, volvera a revision.</p>
             </div>
 
-            <label className="flex items-start gap-3 rounded-[18px] border border-[#E4E7EC] bg-[#F9FCFA] px-4 py-3.5">
+            <label className="flex items-start gap-3 rounded-[18px] border border-intra-border-soft bg-intra-bg-app px-4 py-3.5">
               <button
                 type="button"
                 role="switch"
                 aria-checked={form.isDefault}
                 onClick={() => setForm((current) => ({ ...current, isDefault: !current.isDefault }))}
                 className={`relative mt-0.5 inline-flex h-7 w-12 shrink-0 items-center rounded-full transition ${
-                  form.isDefault ? "bg-[#2ECC71]" : "bg-[#D0D5DD]"
+                  form.isDefault ? "bg-intra-green" : "bg-intra-border-soft"
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition ${
+                  className={`inline-block h-5 w-5 rounded-full bg-intra-card shadow-sm transition ${
                     form.isDefault ? "translate-x-6" : "translate-x-1"
                   }`}
                 />
               </button>
               <div>
-                <p className="text-sm font-semibold text-[#0B2C4A]">Usar como método principal</p>
-                <p className="mt-1 text-sm text-[#667085]">Será el método predeterminado para tus retiros.</p>
+                <p className="intra-caption-strong text-intra-blue">Usar como método principal</p>
+                <p className="mt-1 intra-caption text-intra-text-muted">Será el método predeterminado para tus retiros.</p>
               </div>
             </label>
 
             {feedback ? (
               <div
-                className={`rounded-[16px] px-4 py-3 text-sm ${
+                className={`rounded-[16px] px-4 py-3 intra-caption ${
                   feedback.type === "error"
                     ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-                    : "border border-[#B7E4C7] bg-[#EFFBF4] text-[#1C7C45]"
+                    : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
                 }`}
               >
                 {feedback.message}
@@ -348,7 +348,7 @@ export default function PayoutAccountsManager({
             <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-[minmax(0,200px)_minmax(0,1fr)]">
               <Link
                 href="/app/wallet/payout"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-5 py-3 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB]"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-border-soft bg-intra-card px-5 py-3 intra-caption-strong text-intra-blue transition hover:bg-intra-bg-app"
               >
                 <ChevronLeft className="h-4 w-4" strokeWidth={1.9} />
                 Volver a retiros
@@ -357,7 +357,7 @@ export default function PayoutAccountsManager({
               <button
                 type="submit"
                 disabled={isPending}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-[#2ECC71] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#27AE60] disabled:opacity-60"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-intra-green px-5 py-3 intra-caption-strong text-intra-card transition hover:bg-intra-green-hover disabled:opacity-60"
               >
                 {isPending ? null : <Check className="h-4 w-4" strokeWidth={2} />}
                 {isPending ? "Guardando..." : "Guardar método"}
@@ -366,59 +366,59 @@ export default function PayoutAccountsManager({
           </form>
         </section>
 
-        <section className="rounded-[24px] border border-[#E4E7EC] bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-[24px] border border-intra-border-soft bg-intra-card p-5 shadow-sm sm:p-6">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-[18px] font-semibold leading-tight text-[#0B2C4A]">Métodos guardados</h2>
-            <span className="inline-flex rounded-full bg-[#F2F4F7] px-3 py-1 text-xs font-bold text-[#667085]">
+            <h2 className="intra-h4 text-intra-blue">Métodos guardados</h2>
+            <span className="inline-flex rounded-full bg-intra-bg-app px-3 py-1 intra-badge-text text-intra-text-muted">
               {accountsBadgeLabel}
             </span>
           </div>
 
           {accounts.length === 0 ? (
-            <div className="mt-5 flex min-h-[320px] flex-col items-center justify-center rounded-[20px] border border-dashed border-[#E4E7EC] bg-[#FCFDFD] px-6 py-10 text-center">
+            <div className="mt-5 flex min-h-[320px] flex-col items-center justify-center rounded-[20px] border border-dashed border-intra-border-soft bg-intra-bg-app px-6 py-10 text-center">
               <SurfaceIcon>
                 <CreditCard className="h-5 w-5" strokeWidth={1.9} />
               </SurfaceIcon>
-              <h3 className="mt-5 text-[18px] font-semibold leading-tight text-[#0B2C4A]">
+              <h3 className="mt-5 intra-h4 text-intra-blue">
                 Aún no tienes métodos guardados
               </h3>
-              <p className="mt-3 max-w-[280px] text-sm leading-6 text-[#667085]">
+              <p className="mt-3 max-w-[280px] intra-body text-intra-text-muted">
                 Agrega tu primer método de retiro para poder solicitar pagos cuando tengas saldo disponible.
               </p>
             </div>
           ) : (
             <div className="mt-5 space-y-3">
               {accounts.map((account) => (
-                <article key={account.id} className="rounded-[20px] border border-[#E4E7EC] bg-white p-4">
+                <article key={account.id} className="rounded-[20px] border border-intra-border-soft bg-intra-card p-4">
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-semibold text-[#0B2C4A]">
+                          <p className="intra-caption-strong text-intra-blue">
                             {getAccountTypeLabel(account.account_type)}
                           </p>
                           {account.is_default ? (
-                            <span className="inline-flex rounded-full bg-[#EFFBF4] px-2.5 py-1 text-xs font-bold text-[#1C7C45]">
+                            <span className="inline-flex rounded-full bg-intra-success-soft px-2.5 py-1 intra-badge-text text-intra-text-success">
                               Principal
                             </span>
                           ) : null}
                           <span
-                            className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${getPayoutAccountVerificationClasses(
+                            className={`inline-flex rounded-full border px-2.5 py-1 intra-badge-text ${getPayoutAccountVerificationClasses(
                               account.verification_status ?? null
                             )}`}
                           >
                             {getPayoutAccountVerificationLabel(account.verification_status ?? null)}
                           </span>
                         </div>
-                        <p className="mt-2 text-sm text-[#667085]">{account.account_holder_name || "Sin titular"}</p>
-                        <p className="mt-1 text-sm text-[#667085]">
+                        <p className="mt-2 intra-caption text-intra-text-muted">{account.account_holder_name || "Sin titular"}</p>
+                        <p className="mt-1 intra-caption text-intra-text-muted">
                           {account.document_number || "Sin documento"} · {maskAccountNumber(account.account_number)}
                         </p>
                         {account.breb_key ? (
-                          <p className="mt-1 text-sm text-[#667085]">Llave Bre-B: {account.breb_key}</p>
+                          <p className="mt-1 intra-caption text-intra-text-muted">Llave Bre-B: {account.breb_key}</p>
                         ) : null}
                         {account.verification_notes ? (
-                          <p className="mt-2 rounded-2xl bg-[#F9FAFB] px-3 py-2 text-sm text-[#667085]">
+                          <p className="mt-2 rounded-2xl bg-intra-bg-app px-3 py-2 intra-caption text-intra-text-muted">
                             Nota INTRA: {account.verification_notes}
                           </p>
                         ) : null}
@@ -429,7 +429,7 @@ export default function PayoutAccountsManager({
                       <button
                         type="button"
                         onClick={() => handleEdit(account)}
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B2C4A] transition hover:bg-[#F9FAFB]"
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-2.5 intra-caption-strong text-intra-blue transition hover:bg-intra-bg-app"
                       >
                         <PencilLine className="h-4 w-4" strokeWidth={1.9} />
                         Editar
@@ -437,7 +437,7 @@ export default function PayoutAccountsManager({
                       <button
                         type="button"
                         onClick={() => handleDelete(account.id)}
-                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-danger-border bg-white px-4 py-2.5 text-sm font-semibold text-intra-danger transition hover:bg-intra-danger-soft"
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-danger-border bg-intra-card px-4 py-2.5 intra-caption-strong text-intra-danger transition hover:bg-intra-danger-soft"
                       >
                         <Trash2 className="h-4 w-4" strokeWidth={1.9} />
                         Eliminar

@@ -58,7 +58,7 @@ export default async function WalletPayoutPage() {
   return (
     <>
       <AppNavbar />
-      <main className="intra-page-shell bg-[#F5F8FB] px-4 py-6 sm:px-6">
+      <main className="intra-page-shell bg-intra-bg-app px-4 py-6 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <PayoutRequestForm
             payoutAccounts={payoutAccountsRes.data ?? []}
