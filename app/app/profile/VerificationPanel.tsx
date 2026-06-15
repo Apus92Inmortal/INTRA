@@ -43,7 +43,6 @@ function getFileExtension(file: File) {
 
 type UploadFieldProps = {
   title: string;
-  helper: string;
   selectedFile: File | null;
   hasUploaded: boolean;
   disabled?: boolean;
@@ -53,7 +52,6 @@ type UploadFieldProps = {
 
 function UploadField({
   title,
-  helper,
   selectedFile,
   hasUploaded,
   disabled = false,
@@ -61,7 +59,6 @@ function UploadField({
   onChange,
 }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const isReady = Boolean(selectedFile) || hasUploaded;
   const previewUrl = useMemo(
     () => (selectedFile ? URL.createObjectURL(selectedFile) : null),
     [selectedFile]
@@ -76,22 +73,9 @@ function UploadField({
   }, [previewUrl]);
 
   return (
-    <div className={`rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card p-4 ${disabled ? "opacity-80" : ""}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="intra-body-strong">{title}</p>
-          <p className="intra-caption mt-1">{helper}</p>
-        </div>
-
-        {isReady ? (
-          <span className="intra-pill intra-badge-text border border-intra-success-border bg-intra-success-soft text-intra-text-success">
-            Cargado
-          </span>
-        ) : null}
-      </div>
-
+    <div className={`relative rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card p-4 ${disabled ? "opacity-80" : ""}`}>
       <label
-        className={`mt-4 block rounded-[var(--intra-radius-xs)] border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-center transition ${
+        className={`relative block rounded-[var(--intra-radius-xs)] border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-center transition ${
           disabled ? "cursor-not-allowed" : "cursor-pointer hover:border-intra-green"
         }`}
       >
@@ -111,39 +95,44 @@ function UploadField({
             style={{ backgroundImage: `url(${previewUrl})` }}
           />
         ) : (
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-neutral-pill text-intra-text-muted">
-            {icon === "document" ? (
-              <FileText className="intra-icon-xl" strokeWidth={1.8} />
+          <>
+            {hasUploaded ? (
+              <span className="intra-pill intra-badge-text mx-auto w-fit border border-intra-success-border bg-intra-success-soft text-intra-text-success">
+                Cargado
+              </span>
             ) : (
-              <UserRound className="intra-icon-xl" strokeWidth={1.8} />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-neutral-pill text-intra-text-muted">
+                {icon === "document" ? (
+                  <FileText className="intra-icon-xl" strokeWidth={1.8} />
+                ) : (
+                  <UserRound className="intra-icon-xl" strokeWidth={1.8} />
+                )}
+              </div>
             )}
-          </div>
+            <p className="intra-caption-strong mt-3 text-intra-blue">
+              {hasUploaded ? "Archivo cargado" : "Subir foto"}
+            </p>
+            <p className="intra-caption mt-1">
+              {hasUploaded ? "Foto lista." : "JPG o PNG"}
+            </p>
+          </>
         )}
-        <p className="intra-caption-strong mt-3 text-intra-blue">
-          {selectedFile || hasUploaded ? "Foto seleccionada" : "Subir foto"}
-        </p>
-        {!selectedFile ? (
-          <p className="intra-caption mt-1">
-            {hasUploaded ? "Archivo cargado." : "JPG o PNG"}
-          </p>
-        ) : null}
       </label>
 
       {selectedFile && !disabled ? (
-        <div className="mt-3 flex justify-end">
-          <button
-            type="button"
-            onClick={() => {
-              onChange(null);
-              if (inputRef.current) {
-                inputRef.current.value = "";
-              }
-            }}
-            className="intra-link intra-caption-strong"
-          >
-            Quitar
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            onChange(null);
+            if (inputRef.current) {
+              inputRef.current.value = "";
+            }
+          }}
+          className="absolute right-6 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-intra-border-soft bg-intra-card text-intra-text-muted shadow-sm transition hover:text-intra-danger"
+          aria-label="Quitar foto seleccionada"
+        >
+          <span aria-hidden="true">X</span>
+        </button>
       ) : null}
     </div>
   );
@@ -493,7 +482,6 @@ export default function VerificationPanel({
               {currentStep === 2 ? (
                 <UploadField
                   title="Documento de identidad"
-                  helper="Sube una foto clara de tu documento."
                   selectedFile={documentPhoto}
                   hasUploaded={false}
                   icon="document"
@@ -504,7 +492,6 @@ export default function VerificationPanel({
               {currentStep === 3 ? (
                 <UploadField
                   title="Selfie"
-                  helper="Sube una selfie clara."
                   selectedFile={selfie}
                   hasUploaded={false}
                   icon="selfie"
