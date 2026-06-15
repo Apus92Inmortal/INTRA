@@ -2,6 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
+import {
+  AdminEmptyState,
+  AdminFeedback,
+  AdminInboxTabs,
+  AdminMetricCard,
+} from "@/app/app/admin/AdminUi"
 import { reviewUserVerificationAction } from "@/app/app/admin/actions"
 import { getVerificationBadge } from "@/lib/trust"
 
@@ -19,7 +25,7 @@ type AdminVerification = {
   createdAt: string | null
 }
 
-type ReviewedFilter = "all" | "verified" | "rejected"
+type VerificationInboxTab = "pending" | "reviewed"
 
 function formatDateTime(dateString: string | null) {
   if (!dateString) {
@@ -242,7 +248,8 @@ export default function VerificationReviewClient({
   } | null>(null)
   const [reasonsById, setReasonsById] = useState<Record<string, string>>({})
   const [search, setSearch] = useState("")
-  const [reviewedFilter, setReviewedFilter] = useState<ReviewedFilter>("all")
+  const [activeTab, setActiveTab] =
+    useState<VerificationInboxTab>("pending")
 
   const pendingVerifications = useMemo(
     () =>
@@ -265,13 +272,9 @@ export default function VerificationReviewClient({
         return false
       }
 
-      if (reviewedFilter === "all") {
-        return true
-      }
-
-      return verification.verificationStatus === reviewedFilter
+      return true
     })
-  }, [reviewedFilter, search, verifications])
+  }, [search, verifications])
 
   const reviewedCounts = useMemo(
     () => ({
@@ -288,6 +291,22 @@ export default function VerificationReviewClient({
       ).length,
     }),
     [verifications],
+  )
+
+  const inboxTabs = useMemo(
+    () => [
+      {
+        key: "pending",
+        label: "Pendientes",
+        count: pendingVerifications.length,
+      },
+      {
+        key: "reviewed",
+        label: "Revisadas",
+        count: reviewedCounts.all,
+      },
+    ],
+    [pendingVerifications.length, reviewedCounts.all],
   )
 
   function handleReview(
@@ -338,47 +357,37 @@ export default function VerificationReviewClient({
             <h2 className="intra-h2 text-intra-blue ">Verificaciones</h2>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 intra-body text-intra-text-subtle">
-              <p className=" text-intra-blue">Pendientes</p>
-              <p className="mt-1 intra-h2 text-intra-blue">
-                {pendingVerifications.length}
-              </p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 intra-body text-intra-text-subtle">
-              <p className=" text-intra-blue">Aprobadas</p>
-              <p className="mt-1 intra-h2 text-intra-blue">
-                {reviewedCounts.verified}
-              </p>
-            </div>
-            <div className="rounded-2xl bg-intra-bg-app px-4 py-3 intra-body text-intra-text-subtle">
-              <p className=" text-intra-blue">Rechazadas</p>
-              <p className="mt-1 intra-h2 text-intra-blue">
-                {reviewedCounts.rejected}
-              </p>
-            </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <AdminMetricCard
+              label="Pendientes"
+              value={pendingVerifications.length}
+            />
+            <AdminMetricCard label="Revisadas" value={reviewedCounts.all} />
           </div>
         </div>
 
+        <div className="mt-5">
+          <AdminInboxTabs
+            tabs={inboxTabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as VerificationInboxTab)}
+          />
+        </div>
+
         {feedback ? (
-          <div
-            className={`mt-5 rounded-2xl px-4 py-3 intra-body ${
-              feedback.type === "error"
-                ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-                : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
-            }`}
-          >
-            {feedback.message}
+          <div className="mt-5">
+            <AdminFeedback type={feedback.type}>
+              {feedback.message}
+            </AdminFeedback>
           </div>
         ) : null}
       </section>
 
       {verifications.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 intra-body text-intra-text-subtle shadow-sm">
-          No hay verificaciones cargadas todavía.
-        </section>
+        <AdminEmptyState>No hay verificaciones cargadas todavía.</AdminEmptyState>
       ) : (
         <>
+          {activeTab === "pending" ? (
           <section className="space-y-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -387,9 +396,9 @@ export default function VerificationReviewClient({
             </div>
 
             {pendingVerifications.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 intra-body text-intra-text-subtle shadow-sm">
-                No hay verificaciones pendientes ahora mismo.
-              </div>
+              <AdminEmptyState>
+                No hay verificaciones pendientes.
+              </AdminEmptyState>
             ) : (
               <div className="space-y-4">
                 {pendingVerifications.map((verification) => {
@@ -515,54 +524,29 @@ export default function VerificationReviewClient({
               </div>
             )}
           </section>
+          ) : null}
 
+          {activeTab === "reviewed" ? (
           <section className="space-y-4">
             <div className="flex flex-col gap-4 intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
               <div className="shrink-0">
                 <h3 className="intra-h3 text-intra-blue">Revisadas</h3>
               </div>
 
-              <div className="flex w-full flex-col gap-3 xl:max-w-4xl xl:flex-row xl:items-center xl:justify-end">
+              <div className="flex w-full flex-col gap-3 xl:max-w-md">
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Buscar por nombre, teléfono o documento"
                   className="intra-input min-h-11 w-full px-4 py-3 intra-body xl:max-w-md"
                 />
-
-                <div className="flex flex-wrap gap-2 xl:flex-nowrap xl:justify-end">
-                  {(
-                    [
-                      ["all", `Todas (${reviewedCounts.all})`],
-                      ["verified", `Aprobadas (${reviewedCounts.verified})`],
-                      ["rejected", `Rechazadas (${reviewedCounts.rejected})`],
-                    ] as Array<[ReviewedFilter, string]>
-                  ).map(([value, label]) => {
-                    const isActive = reviewedFilter === value
-
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setReviewedFilter(value)}
-                        className={`whitespace-nowrap rounded-2xl border px-4 py-2.5 intra-body-strong transition ${
-                          isActive
-                            ? "border-intra-blue bg-intra-blue text-intra-card"
-                            : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue hover:text-intra-blue"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    )
-                  })}
-                </div>
               </div>
             </div>
 
             {reviewedVerifications.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 intra-body text-intra-text-subtle shadow-sm">
-                No encontramos verificaciones revisadas con esos filtros.
-              </div>
+              <AdminEmptyState>
+                No encontramos verificaciones revisadas.
+              </AdminEmptyState>
             ) : (
               <div className="space-y-3">
                 {reviewedVerifications.map((verification) => (
@@ -587,6 +571,7 @@ export default function VerificationReviewClient({
               </div>
             )}
           </section>
+          ) : null}
         </>
       )}
     </div>

@@ -6,6 +6,7 @@ import {
   AdminEmptyState,
   AdminFeedback,
   AdminField,
+  AdminInboxTabs,
   AdminMetricCard,
 } from "@/app/app/admin/AdminUi"
 import { reviewPayoutAccountAction } from "@/app/app/admin/actions"
@@ -31,6 +32,8 @@ type AdminPayoutAccount = {
   createdAt: string | null
 }
 
+type AccountInboxTab = "pending" | "reviewed"
+
 function AccountBadge({ status }: { status: string | null }) {
   return (
     <span
@@ -55,12 +58,32 @@ export default function PayoutAccountsReviewClient({
   const [accountNotesById, setAccountNotesById] = useState<
     Record<string, string>
   >({})
+  const [activeTab, setActiveTab] = useState<AccountInboxTab>("pending")
+
+  const pendingAccounts = useMemo(
+    () =>
+      payoutAccounts.filter(
+        (account) =>
+          account.verificationStatus === "pending" ||
+          !account.verificationStatus,
+      ),
+    [payoutAccounts],
+  )
+
+  const reviewedAccounts = useMemo(
+    () =>
+      payoutAccounts.filter(
+        (account) =>
+          account.verificationStatus === "verified" ||
+          account.verificationStatus === "rejected",
+      ),
+    [payoutAccounts],
+  )
 
   const counts = useMemo(
     () => ({
-      pending: payoutAccounts.filter(
-        (account) => account.verificationStatus === "pending",
-      ).length,
+      pending: pendingAccounts.length,
+      reviewed: reviewedAccounts.length,
       verified: payoutAccounts.filter(
         (account) => account.verificationStatus === "verified",
       ).length,
@@ -68,15 +91,23 @@ export default function PayoutAccountsReviewClient({
         (account) => account.verificationStatus === "rejected",
       ).length,
     }),
-    [payoutAccounts],
+    [payoutAccounts, pendingAccounts.length, reviewedAccounts.length],
   )
 
-  const reviewableAccounts = useMemo(
-    () =>
-      payoutAccounts.filter(
-        (account) => account.verificationStatus !== "verified",
-      ),
-    [payoutAccounts],
+  const inboxTabs = useMemo(
+    () => [
+      {
+        key: "pending",
+        label: "Pendientes",
+        count: counts.pending,
+      },
+      {
+        key: "reviewed",
+        label: "Revisadas",
+        count: counts.reviewed,
+      },
+    ],
+    [counts.pending, counts.reviewed],
   )
 
   function handleReview(accountId: string, status: "verified" | "rejected") {
@@ -112,11 +143,18 @@ export default function PayoutAccountsReviewClient({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <h2 className="intra-h2">Cuentas</h2>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <AdminMetricCard label="En revisión" value={counts.pending} />
-            <AdminMetricCard label="Verificadas" value={counts.verified} />
-            <AdminMetricCard label="Rechazadas" value={counts.rejected} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <AdminMetricCard label="Pendientes" value={counts.pending} />
+            <AdminMetricCard label="Revisadas" value={counts.reviewed} />
           </div>
+        </div>
+
+        <div className="mt-5">
+          <AdminInboxTabs
+            tabs={inboxTabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as AccountInboxTab)}
+          />
         </div>
 
         {feedback ? (
@@ -128,13 +166,21 @@ export default function PayoutAccountsReviewClient({
         ) : null}
       </section>
 
-      {reviewableAccounts.length === 0 ? (
+      {payoutAccounts.length === 0 ? (
         <AdminEmptyState>
-          No hay cuentas pendientes de revisión.
+          No hay cuentas cargadas todavía.
         </AdminEmptyState>
       ) : (
+        <>
+        {activeTab === "pending" ? (
         <section className="space-y-4">
-          {reviewableAccounts.map((account) => (
+          <h3 className="intra-h3">Pendientes</h3>
+
+          {pendingAccounts.length === 0 ? (
+            <AdminEmptyState>No hay cuentas pendientes.</AdminEmptyState>
+          ) : (
+          <div className="space-y-4">
+          {pendingAccounts.map((account) => (
             <article
               key={account.id}
               className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm"
@@ -215,7 +261,73 @@ export default function PayoutAccountsReviewClient({
               </div>
             </article>
           ))}
+          </div>
+          )}
         </section>
+        ) : null}
+
+        {activeTab === "reviewed" ? (
+        <section className="space-y-4">
+          <h3 className="intra-h3">Revisadas</h3>
+
+          {reviewedAccounts.length === 0 ? (
+            <AdminEmptyState>No hay cuentas revisadas.</AdminEmptyState>
+          ) : (
+          <div className="space-y-4">
+          {reviewedAccounts.map((account) => (
+            <article
+              key={account.id}
+              className="intra-card rounded-3xl border border-intra-border-soft p-6 shadow-sm"
+            >
+              <div className="space-y-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h3 className="intra-h4">{account.accountHolderName}</h3>
+                      <AccountBadge status={account.verificationStatus} />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <AdminField label="Usuario">
+                        {account.travelerName}
+                      </AdminField>
+                      <AdminField label="Documento">
+                        {account.documentNumber}
+                      </AdminField>
+                      <AdminField label="Cuenta">
+                        <span>{account.accountLabel}</span>
+                        <span className="block intra-body text-intra-text-subtle">
+                          {account.accountNumber}
+                        </span>
+                        {account.brebKey ? (
+                          <span className="block intra-body text-intra-text-subtle">
+                            Llave BRE-B: {account.brebKey}
+                          </span>
+                        ) : null}
+                      </AdminField>
+                      <AdminField label="Revisada">
+                        {formatDateTime(account.verifiedAt)}
+                      </AdminField>
+                    </div>
+                  </div>
+                </div>
+
+                {account.verificationNotes ? (
+                  <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 intra-body text-intra-text-subtle">
+                    <span className="intra-body-strong text-intra-blue">
+                      Nota:
+                    </span>{" "}
+                    {account.verificationNotes}
+                  </div>
+                ) : null}
+              </div>
+            </article>
+          ))}
+          </div>
+          )}
+        </section>
+        ) : null}
+        </>
       )}
     </div>
   )

@@ -6,6 +6,7 @@ import {
   AdminEmptyState,
   AdminFeedback,
   AdminField,
+  AdminInboxTabs,
   AdminMetricCard,
 } from "@/app/app/admin/AdminUi"
 import { updatePayoutStatusAction } from "@/app/app/wallet/actions"
@@ -32,7 +33,7 @@ type AdminPayout = {
   brebKey: string | null
 }
 
-type ReviewedFilter = "all" | "approved" | "rejected" | "paid"
+type PayoutInboxTab = "pending" | "managed"
 
 function matchesSearch(payout: AdminPayout, search: string) {
   if (!search) {
@@ -258,7 +259,7 @@ export default function PayoutReviewClient({
   const [notesById, setNotesById] = useState<Record<string, string>>({})
   const [referenceById, setReferenceById] = useState<Record<string, string>>({})
   const [search, setSearch] = useState("")
-  const [reviewedFilter, setReviewedFilter] = useState<ReviewedFilter>("all")
+  const [activeTab, setActiveTab] = useState<PayoutInboxTab>("pending")
 
   const pendingPayouts = useMemo(
     () => payouts.filter((payout) => payout.status === "pending"),
@@ -277,6 +278,22 @@ export default function PayoutReviewClient({
     [payouts],
   )
 
+  const inboxTabs = useMemo(
+    () => [
+      {
+        key: "pending",
+        label: "Pendientes",
+        count: pendingPayouts.length,
+      },
+      {
+        key: "managed",
+        label: "Gestionados",
+        count: reviewedCounts.all,
+      },
+    ],
+    [pendingPayouts.length, reviewedCounts.all],
+  )
+
   const reviewedPayouts = useMemo(() => {
     return payouts.filter((payout) => {
       if (!payout.status || payout.status === "pending") {
@@ -287,13 +304,9 @@ export default function PayoutReviewClient({
         return false
       }
 
-      if (reviewedFilter === "all") {
-        return true
-      }
-
-      return payout.status === reviewedFilter
+      return true
     })
-  }, [payouts, reviewedFilter, search])
+  }, [payouts, search])
 
   function handleStatusChange(
     payoutId: string,
@@ -332,18 +345,21 @@ export default function PayoutReviewClient({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <h2 className="intra-h2">Retiros</h2>
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2">
             <AdminMetricCard label="Pendientes" value={pendingPayouts.length} />
             <AdminMetricCard
-              label="Aprobados"
-              value={reviewedCounts.approved}
+              label="Gestionados"
+              value={reviewedCounts.all}
             />
-            <AdminMetricCard
-              label="Rechazados"
-              value={reviewedCounts.rejected}
-            />
-            <AdminMetricCard label="Pagados" value={reviewedCounts.paid} />
           </div>
+        </div>
+
+        <div className="mt-5">
+          <AdminInboxTabs
+            tabs={inboxTabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => setActiveTab(tab as PayoutInboxTab)}
+          />
         </div>
 
         {feedback ? (
@@ -359,6 +375,7 @@ export default function PayoutReviewClient({
         <AdminEmptyState>No hay retiros cargados todavía.</AdminEmptyState>
       ) : (
         <>
+          {activeTab === "pending" ? (
           <section className="space-y-4">
             <h3 className="intra-h3">Pendientes</h3>
 
@@ -461,46 +478,20 @@ export default function PayoutReviewClient({
               </div>
             )}
           </section>
+          ) : null}
 
+          {activeTab === "managed" ? (
           <section className="space-y-4">
             <div className="intra-card flex flex-col gap-4 rounded-3xl border border-intra-border-soft p-6 shadow-sm xl:flex-row xl:items-center xl:justify-between">
-              <h3 className="intra-h3 shrink-0">Historial</h3>
+              <h3 className="intra-h3 shrink-0">Gestionados</h3>
 
-              <div className="flex w-full flex-col gap-3 xl:max-w-4xl xl:flex-row xl:items-center xl:justify-end">
+              <div className="flex w-full flex-col gap-3 xl:max-w-md">
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="Buscar"
                   className="intra-input min-h-11 w-full px-4 py-3 intra-body xl:max-w-md"
                 />
-
-                <div className="flex flex-wrap gap-2 xl:flex-nowrap xl:justify-end">
-                  {(
-                    [
-                      ["all", `Todos (${reviewedCounts.all})`],
-                      ["approved", `Aprobados (${reviewedCounts.approved})`],
-                      ["rejected", `Rechazados (${reviewedCounts.rejected})`],
-                      ["paid", `Pagados (${reviewedCounts.paid})`],
-                    ] as Array<[ReviewedFilter, string]>
-                  ).map(([value, label]) => {
-                    const isActive = reviewedFilter === value
-
-                    return (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setReviewedFilter(value)}
-                        className={`whitespace-nowrap rounded-2xl border px-4 py-2.5 intra-badge-text transition ${
-                          isActive
-                            ? "border-intra-blue bg-intra-blue text-intra-card"
-                            : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue hover:text-intra-blue"
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    )
-                  })}
-                </div>
               </div>
             </div>
 
@@ -537,6 +528,7 @@ export default function PayoutReviewClient({
               </div>
             )}
           </section>
+          ) : null}
         </>
       )}
     </div>

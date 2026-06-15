@@ -1,5 +1,11 @@
 import type { ReactNode } from "react"
 
+export type AdminInboxTab = {
+  key: string
+  label: string
+  count: number
+}
+
 export function AdminMetricCard({
   label,
   value,
@@ -68,4 +74,40 @@ export function AdminSectionTitle({ children }: { children: ReactNode }) {
 
 export function AdminSubsectionTitle({ children }: { children: ReactNode }) {
   return <h3 className="intra-h3">{children}</h3>
+}
+
+export function AdminInboxTabs({
+  tabs,
+  activeTab,
+  onTabChange,
+}: {
+  tabs: AdminInboxTab[]
+  activeTab: string
+  onTabChange: (tab: string) => void
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tabs.map((tab) => {
+        const isActive = activeTab === tab.key
+
+        return (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => onTabChange(tab.key)}
+            className={`inline-flex min-h-11 items-center gap-2 rounded-[var(--intra-radius-xs)] border px-4 py-2.5 intra-badge-text transition ${
+              isActive
+                ? "border-intra-blue bg-intra-blue text-intra-card"
+                : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue hover:text-intra-blue"
+            }`}
+          >
+            <span>{tab.label}</span>
+            <span className="rounded-full border border-current px-2 py-0.5">
+              {tab.count}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
 }

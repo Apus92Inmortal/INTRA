@@ -28,14 +28,15 @@ export function AdminTabs() {
   return (
     <nav className="flex flex-wrap gap-3" aria-label="Módulos administrativos">
       {ADMIN_LINKS.map((link) => {
-        const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`)
+        const isActive =
+          pathname === link.href || pathname.startsWith(`${link.href}/`)
         const Icon = link.icon
 
         return (
           <Link
             key={link.href}
             href={link.href}
-            className={`inline-flex min-h-11 items-center gap-2 rounded-[var(--intra-radius-xs)] border px-4 py-3 text-sm font-semibold transition ${
+            className={`inline-flex min-h-11 items-center gap-2 rounded-[var(--intra-radius-xs)] border px-4 py-3 intra-badge-text transition ${
               isActive
                 ? "border-intra-blue bg-intra-blue text-intra-card"
                 : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue/20 hover:text-intra-blue"

@@ -6,6 +6,12 @@ import {
   reviewDisputeAction,
   reviewShipmentAlertAction,
 } from "@/app/app/admin/actions"
+import {
+  AdminEmptyState,
+  AdminFeedback,
+  AdminInboxTabs,
+  AdminMetricCard,
+} from "@/app/app/admin/AdminUi"
 import { formatCop, formatDateTime } from "@/lib/payments/wallet"
 import {
   AdminCaseEvidencePanel,
@@ -53,7 +59,7 @@ type AdminAlert = {
   caseFile: AdminCaseFile
 }
 
-type CaseFilter = "all" | "open" | "resolved"
+type CaseFilter = "open" | "resolved"
 
 type Feedback = { type: "success" | "error"; message: string } | null
 
@@ -145,10 +151,6 @@ function filterByState<T extends AdminDispute | AdminAlert>(
   return items.filter((item) => {
     if (!matchesSearch(item, search)) {
       return false
-    }
-
-    if (filter === "all") {
-      return true
     }
 
     return filter === "open"
@@ -546,6 +548,41 @@ export default function DisputesReviewClient({
   )
   const showDisputes = scope !== "alerts"
   const showAlerts = scope !== "disputes"
+  const openTabLabel = scope === "alerts" ? "Activas" : "Abiertas"
+  const activeSectionLabel =
+    caseFilter === "open" ? openTabLabel : "Resueltas"
+  const inboxTabs = useMemo(
+    () => [
+      {
+        key: "open",
+        label: openTabLabel,
+        count:
+          scope === "alerts"
+            ? counters.openAlerts
+            : scope === "disputes"
+              ? counters.openDisputes
+              : counters.openDisputes + counters.openAlerts,
+      },
+      {
+        key: "resolved",
+        label: "Resueltas",
+        count:
+          scope === "alerts"
+            ? counters.resolvedAlerts
+            : scope === "disputes"
+              ? counters.resolvedDisputes
+              : counters.resolvedDisputes + counters.resolvedAlerts,
+      },
+    ],
+    [
+      counters.openAlerts,
+      counters.openDisputes,
+      counters.resolvedAlerts,
+      counters.resolvedDisputes,
+      openTabLabel,
+      scope,
+    ],
+  )
 
   function handleDisputeAction(
     dispute: AdminDispute,
@@ -640,62 +677,37 @@ export default function DisputesReviewClient({
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {showDisputes ? (
               <>
-                <div className="rounded-2xl bg-intra-bg-app px-4 py-3 intra-body text-intra-text-subtle">
-                  <p className=" text-intra-blue">Abiertas</p>
-                  <p className="mt-1 intra-h2 text-intra-blue">
-                    {counters.openDisputes}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-intra-bg-app px-4 py-3 intra-body text-intra-text-subtle">
-                  <p className=" text-intra-blue">Resueltas</p>
-                  <p className="mt-1 intra-h2 text-intra-blue">
-                    {counters.resolvedDisputes}
-                  </p>
-                </div>
+                <AdminMetricCard
+                  label="Abiertas"
+                  value={counters.openDisputes}
+                />
+                <AdminMetricCard
+                  label="Resueltas"
+                  value={counters.resolvedDisputes}
+                />
               </>
             ) : null}
             {showAlerts ? (
               <>
-                <div className="rounded-2xl bg-intra-bg-app px-4 py-3 intra-body text-intra-text-subtle">
-                  <p className=" text-intra-blue">Abiertas</p>
-                  <p className="mt-1 intra-h2 text-intra-blue">
-                    {counters.openAlerts}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-intra-bg-app px-4 py-3 intra-body text-intra-text-subtle">
-                  <p className=" text-intra-blue">Resueltas</p>
-                  <p className="mt-1 intra-h2 text-intra-blue">
-                    {counters.resolvedAlerts}
-                  </p>
-                </div>
+                <AdminMetricCard
+                  label={scope === "alerts" ? "Activas" : "Abiertas"}
+                  value={counters.openAlerts}
+                />
+                <AdminMetricCard
+                  label="Resueltas"
+                  value={counters.resolvedAlerts}
+                />
               </>
             ) : null}
           </div>
         </div>
 
         <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {(
-              [
-                { key: "open", label: "Abiertas / en revisión" },
-                { key: "resolved", label: "Resueltas" },
-                { key: "all", label: "Todas" },
-              ] as Array<{ key: CaseFilter; label: string }>
-            ).map((filter) => (
-              <button
-                key={filter.key}
-                type="button"
-                onClick={() => setCaseFilter(filter.key)}
-                className={`rounded-2xl border px-4 py-2 intra-body-strong transition ${
-                  caseFilter === filter.key
-                    ? "border-intra-blue bg-intra-blue text-intra-card"
-                    : "border-intra-border-soft bg-intra-card text-intra-text-subtle hover:border-intra-blue hover:text-intra-blue"
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
+          <AdminInboxTabs
+            tabs={inboxTabs}
+            activeTab={caseFilter}
+            onTabChange={(tab) => setCaseFilter(tab as CaseFilter)}
+          />
 
           <input
             value={search}
@@ -706,14 +718,10 @@ export default function DisputesReviewClient({
         </div>
 
         {feedback ? (
-          <div
-            className={`mt-5 rounded-2xl px-4 py-3 intra-body ${
-              feedback.type === "error"
-                ? "border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
-                : "border border-intra-success-border bg-intra-success-soft text-intra-text-success"
-            }`}
-          >
-            {feedback.message}
+          <div className="mt-5">
+            <AdminFeedback type={feedback.type}>
+              {feedback.message}
+            </AdminFeedback>
           </div>
         ) : null}
       </section>
@@ -721,13 +729,13 @@ export default function DisputesReviewClient({
       {showDisputes ? (
         <section className="space-y-4">
           <div>
-            <h3 className="intra-h3 text-intra-blue">Disputas</h3>
+            <h3 className="intra-h3 text-intra-blue">
+              {activeSectionLabel}
+            </h3>
           </div>
 
           {filteredDisputes.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 intra-body text-intra-text-subtle shadow-sm">
-              No hay disputas para este filtro.
-            </div>
+            <AdminEmptyState>No hay disputas.</AdminEmptyState>
           ) : (
             <div className="space-y-4">
               {filteredDisputes.map((dispute) => (
@@ -764,13 +772,13 @@ export default function DisputesReviewClient({
       {showAlerts ? (
         <section className="space-y-4">
           <div>
-            <h3 className="intra-h3 text-intra-blue">Alertas</h3>
+            <h3 className="intra-h3 text-intra-blue">
+              {activeSectionLabel}
+            </h3>
           </div>
 
           {filteredAlerts.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-intra-border-soft bg-intra-card px-6 py-6 intra-body text-intra-text-subtle shadow-sm">
-              No hay alertas para este filtro.
-            </div>
+            <AdminEmptyState>No hay alertas.</AdminEmptyState>
           ) : (
             <div className="space-y-4">
               {filteredAlerts.map((alert) => (
