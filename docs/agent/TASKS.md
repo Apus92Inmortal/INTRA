@@ -12,9 +12,47 @@
 
 ## P0 - En revision
 
-### TASK-020.1: Fix notification clear-all modal position
+### TASK-020.2: Replace native trip close confirm with INTRA modal
 
 Estado: REVIEW
+Prioridad: Alta
+Area: Dashboard / Viajes / UI Modal
+
+Resumen:
+
+- PR #149 reemplaza el `window.confirm()` nativo al cerrar un viaje desde Dashboard.
+- El modal se renderiza con `createPortal` en `document.body`.
+- Usa overlay global, panel centrado y patron visual INTRA.
+- Copy operativo:
+  - `Cerrar viaje`.
+  - `Los matches pendientes se cancelaran automaticamente.`
+  - `Cancelar`.
+  - `Cerrar viaje`.
+- La logica funcional queda preservada:
+  - misma llamada `closeTripAction(tripId)`.
+  - mismo `router.refresh()` posterior.
+  - sin cambios en queries, actions, Supabase, RLS, tablas, migrations, RPCs, realtime, rutas, trips, matches ni pagos.
+
+Verificacion local:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS.
+
+Pendiente:
+
+- Esperar checks remotos y preview del PR #149.
+- Mantener PR #149 en Draft.
+- No merge.
+- No deploy manual.
+
+---
+
+### TASK-020.1: Fix notification clear-all modal position
+
+Estado: DONE
 Prioridad: Alta
 Area: Notificaciones / UI / Modal
 
@@ -29,6 +67,8 @@ Resumen:
   - `Cancelar`.
   - `Borrar`.
 - No se tocaron queries, actions, Supabase, RLS, tablas, migrations, RPCs, realtime, rutas ni logica de borrado de notificaciones.
+- PR #148 fue aprobado visualmente por Aldo y mergeado a `main`.
+- Merge commit: `8ab63c8`.
 
 Verificacion local:
 
@@ -40,10 +80,7 @@ Verificacion local:
 
 Pendiente:
 
-- Esperar checks remotos y preview del PR #148.
-- Mantener PR #148 en Draft.
-- No merge.
-- No deploy manual.
+- Cerrado en `main`.
 
 ---
 
