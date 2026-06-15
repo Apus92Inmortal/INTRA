@@ -214,6 +214,14 @@ export default function VerificationPanel({
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (currentStep !== 4) {
+      event.stopPropagation();
+      setMessage(null);
+      setMessageType(null);
+      return;
+    }
+
     setLoading(true);
     setMessage(null);
     setMessageType(null);
@@ -324,12 +332,16 @@ export default function VerificationPanel({
     setIsModalOpen(true);
   };
 
-  const closeVerificationModal = () => {
+  const closeVerificationModal = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
     if (loading) return;
     setIsModalOpen(false);
   };
 
-  const goToNextStep = () => {
+  const goToNextStep = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
     setMessage(null);
     setMessageType(null);
     setCurrentStep((step) => {
@@ -340,7 +352,9 @@ export default function VerificationPanel({
     });
   };
 
-  const goToPreviousStep = () => {
+  const goToPreviousStep = (event?: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    event?.stopPropagation();
     setMessage(null);
     setMessageType(null);
     setCurrentStep((step) => {
