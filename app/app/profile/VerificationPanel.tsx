@@ -540,9 +540,7 @@ export default function VerificationPanel({
               {currentStep === 4 ? (
                 <div className="space-y-3">
                   <div className="rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card p-4">
-                    <p className="intra-body-strong text-intra-blue">Listo para revisión</p>
-
-                    <div className="mt-4 grid gap-3">
+                    <div className="grid gap-3">
                       <div className="flex items-center gap-3 intra-body">
                         <CheckCircle className="intra-icon-sm shrink-0 text-intra-text-success" strokeWidth={2} />
                         <span>Documento cargado</span>
