@@ -101,7 +101,7 @@ export default async function AdminVerificationsPage() {
             return {
               id: row.id,
               userId: row.user_id,
-              fullName: profile?.full_name || "Usuario sin nombre",
+              fullName: profile?.full_name || "Sin nombre",
               phone: profile?.phone ?? null,
               documentNumber: profile?.document_number ?? null,
               verificationStatus: row.verification_status,
@@ -131,19 +131,13 @@ export default async function AdminVerificationsPage() {
       }
     }
   } catch (error) {
-    loadError =
-      error instanceof Error
-        ? error.message
-        : "No pudimos cargar las verificaciones."
+    loadError = error instanceof Error ? error.message : "Error de carga."
   }
 
   if (loadError || !hasAccess) {
     return (
       <section className="rounded-3xl border border-intra-danger-border bg-intra-card p-6 shadow-sm sm:p-8">
         <h2 className="intra-h2 text-intra-blue">Verificaciones</h2>
-        <p className="mt-2 intra-body text-intra-text-subtle sm:intra-body">
-          No pudimos cargar este módulo administrativo en este entorno.
-        </p>
         {loadError ? (
           <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body text-intra-danger">
             {loadError}

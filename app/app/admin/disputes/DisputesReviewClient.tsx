@@ -105,9 +105,9 @@ function getResolutionLabel(action: string | null) {
     case "rejected":
       return "Cerrada sin movimiento"
     case "allow_shipment":
-      return "Permitir envío"
+      return "Permitir"
     case "reject_shipment":
-      return "Rechazar envío"
+      return "Rechazar"
     case "escalate_to_dispute":
       return "Escalada a disputa"
     case "reprogram":
@@ -217,7 +217,7 @@ function DisputeCard({
 
         <div>
           <p className="intra-caption-strong uppercase text-intra-text-muted">
-            Disputa formal
+            Disputa
           </p>
           <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 intra-body text-intra-text-subtle">
             <span className=" text-intra-blue">Motivo:</span> {dispute.reason}
@@ -246,7 +246,7 @@ function DisputeCard({
               Estado pago
             </p>
             <p className="mt-1 text-intra-blue">
-              {dispute.paymentStatus || "Sin dato"}
+              {dispute.paymentStatus || "Sin estado"}
             </p>
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
@@ -269,7 +269,7 @@ function DisputeCard({
             readOnly={isResolved}
             onChange={(event) => onNotesChange(event.target.value)}
             className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
-            placeholder="Ej: evidencia revisada y cierre aprobado por administración"
+            placeholder="Nota"
           />
         </label>
 
@@ -282,7 +282,7 @@ function DisputeCard({
               value={refundAmount}
               onChange={(event) => onRefundAmountChange(event.target.value)}
               className="intra-input min-h-11 w-full px-4 py-3 intra-body"
-              placeholder={`Ej: ${Math.max(dispute.suggestedAmount, 0).toLocaleString("es-CO")}`}
+              placeholder={Math.max(dispute.suggestedAmount, 0).toLocaleString("es-CO")}
             />
           </label>
         ) : null}
@@ -297,12 +297,7 @@ function DisputeCard({
         {!isResolved ? (
           <div className="space-y-3 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3">
             <p className="intra-body-strong text-intra-warning-text">
-              Acciones admin
-            </p>
-            <p className="intra-caption leading-5 text-intra-warning-text">
-              Resolver a favor del cliente o viajero puede afectar pago, wallet
-              o liberación según la lógica ya existente. Revisa el expediente
-              antes de ejecutar.
+              Acciones
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
@@ -311,7 +306,7 @@ function DisputeCard({
                 onClick={() => onAction(dispute, "reviewing")}
                 className="intra-btn intra-btn-secondary min-h-11 px-4 py-2.5 intra-body disabled:opacity-50"
               >
-                Marcar en revisión
+                En revisión
               </button>
               <button
                 type="button"
@@ -335,7 +330,7 @@ function DisputeCard({
                 onClick={() => onAction(dispute, "rejected")}
                 className="intra-btn min-h-11 rounded-2xl border border-intra-border-soft bg-intra-card px-4 py-2.5 intra-body-strong text-intra-text-subtle transition hover:border-intra-blue disabled:opacity-50"
               >
-                Cerrar sin movimiento
+                Cerrar
               </button>
             </div>
           </div>
@@ -362,22 +357,22 @@ function AlertCard({
   const actionButtons =
     alert.reportType === "suspicious_package"
       ? [
-          { key: "reviewing", label: "Marcar en revisión" },
-          { key: "allow_shipment", label: "Permitir envío" },
-          { key: "reject_shipment", label: "Rechazar envío" },
-          { key: "escalate_to_dispute", label: "Escalar a disputa" },
+          { key: "reviewing", label: "En revisión" },
+          { key: "allow_shipment", label: "Permitir" },
+          { key: "reject_shipment", label: "Rechazar" },
+          { key: "escalate_to_dispute", label: "Escalar" },
         ]
       : alert.reportType === "incident"
         ? [
-            { key: "reviewing", label: "Marcar en revisión" },
+            { key: "reviewing", label: "En revisión" },
             { key: "reprogram", label: "Reprogramar" },
-            { key: "cancel_match", label: "Cancelar match" },
+            { key: "cancel_match", label: "Cancelar" },
             { key: "dismiss", label: "Descartar" },
           ]
         : [
-            { key: "reviewing", label: "Marcar en revisión" },
-            { key: "escalate_to_dispute", label: "Escalar a disputa" },
-            { key: "cancel_match", label: "Cancelar match" },
+            { key: "reviewing", label: "En revisión" },
+            { key: "escalate_to_dispute", label: "Escalar" },
+            { key: "cancel_match", label: "Cancelar" },
             { key: "dismiss", label: "Descartar" },
           ]
 
@@ -415,7 +410,7 @@ function AlertCard({
 
         <div>
           <p className="intra-caption-strong uppercase text-intra-text-muted">
-            Reporte sospechoso / alerta
+            Alerta
           </p>
           <div className="mt-2 rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt px-4 py-3 intra-body text-intra-text-subtle">
             <span className=" text-intra-blue">Motivo:</span> {alert.reason}
@@ -441,7 +436,7 @@ function AlertCard({
           </div>
           <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
             <p className="intra-caption-strong uppercase tracking-wide text-intra-text-muted/70">
-              Última actualización
+              Actualizada
             </p>
             <p className="mt-1 text-intra-blue">
               {formatDateTime(alert.resolvedAt || alert.createdAt)}
@@ -459,7 +454,7 @@ function AlertCard({
             readOnly={isResolved}
             onChange={(event) => onNotesChange(event.target.value)}
             className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
-            placeholder="Ej: evidencia revisada y caso escalado según protocolo"
+            placeholder="Nota"
           />
         </label>
 
@@ -473,11 +468,7 @@ function AlertCard({
         {!isResolved ? (
           <div className="space-y-3 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3">
             <p className="intra-body-strong text-intra-warning-text">
-              Acciones admin
-            </p>
-            <p className="intra-caption leading-5 text-intra-warning-text">
-              Algunas acciones pueden cancelar el envío, escalar a disputa o
-              desbloquear el flujo operativo según la lógica ya existente.
+              Acciones
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               {actionButtons.map((button) => (
@@ -551,6 +542,18 @@ export default function DisputesReviewClient({
   const openTabLabel = scope === "alerts" ? "Activas" : "Abiertas"
   const activeSectionLabel =
     caseFilter === "open" ? openTabLabel : "Resueltas"
+  const emptyDisputesText =
+    search.trim().length > 0
+      ? "Sin resultados."
+      : caseFilter === "open"
+        ? "Sin abiertas."
+        : "Sin resueltas."
+  const emptyAlertsText =
+    search.trim().length > 0
+      ? "Sin resultados."
+      : caseFilter === "open"
+        ? "Sin alertas activas."
+        : "Sin resueltas."
   const inboxTabs = useMemo(
     () => [
       {
@@ -593,8 +596,7 @@ export default function DisputesReviewClient({
       if (!rawAmount) {
         setFeedback({
           type: "error",
-          message:
-            "Escribe el monto manual antes de resolver a favor del cliente.",
+          message: "Monto requerido.",
         })
         return
       }
@@ -620,7 +622,7 @@ export default function DisputesReviewClient({
       if (!result.success) {
         setFeedback({
           type: "error",
-          message: result.error ?? "No pudimos actualizar la disputa.",
+          message: "Error al actualizar.",
         })
         return
       }
@@ -647,7 +649,7 @@ export default function DisputesReviewClient({
       if (!result.success) {
         setFeedback({
           type: "error",
-          message: result.error ?? "No pudimos actualizar la alerta.",
+          message: "Error al actualizar.",
         })
         return
       }
@@ -713,7 +715,7 @@ export default function DisputesReviewClient({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             className="intra-input min-h-11 w-full max-w-md px-4 py-3 intra-body"
-            placeholder="Buscar por guía, motivo o usuario"
+            placeholder="Buscar"
           />
         </div>
 
@@ -735,7 +737,7 @@ export default function DisputesReviewClient({
           </div>
 
           {filteredDisputes.length === 0 ? (
-            <AdminEmptyState>No hay disputas.</AdminEmptyState>
+            <AdminEmptyState>{emptyDisputesText}</AdminEmptyState>
           ) : (
             <div className="space-y-4">
               {filteredDisputes.map((dispute) => (
@@ -778,7 +780,7 @@ export default function DisputesReviewClient({
           </div>
 
           {filteredAlerts.length === 0 ? (
-            <AdminEmptyState>No hay alertas.</AdminEmptyState>
+            <AdminEmptyState>{emptyAlertsText}</AdminEmptyState>
           ) : (
             <div className="space-y-4">
               {filteredAlerts.map((alert) => (

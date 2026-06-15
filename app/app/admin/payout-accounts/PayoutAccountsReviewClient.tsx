@@ -124,7 +124,7 @@ export default function PayoutAccountsReviewClient({
       if (!result.success) {
         setFeedback({
           type: "error",
-          message: result.error ?? "No pudimos revisar la cuenta.",
+          message: "Error al revisar.",
         })
         return
       }
@@ -167,9 +167,7 @@ export default function PayoutAccountsReviewClient({
       </section>
 
       {payoutAccounts.length === 0 ? (
-        <AdminEmptyState>
-          No hay cuentas cargadas todavía.
-        </AdminEmptyState>
+        <AdminEmptyState>Sin registros.</AdminEmptyState>
       ) : (
         <>
         {activeTab === "pending" ? (
@@ -177,7 +175,7 @@ export default function PayoutAccountsReviewClient({
           <h3 className="intra-h3">Pendientes</h3>
 
           {pendingAccounts.length === 0 ? (
-            <AdminEmptyState>No hay cuentas pendientes.</AdminEmptyState>
+            <AdminEmptyState>Sin pendientes.</AdminEmptyState>
           ) : (
           <div className="space-y-4">
           {pendingAccounts.map((account) => (
@@ -235,7 +233,7 @@ export default function PayoutAccountsReviewClient({
                         }))
                       }
                       className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
-                      placeholder="Ej: titular coincide con documento"
+                      placeholder="Nota"
                     />
                   </label>
 
@@ -246,7 +244,7 @@ export default function PayoutAccountsReviewClient({
                       onClick={() => handleReview(account.id, "verified")}
                       className="intra-btn intra-btn-primary disabled:opacity-50"
                     >
-                      Verificar cuenta
+                      Verificar
                     </button>
                     <button
                       type="button"
@@ -271,7 +269,7 @@ export default function PayoutAccountsReviewClient({
           <h3 className="intra-h3">Revisadas</h3>
 
           {reviewedAccounts.length === 0 ? (
-            <AdminEmptyState>No hay cuentas revisadas.</AdminEmptyState>
+            <AdminEmptyState>Sin revisadas.</AdminEmptyState>
           ) : (
           <div className="space-y-4">
           {reviewedAccounts.map((account) => (

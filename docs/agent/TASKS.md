@@ -32,6 +32,10 @@ Resumen:
   - Verificaciones: `Pendientes` / `Revisadas`.
   - Disputas: `Abiertas` / `Resueltas`.
   - Alertas: `Activas` / `Resueltas`.
+- Ajuste de copy 2026-06-15:
+  - textos explicativos y tutoriales de Admin reducidos a lenguaje operativo corto.
+  - empty states normalizados a `Sin registros.`, `Sin pendientes.`, `Sin revisadas.`, `Sin abiertas.`, `Sin resueltas.`, `Sin alertas activas.` y `Sin resultados.`.
+  - botones largos reducidos a acciones directas como `Aprobar`, `Rechazar`, `Verificar`, `Abrir`, `Cerrar`, `Escalar` y `Permitir`.
 - No se mezclan cuentas con retiros, retiros con cuentas, disputas con alertas ni alertas con disputas.
 - No se tocaron migrations, schemas, tablas, columnas, RLS, Storage, RPCs, `requireAdminUser`, `createAdminClient`, actions admin, actions wallet ni logica sensible de pagos/wallet/verificacion/disputas/alertas.
 

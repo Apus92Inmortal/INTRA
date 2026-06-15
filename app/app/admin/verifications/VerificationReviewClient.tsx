@@ -87,7 +87,7 @@ function VerificationImage({
         />
       ) : (
         <div className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-intra-border-soft bg-intra-card intra-body text-intra-text-muted/70">
-          Archivo no disponible
+          Sin archivo
         </div>
       )}
     </div>
@@ -104,11 +104,9 @@ function VerificationLinkCard({
   return (
     <div className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4">
       <p className="intra-body-strong text-intra-blue">{title}</p>
-      <p className="mt-1 intra-body text-intra-text-subtle">
-        {url
-          ? "Abre el archivo completo solo cuando lo necesites revisar."
-          : "Archivo no disponible."}
-      </p>
+      {!url ? (
+        <p className="mt-1 intra-body text-intra-text-subtle">Sin archivo.</p>
+      ) : null}
 
       {url ? (
         <a
@@ -208,7 +206,7 @@ function ReviewedVerificationRow({
             value={reason}
             onChange={(event) => onReasonChange(event.target.value)}
             className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
-            placeholder="Ej: la selfie no coincide con el documento"
+            placeholder="Motivo"
           />
         </label>
 
@@ -219,7 +217,7 @@ function ReviewedVerificationRow({
             onClick={() => onReview(verification.id, "verified")}
             className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 intra-body disabled:opacity-50"
           >
-            Aprobar verificación
+            Aprobar
           </button>
           <button
             type="button"
@@ -227,7 +225,7 @@ function ReviewedVerificationRow({
             onClick={() => onReview(verification.id, "rejected")}
             className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 intra-body text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
           >
-            Rechazar verificación
+            Rechazar
           </button>
         </div>
       </div>
@@ -318,7 +316,7 @@ export default function VerificationReviewClient({
     if (status === "rejected" && !rejectionReason) {
       setFeedback({
         type: "error",
-        message: "Escribe un motivo antes de rechazar la verificación.",
+        message: "Motivo requerido.",
       })
       return
     }
@@ -336,7 +334,7 @@ export default function VerificationReviewClient({
       if (!result.success) {
         setFeedback({
           type: "error",
-          message: result.error ?? "No pudimos actualizar la verificación.",
+          message: "Error al actualizar.",
         })
         return
       }
@@ -384,7 +382,7 @@ export default function VerificationReviewClient({
       </section>
 
       {verifications.length === 0 ? (
-        <AdminEmptyState>No hay verificaciones cargadas todavía.</AdminEmptyState>
+        <AdminEmptyState>Sin registros.</AdminEmptyState>
       ) : (
         <>
           {activeTab === "pending" ? (
@@ -396,9 +394,7 @@ export default function VerificationReviewClient({
             </div>
 
             {pendingVerifications.length === 0 ? (
-              <AdminEmptyState>
-                No hay verificaciones pendientes.
-              </AdminEmptyState>
+              <AdminEmptyState>Sin pendientes.</AdminEmptyState>
             ) : (
               <div className="space-y-4">
                 {pendingVerifications.map((verification) => {
@@ -490,7 +486,7 @@ export default function VerificationReviewClient({
                                 }))
                               }
                               className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
-                              placeholder="Ej: la selfie no coincide con el documento"
+                              placeholder="Motivo"
                             />
                           </label>
 
@@ -503,7 +499,7 @@ export default function VerificationReviewClient({
                               }
                               className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 intra-body disabled:opacity-50"
                             >
-                              Aprobar verificación
+                              Aprobar
                             </button>
                             <button
                               type="button"
@@ -513,7 +509,7 @@ export default function VerificationReviewClient({
                               }
                               className="intra-btn intra-btn-secondary min-h-11 border-intra-danger-border px-4 py-2.5 intra-body text-intra-danger hover:bg-intra-danger-soft disabled:opacity-50"
                             >
-                              Rechazar verificación
+                              Rechazar
                             </button>
                           </div>
                         </div>
@@ -537,16 +533,14 @@ export default function VerificationReviewClient({
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="Buscar por nombre, teléfono o documento"
+                  placeholder="Buscar"
                   className="intra-input min-h-11 w-full px-4 py-3 intra-body xl:max-w-md"
                 />
               </div>
             </div>
 
             {reviewedVerifications.length === 0 ? (
-              <AdminEmptyState>
-                No encontramos verificaciones revisadas.
-              </AdminEmptyState>
+              <AdminEmptyState>Sin resultados.</AdminEmptyState>
             ) : (
               <div className="space-y-3">
                 {reviewedVerifications.map((verification) => (

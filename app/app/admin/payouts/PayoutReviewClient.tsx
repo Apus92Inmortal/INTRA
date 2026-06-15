@@ -132,7 +132,7 @@ function PayoutDetails({
           readOnly={isReadOnly}
           onChange={(event) => onNotesChange(event.target.value)}
           className="intra-input min-h-[88px] w-full px-4 py-3 intra-body"
-          placeholder="Ej: validar cuenta antes de pagar"
+          placeholder="Nota"
         />
       </label>
 
@@ -146,7 +146,7 @@ function PayoutDetails({
             readOnly={isReadOnly}
             onChange={(event) => onReferenceChange(event.target.value)}
             className="intra-input min-h-11 w-full px-4 py-3 intra-body"
-            placeholder="Transferencia 123456"
+            placeholder="Referencia"
           />
         </label>
       ) : null}
@@ -326,7 +326,7 @@ export default function PayoutReviewClient({
       if (!result.success) {
         setFeedback({
           type: "error",
-          message: result.error ?? "No pudimos actualizar el retiro.",
+          message: "Error al actualizar.",
         })
         return
       }
@@ -372,7 +372,7 @@ export default function PayoutReviewClient({
       </section>
 
       {payouts.length === 0 ? (
-        <AdminEmptyState>No hay retiros cargados todavía.</AdminEmptyState>
+        <AdminEmptyState>Sin registros.</AdminEmptyState>
       ) : (
         <>
           {activeTab === "pending" ? (
@@ -380,9 +380,7 @@ export default function PayoutReviewClient({
             <h3 className="intra-h3">Pendientes</h3>
 
             {pendingPayouts.length === 0 ? (
-              <AdminEmptyState>
-                No hay retiros pendientes ahora mismo.
-              </AdminEmptyState>
+              <AdminEmptyState>Sin pendientes.</AdminEmptyState>
             ) : (
               <div className="space-y-4">
                 {pendingPayouts.map((payout) => (
@@ -496,9 +494,7 @@ export default function PayoutReviewClient({
             </div>
 
             {reviewedPayouts.length === 0 ? (
-              <AdminEmptyState>
-                No encontramos retiros con esos filtros.
-              </AdminEmptyState>
+              <AdminEmptyState>Sin resultados.</AdminEmptyState>
             ) : (
               <div className="space-y-3">
                 {reviewedPayouts.map((payout) => (

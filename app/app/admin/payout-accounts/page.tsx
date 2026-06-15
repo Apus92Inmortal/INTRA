@@ -99,7 +99,7 @@ export default async function AdminPayoutAccountsPage() {
             return {
               id: account.id,
               travelerUserId: travelerId,
-              travelerName: traveler?.full_name || "Usuario sin nombre",
+              travelerName: traveler?.full_name || "Sin nombre",
               accountHolderName: account.account_holder_name || "Sin titular",
               documentNumber: account.document_number || "Sin documento",
               accountLabel: getPayoutAccountDisplayName(account),
@@ -129,8 +129,7 @@ export default async function AdminPayoutAccountsPage() {
       }
     }
   } catch (error) {
-    loadError =
-      error instanceof Error ? error.message : "No pudimos cargar las cuentas."
+    loadError = error instanceof Error ? error.message : "Error de carga."
   }
 
   return loadError || !hasAccess ? (

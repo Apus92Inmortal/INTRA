@@ -210,7 +210,7 @@ export default async function AdminAlertsPage() {
       loadError =
         disputeError?.message ??
         reportError?.message ??
-        "No pudimos cargar los casos administrativos."
+        "Error de carga."
     } else {
       const disputePayments = (disputeRows ?? []) as PaymentRow[]
       const reportEvents = (reportRows ?? []) as ReportRow[]
@@ -282,7 +282,7 @@ export default async function AdminAlertsPage() {
           loadError =
             shipmentError?.message ??
             tripError?.message ??
-            "No pudimos cargar los envíos relacionados."
+            "Error de carga."
         } else {
           const shipments = new Map(
             ((shipmentRows ?? []) as ShipmentRow[]).map((shipment) => [
@@ -322,10 +322,8 @@ export default async function AdminAlertsPage() {
             loadError =
               relatedPaymentsError?.message ??
               evidenceError?.message ??
-              "No pudimos cargar el expediente administrativo."
-            throw new Error(
-              loadError ?? "No pudimos cargar el expediente administrativo.",
-            )
+              "Error de carga."
+            throw new Error(loadError ?? "Error de carga.")
           }
 
           const relatedPayments = (relatedPaymentRows ?? []) as PaymentRow[]
@@ -491,7 +489,7 @@ export default async function AdminAlertsPage() {
                 null,
               routeLabel: getRouteLabel(shipment),
               customerName: fullName(shipment?.owner_id, "Cliente sin nombre"),
-              travelerName: fullName(trip?.traveler_id, "Viajero sin nombre"),
+              travelerName: fullName(trip?.traveler_id, "Sin nombre"),
               matchStatus: match?.status ?? null,
               shipmentStatus: shipment?.status ?? null,
               paymentStatus: payment?.status ?? null,
@@ -542,7 +540,7 @@ export default async function AdminAlertsPage() {
                   "Cliente sin nombre",
                 ),
                 reporterUserId: shipment?.owner_id ?? null,
-                affectedName: fullName(trip?.traveler_id, "Viajero sin nombre"),
+                affectedName: fullName(trip?.traveler_id, "Sin nombre"),
                 affectedUserId: trip?.traveler_id ?? null,
                 reason:
                   payment.dispute_reason || "Disputa abierta desde la app",
@@ -608,7 +606,7 @@ export default async function AdminAlertsPage() {
                 trackingCode: shipment?.tracking_code ?? null,
                 reporterName: fullName(
                   report.reported_by,
-                  "Usuario sin nombre",
+                  "Sin nombre",
                 ),
                 reporterUserId: report.reported_by,
                 affectedName: fullName(affectedUserId, "Usuario relacionado"),
@@ -640,19 +638,13 @@ export default async function AdminAlertsPage() {
       }
     }
   } catch (error) {
-    loadError =
-      error instanceof Error
-        ? error.message
-        : "No pudimos cargar el módulo de alertas."
+    loadError = error instanceof Error ? error.message : "Error de carga."
   }
 
   if (loadError || !hasAccess) {
     return (
       <section className="rounded-3xl border border-intra-danger-border bg-intra-card p-6 shadow-sm sm:p-8">
         <h2 className="intra-h2 text-intra-blue">Alertas</h2>
-        <p className="mt-2 intra-body text-intra-text-subtle sm:intra-body">
-          No pudimos cargar este módulo administrativo en este entorno.
-        </p>
         {loadError ? (
           <div className="mt-4 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body text-intra-danger">
             {loadError}

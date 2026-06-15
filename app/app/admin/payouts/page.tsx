@@ -120,10 +120,10 @@ export default async function AdminPayoutsPage() {
           return {
             ...payout,
             payoutCode: payout.payout_code,
-            travelerName: traveler?.full_name || "Viajero sin nombre",
+            travelerName: traveler?.full_name || "Sin nombre",
             accountLabel: account
               ? getPayoutAccountDisplayName(account)
-              : "Cuenta no disponible",
+              : "Sin cuenta",
             accountNumber: account?.account_number?.trim() || "Sin cuenta",
             brebKey: account?.breb_key ?? null,
           }
@@ -144,10 +144,7 @@ export default async function AdminPayoutsPage() {
         })
     }
   } catch (error) {
-    loadError =
-      error instanceof Error
-        ? error.message
-        : "No pudimos cargar el panel admin."
+    loadError = error instanceof Error ? error.message : "Error de carga."
   }
 
   return loadError || !hasAccess ? (
