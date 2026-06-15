@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { compressImageFile } from "@/lib/uploads";
@@ -62,6 +62,18 @@ function UploadField({
 }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const isReady = Boolean(selectedFile) || hasUploaded;
+  const previewUrl = useMemo(
+    () => (selectedFile ? URL.createObjectURL(selectedFile) : null),
+    [selectedFile]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   return (
     <div className={`rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card p-4 ${disabled ? "opacity-80" : ""}`}>
@@ -91,23 +103,30 @@ function UploadField({
           disabled={disabled}
           onChange={(event) => onChange(event.target.files?.[0] ?? null)}
         />
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-neutral-pill text-intra-text-muted">
-          {icon === "document" ? (
-            <FileText className="intra-icon-xl" strokeWidth={1.8} />
-          ) : (
-            <UserRound className="intra-icon-xl" strokeWidth={1.8} />
-          )}
-        </div>
+        {previewUrl ? (
+          <div
+            role="img"
+            aria-label={`${title} seleccionada`}
+            className="mx-auto h-28 w-full rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app bg-cover bg-center"
+            style={{ backgroundImage: `url(${previewUrl})` }}
+          />
+        ) : (
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-neutral-pill text-intra-text-muted">
+            {icon === "document" ? (
+              <FileText className="intra-icon-xl" strokeWidth={1.8} />
+            ) : (
+              <UserRound className="intra-icon-xl" strokeWidth={1.8} />
+            )}
+          </div>
+        )}
         <p className="intra-caption-strong mt-3 text-intra-blue">
           {selectedFile || hasUploaded ? "Foto seleccionada" : "Subir foto"}
         </p>
-        <p className="intra-caption mt-1 break-all">
-          {selectedFile
-            ? selectedFile.name
-            : hasUploaded
-              ? "Archivo cargado."
-              : "JPG o PNG"}
-        </p>
+        {!selectedFile ? (
+          <p className="intra-caption mt-1">
+            {hasUploaded ? "Archivo cargado." : "JPG o PNG"}
+          </p>
+        ) : null}
       </label>
 
       {selectedFile && !disabled ? (
@@ -404,11 +423,11 @@ export default function VerificationPanel({
       ) : null}
 
       {!isPending ? (
-        <div className="mt-5">
+        <div className="mt-5 flex justify-center">
           <button
             type="button"
             onClick={openVerificationModal}
-            className="intra-btn intra-btn-primary w-full sm:w-auto"
+            className="intra-btn intra-btn-primary"
           >
             <ShieldCheck className="intra-icon-sm" strokeWidth={1.9} />
             {isRejected ? "Corregir verificación" : "Iniciar verificación"}
