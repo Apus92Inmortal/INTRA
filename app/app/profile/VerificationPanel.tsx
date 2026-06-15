@@ -72,69 +72,74 @@ function UploadField({
     };
   }, [previewUrl]);
 
-  return (
-    <div className={`relative rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-card p-4 ${disabled ? "opacity-80" : ""}`}>
-      <label
-        className={`relative block rounded-[var(--intra-radius-xs)] border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-center transition ${
-          disabled ? "cursor-not-allowed" : "cursor-pointer hover:border-intra-green"
-        }`}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="sr-only"
-          disabled={disabled}
-          onChange={(event) => onChange(event.target.files?.[0] ?? null)}
-        />
-        {previewUrl ? (
-          <div
-            role="img"
-            aria-label={`${title} seleccionada`}
-            className="mx-auto h-28 w-full rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app bg-cover bg-center"
-            style={{ backgroundImage: `url(${previewUrl})` }}
-          />
-        ) : (
-          <>
-            {hasUploaded ? (
-              <span className="intra-pill intra-badge-text mx-auto w-fit border border-intra-success-border bg-intra-success-soft text-intra-text-success">
-                Cargado
-              </span>
-            ) : (
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-neutral-pill text-intra-text-muted">
-                {icon === "document" ? (
-                  <FileText className="intra-icon-xl" strokeWidth={1.8} />
-                ) : (
-                  <UserRound className="intra-icon-xl" strokeWidth={1.8} />
-                )}
-              </div>
-            )}
-            <p className="intra-caption-strong mt-3 text-intra-blue">
-              {hasUploaded ? "Archivo cargado" : "Subir foto"}
-            </p>
-            <p className="intra-caption mt-1">
-              {hasUploaded ? "Foto lista." : "JPG o PNG"}
-            </p>
-          </>
-        )}
-      </label>
+  const fileInput = (
+    <input
+      ref={inputRef}
+      type="file"
+      accept="image/*"
+      className="sr-only"
+      disabled={disabled}
+      onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+    />
+  );
 
-      {selectedFile && !disabled ? (
-        <button
-          type="button"
-          onClick={() => {
-            onChange(null);
-            if (inputRef.current) {
-              inputRef.current.value = "";
-            }
-          }}
-          className="absolute right-6 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-intra-border-soft bg-intra-card text-intra-text-muted shadow-sm transition hover:text-intra-danger"
-          aria-label="Quitar foto seleccionada"
-        >
-          <span aria-hidden="true">X</span>
-        </button>
-      ) : null}
-    </div>
+  if (previewUrl) {
+    return (
+      <div className={`relative ${disabled ? "opacity-80" : ""}`}>
+        {fileInput}
+        <div
+          role="img"
+          aria-label={`${title} seleccionada`}
+          className="h-40 w-full rounded-[var(--intra-radius-xs)] border border-intra-border-soft bg-intra-bg-app bg-cover bg-center"
+          style={{ backgroundImage: `url(${previewUrl})` }}
+        />
+
+        {!disabled ? (
+          <button
+            type="button"
+            onClick={() => {
+              onChange(null);
+              if (inputRef.current) {
+                inputRef.current.value = "";
+              }
+            }}
+            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-intra-border-soft bg-intra-card text-intra-text-muted shadow-sm transition hover:text-intra-danger"
+            aria-label="Quitar foto seleccionada"
+          >
+            <span aria-hidden="true">X</span>
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <label
+      className={`block rounded-[var(--intra-radius-xs)] border border-dashed border-intra-border-soft bg-intra-bg-app px-4 py-5 text-center transition ${
+        disabled ? "cursor-not-allowed opacity-80" : "cursor-pointer hover:border-intra-green"
+      }`}
+    >
+      {fileInput}
+      {hasUploaded ? (
+        <span className="intra-pill intra-badge-text mx-auto w-fit border border-intra-success-border bg-intra-success-soft text-intra-text-success">
+          Cargado
+        </span>
+      ) : (
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-neutral-pill text-intra-text-muted">
+          {icon === "document" ? (
+            <FileText className="intra-icon-xl" strokeWidth={1.8} />
+          ) : (
+            <UserRound className="intra-icon-xl" strokeWidth={1.8} />
+          )}
+        </div>
+      )}
+      <p className="intra-caption-strong mt-3 text-intra-blue">
+        {hasUploaded ? "Archivo cargado" : "Subir foto"}
+      </p>
+      <p className="intra-caption mt-1">
+        {hasUploaded ? "Foto lista." : "JPG o PNG"}
+      </p>
+    </label>
   );
 }
 
