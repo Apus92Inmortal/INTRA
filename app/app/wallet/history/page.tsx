@@ -196,7 +196,7 @@ function WalletHeroAction({ href, children, variant = "secondary" }: { href: str
   return (
     <Link
       href={href}
-      className={`intra-btn flex min-h-12 items-center justify-center gap-2 rounded-2xl px-6 py-3 text-[15px] font-bold ${className}`}
+      className={`intra-btn intra-caption-strong flex min-h-12 items-center justify-center gap-2 rounded-2xl px-6 py-3 ${className}`}
     >
       {children}
     </Link>
@@ -209,8 +209,8 @@ function WalletHistoryEmptyState() {
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-intra-card text-intra-text-muted shadow-sm">
         <ReceiptText className="h-6 w-6" />
       </div>
-      <p className="mt-4 text-base font-semibold text-intra-blue">Aún no hay movimientos</p>
-      <p className="mt-2 max-w-sm text-sm text-intra-text-subtle">
+      <p className="mt-4 intra-body-strong text-intra-blue">Aún no hay movimientos</p>
+      <p className="mt-2 max-w-sm intra-caption text-intra-text-subtle">
         Cuando tengas movimientos en tu wallet, aparecerán aquí.
       </p>
     </div>
@@ -292,10 +292,10 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                 </div>
 
                 <div>
-                  <h1 className="text-[28px] font-extrabold leading-[34px] tracking-tight text-intra-card sm:text-[28px] sm:leading-[34px]">
+                  <h1 className="intra-h1 tracking-tight text-intra-card">
                     Historial de wallet
                   </h1>
-                  <p className="mt-3 max-w-3xl text-base leading-7 text-intra-card/85 sm:text-[18px]">
+                  <p className="mt-3 max-w-3xl intra-body text-intra-card/85">
                     Aquí ves todos los movimientos asociados a tu wallet.
                   </p>
                 </div>
@@ -314,19 +314,19 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
             </div>
           </section>
 
-          <section className="rounded-[24px] border border-intra-border-soft bg-intra-card p-4 shadow-[0_16px_50px_rgba(11,44,74,.06)] sm:p-6">
+          <section className="rounded-[24px] border border-intra-border-soft bg-intra-card p-4 shadow-sm sm:p-6">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-intra-bg-app text-intra-blue">
                   <ReceiptText className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-[22px] font-bold leading-tight text-intra-blue">Movimientos</h2>
+                  <h2 className="intra-h3 text-intra-blue">Movimientos</h2>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center xl:justify-end">
-                <span className="inline-flex min-h-11 items-center justify-center rounded-full bg-intra-success-soft px-4 py-2 text-[14px] font-bold text-intra-text-success">
+                <span className="inline-flex min-h-11 items-center justify-center rounded-full bg-intra-success-soft px-4 py-2 intra-badge-text text-intra-text-success">
                   {getHistorySummary(totalCount)}
                 </span>
               </div>
@@ -337,7 +337,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
             ) : (
               <>
                 <div className="mt-7 hidden overflow-hidden rounded-[20px] border border-intra-border-strong bg-intra-card lg:block">
-                  <div className="grid grid-cols-[minmax(320px,1.8fr)_0.8fr_0.8fr_1fr] bg-intra-bg-app px-6 py-5 text-[13px] font-extrabold uppercase tracking-wide text-intra-text-subtle">
+                  <div className="grid grid-cols-[minmax(320px,1.8fr)_0.8fr_0.8fr_1fr] bg-intra-bg-app px-6 py-5 intra-badge-text uppercase tracking-wide text-intra-text-subtle">
                     <span>Movimiento</span>
                     <span>Estado</span>
                     <span>Monto</span>
@@ -360,14 +360,14 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                               {getEntryIcon(entry)}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-[15px] font-bold text-intra-blue">
+                              <p className="intra-body-strong text-intra-blue">
                                 {getEntryTitle(entry)}
                               </p>
                               {detail ? (
-                                <p className="mt-2 text-sm text-intra-text-subtle">{detail}</p>
+                                <p className="mt-2 intra-caption text-intra-text-subtle">{detail}</p>
                               ) : null}
                               {metaBadge ? (
-                                <span className="mt-3 inline-flex rounded-full bg-intra-bg-app px-3 py-1 text-xs font-semibold text-intra-text-subtle">
+                                <span className="mt-3 inline-flex rounded-full bg-intra-bg-app px-3 py-1 intra-badge-text text-intra-text-subtle">
                                   {metaBadge}
                                 </span>
                               ) : null}
@@ -375,17 +375,17 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                           </div>
 
                           <div className="pr-3">
-                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${badge.wrapper}`}>
+                            <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 intra-badge-text ${badge.wrapper}`}>
                               {badge.icon}
                               {badge.label}
                             </span>
                           </div>
 
-                          <div className={`pr-3 text-[16px] font-extrabold ${getAmountTone(entry.direction)}`} aria-label={getEntryAssistiveLabel(entry)}>
+                          <div className={`pr-3 intra-body-strong ${getAmountTone(entry.direction)}`} aria-label={getEntryAssistiveLabel(entry)}>
                             {getEntryAmountLabel(entry)}
                           </div>
 
-                          <div className="text-[15px] font-medium text-intra-text-subtle">
+                          <div className="intra-caption text-intra-text-subtle">
                             {getEntryDateLabel(entry.created_at)}
                           </div>
                         </div>
@@ -410,26 +410,26 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                             {getEntryIcon(entry)}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-[15px] font-bold text-intra-blue">
+                            <p className="intra-body-strong text-intra-blue">
                               {getEntryTitle(entry)}
                             </p>
-                            {detail ? <p className="mt-1 text-sm text-intra-text-subtle">{detail}</p> : null}
-                            <p className="mt-2 text-sm text-intra-text-subtle">{getEntryDateLabel(entry.created_at)}</p>
+                            {detail ? <p className="mt-1 intra-caption text-intra-text-subtle">{detail}</p> : null}
+                            <p className="mt-2 intra-caption text-intra-text-subtle">{getEntryDateLabel(entry.created_at)}</p>
                           </div>
                         </div>
 
                         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold ${badge.wrapper}`}>
+                          <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 intra-badge-text ${badge.wrapper}`}>
                             {badge.icon}
                             {badge.label}
                           </span>
-                          <p className={`text-[16px] font-extrabold ${getAmountTone(entry.direction)}`} aria-label={getEntryAssistiveLabel(entry)}>
+                          <p className={`intra-body-strong ${getAmountTone(entry.direction)}`} aria-label={getEntryAssistiveLabel(entry)}>
                             {getEntryAmountLabel(entry)}
                           </p>
                         </div>
 
                         {metaBadge ? (
-                          <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-intra-text-muted">
+                          <div className="mt-4 flex flex-wrap gap-2 intra-badge-text text-intra-text-muted">
                             <span className="rounded-full bg-intra-bg-app px-3 py-1.5">
                               {metaBadge}
                             </span>
@@ -446,7 +446,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   href={currentPage > 1 ? `/app/wallet/history?page=${currentPage - 1}` : "/app/wallet/history?page=1"}
-                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 text-[14px] font-bold transition ${
+                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 intra-caption-strong transition ${
                     currentPage > 1
                       ? "border border-intra-border-soft text-intra-blue hover:bg-intra-bg-app"
                       : "cursor-not-allowed border border-intra-border-soft text-intra-text-muted/70"
@@ -457,13 +457,13 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                   Anterior
                 </Link>
 
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-intra-green bg-intra-success-soft text-[15px] font-extrabold text-intra-text-success">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-intra-green bg-intra-success-soft intra-caption-strong text-intra-text-success">
                   {currentPage}
                 </span>
 
                 <Link
                   href={`/app/wallet/history?page=${Math.min(currentPage + 1, totalPages)}`}
-                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 text-[14px] font-bold transition ${
+                  className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl px-5 intra-caption-strong transition ${
                     currentPage < totalPages
                       ? "border border-intra-border-soft text-intra-blue hover:bg-intra-bg-app"
                       : "cursor-not-allowed border border-intra-border-soft text-intra-text-muted/70"
@@ -484,8 +484,8 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
                   <ShieldCheck className="h-7 w-7" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-intra-text-success">Tu seguridad es nuestra prioridad</h3>
-                  <p className="mt-1 text-[15px] text-intra-text-subtle">
+                  <h3 className="intra-h4 text-intra-text-success">Tu seguridad es nuestra prioridad</h3>
+                  <p className="mt-1 intra-body text-intra-text-subtle">
                     Todos los movimientos de tu wallet quedan registrados y protegidos para darte visibilidad total sobre cada operación.
                   </p>
                 </div>
@@ -493,7 +493,7 @@ export default async function WalletHistoryPage({ searchParams }: WalletHistoryP
 
               <Link
                 href="/app"
-                className="intra-btn inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-green/30 bg-intra-card px-5 py-3 text-[14px] font-bold text-intra-text-success hover:bg-intra-success-soft-alt"
+                className="intra-btn intra-caption-strong inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-green/30 bg-intra-card px-5 py-3 text-intra-text-success hover:bg-intra-success-soft-alt"
               >
                 <Headphones className="h-4 w-4" />
                 Centro de ayuda
