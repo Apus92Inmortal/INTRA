@@ -1,6 +1,13 @@
 "use client"
 
-import { Camera, FileWarning, ImageIcon, PackageCheck, ShieldAlert, Truck } from "lucide-react"
+import {
+  Camera,
+  FileWarning,
+  ImageIcon,
+  PackageCheck,
+  ShieldAlert,
+  Truck,
+} from "lucide-react"
 import { EvidenceImagePreview } from "@/components/evidence-image-preview"
 import { formatDateTime } from "@/lib/payments/wallet"
 
@@ -127,8 +134,10 @@ function EvidenceIcon({ type }: { type: AdminCaseEvidenceType }) {
 function SummaryItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-intra-bg-app px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase text-intra-text-muted/70">{label}</p>
-      <p className="mt-1 truncate text-sm font-semibold text-intra-blue">{value}</p>
+      <p className="intra-caption-strong uppercase text-intra-text-muted/70">
+        {label}
+      </p>
+      <p className="mt-1 truncate intra-body-strong text-intra-blue">{value}</p>
     </div>
   )
 }
@@ -148,9 +157,13 @@ function EvidenceTile({
         <div className="flex h-24 items-center justify-center rounded-xl border border-intra-border bg-intra-card text-intra-text-muted">
           <ImageIcon className="h-6 w-6" strokeWidth={1.8} />
         </div>
-        <p className="mt-3 text-[11px] font-semibold uppercase text-intra-text-muted">{meta.eyebrow}</p>
-        <p className="mt-1 text-sm font-semibold text-intra-blue">{meta.title}</p>
-        <p className="mt-1 text-xs text-intra-text-muted">{meta.emptyText}</p>
+        <p className="mt-3 intra-caption-strong uppercase text-intra-text-muted">
+          {meta.eyebrow}
+        </p>
+        <p className="mt-1 intra-body-strong text-intra-blue">{meta.title}</p>
+        <p className="mt-1 intra-caption text-intra-text-muted">
+          {meta.emptyText}
+        </p>
       </div>
     )
   }
@@ -184,41 +197,60 @@ function EvidenceTile({
           <EvidenceIcon type={type} />
         </span>
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase text-intra-text-muted">{meta.eyebrow}</p>
-          <p className="truncate text-sm font-semibold text-intra-blue">{meta.title}</p>
+          <p className="intra-caption-strong uppercase text-intra-text-muted">
+            {meta.eyebrow}
+          </p>
+          <p className="truncate intra-body-strong text-intra-blue">
+            {meta.title}
+          </p>
         </div>
       </div>
-      <p className="mt-2 line-clamp-2 text-xs leading-5 text-intra-text-subtle">
+      <p className="mt-2 line-clamp-2 intra-caption leading-5 text-intra-text-subtle">
         {evidence.note || "Sin descripción adicional."}
       </p>
-      <p className="mt-2 text-[11px] leading-4 text-intra-text-muted">
+      <p className="mt-2 intra-caption leading-4 text-intra-text-muted">
         {evidence.uploadedByName} · {formatDateTime(evidence.createdAt)}
       </p>
     </div>
   )
 }
 
-export function AdminCaseEvidencePanel({ caseFile }: { caseFile: AdminCaseFile }) {
-  const evidenceByType = new Map(caseFile.evidences.map((evidence) => [evidence.evidenceType, evidence]))
+export function AdminCaseEvidencePanel({
+  caseFile,
+}: {
+  caseFile: AdminCaseFile
+}) {
+  const evidenceByType = new Map(
+    caseFile.evidences.map((evidence) => [evidence.evidenceType, evidence]),
+  )
 
   return (
     <section className="rounded-2xl border border-intra-border-soft bg-intra-neutral-soft-alt p-4">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase text-intra-text-muted">Expediente operativo</p>
-          <h4 className="mt-1 text-base font-semibold text-intra-blue">{caseFile.routeLabel}</h4>
-          <p className="mt-1 text-xs leading-5 text-intra-text-muted">
-            Match {shortId(caseFile.matchId)} · Envío {shortId(caseFile.shipmentId)}
+          <p className="intra-caption-strong uppercase text-intra-text-muted">
+            Expediente operativo
+          </p>
+          <h4 className="mt-1 intra-body  text-intra-blue">
+            {caseFile.routeLabel}
+          </h4>
+          <p className="mt-1 intra-caption leading-5 text-intra-text-muted">
+            Match {shortId(caseFile.matchId)} · Envío{" "}
+            {shortId(caseFile.shipmentId)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {caseFile.alertState ? (
-            <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${stateClasses(caseFile.alertState)}`}>
+            <span
+              className={`inline-flex rounded-full border px-3 py-1 intra-caption-strong ${stateClasses(caseFile.alertState)}`}
+            >
               Alerta {getStateLabel(caseFile.alertState).toLowerCase()}
             </span>
           ) : null}
           {caseFile.disputeState ? (
-            <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${stateClasses(caseFile.disputeState)}`}>
+            <span
+              className={`inline-flex rounded-full border px-3 py-1 intra-caption-strong ${stateClasses(caseFile.disputeState)}`}
+            >
               Disputa {getStateLabel(caseFile.disputeState).toLowerCase()}
             </span>
           ) : null}
@@ -228,21 +260,48 @@ export function AdminCaseEvidencePanel({ caseFile }: { caseFile: AdminCaseFile }
       <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryItem label="Cliente" value={caseFile.customerName} />
         <SummaryItem label="Viajero" value={caseFile.travelerName} />
-        <SummaryItem label="Match" value={getStateLabel(caseFile.matchStatus)} />
-        <SummaryItem label="Envío" value={getStateLabel(caseFile.shipmentStatus)} />
-        <SummaryItem label="Pago" value={getStateLabel(caseFile.paymentStatus)} />
-        <SummaryItem label="Alerta" value={caseFile.alertState ? getStateLabel(caseFile.alertState) : "Sin alerta"} />
-        <SummaryItem label="Disputa" value={caseFile.disputeState ? getStateLabel(caseFile.disputeState) : "Sin disputa"} />
+        <SummaryItem
+          label="Match"
+          value={getStateLabel(caseFile.matchStatus)}
+        />
+        <SummaryItem
+          label="Envío"
+          value={getStateLabel(caseFile.shipmentStatus)}
+        />
+        <SummaryItem
+          label="Pago"
+          value={getStateLabel(caseFile.paymentStatus)}
+        />
+        <SummaryItem
+          label="Alerta"
+          value={
+            caseFile.alertState
+              ? getStateLabel(caseFile.alertState)
+              : "Sin alerta"
+          }
+        />
+        <SummaryItem
+          label="Disputa"
+          value={
+            caseFile.disputeState
+              ? getStateLabel(caseFile.disputeState)
+              : "Sin disputa"
+          }
+        />
       </div>
 
       <div className="mt-4">
         <div className="flex items-center gap-2">
           <FileWarning className="h-4 w-4 text-intra-blue" strokeWidth={2} />
-          <h5 className="text-sm font-semibold text-intra-blue">Evidencias</h5>
+          <h5 className="intra-body-strong text-intra-blue">Evidencias</h5>
         </div>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {EVIDENCE_ORDER.map((type) => (
-            <EvidenceTile key={type} type={type} evidence={evidenceByType.get(type) ?? null} />
+            <EvidenceTile
+              key={type}
+              type={type}
+              evidence={evidenceByType.get(type) ?? null}
+            />
           ))}
         </div>
       </div>
