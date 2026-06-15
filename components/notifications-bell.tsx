@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   Bell,
@@ -212,6 +213,7 @@ export function NotificationsBell() {
   const [dragOffset, setDragOffset] = useState(0);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const clearAllModalRef = useRef<HTMLDivElement | null>(null);
   const previousUnreadCountRef = useRef(0);
   const badgeAnimationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeDragIdRef = useRef<string | null>(null);
@@ -712,6 +714,7 @@ export function NotificationsBell() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      if (clearAllModalRef.current?.contains(event.target as Node)) return;
       if (!containerRef.current) return;
 
       if (!containerRef.current.contains(event.target as Node)) {
@@ -729,6 +732,7 @@ export function NotificationsBell() {
   }, []);
 
   return (
+    <>
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setOpen((value) => !value)}
@@ -739,7 +743,7 @@ export function NotificationsBell() {
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span
-            className={`absolute -right-1 -top-1 min-w-[18px] rounded-full bg-intra-danger px-1.5 text-center text-xs text-intra-card ${
+            className={`absolute -right-1 -top-1 min-w-[18px] rounded-full bg-intra-danger px-1.5 text-center intra-caption-strong text-intra-card ${
               animateBadge ? "animate-pulse" : ""
             }`}
           >
@@ -752,13 +756,13 @@ export function NotificationsBell() {
         <div className="intra-popover-surface fixed inset-x-3 top-20 z-50 flex max-h-[calc(100dvh-6rem)] flex-col p-3 sm:absolute sm:right-0 sm:left-auto sm:top-auto sm:mt-2 sm:w-[24rem] sm:max-h-96">
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-intra-blue">Notificaciones</h3>
-              <p className="mt-1 text-xs text-intra-text-muted/70">Desliza una tarjeta para mostrar borrar</p>
+              <h3 className="intra-h3 text-intra-blue">Notificaciones</h3>
+              <p className="mt-1 intra-caption text-intra-text-muted">Desliza para borrar</p>
             </div>
             <div className="flex flex-col items-end gap-1">
               <button
                 onClick={markAllAsRead}
-                className="min-h-11 text-sm text-intra-blue hover:underline"
+                className="min-h-11 intra-caption-strong text-intra-blue hover:underline"
                 type="button"
                 disabled={items.length === 0}
               >
@@ -766,7 +770,7 @@ export function NotificationsBell() {
               </button>
               <button
                 onClick={() => setShowClearAllModal(true)}
-                className="min-h-11 text-sm text-intra-danger hover:underline disabled:text-intra-text-muted/60"
+                className="min-h-11 intra-caption-strong text-intra-danger hover:underline disabled:text-intra-text-muted"
                 type="button"
                 disabled={items.length === 0}
               >
@@ -787,8 +791,8 @@ export function NotificationsBell() {
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-intra-card text-intra-blue">
                   <Bell className="h-5 w-5" />
                 </div>
-                <p className="mt-3 text-sm font-semibold text-intra-blue">Sin novedades</p>
-                <p className="mt-1 text-sm text-intra-text-subtle">
+                <p className="mt-3 intra-body-strong text-intra-blue">Sin novedades</p>
+                <p className="mt-1 intra-body text-intra-text-subtle">
                   Publica un envío o un viaje para empezar a ver actividad aquí.
                 </p>
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -798,7 +802,7 @@ export function NotificationsBell() {
                       router.push("/app/shipments/new");
                     }}
                     type="button"
-                    className="intra-btn flex-1 bg-intra-green px-4 py-2 text-sm text-intra-card hover:bg-intra-green-hover-app"
+                    className="intra-btn flex-1 bg-intra-green px-4 py-2 intra-body text-intra-card hover:bg-intra-green-hover-app"
                   >
                     Publicar envío
                   </button>
@@ -808,7 +812,7 @@ export function NotificationsBell() {
                       router.push("/app/trips/new");
                     }}
                     type="button"
-                    className="intra-btn flex-1 border border-intra-blue/10 bg-intra-card px-4 py-2 text-sm text-intra-blue hover:bg-intra-bg-app"
+                    className="intra-btn flex-1 border border-intra-border-soft bg-intra-card px-4 py-2 intra-body text-intra-blue hover:bg-intra-bg-app"
                   >
                     Publicar viaje
                   </button>
@@ -841,7 +845,7 @@ export function NotificationsBell() {
                         void deleteNotificationById(item.id);
                       }}
                       disabled={Boolean(deletingId) || clearingAll}
-                      className="absolute inset-0 flex w-full items-center justify-end rounded-[var(--intra-radius-xs)] bg-intra-danger pr-5 text-sm font-semibold text-intra-card disabled:opacity-60"
+                      className="absolute inset-0 flex w-full items-center justify-end rounded-[var(--intra-radius-xs)] bg-intra-danger pr-5 intra-caption-strong text-intra-card disabled:opacity-60"
                     >
                       <div className="flex flex-col items-center gap-1">
                         <Trash2 className="h-4 w-4" />
@@ -879,13 +883,13 @@ export function NotificationsBell() {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0 flex-1">
-                              <p className="break-words font-medium text-intra-blue">
+                              <p className="break-words intra-body-strong text-intra-blue">
                                 {getNotificationTitle(item, counterpartName)}
                               </p>
-                              <p className="mt-1 break-words text-sm text-intra-text-subtle">
+                              <p className="mt-1 break-words intra-body text-intra-text-subtle">
                                 {getNotificationBody(item)}
                               </p>
-                              <p className="mt-2 text-xs text-intra-text-muted/70">
+                              <p className="mt-2 intra-caption text-intra-text-muted">
                                 {getRelativeTimeLabel(item.created_at)}
                               </p>
                             </div>
@@ -905,35 +909,40 @@ export function NotificationsBell() {
         </div>
       )}
 
-      {open && showClearAllModal && (
-        <div className="intra-modal-backdrop z-[60] p-4">
-          <div className="intra-modal-panel w-full max-w-sm p-5">
-            <h4 className="text-lg font-semibold text-intra-blue">Borrar todas las notificaciones</h4>
-            <p className="mt-2 text-sm text-intra-text-subtle">
-              Esto eliminará tanto las leídas como las no leídas. Esta acción no se puede deshacer.
-            </p>
-
-            <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={() => setShowClearAllModal(false)}
-                className="intra-btn border border-intra-border-soft px-4 py-2 text-sm text-intra-blue hover:bg-intra-bg-app"
-                disabled={clearingAll}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => void clearAllNotifications()}
-                className="intra-btn bg-intra-danger px-4 py-2 text-sm text-intra-card hover:opacity-95 disabled:opacity-60"
-                disabled={clearingAll}
-              >
-                {clearingAll ? "Borrando..." : "Sí, borrar todo"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
+
+    {open && showClearAllModal && typeof document !== "undefined"
+      ? createPortal(
+          <div className="intra-modal-backdrop p-4">
+            <div ref={clearAllModalRef} className="intra-modal-panel w-full max-w-sm p-5">
+              <h4 className="intra-h3 text-intra-blue">Borrar notificaciones</h4>
+              <p className="mt-2 intra-body text-intra-text-subtle">
+                Esta acción no se puede deshacer.
+              </p>
+
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowClearAllModal(false)}
+                  className="intra-btn border border-intra-border-soft px-4 py-2 intra-body-strong text-intra-blue hover:bg-intra-bg-app"
+                  disabled={clearingAll}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void clearAllNotifications()}
+                  className="intra-btn bg-intra-danger px-4 py-2 intra-body-strong text-intra-card hover:opacity-95 disabled:opacity-60"
+                  disabled={clearingAll}
+                >
+                  {clearingAll ? "Borrando" : "Borrar"}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      : null}
+    </>
   );
 }
