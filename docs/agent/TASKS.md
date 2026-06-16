@@ -12,9 +12,45 @@
 
 ## P0 - En revision
 
-### TASK-020.3: Replace native payout account delete confirm with INTRA modal
+### TASK-020.4: Replace native chat send alert with inline failed message state
 
 Estado: REVIEW
+Prioridad: Alta
+Area: Chat / Mensajes / UI Error State
+
+Resumen:
+
+- PR #151 reemplaza el `alert()` nativo cuando falla el envio de un mensaje de chat.
+- El error ahora se muestra como estado contextual dentro de la conversacion.
+- UX aplicada:
+  - burbuja propia con el mensaje fallido.
+  - texto inline `No se pudo enviar · Reintentar`.
+  - `Reintentar` vuelve a intentar enviar el mismo texto.
+- La logica funcional queda preservada:
+  - mismo insert en `messages`.
+  - mismo flujo de notificacion cuando el insert resulta exitoso.
+  - sin cambios en realtime, polling, lectura de mensajes, mark as read, Supabase schema, RLS, tablas, migrations, RPCs, rutas ni logica de matches.
+
+Verificacion local:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS.
+
+Pendiente:
+
+- Esperar checks remotos y preview del PR #151.
+- Mantener PR #151 en Draft.
+- No merge.
+- No deploy manual.
+
+---
+
+### TASK-020.3: Replace native payout account delete confirm with INTRA modal
+
+Estado: DONE
 Prioridad: Alta
 Area: Wallet / Retiros / UI Modal
 
@@ -33,6 +69,8 @@ Resumen:
   - mismo `id`.
   - mismo feedback, reset de formulario editado y `router.refresh()`.
   - sin cambios en logica de wallet, logica de retiros, queries, actions, Supabase, RLS, tablas, migrations, RPCs, rutas ni otros modales.
+- PR #150 fue aprobado visualmente por Aldo y mergeado a `main`.
+- Merge commit: `e2fba5b`.
 
 Verificacion local:
 
@@ -44,10 +82,7 @@ Verificacion local:
 
 Pendiente:
 
-- Esperar checks remotos y preview del PR #150.
-- Mantener PR #150 en Draft.
-- No merge.
-- No deploy manual.
+- Cerrado en `main`.
 
 ---
 

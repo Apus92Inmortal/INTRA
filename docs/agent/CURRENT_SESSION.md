@@ -6,26 +6,25 @@
 
 ## Objetivo de la sesion
 
-TASK-020.3 - reemplazar el `confirm()` nativo para eliminar metodo de retiro por un modal visual INTRA.
+TASK-020.4 - reemplazar el `alert()` nativo del error al enviar mensaje por estado inline en el chat.
 
 ## Estado actual
 
-- Rama activa: `fix/payout-account-delete-confirm-modal`.
-- PR #150: Draft, base `main`.
-- Alcance ejecutado: UI/confirmacion visual para eliminar metodo de retiro.
-- No se tocaron logica de wallet, logica de retiros, queries, actions, Supabase, RLS, tablas, migrations, RPCs, rutas ni otros modales.
+- Rama activa: `fix/chat-send-inline-error`.
+- PR #151: Draft, base `main`.
+- Alcance ejecutado: UI/estado visual de mensaje fallido en chat.
+- No se tocaron Supabase schema, RLS, tablas, migrations, RPCs, realtime, polling, lectura de mensajes, mark as read, rutas ni logica de matches.
 
 ## Cambio realizado
 
-- Archivo responsable localizado: `app/app/wallet/payout/accounts/PayoutAccountsManager.tsx`.
-- Causa: la eliminacion de metodo de retiro usaba `confirm()` nativo del navegador.
-- Solucion: el confirm nativo se reemplazo por un modal INTRA renderizado con `createPortal` en `document.body`, usando el backdrop modal global y panel centrado `w-full max-w-sm`.
-- Copy del modal:
-  - `Eliminar metodo de retiro`.
-  - `Esta accion no se puede deshacer.`
-  - `Cancelar`.
-  - `Eliminar`.
-- Se preserva la llamada existente a `deletePayoutAccountAction(formData)`, el mismo `id`, feedback, reset del formulario editado y `router.refresh()`.
+- Archivo responsable localizado: `app/app/matches/[id]/chat/MatchChatClient.tsx`.
+- Causa: cuando fallaba el insert en `messages`, el chat ejecutaba `alert("No se pudo enviar el mensaje.")`.
+- Solucion: el `alert()` nativo se reemplazo por una burbuja local fallida dentro de la conversacion.
+- UX aplicada:
+  - burbuja propia con el texto que fallo.
+  - estado inline debajo: `No se pudo enviar · Reintentar`.
+  - `Reintentar` vuelve a intentar enviar el mismo texto.
+- Se preserva el flujo exitoso existente de insert en `messages`, creacion de notificacion, limpieza de typing state y scroll.
 
 ## Verificacion
 
@@ -44,12 +43,12 @@ TASK-020.3 - reemplazar el `confirm()` nativo para eliminar metodo de retiro por
   - SVG inline: 0.
   - colores arbitrarios: 0.
 - Auditoria extra:
-  - `confirm()` no queda en `app/app/wallet/payout/accounts/PayoutAccountsManager.tsx`.
-  - queda `alert()` en `app/app/matches/[id]/chat/MatchChatClient.tsx`, fuera de alcance de PR #150.
+  - `confirm()` en `app components lib`: 0.
+  - `alert()` en `app components lib`: 0.
 
 ## Pendiente
 
-- Esperar preview/checks remotos del PR #150.
-- Mantener PR #150 en Draft.
+- Esperar preview/checks remotos del PR #151.
+- Mantener PR #151 en Draft.
 - No merge.
 - No deploy manual.
