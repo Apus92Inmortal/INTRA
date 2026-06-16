@@ -6,25 +6,34 @@
 
 ## Objetivo de la sesion
 
-TASK-020.4 - reemplazar el `alert()` nativo del error al enviar mensaje por estado inline en el chat.
+TASK-021.1 - normalizar tipografia legacy/prohibida en pantallas legales/pagos.
 
 ## Estado actual
 
-- Rama activa: `fix/chat-send-inline-error`.
-- PR #151: Draft, base `main`.
-- Alcance ejecutado: UI/estado visual de mensaje fallido en chat.
-- No se tocaron Supabase schema, RLS, tablas, migrations, RPCs, realtime, polling, lectura de mensajes, mark as read, rutas ni logica de matches.
+- Rama activa: `uiux/task-021-1-legal-payment-typography`.
+- Base: `main` actualizado.
+- Ultimo merge confirmado en `main`: PR #151, commit `72cdb29`.
+- TASK-020.4 ya fue aprobado visualmente, marcado Ready for review, mergeado a `main` y cerrado.
+- Alcance de TASK-021.1: solo clases visuales/tipograficas en:
+  - `app/app/legal/pagos/page.tsx`.
+  - `app/app/payments/checkout/wompi/page.tsx`.
+- No se tocaron textos legales, copy de Wompi, redirects, queries, Supabase, RLS, tablas, migrations, RPCs, rutas ni logica de pagos.
 
 ## Cambio realizado
 
-- Archivo responsable localizado: `app/app/matches/[id]/chat/MatchChatClient.tsx`.
-- Causa: cuando fallaba el insert en `messages`, el chat ejecutaba `alert("No se pudo enviar el mensaje.")`.
-- Solucion: el `alert()` nativo se reemplazo por una burbuja local fallida dentro de la conversacion.
-- UX aplicada:
-  - burbuja propia con el texto que fallo.
-  - estado inline debajo: `No se pudo enviar · Reintentar`.
-  - `Reintentar` vuelve a intentar enviar el mismo texto.
-- Se preserva el flujo exitoso existente de insert en `messages`, creacion de notificacion, limpieza de typing state y scroll.
+- Reemplazadas clases legacy/prohibidas:
+  - `text-xs`, `text-sm`, `text-base`, `text-xl`, `text-2xl`, `text-3xl`.
+  - `font-bold`, `font-semibold`.
+  - `leading-6`.
+- Se usaron clases semanticas INTRA:
+  - `intra-h1`.
+  - `intra-h3`.
+  - `intra-h4`.
+  - `intra-body`.
+  - `intra-body-strong`.
+  - `intra-caption-strong`.
+  - `intra-badge-text`.
+- Copy legal y copy Wompi permanecen intactos.
 
 ## Verificacion
 
@@ -33,7 +42,7 @@ TASK-020.4 - reemplazar el `alert()` nativo del error al enviar mensaje por esta
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 13 archivos / 42 tests.
 - `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
-- Auditoria en archivo UI tocado:
+- Auditoria en archivos objetivo:
   - `text-[...]`: 0.
   - `text-xs/sm/base/lg/xl/2xl/3xl`: 0.
   - `font-[...]`: 0.
@@ -48,7 +57,8 @@ TASK-020.4 - reemplazar el `alert()` nativo del error al enviar mensaje por esta
 
 ## Pendiente
 
-- Esperar preview/checks remotos del PR #151.
-- Mantener PR #151 en Draft.
+- Crear PR Draft:
+  - `TASK-021.1 — Normalize legal/payment legacy typography`.
+- Mantener PR en Draft.
 - No merge.
 - No deploy manual.
