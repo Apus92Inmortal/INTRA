@@ -6,44 +6,53 @@
 
 ## Objetivo de la sesion
 
-Adopcion tecnica controlada del Manual UI/UX INTRA v3.0.
+Cierre de sesion tras adopcion tecnica del Manual UI/UX INTRA v3.0.
 
 ## Estado actual
 
-- Rama activa: `uiux/adopt-manual-v3-foundation`.
+- Rama activa: `main`.
 - `main` sincronizado con `origin/main`.
-- Ultimo commit en `main` antes de esta rama: `715fcc4`.
-- TASK-021 queda cerrada como barrida UI/UX v2.2 final.
-- Manual Oficial UI/UX INTRA v3.0 queda adoptado como nueva fuente vigente.
-- PR Draft: #155.
+- Ultimo merge funcional en `main`: PR #155.
+- Commit final en `main`: `20ef164`.
+- `git status`: limpio.
+- Ramas locales restantes:
+  - `main`.
+- Ramas remotas restantes:
+  - `origin/main`.
 - No hubo deploy manual.
 
-## Cambio realizado
+## Cambio cerrado
 
-- `docs/ui-ux/Manual_UIUX_INTRA_v3_0_Oficial.pdf` agregado como manual vigente.
-- Referencias documentales actualizadas desde v2.2 a v3.0:
-  - `AGENTS.md`.
-  - `docs/ui-ux/README.md`.
-  - `docs/agent/PROJECT_STATE.md`.
-  - `docs/agent/DECISIONS.md`.
-  - `docs/agent/TASKS.md`.
-  - `docs/agent/CURRENT_SESSION.md`.
-- Tokens oficiales revisados y ampliados en:
-  - `app/globals.css`.
-  - `lib/ui/intra-theme.ts`.
-- Tipografia foundation normalizada a cinco niveles oficiales:
-  - `intra-title`.
-  - `intra-subtitle`.
-  - `intra-body`.
-  - `intra-caption` / `intra-badge-text`.
-  - `intra-metric`.
-- Componentes base foundation agregados en `components/ui/intra-foundation.tsx` y `components/ui/index.ts`.
+- TASK-022 queda cerrada en `main`.
+- PR #155 fue marcado Ready for Review y mergeado con merge commit estandar.
+- Manual Oficial UI/UX INTRA v3.0 queda como nueva fuente oficial vigente.
+- Manual UI/UX INTRA v2.2 queda derogado como fuente vigente.
+- Foundation v3.0 quedo adoptado para:
+  - tokens oficiales.
+  - clases tipograficas semanticas.
+  - componentes base.
+  - memoria documental.
+- La rama local `uiux/adopt-manual-v3-foundation` fue eliminada.
+- La rama remota `origin/uiux/adopt-manual-v3-foundation` fue eliminada.
+- `git fetch --prune` ejecutado.
+
+## Confirmaciones de alcance
+
 - No se hizo barrida masiva de pantallas.
-- No se modifico logica de producto, Supabase, Auth, Database, Realtime ni flujos de negocio.
+- No se reemplazaron todavia `intra-h1`, `intra-h2`, `intra-h3` ni `intra-h4` en pantallas.
+- `intra-h1/h2/h3/h4` quedan solo como aliases temporales de compatibilidad.
+- No se modifico logica de negocio.
+- No se tocaron Supabase, Auth, Database, Realtime, RLS, tablas, migrations, RPC, payments, wallet, matches ni admin logic.
+- No hubo deploy manual.
 
-## Verificacion final registrada
+## Verificacion registrada
 
-- Auditoria tecnica:
+- PR #155 checks:
+  - Vercel: PASS.
+  - Vercel Preview Comments: PASS.
+  - detect-impact: PASS.
+  - validate: PASS.
+- Auditoria tecnica del PR:
   - `confirm()` en `app components lib`: 0.
   - `alert()` en `app components lib`: 0.
   - SVG inline en `app components lib`: 0.
@@ -51,22 +60,22 @@ Adopcion tecnica controlada del Manual UI/UX INTRA v3.0.
   - hex hardcoded solo en tokens oficiales:
     - `app/globals.css`.
     - `lib/ui/intra-theme.ts`.
-- Validaciones:
+- Validaciones locales del PR:
   - `git diff --check`: PASS.
   - `npm run lint`: PASS.
   - `npx tsc --noEmit`: PASS.
   - `npm run test:unit`: PASS, 13 archivos / 42 tests.
   - `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
-  - Checks remotos iniciales: Vercel PASS, Vercel Preview Comments PASS, detect-impact PASS, validate PASS.
-  - Preview Vercel: `https://intra-git-uiux-a-2a3607-aldo-antonio-altamar-cervantes-projects.vercel.app`.
+- Validacion de cierre:
+  - `git status --short --branch`: limpio.
+  - ramas locales/remotas no usadas: eliminadas.
 
 ## Decision
 
 - Manual UI/UX INTRA v3.0 reemplaza v2.2 como fuente oficial vigente.
 - La adopcion inicial de v3.0 se limita a foundation/tokens/componentes base.
-- La barrida pantalla por pantalla se deja para tareas posteriores.
+- La barrida pantalla por pantalla queda para tareas posteriores.
 
 ## Pendiente
 
-- Mantener PR #155 en Draft hasta revision.
-- Siguiente tarea recomendada despues de merge: auditoria UI/UX pantalla por pantalla contra Manual v3.0, empezando por foundation usage y pantallas operativas principales.
+- Siguiente tarea recomendada: auditoria UI/UX pantalla por pantalla contra Manual UI/UX INTRA v3.0, empezando por pantallas operativas principales y adopcion gradual de componentes foundation.

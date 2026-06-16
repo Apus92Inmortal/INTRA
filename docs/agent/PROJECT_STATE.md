@@ -67,6 +67,7 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 - Market fue fusionado con `/app` como decision de producto; cualquier mejora debe mantener la experiencia integrada de dashboard, oportunidades y matches.
 - PR #116 quedo mergeado y produccion contiene realtime/fallback visible-aware para `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`.
 - Manual Oficial UI/UX INTRA v3.0 queda adoptado como fuente unica vigente para decisiones visuales. Manual UI/UX INTRA v2.2 y manuales anteriores quedan derogados.
+- TASK-022 adopto foundation tecnica del Manual UI/UX INTRA v3.0 y quedo mergeada a `main` en PR #155, commit `20ef164`.
 - Barrida UI/UX v2.2 con frentes iniciales cerrados:
   - Foundation components: PR #129 mergeado a `main`.
   - Auth Gateway: PR #130 mergeado a `main`.

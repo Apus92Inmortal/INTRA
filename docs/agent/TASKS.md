@@ -14,7 +14,7 @@
 
 ### TASK-022: Adopt Manual UI/UX INTRA v3.0 foundation
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Alta
 Area: UI/UX v3.0 / Foundation / Tokens / Componentes base
 
@@ -75,9 +75,9 @@ Reglas v3.0 adoptadas:
 
 Pendiente:
 
-- Mantener PR #155 en Draft hasta revision.
-- No hacer deploy manual.
-- No iniciar barrida pantalla por pantalla en esta tarea.
+- Cerrado en `main`.
+- No hubo deploy manual.
+- No iniciar barrida pantalla por pantalla sin una tarea nueva.
 
 Validaciones:
 
@@ -100,6 +100,12 @@ Validaciones:
   - hex hardcoded solo en tokens oficiales:
     - `app/globals.css`.
     - `lib/ui/intra-theme.ts`.
+- PR #155:
+  - Ready for Review antes de merge.
+  - Merge commit: `20ef164`.
+  - Rama local eliminada: `uiux/adopt-manual-v3-foundation`.
+  - Rama remota eliminada: `origin/uiux/adopt-manual-v3-foundation`.
+  - `main` sincronizado con `origin/main`.
 
 ---
 
