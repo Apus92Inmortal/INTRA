@@ -12,9 +12,48 @@
 
 ## P0 - En revision
 
-### TASK-020.2: Replace native trip close confirm with INTRA modal
+### TASK-020.3: Replace native payout account delete confirm with INTRA modal
 
 Estado: REVIEW
+Prioridad: Alta
+Area: Wallet / Retiros / UI Modal
+
+Resumen:
+
+- PR #150 reemplaza el `confirm()` nativo al eliminar un metodo de retiro.
+- El modal se renderiza con `createPortal` en `document.body`.
+- Usa overlay global, panel centrado y patron visual INTRA.
+- Copy operativo:
+  - `Eliminar metodo de retiro`.
+  - `Esta accion no se puede deshacer.`
+  - `Cancelar`.
+  - `Eliminar`.
+- La logica funcional queda preservada:
+  - misma llamada `deletePayoutAccountAction(formData)`.
+  - mismo `id`.
+  - mismo feedback, reset de formulario editado y `router.refresh()`.
+  - sin cambios en logica de wallet, logica de retiros, queries, actions, Supabase, RLS, tablas, migrations, RPCs, rutas ni otros modales.
+
+Verificacion local:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS.
+
+Pendiente:
+
+- Esperar checks remotos y preview del PR #150.
+- Mantener PR #150 en Draft.
+- No merge.
+- No deploy manual.
+
+---
+
+### TASK-020.2: Replace native trip close confirm with INTRA modal
+
+Estado: DONE
 Prioridad: Alta
 Area: Dashboard / Viajes / UI Modal
 
@@ -32,6 +71,8 @@ Resumen:
   - misma llamada `closeTripAction(tripId)`.
   - mismo `router.refresh()` posterior.
   - sin cambios en queries, actions, Supabase, RLS, tablas, migrations, RPCs, realtime, rutas, trips, matches ni pagos.
+- PR #149 fue aprobado visualmente por Aldo y mergeado a `main`.
+- Merge commit: `630b198`.
 
 Verificacion local:
 
@@ -43,10 +84,7 @@ Verificacion local:
 
 Pendiente:
 
-- Esperar checks remotos y preview del PR #149.
-- Mantener PR #149 en Draft.
-- No merge.
-- No deploy manual.
+- Cerrado en `main`.
 
 ---
 
