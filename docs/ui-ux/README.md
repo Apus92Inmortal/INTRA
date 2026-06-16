@@ -4,13 +4,13 @@
 
 El manual oficial y vigente de UI/UX para INTRA es:
 
-`docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`
+`docs/ui-ux/Manual_UIUX_INTRA_v3_0_Oficial.pdf`
 
 Este documento es la fuente unica de verdad para decisiones visuales, componentes, tokens, navegacion, Core Mobile, Core PC, CTAs, cards, inputs, badges, iconografia, tablas, ventanas emergentes, estados de carga, errores, mensajes, microcopy y QA visual.
 
-Los manuales anteriores y anexos tecnicos relacionados con UI/UX quedan derogados.
+El Manual UI/UX INTRA v2.2, manuales anteriores y anexos tecnicos relacionados con UI/UX quedan derogados.
 
-Antes de implementar cualquier cambio UI/UX, se debe revisar si el cambio cumple el Manual UI/UX INTRA v2.2.
+Antes de implementar cualquier cambio UI/UX, se debe revisar si el cambio cumple el Manual UI/UX INTRA v3.0.
 
 Si una pantalla o componente contradice el manual:
 
@@ -27,11 +27,36 @@ Regla clave:
 
 El manual manda, pero puede evolucionar. Lo que no se permite es improvisar.
 
+## Tipografia oficial v3.0
+
+El sistema tipografico oficial de INTRA v3.0 usa solo cinco niveles:
+
+- Titulo.
+- Subtitulo.
+- Cuerpo.
+- Caption / Badge.
+- Metrica.
+
+Las clases semanticas recomendadas para pantallas de producto son unicamente:
+
+- `intra-title`
+- `intra-subtitle`
+- `intra-body`
+- `intra-body-strong`
+- `intra-caption`
+- `intra-caption-strong`
+- `intra-badge-text`
+- `intra-metric`
+
+`intra-body-strong` e `intra-caption-strong` son variaciones de peso dentro del mismo nivel tipografico, no niveles nuevos.
+
+Las clases `intra-h1`, `intra-h2`, `intra-h3` e `intra-h4` quedan solo como aliases temporales de compatibilidad para evitar una barrida masiva inmediata. No son patrones recomendados para codigo nuevo ni para cierres UI/UX v3.0.
+
 ## Documentos derogados
 
-No se encontraron manuales UI/UX anteriores ni anexos tecnicos UI/UX versionados en el arbol actual del repo al momento de adoptar v2.2.
+El manual anterior `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf` queda conservado como referencia historica, pero no debe usarse como fuente vigente.
 
-Si aparece una version anterior o anexo historico, debe moverse a:
+Si aparece otra version anterior o anexo historico, debe moverse a:
 
 `docs/archive/ui-ux-derogados/`
 

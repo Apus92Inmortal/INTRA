@@ -6,57 +6,67 @@
 
 ## Objetivo de la sesion
 
-Cierre documental de la barrida UI/UX final basada en Manual UI/UX INTRA v2.2.
+Adopcion tecnica controlada del Manual UI/UX INTRA v3.0.
 
 ## Estado actual
 
-- Rama activa: `main`.
+- Rama activa: `uiux/adopt-manual-v3-foundation`.
 - `main` sincronizado con `origin/main`.
-- Ultimo commit en `main`: `5d293d5`.
-- `git status`: limpio.
-- TASK-020 queda cerrada.
-- TASK-020.1 queda cerrada.
-- TASK-020.2 queda cerrada.
-- TASK-020.3 queda cerrada.
-- TASK-020.4 queda cerrada.
-- TASK-021.1 queda cerrada.
-- TASK-021.2 queda cerrada.
-- TASK-021.3 queda no requerida / diferida.
-- TASK-021.4 queda cerrada.
-- TASK-021 queda cerrada como barrida UI/UX final.
+- Ultimo commit en `main` antes de esta rama: `715fcc4`.
+- TASK-021 queda cerrada como barrida UI/UX v2.2 final.
+- Manual Oficial UI/UX INTRA v3.0 queda adoptado como nueva fuente vigente.
+- PR Draft: #155.
 - No hubo deploy manual.
 
-## Cierre registrado
+## Cambio realizado
 
-- PR #154 fue mergeado a `main` con merge commit estandar.
-- Commit final de TASK-021.4 en `main`: `5d293d5`.
-- La rama local `uiux/task-021-4-auth-evidence-typography` fue eliminada.
-- La rama remota `origin/uiux/task-021-4-auth-evidence-typography` fue eliminada.
-- La barrida UI/UX v2.2 queda sin residuales conocidos de:
-  - `confirm()`.
-  - `alert()`.
-  - SVG inline.
-  - clases tipograficas prohibidas.
+- `docs/ui-ux/Manual_UIUX_INTRA_v3_0_Oficial.pdf` agregado como manual vigente.
+- Referencias documentales actualizadas desde v2.2 a v3.0:
+  - `AGENTS.md`.
+  - `docs/ui-ux/README.md`.
+  - `docs/agent/PROJECT_STATE.md`.
+  - `docs/agent/DECISIONS.md`.
+  - `docs/agent/TASKS.md`.
+  - `docs/agent/CURRENT_SESSION.md`.
+- Tokens oficiales revisados y ampliados en:
+  - `app/globals.css`.
+  - `lib/ui/intra-theme.ts`.
+- Tipografia foundation normalizada a cinco niveles oficiales:
+  - `intra-title`.
+  - `intra-subtitle`.
+  - `intra-body`.
+  - `intra-caption` / `intra-badge-text`.
+  - `intra-metric`.
+- Componentes base foundation agregados en `components/ui/intra-foundation.tsx` y `components/ui/index.ts`.
+- No se hizo barrida masiva de pantallas.
+- No se modifico logica de producto, Supabase, Auth, Database, Realtime ni flujos de negocio.
 
 ## Verificacion final registrada
 
-- `confirm()` = 0.
-- `alert()` = 0.
-- SVG inline = 0.
-- clases tipograficas prohibidas = 0.
-- hex hardcoded solo en tokens oficiales:
-  - `app/globals.css`.
-  - `lib/ui/intra-theme.ts`.
-- Validacion documental de cierre:
+- Auditoria tecnica:
+  - `confirm()` en `app components lib`: 0.
+  - `alert()` en `app components lib`: 0.
+  - SVG inline en `app components lib`: 0.
+  - clases tipograficas prohibidas en `app components lib`: 0.
+  - hex hardcoded solo en tokens oficiales:
+    - `app/globals.css`.
+    - `lib/ui/intra-theme.ts`.
+- Validaciones:
   - `git diff --check`: PASS.
-  - `git status --short --branch`: limpio tras commit y push documental.
+  - `npm run lint`: PASS.
+  - `npx tsc --noEmit`: PASS.
+  - `npm run test:unit`: PASS, 13 archivos / 42 tests.
+  - `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
+  - Checks remotos iniciales: Vercel PASS, Vercel Preview Comments PASS, detect-impact PASS, validate PASS.
+  - Preview Vercel: `https://intra-git-uiux-a-2a3607-aldo-antonio-altamar-cervantes-projects.vercel.app`.
 
 ## Decision
 
-- Manual UI/UX INTRA v3.0 queda pendiente para otro chat.
-- No iniciar Manual UI/UX INTRA v3.0 en esta sesion.
+- Manual UI/UX INTRA v3.0 reemplaza v2.2 como fuente oficial vigente.
+- La adopcion inicial de v3.0 se limita a foundation/tokens/componentes base.
+- La barrida pantalla por pantalla se deja para tareas posteriores.
 
 ## Pendiente
 
-- Ningun pendiente activo para TASK-021.
-- Siguiente paso fuera de esta sesion: abrir otro chat para Manual UI/UX INTRA v3.0 cuando Aldo lo ordene.
+- Mantener PR #155 en Draft hasta revision.
+- Siguiente tarea recomendada despues de merge: auditoria UI/UX pantalla por pantalla contra Manual v3.0, empezando por foundation usage y pantallas operativas principales.

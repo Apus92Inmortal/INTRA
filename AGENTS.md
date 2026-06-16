@@ -59,13 +59,13 @@ INTRA es una plataforma peer-to-peer de envios que conecta clientes que necesita
 
 El manual oficial y vigente de UI/UX para INTRA es:
 
-`docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`
+`docs/ui-ux/Manual_UIUX_INTRA_v3_0_Oficial.pdf`
 
 Este documento es la fuente unica de verdad para decisiones visuales, componentes, tokens, navegacion, Core Mobile, Core PC, CTAs, cards, inputs, badges, iconografia, tablas, ventanas emergentes, estados de carga, errores, mensajes, microcopy y QA visual.
 
-Los manuales anteriores y anexos tecnicos quedan derogados.
+El Manual UI/UX INTRA v2.2 y manuales anteriores quedan derogados.
 
-Antes de implementar cualquier cambio UI/UX, se debe revisar si el cambio cumple el Manual UI/UX INTRA v2.2.
+Antes de implementar cualquier cambio UI/UX, se debe revisar si el cambio cumple el Manual UI/UX INTRA v3.0.
 
 Si una pantalla o componente contradice el manual:
 
