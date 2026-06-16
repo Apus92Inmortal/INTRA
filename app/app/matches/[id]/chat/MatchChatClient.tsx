@@ -14,6 +14,16 @@ type Message = {
   created_at: string;
 };
 
+type FailedMessage = Message & {
+  status: "failed" | "retrying";
+};
+
+type ChatItem =
+  | (Message & {
+      status: "sent";
+    })
+  | FailedMessage;
+
 type Props = {
   matchId: string;
   currentUserId: string;
@@ -70,6 +80,13 @@ function formatMessageTime(dateString: string) {
 }
 
 function sortMessages(list: Message[]) {
+  return [...list].sort(
+    (a, b) =>
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+}
+
+function sortChatItems(list: ChatItem[]) {
   return [...list].sort(
     (a, b) =>
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
@@ -138,6 +155,7 @@ export default function MatchChatClient({
   const [messages, setMessages] = useState<Message[]>(
     sortMessages(initialMessages)
   );
+  const [failedMessages, setFailedMessages] = useState<FailedMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
@@ -168,6 +186,15 @@ export default function MatchChatClient({
   const menuRef = useRef<HTMLDivElement | null>(null);
   const otherUserRoleLabel = viewerRole === "owner" ? "Viajero" : "Cliente";
   const otherUserInitials = getInitials(otherUserName);
+
+  const chatItems = useMemo(
+    () =>
+      sortChatItems([
+        ...messages.map((message) => ({ ...message, status: "sent" as const })),
+        ...failedMessages,
+      ]),
+    [failedMessages, messages]
+  );
 
   const readState = useMemo(
     () => ({
@@ -423,11 +450,11 @@ export default function MatchChatClient({
       scrollToBottom("auto");
       hasAutoScrolledInitiallyRef.current = true;
       previousLastMessageIdRef.current =
-        messages[messages.length - 1]?.id ?? previousLastMessageIdRef.current;
+        chatItems[chatItems.length - 1]?.id ?? previousLastMessageIdRef.current;
       return;
     }
 
-    const lastMessage = messages[messages.length - 1];
+    const lastMessage = chatItems[chatItems.length - 1];
     if (!lastMessage) return;
 
     if (lastMessage.id === previousLastMessageIdRef.current) {
@@ -442,7 +469,7 @@ export default function MatchChatClient({
     if (shouldAutoScroll) {
       scrollToBottom(lastMessage.sender_id === currentUserId ? "smooth" : "auto");
     }
-  }, [currentUserId, messages, scrollToBottom]);
+  }, [chatItems, currentUserId, scrollToBottom]);
 
   useEffect(() => {
     let isActive = true;
@@ -605,29 +632,20 @@ export default function MatchChatClient({
     return () => clearTimeout(timeout);
   }, [messages, markAsReadNow]);
 
-  async function handleSendMessage(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const trimmed = newMessage.trim();
-    if (!trimmed || sending) return;
-
-    setSending(true);
-
+  async function sendMessageText(text: string) {
     const { data, error } = await supabase
       .from("messages")
       .insert({
         match_id: matchId,
         sender_id: currentUserId,
-        message: trimmed,
+        message: text,
       })
       .select("id, match_id, sender_id, message, created_at")
       .single();
 
     if (error) {
       console.error("Error sending message:", error.message);
-      alert("No se pudo enviar el mensaje.");
-      setSending(false);
-      return;
+      return { success: false as const };
     }
 
     if (data) {
@@ -640,7 +658,7 @@ export default function MatchChatClient({
         user_id: otherUserId,
         type: "new_message",
         title: `${currentUserName} te envió un mensaje`,
-        message: getMessagePreview(trimmed),
+        message: getMessagePreview(text),
         related_match_id: matchId,
         is_read: false,
       });
@@ -655,13 +673,68 @@ export default function MatchChatClient({
       clearTimeout(typingTimeoutRef.current);
     }
 
+    return { success: true as const };
+  }
+
+  async function handleRetryFailedMessage(failedMessage: FailedMessage) {
+    if (sending || failedMessage.status === "retrying") return;
+
+    setFailedMessages((prev) =>
+      prev.map((item) =>
+        item.id === failedMessage.id ? { ...item, status: "retrying" } : item
+      )
+    );
+
+    const result = await sendMessageText(failedMessage.message);
+
+    if (!result.success) {
+      setFailedMessages((prev) =>
+        prev.map((item) =>
+          item.id === failedMessage.id ? { ...item, status: "failed" } : item
+        )
+      );
+      return;
+    }
+
+    setFailedMessages((prev) =>
+      prev.filter((item) => item.id !== failedMessage.id)
+    );
+  }
+
+  async function handleSendMessage(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const trimmed = newMessage.trim();
+    if (!trimmed || sending) return;
+
+    setSending(true);
+
+    const result = await sendMessageText(trimmed);
+
+    if (!result.success) {
+      setFailedMessages((prev) => [
+        ...prev,
+        {
+          id: `failed-${Date.now()}`,
+          match_id: matchId,
+          sender_id: currentUserId,
+          message: trimmed,
+          created_at: new Date().toISOString(),
+          status: "failed",
+        },
+      ]);
+      setNewMessage("");
+      setSending(false);
+      return;
+    }
+
     setNewMessage("");
     setSending(false);
   }
 
   return (
     <div className="flex min-h-[calc(100dvh-4rem)] flex-1 flex-col overflow-hidden bg-intra-bg-app sm:min-h-[calc(100dvh-7rem)] sm:rounded-[var(--intra-radius-sm)] sm:border sm:border-intra-border sm:bg-intra-card sm:shadow-[var(--intra-shadow-base)]">
-      <div className="sticky top-0 z-10 border-b border-intra-border bg-intra-card/95 px-4 py-3 backdrop-blur sm:px-5">
+      <div className="sticky top-0 z-10 border-b border-intra-border bg-intra-card px-4 py-3 backdrop-blur sm:px-5">
         <div className="flex items-center gap-3">
           <Link
             href={`/app/matches/${matchId}`}
@@ -723,7 +796,7 @@ export default function MatchChatClient({
         onScroll={updateShouldStickToBottom}
         className="intra-chat-scrollbar flex-1 overflow-y-auto px-3 py-4 sm:px-5 lg:[&::-webkit-scrollbar-button]:h-0 lg:[&::-webkit-scrollbar-button]:w-0 lg:[&::-webkit-scrollbar-button]:hidden"
       >
-        {messages.length === 0 ? (
+        {chatItems.length === 0 ? (
           <div className="flex h-full min-h-60 items-center justify-center">
             <div className="intra-empty-state max-w-sm">
               <p className="intra-body-strong">Aún no hay mensajes.</p>
@@ -732,9 +805,10 @@ export default function MatchChatClient({
           </div>
         ) : (
           <div className="space-y-3">
-            {messages.map((msg) => {
+            {chatItems.map((msg) => {
               const isMine = msg.sender_id === currentUserId;
-              const read = isMessageRead(msg);
+              const isFailed = msg.status === "failed" || msg.status === "retrying";
+              const read = msg.status === "sent" ? isMessageRead(msg) : false;
 
               return (
                 <div
@@ -744,7 +818,9 @@ export default function MatchChatClient({
                   <div className="max-w-[85%] sm:max-w-[75%]">
                     <div
                       className={`rounded-[var(--intra-radius-sm)] px-4 py-3 shadow-sm ${
-                        isMine
+                        isFailed
+                          ? "rounded-br-[var(--intra-radius-xs)] border border-intra-danger-border bg-intra-blue text-intra-card"
+                          : isMine
                           ? "rounded-br-[var(--intra-radius-xs)] bg-intra-blue text-intra-card"
                           : "rounded-bl-[var(--intra-radius-xs)] border border-intra-border bg-intra-card text-intra-blue"
                       }`}
@@ -756,13 +832,27 @@ export default function MatchChatClient({
                       <div
                         suppressHydrationWarning
                         className={`intra-caption mt-2 flex items-center justify-end gap-2 ${
-                          isMine ? "text-intra-card/70" : "text-intra-text-muted/70"
+                          isMine ? "text-intra-card" : "text-intra-text-muted"
                         }`}
                       >
                         <span>{formatMessageTime(msg.created_at)}</span>
                         {isMine && read ? <span>Leído</span> : null}
                       </div>
                     </div>
+                    {isFailed ? (
+                      <p className="mt-1 flex justify-end gap-1 intra-caption text-intra-danger-text">
+                        <span>No se pudo enviar</span>
+                        <span>·</span>
+                        <button
+                          type="button"
+                          onClick={() => void handleRetryFailedMessage(msg)}
+                          className="intra-caption-strong text-intra-danger-text underline-offset-2 hover:underline disabled:cursor-not-allowed"
+                          disabled={msg.status === "retrying"}
+                        >
+                          {msg.status === "retrying" ? "Reintentando" : "Reintentar"}
+                        </button>
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               );
@@ -773,7 +863,7 @@ export default function MatchChatClient({
         <div ref={bottomRef} />
       </div>
 
-      <div className="sticky bottom-0 border-t border-intra-border bg-intra-card/95 px-3 py-3 backdrop-blur sm:px-5">
+      <div className="sticky bottom-0 border-t border-intra-border bg-intra-card px-3 py-3 backdrop-blur sm:px-5">
         <form onSubmit={handleSendMessage} className="flex items-end gap-2 sm:gap-3">
           <textarea
             ref={textareaRef}
