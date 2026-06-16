@@ -344,9 +344,8 @@ export default function PayoutRequestForm({
                   onClick={() => setLegalModalKey("payments-policy")}
                   className="intra-body-strong text-intra-text-success underline underline-offset-4"
                 >
-                  Política de Pagos, Retenciones, Reembolsos y Disputas
+                  Política de Pagos
                 </button>
-                .
               </span>
             </div>
 

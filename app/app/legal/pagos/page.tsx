@@ -31,7 +31,7 @@ export default async function PaymentLegalPage({ searchParams }: PaymentLegalPag
         <div className="mx-auto max-w-4xl space-y-4">
           <Link
             href={checkoutHref}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-intra-text-success hover:underline"
+            className="inline-flex items-center gap-2 intra-caption-strong text-intra-text-success hover:underline"
           >
             <ArrowLeft className="h-4 w-4" />
             Volver al checkout
@@ -43,11 +43,11 @@ export default async function PaymentLegalPage({ searchParams }: PaymentLegalPag
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-intra-card/70">
+                <p className="intra-badge-text uppercase tracking-wide text-intra-card/70">
                   Condiciones operativas
                 </p>
-                <h1 className="mt-2 text-2xl font-bold sm:text-3xl">Pago protegido</h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-intra-card/70">
+                <h1 className="mt-2 intra-h1">Pago protegido</h1>
+                <p className="mt-2 max-w-2xl intra-body text-intra-card/70">
                   {PAYMENTS_POLICY_DOCUMENT.intro}
                 </p>
               </div>
@@ -60,19 +60,19 @@ export default async function PaymentLegalPage({ searchParams }: PaymentLegalPag
                 key={section.title}
                 className="rounded-[22px] border border-intra-border-soft bg-intra-card p-4 shadow-sm sm:p-5"
               >
-                <h2 className="text-base font-bold text-intra-blue">{section.title}</h2>
+                <h2 className="intra-h4 text-intra-blue">{section.title}</h2>
                 <div className="mt-2 space-y-2">
                   {section.paragraphs?.map((paragraph) => (
-                    <p key={paragraph} className="text-sm leading-6 text-intra-text-subtle">
+                    <p key={paragraph} className="intra-body text-intra-text-subtle">
                       {paragraph}
                     </p>
                   ))}
                   {section.groups?.map((group) => (
                     <div key={group.title} className="rounded-2xl bg-intra-bg-app p-3">
-                      <h3 className="text-sm font-bold text-intra-blue">{group.title}</h3>
+                      <h3 className="intra-body-strong text-intra-blue">{group.title}</h3>
                       <div className="mt-2 space-y-2">
                         {group.paragraphs?.map((paragraph) => (
-                          <p key={paragraph} className="text-sm leading-6 text-intra-text-subtle">
+                          <p key={paragraph} className="intra-body text-intra-text-subtle">
                             {paragraph}
                           </p>
                         ))}
@@ -88,8 +88,8 @@ export default async function PaymentLegalPage({ searchParams }: PaymentLegalPag
             <div className="flex items-start gap-3">
               <FileText className="mt-0.5 h-5 w-5 shrink-0 text-intra-text-success" />
               <div>
-                <h2 className="text-base font-bold text-intra-blue">{SHIPPING_POLICY_DOCUMENT.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-intra-text-subtle">{SHIPPING_POLICY_DOCUMENT.intro}</p>
+                <h2 className="intra-h4 text-intra-blue">{SHIPPING_POLICY_DOCUMENT.title}</h2>
+                <p className="mt-2 intra-body text-intra-text-subtle">{SHIPPING_POLICY_DOCUMENT.intro}</p>
               </div>
             </div>
           </section>
@@ -97,15 +97,15 @@ export default async function PaymentLegalPage({ searchParams }: PaymentLegalPag
           <section className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-[22px] border border-intra-border-soft bg-intra-card p-4 shadow-sm">
               <Clock3 className="h-5 w-5 text-intra-text-success" />
-              <p className="mt-3 text-sm font-semibold text-intra-blue">Tiempos visibles</p>
-              <p className="mt-1 text-sm leading-6 text-intra-text-subtle">
+              <p className="mt-3 intra-body-strong text-intra-blue">Tiempos visibles</p>
+              <p className="mt-1 intra-body text-intra-text-subtle">
                 Disputa: 24h. Liberación: 24-48h. Revisión: hasta 72h hábiles.
               </p>
             </div>
             <div className="rounded-[22px] border border-intra-border-soft bg-intra-card p-4 shadow-sm">
               <Wallet className="h-5 w-5 text-intra-text-success" />
-              <p className="mt-3 text-sm font-semibold text-intra-blue">Retiros</p>
-              <p className="mt-1 text-sm leading-6 text-intra-text-subtle">
+              <p className="mt-3 intra-body-strong text-intra-blue">Retiros</p>
+              <p className="mt-1 intra-body text-intra-text-subtle">
                 Una vez solicitado, el retiro puede tardar entre 24 y 72 horas hábiles.
               </p>
             </div>

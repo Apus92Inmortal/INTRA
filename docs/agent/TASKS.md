@@ -12,15 +12,65 @@
 
 ## P0 - En revision
 
-### TASK-020.4: Replace native chat send alert with inline failed message state
+### TASK-021.1: Normalize legal/payment legacy typography
 
 Estado: REVIEW
+Prioridad: Media
+Area: UI/UX v2.2 / Legal / Pagos
+
+Resumen:
+
+- Normalizar tipografia legacy/prohibida detectada en TASK-021 sobre pantallas legales/pagos.
+- Archivos objetivo:
+  - `app/app/legal/pagos/page.tsx`.
+  - `app/app/payments/checkout/wompi/page.tsx`.
+- Ajuste menor sobre PR #152:
+  - `app/app/wallet/payout/PayoutRequestForm.tsx`.
+  - checkbox legal visible de retiro compactado a `Acepto la Política de Pagos`.
+  - el link conserva el mismo documento legal completo.
+  - se reporto otro uso del texto largo en `app/app/payments/checkout/CheckoutClient.tsx`, sin tocarlo por estar fuera del alcance del ajuste.
+- Alcance:
+  - reemplazar `text-xs/sm/base/xl/2xl/3xl`, `font-bold`, `font-semibold` y `leading-6` por clases semanticas INTRA.
+  - mantener copy legal y Wompi intactos.
+  - no tocar logica de pagos, redirects, queries, Supabase, RLS, tablas, migrations, RPCs ni rutas.
+
+Verificacion local:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS.
+- Validaciones re-ejecutadas despues del ajuste menor del checkbox legal de retiro.
+- Auditoria en archivos objetivo:
+  - clases tipograficas prohibidas: 0.
+  - hex hardcoded: 0.
+  - SVG inline: 0.
+  - colores arbitrarios: 0.
+- Auditoria extra:
+  - `confirm()` en `app components lib`: 0.
+  - `alert()` en `app components lib`: 0.
+
+Pendiente:
+
+- Crear PR Draft.
+- Mantener PR en Draft.
+- No merge.
+- No deploy manual.
+
+---
+
+### TASK-020.4: Replace native chat send alert with inline failed message state
+
+Estado: DONE
 Prioridad: Alta
 Area: Chat / Mensajes / UI Error State
 
 Resumen:
 
 - PR #151 reemplaza el `alert()` nativo cuando falla el envio de un mensaje de chat.
+- PR #151 fue aprobado visualmente por Aldo y mergeado a `main`.
+- Merge commit: `72cdb29`.
 - El error ahora se muestra como estado contextual dentro de la conversacion.
 - UX aplicada:
   - burbuja propia con el mensaje fallido.
@@ -41,10 +91,7 @@ Verificacion local:
 
 Pendiente:
 
-- Esperar checks remotos y preview del PR #151.
-- Mantener PR #151 en Draft.
-- No merge.
-- No deploy manual.
+- Cerrado en `main`.
 
 ---
 

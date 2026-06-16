@@ -106,19 +106,19 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
         <div className="mx-auto max-w-3xl">
           <section className="rounded-3xl border border-intra-border-soft bg-intra-card p-6 shadow-sm sm:p-8">
             <div className="text-center">
-              <p className="text-sm font-semibold uppercase tracking-wide text-intra-blue">
+              <p className="intra-badge-text uppercase tracking-wide text-intra-blue">
                 Checkout Wompi
               </p>
-              <h1 className="mt-2 text-3xl font-bold text-intra-blue">
+              <h1 className="mt-2 intra-h1 text-intra-blue">
                 No pudimos abrir el checkout
               </h1>
-              <p className="mt-3 text-sm leading-6 text-intra-text-muted sm:text-base">
+              <p className="mt-3 intra-body text-intra-text-muted">
                 Revisa el estado del pago y vuelve a intentarlo.
               </p>
             </div>
 
             {isWompiSandbox() ? (
-              <div className="mt-6 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 text-sm text-intra-warning-text">
+              <div className="mt-6 rounded-2xl border border-intra-warning-border bg-intra-warning-soft px-4 py-3 intra-body text-intra-warning-text">
                 Estás usando Wompi Sandbox. Este flujo es de prueba.
               </div>
             ) : null}
@@ -126,22 +126,22 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
             {payment ? (
               <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl bg-intra-bg-app p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Monto</p>
-                  <p className="mt-2 text-xl font-bold text-intra-blue">{formatCop(amount)}</p>
+                  <p className="intra-badge-text uppercase tracking-wide text-intra-text-muted">Monto</p>
+                  <p className="mt-2 intra-h3 text-intra-blue">{formatCop(amount)}</p>
                 </div>
                 <div className="rounded-2xl bg-intra-bg-app p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Estado</p>
-                  <p className="mt-2 text-xl font-bold text-intra-blue">{getPaymentResultLabel(payment.status)}</p>
+                  <p className="intra-badge-text uppercase tracking-wide text-intra-text-muted">Estado</p>
+                  <p className="mt-2 intra-h3 text-intra-blue">{getPaymentResultLabel(payment.status)}</p>
                 </div>
                 <div className="rounded-2xl bg-intra-bg-app p-4 sm:col-span-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-intra-text-muted">Referencia</p>
-                  <p className="mt-2 break-all text-sm font-semibold text-intra-blue">
+                  <p className="intra-badge-text uppercase tracking-wide text-intra-text-muted">Referencia</p>
+                  <p className="mt-2 break-all intra-body-strong text-intra-blue">
                     {payment.external_reference ?? "Sin referencia"}
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="mt-6 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 text-sm text-intra-danger">
+              <div className="mt-6 rounded-2xl border border-intra-danger-border bg-intra-danger-soft px-4 py-3 intra-body text-intra-danger">
                 No encontramos un pago válido para abrir Wompi.
               </div>
             )}
@@ -149,7 +149,7 @@ export default async function CheckoutWompiPage({ searchParams }: CheckoutWompiP
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
                 href={retryHref}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-intra-border-soft px-5 py-3 text-sm font-semibold text-intra-text-subtle transition hover:bg-intra-bg-app"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-intra-border-soft px-5 py-3 intra-caption-strong text-intra-text-subtle transition hover:bg-intra-bg-app"
               >
                 Reintentar pago
               </Link>
