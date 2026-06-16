@@ -6,25 +6,26 @@
 
 ## Objetivo de la sesion
 
-TASK-020.1 - corregir el posicionamiento del modal de confirmacion para borrar todas las notificaciones.
+TASK-020.2 - reemplazar el `window.confirm()` nativo de cierre de viaje por un modal visual INTRA.
 
 ## Estado actual
 
-- Rama activa: `fix/notification-clear-modal-position`.
-- PR #148: Draft, base `main`.
-- Alcance ejecutado: UI/render del modal de confirmacion de borrado masivo de notificaciones.
-- No se tocaron queries, actions, Supabase, RLS, tablas, migrations, RPCs, realtime, rutas ni logica de borrado de notificaciones.
+- Rama activa: `fix/trip-close-confirm-modal`.
+- PR #149: Draft, base `main`.
+- Alcance ejecutado: UI/confirmacion visual del cierre de viaje desde Dashboard.
+- No se tocaron queries, actions, Supabase, RLS, tablas, migrations, RPCs, realtime, rutas, logica de trips, logica de matches ni logica de pagos.
 
 ## Cambio realizado
 
-- Archivo responsable localizado: `components/notifications-bell.tsx`.
-- Causa: el modal se renderizaba acoplado al componente del bell/dropdown, por lo que quedaba condicionado por el flujo visual del dropdown y podia aparecer cortado o demasiado arriba.
-- Solucion: el modal ahora se renderiza con `createPortal` en `document.body`, usando el backdrop modal global existente y panel centrado `w-full max-w-sm`.
-- Copy reducido a:
-  - `Borrar notificaciones`.
-  - `Esta accion no se puede deshacer.`
+- Archivo responsable localizado: `app/app/_components/dashboard/DashboardTripCloseButton.tsx`.
+- Causa: el cierre de viaje usaba `window.confirm()` con UI nativa del navegador.
+- Solucion: el confirm nativo se reemplazo por un modal INTRA renderizado con `createPortal` en `document.body`, usando el backdrop modal global y panel centrado `w-full max-w-sm`.
+- Copy del modal:
+  - `Cerrar viaje`.
+  - `Los matches pendientes se cancelaran automaticamente.`
   - `Cancelar`.
-  - `Borrar`.
+  - `Cerrar viaje`.
+- Se preserva la llamada existente a `closeTripAction(tripId)` y el `router.refresh()` posterior.
 
 ## Verificacion
 
@@ -33,7 +34,7 @@ TASK-020.1 - corregir el posicionamiento del modal de confirmacion para borrar t
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 13 archivos / 42 tests.
 - `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
-- Auditoria en archivo tocado:
+- Auditoria en archivo UI tocado:
   - `text-[...]`: 0.
   - `text-xs/sm/base/lg/xl/2xl/3xl`: 0.
   - `font-[...]`: 0.
@@ -45,7 +46,7 @@ TASK-020.1 - corregir el posicionamiento del modal de confirmacion para borrar t
 
 ## Pendiente
 
-- Esperar preview/checks remotos del PR #148.
-- Mantener PR #148 en Draft.
+- Esperar preview/checks remotos del PR #149.
+- Mantener PR #149 en Draft.
 - No merge.
 - No deploy manual.
