@@ -12,14 +12,62 @@
 
 ## P0 - En revision
 
-### TASK-021.1: Normalize legal/payment legacy typography
+### TASK-021.2: Normalize error/not-found states and remove inline SVG
 
 Estado: REVIEW
+Prioridad: Media
+Area: UI/UX v2.2 / Error States / Not Found
+
+Resumen:
+
+- Normalizar pantallas internas de error/no encontrado detectadas en TASK-021.
+- Archivos objetivo:
+  - `app/app/error.tsx`.
+  - `app/app/not-found.tsx`.
+  - `app/app/matches/[id]/not-found.tsx`.
+- Alcance:
+  - eliminar SVG inline de `app/app/error.tsx`.
+  - usar iconos lucide-react proporcionales.
+  - reemplazar `text-xs/sm/2xl`, `font-bold`, `font-semibold` y clases tipograficas legacy por clases semanticas INTRA.
+  - centrar contenido interno de `app/app/matches/[id]/not-found.tsx` despues de revision visual.
+  - mantener rutas y comportamiento funcional intactos.
+  - no tocar logica de producto, queries, actions, Supabase, RLS, tablas, migrations, RPCs, auth, wallet, admin, pagos ni matches.
+
+Verificacion local:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS.
+- Auditoria en archivos objetivo:
+  - clases tipograficas prohibidas: 0.
+  - SVG inline: 0.
+  - hex hardcoded: 0.
+  - colores arbitrarios: 0.
+- Auditoria extra:
+  - `confirm()` en `app components lib`: 0.
+  - `alert()` en `app components lib`: 0.
+
+Pendiente:
+
+- Crear PR Draft.
+- Mantener PR en Draft.
+- No merge.
+- No deploy manual.
+
+---
+
+### TASK-021.1: Normalize legal/payment legacy typography
+
+Estado: DONE
 Prioridad: Media
 Area: UI/UX v2.2 / Legal / Pagos
 
 Resumen:
 
+- PR #152 fue aprobado visualmente por Aldo y mergeado a `main`.
+- Merge commit: `7e19fac`.
 - Normalizar tipografia legacy/prohibida detectada en TASK-021 sobre pantallas legales/pagos.
 - Archivos objetivo:
   - `app/app/legal/pagos/page.tsx`.
@@ -53,10 +101,7 @@ Verificacion local:
 
 Pendiente:
 
-- Crear PR Draft.
-- Mantener PR en Draft.
-- No merge.
-- No deploy manual.
+- Cerrado en `main`.
 
 ---
 
