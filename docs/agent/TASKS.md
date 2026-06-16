@@ -12,9 +12,53 @@
 
 ## P0 - En revision
 
+### Cierre TASK-021 - Barrida UI/UX final v2.2
+
+Estado: DONE
+Prioridad: Alta
+Area: UI/UX v2.2 / Cierre final
+
+Resumen:
+
+- TASK-020 cerrada.
+- TASK-020.1 cerrada.
+- TASK-020.2 cerrada.
+- TASK-020.3 cerrada.
+- TASK-020.4 cerrada.
+- TASK-021.1 cerrada.
+- TASK-021.2 cerrada.
+- TASK-021.3 no requerida / diferida.
+- TASK-021.4 cerrada.
+- TASK-021 queda cerrada como barrida UI/UX final.
+
+Estado final:
+
+- `confirm()` = 0.
+- `alert()` = 0.
+- SVG inline = 0.
+- clases tipograficas prohibidas = 0.
+- hex hardcoded solo en tokens oficiales:
+  - `app/globals.css`.
+  - `lib/ui/intra-theme.ts`.
+- `main` sincronizado con `origin/main`.
+- Ultimo commit funcional en `main`: `5d293d5`.
+- `git status`: limpio.
+- Sin deploy manual.
+
+Decision:
+
+- Manual UI/UX INTRA v3.0 queda pendiente para otro chat.
+- No iniciar Manual UI/UX INTRA v3.0 en esta sesion.
+
+Pendiente:
+
+- Ninguno para TASK-021.
+
+---
+
 ### TASK-021.4: Normalize remaining auth/evidence legacy typography
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Baja
 Area: UI/UX v2.2 / Auth / Evidence Modal
 
@@ -37,10 +81,9 @@ Flujo previsto:
 
 - Rama creada desde `main` actualizado:
   - `uiux/task-021-4-auth-evidence-typography`.
-- PR Draft creado:
+- PR #154 creado y mergeado:
   - #154, `TASK-021.4 — Normalize remaining auth/evidence legacy typography`.
-- Mantener PR en Draft.
-- No merge hasta revision.
+- Merge commit: `5d293d5`.
 - No deploy manual.
 - No trabajar Manual UI/UX INTRA v3.0 en esta sesion.
 
@@ -73,7 +116,7 @@ Validaciones:
 
 Pendiente:
 
-- Mantener PR #154 sin merge y sin deploy manual hasta revision.
+- Cerrado en `main`.
 
 ---
 
@@ -341,7 +384,7 @@ Pendiente:
 
 ### TASK-020: Admin IA + UI/UX redesign v2.2
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Alta
 Area: Admin / UI/UX v2.2 / Operacion interna
 
@@ -369,6 +412,8 @@ Resumen:
   - desktop conserva tabs/chips horizontales.
 - No se mezclan cuentas con retiros, retiros con cuentas, disputas con alertas ni alertas con disputas.
 - No se tocaron migrations, schemas, tablas, columnas, RLS, Storage, RPCs, `requireAdminUser`, `createAdminClient`, actions admin, actions wallet ni logica sensible de pagos/wallet/verificacion/disputas/alertas.
+- PR #147 fue aprobado visualmente por Aldo y mergeado a `main`.
+- Merge commit: `503b5bf`.
 
 Verificacion local:
 
@@ -380,10 +425,7 @@ Verificacion local:
 
 Pendiente:
 
-- Revision visual de Aldo.
-- Mantener PR #147 en Draft.
-- No merge.
-- No deploy manual.
+- Cerrado en `main`.
 
 ---
 
