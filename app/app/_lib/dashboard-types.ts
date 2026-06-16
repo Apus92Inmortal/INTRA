@@ -50,6 +50,7 @@ export type DashboardPendingPaymentShipmentCard = {
   amountLabel: string;
   paymentLabel: string;
   checkoutHref: string;
+  canCancel: boolean;
 };
 
 export type DashboardCompatibleShipmentCard = {

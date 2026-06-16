@@ -6,53 +6,59 @@
 
 ## Objetivo de la sesion
 
-Cierre de sesion tras adopcion tecnica del Manual UI/UX INTRA v3.0.
+TASK-023: agregar menu discreto de cancelacion en la card de "Mis envios activos" pendiente de pago del Dashboard `/app`.
 
 ## Estado actual
 
-- Rama activa: `main`.
-- `main` sincronizado con `origin/main`.
-- Ultimo merge funcional en `main`: PR #155.
-- Commit final en `main`: `20ef164`.
-- `git status`: limpio.
-- Ramas locales restantes:
-  - `main`.
-- Ramas remotas restantes:
-  - `origin/main`.
+- Rama activa: `uiux/dashboard-shipment-cancel-menu`.
+- Base: `main` sincronizado con `origin/main` antes de crear la rama.
+- Ultimo merge funcional en `main`: PR #155, commit `20ef164`.
+- Cambios locales de codigo y memoria listos para commit en rama.
 - No hubo deploy manual.
 
-## Cambio cerrado
+## Cambio en curso
 
-- TASK-022 queda cerrada en `main`.
-- PR #155 fue marcado Ready for Review y mergeado con merge commit estandar.
-- Manual Oficial UI/UX INTRA v3.0 queda como nueva fuente oficial vigente.
-- Manual UI/UX INTRA v2.2 queda derogado como fuente vigente.
-- Foundation v3.0 quedo adoptado para:
-  - tokens oficiales.
-  - clases tipograficas semanticas.
-  - componentes base.
-  - memoria documental.
-- La rama local `uiux/adopt-manual-v3-foundation` fue eliminada.
-- La rama remota `origin/uiux/adopt-manual-v3-foundation` fue eliminada.
-- `git fetch --prune` ejecutado.
+- Se agrego menu de tres puntos en la card de pendientes de pago del Dashboard `/app`.
+- Se reubico `TrackingCodeBadge` como identificador superior izquierdo de la card pendiente de pago.
+- Se quito el badge interno `Pendiente de pago` para evitar redundancia con el encabezado de la seccion.
+- La accion principal `Ir al checkout` se mantiene visible y sin cambios.
+- La cancelacion queda oculta en el menu discreto.
+- Se usa `EllipsisVertical` de lucide.
+- Se usa `IntraConfirmDialog` para confirmar cancelacion.
+- `IntraConfirmDialog` queda estandarizado con el modal de `DashboardTripCloseButton`:
+  - sin icono de alerta en header.
+  - sin boton X de cierre en esta confirmacion.
+  - titulo alineado a la izquierda con `intra-h3 text-intra-blue`.
+  - descripcion alineada a la izquierda con `mt-2 intra-body text-intra-text-subtle`.
+  - footer `mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end`.
+  - boton secundario outline como `Cerrar viaje`.
+  - boton peligroso solido rojo como `Cerrar viaje`.
+- La accion server-side valida:
+  - usuario autenticado.
+  - ownership del envio.
+  - envio en estado cancelable `open` o `matched`.
+  - ausencia de pago protegido/aprobado/liberado/procesando.
+  - ausencia de match aceptado/completado.
+- Si hay matches pendientes asociados, se actualizan a `cancelled` antes de cancelar el envio.
+- El envio se actualiza a `cancelled`; no se borra fisicamente.
+- Despues del update final del envio, la action valida que realmente haya retornado fila actualizada.
+- Si el estado cambia entre lectura y update, retorna: `Este envio ya no se puede cancelar desde aqui.`
 
 ## Confirmaciones de alcance
 
+- No se toco la pantalla general de Envios.
 - No se hizo barrida masiva de pantallas.
-- No se reemplazaron todavia `intra-h1`, `intra-h2`, `intra-h3` ni `intra-h4` en pantallas.
-- `intra-h1/h2/h3/h4` quedan solo como aliases temporales de compatibilidad.
-- No se modifico logica de negocio.
-- No se tocaron Supabase, Auth, Database, Realtime, RLS, tablas, migrations, RPC, payments, wallet, matches ni admin logic.
+- No se reemplazaron `intra-h1`, `intra-h2`, `intra-h3` ni `intra-h4` en pantallas.
+- No se cambio checkout ni flujo de pago.
+- No se cambio la logica de generacion del codigo de rastreo.
+- No se elimino el tracking code de base de datos.
+- No se tocaron Supabase migrations, RLS, tablas ni RPC.
+- No se toco wallet, admin, refunds, payouts ni rutas de auth.
 - No hubo deploy manual.
 
 ## Verificacion registrada
 
-- PR #155 checks:
-  - Vercel: PASS.
-  - Vercel Preview Comments: PASS.
-  - detect-impact: PASS.
-  - validate: PASS.
-- Auditoria tecnica del PR:
+- Auditoria tecnica:
   - `confirm()` en `app components lib`: 0.
   - `alert()` en `app components lib`: 0.
   - SVG inline en `app components lib`: 0.
@@ -60,22 +66,20 @@ Cierre de sesion tras adopcion tecnica del Manual UI/UX INTRA v3.0.
   - hex hardcoded solo en tokens oficiales:
     - `app/globals.css`.
     - `lib/ui/intra-theme.ts`.
-- Validaciones locales del PR:
+- Validaciones locales:
   - `git diff --check`: PASS.
   - `npm run lint`: PASS.
   - `npx tsc --noEmit`: PASS.
   - `npm run test:unit`: PASS, 13 archivos / 42 tests.
   - `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
-- Validacion de cierre:
-  - `git status --short --branch`: limpio.
-  - ramas locales/remotas no usadas: eliminadas.
 
 ## Decision
 
-- Manual UI/UX INTRA v3.0 reemplaza v2.2 como fuente oficial vigente.
-- La adopcion inicial de v3.0 se limita a foundation/tokens/componentes base.
-- La barrida pantalla por pantalla queda para tareas posteriores.
+- Manual UI/UX INTRA v3.0 sigue como fuente oficial vigente para este ajuste.
+- No se crea excepcion visual nueva.
+- Trazabilidad dedicada `cancelled_at/cancelled_by/cancel_reason` en `shipments` no existe en schema vigente; no se crea migracion en esta tarea.
 
 ## Pendiente
 
-- Siguiente tarea recomendada: auditoria UI/UX pantalla por pantalla contra Manual UI/UX INTRA v3.0, empezando por pantallas operativas principales y adopcion gradual de componentes foundation.
+- Commit, push y PR de la rama `uiux/dashboard-shipment-cancel-menu`.
+- Revision visual en preview antes de merge.

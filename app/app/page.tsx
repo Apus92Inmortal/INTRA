@@ -24,6 +24,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSafeInternalPath } from "@/lib/safe-next";
 import AuthGateway from "./AuthGateway";
 import DashboardTripCloseButton from "./_components/dashboard/DashboardTripCloseButton";
+import DashboardShipmentCancelMenu from "./_components/dashboard/DashboardShipmentCancelMenu";
 import DashboardPendingMatchActions from "./_components/dashboard/DashboardPendingMatchActions";
 import DashboardPublishedTimeLabel from "./_components/dashboard/DashboardPublishedTimeLabel";
 import { getDashboardData } from "./_lib/dashboard-queries";
@@ -563,13 +564,15 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                       {pendingPaymentItems.map((shipment) => (
                         <div key={shipment.id} className="intra-card-compact p-4">
                           <div className="mb-3 flex items-start justify-between gap-3">
-                            <span className="intra-pill shrink-0 bg-intra-warning-soft-alt text-intra-warning-text">
-                              {shipment.paymentLabel}
-                            </span>
-                            <TrackingCodeBadge
-                              code={shipment.code}
-                              className="!min-w-0 max-w-[9rem] overflow-hidden !bg-intra-warning-text-strong px-2 hover:!bg-intra-warning-text-strong sm:max-w-[10rem] [&>span]:min-w-0 [&>span]:overflow-hidden [&>span>span]:truncate"
-                            />
+                            <div className="flex min-w-0 flex-wrap items-center gap-2">
+                              <TrackingCodeBadge
+                                code={shipment.code}
+                                className="!min-w-0 max-w-[9rem] overflow-hidden !bg-intra-warning-text-strong px-2 hover:!bg-intra-warning-text-strong sm:max-w-[10rem] [&>span]:min-w-0 [&>span]:overflow-hidden [&>span>span]:truncate"
+                              />
+                            </div>
+                            {shipment.canCancel ? (
+                              <DashboardShipmentCancelMenu shipmentId={shipment.id} />
+                            ) : null}
                           </div>
 
                           <div className="min-w-0">
