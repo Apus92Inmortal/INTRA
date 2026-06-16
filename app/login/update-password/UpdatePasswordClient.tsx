@@ -128,7 +128,7 @@ export default function UpdatePasswordClient({
 
             {message ? (
               <div
-                className={`flex items-start gap-3 rounded-[var(--intra-radius-xs)] border p-4 text-sm ${
+                className={`flex items-start gap-3 rounded-[var(--intra-radius-xs)] border p-4 intra-caption ${
                   isSuccess
                     ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                     : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"
