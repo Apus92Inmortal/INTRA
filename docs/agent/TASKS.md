@@ -24,6 +24,11 @@ Resumen:
 - Archivos objetivo:
   - `app/app/legal/pagos/page.tsx`.
   - `app/app/payments/checkout/wompi/page.tsx`.
+- Ajuste menor sobre PR #152:
+  - `app/app/wallet/payout/PayoutRequestForm.tsx`.
+  - checkbox legal visible de retiro compactado a `Acepto la Política de Pagos`.
+  - el link conserva el mismo documento legal completo.
+  - se reporto otro uso del texto largo en `app/app/payments/checkout/CheckoutClient.tsx`, sin tocarlo por estar fuera del alcance del ajuste.
 - Alcance:
   - reemplazar `text-xs/sm/base/xl/2xl/3xl`, `font-bold`, `font-semibold` y `leading-6` por clases semanticas INTRA.
   - mantener copy legal y Wompi intactos.
@@ -36,6 +41,7 @@ Verificacion local:
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 13 archivos / 42 tests.
 - `npm run build`: PASS.
+- Validaciones re-ejecutadas despues del ajuste menor del checkbox legal de retiro.
 - Auditoria en archivos objetivo:
   - clases tipograficas prohibidas: 0.
   - hex hardcoded: 0.
