@@ -6,26 +6,26 @@
 
 ## Objetivo de la sesion
 
-TASK-020.2 - reemplazar el `window.confirm()` nativo de cierre de viaje por un modal visual INTRA.
+TASK-020.3 - reemplazar el `confirm()` nativo para eliminar metodo de retiro por un modal visual INTRA.
 
 ## Estado actual
 
-- Rama activa: `fix/trip-close-confirm-modal`.
-- PR #149: Draft, base `main`.
-- Alcance ejecutado: UI/confirmacion visual del cierre de viaje desde Dashboard.
-- No se tocaron queries, actions, Supabase, RLS, tablas, migrations, RPCs, realtime, rutas, logica de trips, logica de matches ni logica de pagos.
+- Rama activa: `fix/payout-account-delete-confirm-modal`.
+- PR #150: Draft, base `main`.
+- Alcance ejecutado: UI/confirmacion visual para eliminar metodo de retiro.
+- No se tocaron logica de wallet, logica de retiros, queries, actions, Supabase, RLS, tablas, migrations, RPCs, rutas ni otros modales.
 
 ## Cambio realizado
 
-- Archivo responsable localizado: `app/app/_components/dashboard/DashboardTripCloseButton.tsx`.
-- Causa: el cierre de viaje usaba `window.confirm()` con UI nativa del navegador.
+- Archivo responsable localizado: `app/app/wallet/payout/accounts/PayoutAccountsManager.tsx`.
+- Causa: la eliminacion de metodo de retiro usaba `confirm()` nativo del navegador.
 - Solucion: el confirm nativo se reemplazo por un modal INTRA renderizado con `createPortal` en `document.body`, usando el backdrop modal global y panel centrado `w-full max-w-sm`.
 - Copy del modal:
-  - `Cerrar viaje`.
-  - `Los matches pendientes se cancelaran automaticamente.`
+  - `Eliminar metodo de retiro`.
+  - `Esta accion no se puede deshacer.`
   - `Cancelar`.
-  - `Cerrar viaje`.
-- Se preserva la llamada existente a `closeTripAction(tripId)` y el `router.refresh()` posterior.
+  - `Eliminar`.
+- Se preserva la llamada existente a `deletePayoutAccountAction(formData)`, el mismo `id`, feedback, reset del formulario editado y `router.refresh()`.
 
 ## Verificacion
 
@@ -43,10 +43,13 @@ TASK-020.2 - reemplazar el `window.confirm()` nativo de cierre de viaje por un m
   - hex hardcoded: 0.
   - SVG inline: 0.
   - colores arbitrarios: 0.
+- Auditoria extra:
+  - `confirm()` no queda en `app/app/wallet/payout/accounts/PayoutAccountsManager.tsx`.
+  - queda `alert()` en `app/app/matches/[id]/chat/MatchChatClient.tsx`, fuera de alcance de PR #150.
 
 ## Pendiente
 
-- Esperar preview/checks remotos del PR #149.
-- Mantener PR #149 en Draft.
+- Esperar preview/checks remotos del PR #150.
+- Mantener PR #150 en Draft.
 - No merge.
 - No deploy manual.

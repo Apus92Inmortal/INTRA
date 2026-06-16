@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useMemo, useState, useTransition, type ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react"
+import { createPortal } from "react-dom"
 import {
   Check,
   ChevronLeft,
@@ -91,8 +92,10 @@ export default function PayoutAccountsManager({
   accounts: PayoutAccount[]
 }) {
   const router = useRouter()
+  const deleteModalRef = useRef<HTMLDivElement | null>(null)
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
+  const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState>(() => ({
     ...EMPTY_FORM,
     isDefault: accounts.length === 0,
@@ -100,6 +103,22 @@ export default function PayoutAccountsManager({
 
   const accountsBadgeLabel = useMemo(() => getAccountsBadgeLabel(accounts.length), [accounts.length])
   const isBankAccount = form.accountType === "ahorros" || form.accountType === "corriente"
+
+  useEffect(() => {
+    if (!deleteAccountId) return
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isPending) {
+        setDeleteAccountId(null)
+      }
+    }
+
+    document.addEventListener("keydown", handleEscape)
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [deleteAccountId, isPending])
 
   function resetForm() {
     setForm({
@@ -163,16 +182,25 @@ export default function PayoutAccountsManager({
     })
   }
 
-  function handleDelete(id: string) {
-    if (!confirm("¿Eliminar este método de retiro?")) {
-      return
-    }
-
+  function handleRequestDelete(id: string) {
     setFeedback(null)
+    setDeleteAccountId(id)
+  }
+
+  function handleCancelDelete() {
+    if (!isPending) {
+      setDeleteAccountId(null)
+    }
+  }
+
+  function handleConfirmDelete() {
+    if (!deleteAccountId) return
 
     startTransition(async () => {
+      const accountId = deleteAccountId
+      setDeleteAccountId(null)
       const formData = new FormData()
-      formData.set("id", id)
+      formData.set("id", accountId)
 
       const result = await deletePayoutAccountAction(formData)
 
@@ -182,7 +210,7 @@ export default function PayoutAccountsManager({
       }
 
       setFeedback({ type: "success", message: result.message ?? "Método eliminado." })
-      if (form.id === id) {
+      if (form.id === accountId) {
         resetForm()
       }
       router.refresh()
@@ -436,7 +464,7 @@ export default function PayoutAccountsManager({
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDelete(account.id)}
+                        onClick={() => handleRequestDelete(account.id)}
                         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-intra-danger-border bg-intra-card px-4 py-2.5 intra-caption-strong text-intra-danger transition hover:bg-intra-danger-soft"
                       >
                         <Trash2 className="h-4 w-4" strokeWidth={1.9} />
@@ -450,6 +478,50 @@ export default function PayoutAccountsManager({
           )}
         </section>
       </div>
+      {deleteAccountId && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className="intra-modal-backdrop p-4"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="payout-account-delete-title"
+              onMouseDown={(event) => {
+                if (!deleteModalRef.current?.contains(event.target as Node)) {
+                  handleCancelDelete()
+                }
+              }}
+            >
+              <div ref={deleteModalRef} className="intra-modal-panel w-full max-w-sm p-5">
+                <h3 id="payout-account-delete-title" className="intra-h3 text-intra-blue">
+                  Eliminar método de retiro
+                </h3>
+                <p className="mt-2 intra-body text-intra-text-subtle">
+                  Esta acción no se puede deshacer.
+                </p>
+
+                <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={handleCancelDelete}
+                    className="intra-btn border border-intra-border-soft px-4 py-2 intra-body-strong text-intra-blue hover:bg-intra-bg-app"
+                    disabled={isPending}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDelete}
+                    className="intra-btn bg-intra-danger px-4 py-2 intra-body-strong text-intra-card hover:opacity-95 disabled:opacity-60"
+                    disabled={isPending}
+                  >
+                    {isPending ? "Eliminando" : "Eliminar"}
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   )
 }
