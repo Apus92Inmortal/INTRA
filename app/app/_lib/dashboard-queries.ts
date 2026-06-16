@@ -125,6 +125,8 @@ type PaymentRow = {
   amount: number | null;
   traveler_amount: number | null;
   status: string | null;
+  gateway_status: string | null;
+  refund_status: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -368,6 +370,53 @@ function getShipmentVisualState(input: {
   }
 }
 
+const CANCELLABLE_PENDING_PAYMENT_SHIPMENT_STATUSES = new Set(["open", "matched"]);
+const PROTECTED_PAYMENT_STATUSES = new Set([
+  "approved",
+  "held",
+  "paid",
+  "processing",
+  "protected",
+  "released",
+  "succeeded",
+  "success",
+]);
+const PROTECTED_GATEWAY_STATUSES = new Set([
+  "approved",
+  "paid",
+  "protected",
+  "succeeded",
+  "success",
+]);
+
+function normalizePaymentStatus(status: string | null | undefined) {
+  return status?.trim().toLowerCase() ?? "";
+}
+
+function canCancelPendingPaymentShipment(input: {
+  shipmentStatus: string | null;
+  latestPayment: PaymentRow | null;
+  matchesForShipment: ShipmentMatchRow[];
+}) {
+  if (!CANCELLABLE_PENDING_PAYMENT_SHIPMENT_STATUSES.has(normalizePaymentStatus(input.shipmentStatus))) {
+    return false;
+  }
+
+  if (
+    PROTECTED_PAYMENT_STATUSES.has(normalizePaymentStatus(input.latestPayment?.status)) ||
+    PROTECTED_GATEWAY_STATUSES.has(normalizePaymentStatus(input.latestPayment?.gateway_status)) ||
+    (input.latestPayment
+      ? normalizePaymentStatus(input.latestPayment.refund_status || "none") !== "none"
+      : false)
+  ) {
+    return false;
+  }
+
+  return !input.matchesForShipment.some((match) =>
+    ["accepted", "completed"].includes(normalizePaymentStatus(match.status))
+  );
+}
+
 function normalizeTripRelation(
   value: ShipmentMatchRow["trip"] | TripRow | TripRow[] | null
 ): MatchTripRelation | TripRow | null {
@@ -545,7 +594,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     shipmentIds.length
       ? supabase
           .from("payments")
-          .select("id, shipment_id, amount, traveler_amount, status, created_at, updated_at")
+          .select("id, shipment_id, amount, traveler_amount, status, gateway_status, refund_status, created_at, updated_at")
           .in("shipment_id", shipmentIds)
           .order("created_at", { ascending: false })
       : Promise.resolve({ data: [], error: null }),
@@ -700,6 +749,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     .filter((shipment) => !isShipmentPaymentReady(latestPaymentByShipment.get(shipment.id)?.status))
     .map((shipment): DashboardPendingPaymentShipmentCard => {
       const latestPayment = latestPaymentByShipment.get(shipment.id) ?? null;
+      const matchesForShipment = matchesByShipment.get(shipment.id) ?? [];
       const routePriceKey = shipment.origin_city_id && shipment.destination_city_id
         ? `${shipment.origin_city_id}:${shipment.destination_city_id}`
         : null;
@@ -718,6 +768,11 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         amountLabel: formatCurrency(latestPayment?.amount ?? routePrice ?? shipment.declared_value_cop ?? 0),
         paymentLabel: getPendingPaymentLabel(latestPayment?.status),
         checkoutHref,
+        canCancel: canCancelPendingPaymentShipment({
+          shipmentStatus: shipment.status,
+          latestPayment,
+          matchesForShipment,
+        }),
       };
     });
 

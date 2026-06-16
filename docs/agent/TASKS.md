@@ -12,6 +12,72 @@
 
 ## P0 - En revision
 
+### TASK-023: Dashboard pending shipment cancel menu
+
+Estado: REVIEW
+Prioridad: Media
+Area: Dashboard `/app` / Pending payment shipments / UI action
+
+Resumen:
+
+- Agregar menu de tres puntos en la card de "Mis envios activos" pendiente de pago del Dashboard `/app`.
+- Mantener `Ir al checkout` como CTA principal visible.
+- Ocultar `Cancelar envio` dentro del menu para no competir con conversion.
+- Reubicar `TrackingCodeBadge` como identificador superior izquierdo de la card pendiente de pago.
+- Quitar el badge interno `Pendiente de pago` para evitar redundancia con el encabezado de la seccion.
+- Usar `EllipsisVertical` de lucide.
+- Usar `IntraConfirmDialog`; sin `window.confirm()` ni `alert()`.
+- Ajustar `IntraConfirmDialog` para esta confirmacion con el mismo patron visual de `DashboardTripCloseButton`: sin icono, sin boton X, titulo/descripcion a la izquierda, footer responsive identico, boton secundario outline y boton peligroso rojo solido.
+- Cancelar solo si:
+  - el envio pertenece al usuario autenticado.
+  - el envio esta pendiente de pago y en estado cancelable `open` o `matched`.
+  - no existe pago aprobado, protegido, liberado o en procesamiento.
+  - no existe match aceptado/completado asociado.
+- Si hay matches pendientes asociados, actualizarlos a `cancelled`.
+- Actualizar el envio a `cancelled`; sin borrado fisico.
+- Validar post-update que el update de `shipments` haya retornado fila actualizada; si no, responder que el envio ya no se puede cancelar desde ahi.
+
+Archivos:
+
+- `app/app/page.tsx`.
+- `app/app/_components/dashboard/DashboardShipmentCancelMenu.tsx`.
+- `app/app/_actions/shipment-actions.ts`.
+- `app/app/_lib/dashboard-queries.ts`.
+- `app/app/_lib/dashboard-types.ts`.
+- `components/ui/intra-foundation.tsx`.
+
+Alcance:
+
+- No tocar pantalla general de Envios.
+- No cambiar checkout.
+- No cambiar logica de generacion del codigo de rastreo.
+- No eliminar tracking code de base de datos.
+- No tocar Supabase migrations, RLS, tablas ni RPC.
+- No tocar wallet, admin, refunds, payouts ni rutas auth.
+- No hacer deploy manual.
+
+Validaciones:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
+- Auditoria v3.0:
+  - `confirm()` en `app components lib`: 0.
+  - `alert()` en `app components lib`: 0.
+  - SVG inline en `app components lib`: 0.
+  - clases tipograficas prohibidas en `app components lib`: 0.
+  - hex hardcoded solo en tokens oficiales:
+    - `app/globals.css`.
+    - `lib/ui/intra-theme.ts`.
+
+Pendiente:
+
+- Crear PR y revisar preview antes de merge.
+
+---
+
 ### TASK-022: Adopt Manual UI/UX INTRA v3.0 foundation
 
 Estado: DONE

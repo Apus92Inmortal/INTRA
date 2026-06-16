@@ -228,24 +228,30 @@ export function IntraMobileRowCard({ className, ...props }: HTMLAttributes<HTMLD
 
 type IntraModalProps = {
   open: boolean;
-  title: string;
+  title: ReactNode;
+  titleIcon?: ReactNode;
   description?: string;
   children?: ReactNode;
   footer?: ReactNode;
   onClose?: () => void;
   className?: string;
   panelClassName?: string;
+  compact?: boolean;
+  align?: "start" | "center";
 };
 
 export function IntraModal({
   open,
   title,
+  titleIcon,
   description,
   children,
   footer,
   onClose,
   className,
   panelClassName,
+  compact = false,
+  align = "start",
 }: IntraModalProps) {
   const titleId = useId();
 
@@ -256,26 +262,46 @@ export function IntraModal({
   return portal(
     <div className={cx("intra-modal-backdrop p-4", className)} role="presentation">
       <div
-        className={cx("intra-modal-panel w-full max-w-[var(--intra-modal-max-width)] p-5", panelClassName)}
+        className={cx(
+          "intra-modal-panel w-full max-w-[var(--intra-modal-max-width)]",
+          compact ? "p-4 sm:p-5" : "p-5",
+          panelClassName
+        )}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h2 id={titleId} className="intra-subtitle">
-              {title}
-            </h2>
-            {description ? <p className="intra-body mt-2">{description}</p> : null}
+        <div className={cx("flex items-start", onClose ? "justify-between" : "justify-center", compact ? "gap-3" : "gap-4")}>
+          <div className={cx("min-w-0", align === "center" && "text-center")}>
+            <div className={cx("flex min-w-0 items-center gap-2", align === "center" && "justify-center")}>
+              {titleIcon ? (
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-danger-soft text-intra-danger">
+                  {titleIcon}
+                </span>
+              ) : null}
+              <h2 id={titleId} className="intra-subtitle">
+                {title}
+              </h2>
+            </div>
+            {description ? <p className={cx("intra-body", compact ? "mt-2" : "mt-2")}>{description}</p> : null}
           </div>
           {onClose ? (
-            <button type="button" className="intra-icon-button h-10 w-10 shrink-0" onClick={onClose} aria-label="Cerrar">
-              <X className="intra-icon-lg" aria-hidden="true" />
+            <button
+              type="button"
+              className={cx("intra-icon-button shrink-0 text-intra-text-muted", compact ? "h-8 w-8" : "h-10 w-10")}
+              onClick={onClose}
+              aria-label="Cerrar"
+            >
+              <X className={compact ? "intra-icon-body" : "intra-icon-lg"} aria-hidden="true" />
             </button>
           ) : null}
         </div>
-        {children ? <div className="mt-4">{children}</div> : null}
-        {footer ? <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">{footer}</div> : null}
+        {children ? <div className={compact ? "mt-3" : "mt-4"}>{children}</div> : null}
+        {footer ? (
+          <div className={cx("flex flex-col-reverse sm:flex-row sm:justify-end", compact ? "mt-4 gap-2" : "mt-5 gap-3")}>
+            {footer}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -289,6 +315,10 @@ type IntraConfirmDialogProps = {
   cancelLabel?: string;
   variant?: "primary" | "danger";
   icon?: ReactNode;
+  showIcon?: boolean;
+  showCloseButton?: boolean;
+  align?: "start" | "center";
+  visualVariant?: "foundation" | "dashboard-critical";
   isLoading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -302,34 +332,80 @@ export function IntraConfirmDialog({
   cancelLabel = "Cancelar",
   variant = "danger",
   icon,
+  showIcon = true,
+  showCloseButton = true,
+  align = "start",
+  visualVariant = "foundation",
   isLoading = false,
   onConfirm,
   onCancel,
 }: IntraConfirmDialogProps) {
   const ConfirmButton = variant === "danger" ? IntraDangerButton : IntraPrimaryButton;
+  const titleId = useId();
+
+  if (!open) {
+    return null;
+  }
+
+  if (visualVariant === "dashboard-critical") {
+    return portal(
+      <div className="intra-modal-backdrop p-4" role="presentation">
+        <div
+          className="intra-modal-panel w-full max-w-sm p-5"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+        >
+          <h3 id={titleId} className="intra-h3 text-intra-blue">
+            {title}
+          </h3>
+          <p className="mt-2 intra-body text-intra-text-subtle">{description}</p>
+
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="intra-btn border border-intra-border-soft px-4 py-2 intra-body-strong text-intra-blue hover:bg-intra-bg-app"
+              disabled={isLoading}
+            >
+              {cancelLabel}
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              className="intra-btn bg-intra-danger px-4 py-2 intra-body-strong text-intra-card hover:opacity-95 disabled:opacity-60"
+              disabled={isLoading}
+              aria-busy={isLoading || undefined}
+            >
+              {confirmLabel}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <IntraModal
       open={open}
       title={title}
+      titleIcon={showIcon ? (icon ?? <AlertTriangle className="intra-icon-body" aria-hidden="true" />) : undefined}
       description={description}
-      onClose={onCancel}
+      onClose={showCloseButton ? onCancel : undefined}
       panelClassName="max-w-sm"
+      compact
+      align={align}
       footer={
         <>
-          <IntraSecondaryButton type="button" onClick={onCancel} disabled={isLoading}>
+          <IntraSecondaryButton type="button" className="w-full justify-center sm:w-auto" onClick={onCancel} disabled={isLoading}>
             {cancelLabel}
           </IntraSecondaryButton>
-          <ConfirmButton type="button" onClick={onConfirm} isLoading={isLoading}>
+          <ConfirmButton type="button" className="w-full justify-center sm:w-auto" onClick={onConfirm} isLoading={isLoading}>
             {confirmLabel}
           </ConfirmButton>
         </>
       }
-    >
-      <div className="flex h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-danger-soft text-intra-danger">
-        {icon ?? <AlertTriangle className="intra-icon-2xl" aria-hidden="true" />}
-      </div>
-    </IntraModal>
+    />
   );
 }
 
