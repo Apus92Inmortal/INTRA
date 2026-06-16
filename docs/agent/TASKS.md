@@ -12,6 +12,97 @@
 
 ## P0 - En revision
 
+### TASK-022: Adopt Manual UI/UX INTRA v3.0 foundation
+
+Estado: REVIEW
+Prioridad: Alta
+Area: UI/UX v3.0 / Foundation / Tokens / Componentes base
+
+Resumen:
+
+- Adoptar el Manual Oficial UI/UX INTRA v3.0 como fuente vigente.
+- Reemplazar v2.2 como manual oficial del proyecto.
+- Revisar y ajustar foundation UI sin barrida masiva de pantallas.
+- Revisar tokens oficiales:
+  - `app/globals.css`.
+  - `lib/ui/intra-theme.ts`.
+- Asegurar clases semanticas oficiales para cinco niveles tipograficos:
+  - titulo.
+  - subtitulo.
+  - cuerpo.
+  - caption / badge.
+  - metrica.
+- Preparar componentes base para futuras barridas:
+  - `IntraConfirmDialog`.
+  - `IntraModal`.
+  - `IntraDrawer`.
+  - `IntraBottomSheet`.
+  - `IntraToast`.
+  - `IntraEmptyState`.
+  - `IntraFieldMessage`.
+  - `IntraBadge`.
+  - `IntraStatusBadge`.
+  - `IntraButton`.
+  - `IntraPrimaryButton`.
+  - `IntraSecondaryButton`.
+  - `IntraDangerButton`.
+  - `IntraInput`.
+  - `IntraSelect`.
+  - `IntraTextarea`.
+  - `IntraSkeleton`.
+
+Alcance:
+
+- Sin redisenar pantallas.
+- Sin barrida masiva de clases legacy en pantallas.
+- Sin cambios de logica de producto.
+- Sin Supabase, Auth, Database, Realtime, RLS, tablas, migrations, RPC, payments, wallet, matches ni admin logic.
+- Sin deploy manual.
+
+Reglas v3.0 adoptadas:
+
+- `confirm()` = 0.
+- `alert()` = 0.
+- SVG inline en pantallas de producto = 0.
+- clases tipograficas prohibidas = 0 en pantallas cerradas.
+- hex hardcoded solo en tokens oficiales:
+  - `app/globals.css`.
+  - `lib/ui/intra-theme.ts`.
+- Acciones criticas deben usar `IntraConfirmDialog`.
+- Modales criticos deben poder renderizar por portal global a `document.body`.
+- Core Mobile sin scroll horizontal.
+- Core PC compacto y operativo.
+
+Pendiente:
+
+- Mantener PR #155 en Draft hasta revision.
+- No hacer deploy manual.
+- No iniciar barrida pantalla por pantalla en esta tarea.
+
+Validaciones:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
+- Preview Vercel: PASS.
+- Checks remotos iniciales:
+  - Vercel: PASS.
+  - Vercel Preview Comments: PASS.
+  - detect-impact: PASS.
+  - validate: PASS.
+- Auditoria tecnica:
+  - `confirm()` en `app components lib`: 0.
+  - `alert()` en `app components lib`: 0.
+  - SVG inline en `app components lib`: 0.
+  - clases tipograficas prohibidas en `app components lib`: 0.
+  - hex hardcoded solo en tokens oficiales:
+    - `app/globals.css`.
+    - `lib/ui/intra-theme.ts`.
+
+---
+
 ### Cierre TASK-021 - Barrida UI/UX final v2.2
 
 Estado: DONE

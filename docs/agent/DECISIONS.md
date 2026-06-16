@@ -166,3 +166,29 @@ Impacto:
 - Todo cambio UI/UX debe validarse contra el Manual UI/UX INTRA v2.2 antes de implementarse.
 - Si una pantalla o componente contradice el manual, se debe reportar la contradiccion, explicar la regla afectada y proponer correccion, excepcion, anexo o nueva regla.
 - Market no debe tratarse como modulo activo ni aparecer como item oficial de navegacion mientras no este implementado formalmente.
+
+## DEC-009: Manual UI/UX INTRA v3.0 como fuente vigente
+
+Fecha: 2026-06-16
+
+Decision:
+
+El Manual Oficial UI/UX INTRA v3.0 reemplaza al Manual UI/UX INTRA v2.2 como fuente oficial, vigente y rectora de todo el diseno UI/UX del proyecto.
+
+Referencia:
+
+- `docs/ui-ux/Manual_UIUX_INTRA_v3_0_Oficial.pdf`
+- `docs/ui-ux/README.md`
+
+Motivo:
+
+INTRA necesita consolidar la siguiente etapa UI/UX sobre reglas mas explicitas para Core Mobile, Core PC, tokens, tipografia semantica, modales, confirmaciones, errores, chat y QA tecnico.
+
+Impacto:
+
+- El Manual UI/UX INTRA v2.2 queda derogado como fuente vigente.
+- Todo cambio UI/UX nuevo debe validarse contra el Manual UI/UX INTRA v3.0.
+- La app interna usa solo cinco niveles tipograficos oficiales: titulo, subtitulo, cuerpo, caption/badge y metrica.
+- Las acciones criticas deben usar `IntraConfirmDialog`.
+- `window.confirm()`, `confirm()`, `window.alert()`, `alert()`, SVG inline en pantallas de producto, clases tipograficas Tailwind legacy directas y hex hardcoded fuera de tokens oficiales quedan prohibidos por regla vigente.
+- La adopcion inicial de v3.0 es foundation/tokens/componentes base; la barrida pantalla por pantalla queda para tareas posteriores.

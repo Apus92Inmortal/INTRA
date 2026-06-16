@@ -51,7 +51,7 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 
 ## Referencias vigentes en `docs/`
 
-- `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf`
+- `docs/ui-ux/Manual_UIUX_INTRA_v3_0_Oficial.pdf`
 - `docs/ui-ux/README.md`
 - `docs/legal-operational-matrix-v1.md`
 - `docs/phase-2-security-status.md`
@@ -66,13 +66,13 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 - El theme base aprobado para publicar viaje sirve como referencia visual para futuras pantallas.
 - Market fue fusionado con `/app` como decision de producto; cualquier mejora debe mantener la experiencia integrada de dashboard, oportunidades y matches.
 - PR #116 quedo mergeado y produccion contiene realtime/fallback visible-aware para `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`.
-- Manual Oficial UI/UX INTRA v2.2 queda adoptado como fuente unica vigente para decisiones visuales. Manuales anteriores y anexos UI/UX quedan derogados.
+- Manual Oficial UI/UX INTRA v3.0 queda adoptado como fuente unica vigente para decisiones visuales. Manual UI/UX INTRA v2.2 y manuales anteriores quedan derogados.
 - Barrida UI/UX v2.2 con frentes iniciales cerrados:
   - Foundation components: PR #129 mergeado a `main`.
   - Auth Gateway: PR #130 mergeado a `main`.
   - Dashboard Home `/app`: PR #131 mergeado a `main`, QA visual aprobado por Aldo, QA data `QA_DASHBOARD_20260608` limpiada y verificada en `0`.
   - Landing publica `/`: PR #132 mergeado a `main`, CTA navbar `Registrarse gratis` -> `Registrarse`.
-- Queda pendiente menor no bloqueante para revisar manana: normalizar tipografia manual en la card de match pendiente/viajero interesado del Dashboard (`app/app/page.tsx`).
+- TASK-021 quedo cerrada como barrida UI/UX final v2.2.
 
 ## Secuencia oficial vigente
 
@@ -88,10 +88,10 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 
 ## Fase inmediata
 
-La auditoria funcional full ya fue cerrada y la etapa funcional minima quedo validada. La barrida UI/UX final esta en curso usando `docs/ui-ux/Manual_UIUX_INTRA_v2_2.pdf` como fuente unica de verdad.
+La auditoria funcional full ya fue cerrada y la etapa funcional minima quedo validada. La barrida UI/UX v2.2 quedo cerrada y el Manual UI/UX INTRA v3.0 queda adoptado para la siguiente etapa UI/UX.
 
-Los frentes iniciales de UI/UX v2.2 para foundation components, Auth Gateway, Dashboard Home y landing publica ya quedaron cerrados e integrados en `main`.
+Los frentes iniciales y cierre final de UI/UX v2.2 ya quedaron cerrados e integrados en `main`.
 
-Siguiente pendiente recomendado, solo cuando Aldo lo ordene: abrir una rama pequena para pulido tipografico menor del Dashboard, enfocada en la card de match pendiente/viajero interesado.
+Siguiente pendiente recomendado, solo cuando Aldo lo ordene: barrida UI/UX pantalla por pantalla contra Manual UI/UX INTRA v3.0, empezando por pantallas operativas principales y uso real de componentes foundation.
 
-Cualquier ajuste UI/UX debe validarse contra el Manual UI/UX INTRA v2.2 antes de implementarse. Si una pantalla contradice el manual, primero se reporta la contradiccion y se propone correccion, excepcion, anexo o nueva regla.
+Cualquier ajuste UI/UX debe validarse contra el Manual UI/UX INTRA v3.0 antes de implementarse. Si una pantalla contradice el manual, primero se reporta la contradiccion y se propone correccion, excepcion, anexo o nueva regla.
