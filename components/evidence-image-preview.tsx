@@ -46,7 +46,7 @@ export function EvidenceImagePreview({
         >
           <div className="intra-modal-panel relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
             <div className="flex items-center justify-between gap-3 border-b border-intra-border px-4 py-3">
-              <p className="min-w-0 text-sm font-semibold text-intra-blue">{modalTitle}</p>
+              <p className="min-w-0 intra-caption-strong text-intra-blue">{modalTitle}</p>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}

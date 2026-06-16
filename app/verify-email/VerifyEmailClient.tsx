@@ -113,7 +113,7 @@ export default function VerifyEmailClient({
                 Tu cuenta ya está lista para entrar a INTRA.
               </p>
 
-              <div className="mt-6 rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft p-4 text-sm text-intra-text-success">
+              <div className="mt-6 rounded-[var(--intra-radius-xs)] border border-intra-success-border bg-intra-success-soft p-4 intra-caption text-intra-text-success">
                 Correo verificado correctamente.
               </div>
 
@@ -159,7 +159,7 @@ export default function VerifyEmailClient({
 
               {message ? (
                 <div
-                  className={`mt-4 flex items-start gap-3 rounded-[var(--intra-radius-xs)] border p-4 text-left text-sm ${
+                  className={`mt-4 flex items-start gap-3 rounded-[var(--intra-radius-xs)] border p-4 text-left intra-caption ${
                     messageTone === "success"
                       ? "border-intra-success-border bg-intra-success-soft text-intra-text-success"
                       : "border-intra-danger-border bg-intra-danger-soft text-intra-danger"

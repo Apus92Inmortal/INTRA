@@ -2,79 +2,62 @@
 
 ## Fecha
 
-2026-06-15
+2026-06-16
 
 ## Objetivo de la sesion
 
-TASK-021.2 - normalizar pantallas internas de error/not-found y eliminar SVG inline.
+TASK-021.4 - normalizar tipografia legacy residual en Auth/Evidence.
 
 ## Estado actual
 
-- Rama activa: `uiux/task-021-2-error-not-found-states`.
-- Base: `main` actualizado.
-- Ultimo merge confirmado en `main`: PR #152, commit `7e19fac`.
-- TASK-021.1 ya fue aprobado visualmente, marcado Ready for review, mergeado a `main` y cerrado.
-- Alcance de TASK-021.2:
-  - `app/app/error.tsx`.
-  - `app/app/not-found.tsx`.
-  - `app/app/matches/[id]/not-found.tsx`.
-- No se tocaron rutas reales, queries, actions, Supabase, RLS, tablas, migrations, RPCs, auth, wallet, admin, pagos ni logica de matches.
+- Rama activa: `uiux/task-021-4-auth-evidence-typography`.
+- Base: `main` actualizado y sincronizado con `origin/main`.
+- TASK-021.1 ya fue aprobado visualmente, mergeado a `main` y cerrado.
+- TASK-021.2 ya fue aprobado visualmente, mergeado a `main` y cerrado.
+- TASK-021.3 queda como no requerida / diferida por decision de producto.
+- TASK-021.4 queda implementada en rama y publicada en PR Draft #154.
+- No se trabaja Manual UI/UX INTRA v3.0 en esta sesion.
+- No se tocaron rutas, queries, actions, Supabase, RLS, tablas, migrations, RPCs, auth logic, matches, wallet, admin, payments ni logica de evidencias.
 
 ## Cambio realizado
 
-- `app/app/error.tsx`:
-  - eliminado SVG inline.
-  - icono lucide: `CircleAlert`.
-  - copy corto:
-    - `No pudimos cargar esta pantalla`.
-    - `Intenta nuevamente o vuelve al dashboard.`
-    - `Intentar de nuevo`.
-    - `Volver al dashboard`.
-- `app/app/not-found.tsx`:
-  - icono lucide: `SearchX`.
-  - copy corto:
-    - `Pantalla no encontrada`.
-    - `La ruta no existe o ya no está disponible.`
-    - `Volver al dashboard`.
-- `app/app/matches/[id]/not-found.tsx`:
-  - icono lucide: `MessageCircleOff`.
-  - copy corto:
-    - `Match no encontrado`.
-    - `Este match ya no está disponible o no tienes acceso.`
-    - `Volver a Matches`.
-  - ajuste visual posterior:
-    - contenido interno centrado.
-    - icono, titulo, descripcion y CTA centrados.
-    - CTA full width en mobile y compacto en desktop.
-- Reemplazadas clases legacy/prohibidas por clases semanticas INTRA:
-  - `intra-h1`.
-  - `intra-body`.
-  - `intra-caption-strong`.
+- `app/verify-email/VerifyEmailClient.tsx`:
+  - reemplazados los `text-sm` residuales por `intra-caption`.
+  - mensajes de estado mantienen tono visual existente.
+- `app/login/update-password/UpdatePasswordClient.tsx`:
+  - reemplazado `text-sm` residual por `intra-caption`.
+  - mensaje de estado mantiene logica y copy intactos.
+- `components/evidence-image-preview.tsx`:
+  - reemplazados `text-sm` y `font-semibold` residuales por `intra-caption-strong`.
+  - titulo del modal mantiene estructura, copy y comportamiento.
 
 ## Verificacion
 
-- `git diff --check`: PASS.
-- `npm run lint`: PASS.
-- `npx tsc --noEmit`: PASS.
-- `npm run test:unit`: PASS, 13 archivos / 42 tests.
-- `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
-- Auditoria en archivos objetivo:
-  - `text-[...]`: 0.
-  - `text-xs/sm/base/lg/xl/2xl/3xl`: 0.
-  - `font-[...]`: 0.
-  - `font-bold/font-semibold/font-extrabold/font-medium`: 0.
-  - `leading-[...]`: 0.
-  - hex hardcoded: 0.
+- Auditoria focal en archivos objetivo:
+  - `text-sm`: 0.
+  - `font-semibold`: 0.
+- Auditoria global en `app components lib`:
+  - `confirm()`: 0.
+  - `alert()`: 0.
   - SVG inline: 0.
-  - colores arbitrarios: 0.
-- Auditoria extra:
-  - `confirm()` en `app components lib`: 0.
-  - `alert()` en `app components lib`: 0.
+  - clases tipograficas prohibidas: 0.
+  - hex hardcoded solo en tokens oficiales:
+    - `app/globals.css`.
+    - `lib/ui/intra-theme.ts`.
+- Validaciones:
+  - `git diff --check`: PASS.
+  - `npm run lint`: PASS.
+  - `npx tsc --noEmit`: PASS.
+  - `npm run test:unit`: PASS, 13 archivos / 42 tests.
+  - `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
+- Remoto:
+  - PR Draft: #154.
+  - Preview Vercel: `https://intra-git-uiux-t-45e60e-aldo-antonio-altamar-cervantes-projects.vercel.app`.
+  - Checks remotos iniciales: Vercel PASS, Vercel Preview Comments PASS, detect-impact PASS, validate PASS.
 
 ## Pendiente
 
-- Crear PR Draft:
-  - `TASK-021.2 — Normalize error/not-found states and remove inline SVG`.
-- Mantener PR en Draft.
+- Mantener PR #154 en Draft.
 - No merge.
 - No deploy manual.
+- Tras revision/merge de TASK-021.4, cerrar TASK-021 como limpio y pasar a TASK-022 - Manual UI/UX INTRA v3.0 en otra sesion.

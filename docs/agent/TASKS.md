@@ -12,14 +12,81 @@
 
 ## P0 - En revision
 
-### TASK-021.2: Normalize error/not-found states and remove inline SVG
+### TASK-021.4: Normalize remaining auth/evidence legacy typography
 
 Estado: REVIEW
+Prioridad: Baja
+Area: UI/UX v2.2 / Auth / Evidence Modal
+
+Resumen:
+
+- Re-auditoria final corta de TASK-021 detecto clases tipograficas legacy residuales en:
+  - `app/verify-email/VerifyEmailClient.tsx`.
+  - `app/login/update-password/UpdatePasswordClient.tsx`.
+  - `components/evidence-image-preview.tsx`.
+- Correccion implementada:
+  - `text-sm` residual reemplazado por `intra-caption` en Auth.
+  - `text-sm` y `font-semibold` residuales reemplazados por `intra-caption-strong` en titulo del modal de evidencia.
+  - copy, rutas, estructura y logica intactos.
+  - sin cambios en auth logic, Supabase, storage, evidencias ni flujos de negocio.
+  - sin cambios en Supabase, RLS, tablas, migrations, RPC, rutas, matches, wallet, admin ni payments.
+  - sin rediseno.
+  - sin clases nuevas.
+
+Flujo previsto:
+
+- Rama creada desde `main` actualizado:
+  - `uiux/task-021-4-auth-evidence-typography`.
+- PR Draft creado:
+  - #154, `TASK-021.4 — Normalize remaining auth/evidence legacy typography`.
+- Mantener PR en Draft.
+- No merge hasta revision.
+- No deploy manual.
+- No trabajar Manual UI/UX INTRA v3.0 en esta sesion.
+
+Auditoria final:
+
+- `confirm()` en `app components lib`: 0.
+- `alert()` en `app components lib`: 0.
+- SVG inline en `app components lib`: 0.
+- clases prohibidas en `app components lib`: 0.
+- hex hardcoded solo en tokens oficiales:
+  - `app/globals.css`.
+  - `lib/ui/intra-theme.ts`.
+- auditoria focal en archivos objetivo:
+  - `text-sm`: 0.
+  - `font-semibold`: 0.
+
+Validaciones:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
+- Preview Vercel: PASS.
+- Checks remotos iniciales:
+  - Vercel: PASS.
+  - Vercel Preview Comments: PASS.
+  - detect-impact: PASS.
+  - validate: PASS.
+
+Pendiente:
+
+- Mantener PR #154 sin merge y sin deploy manual hasta revision.
+
+---
+
+### TASK-021.2: Normalize error/not-found states and remove inline SVG
+
+Estado: DONE
 Prioridad: Media
 Area: UI/UX v2.2 / Error States / Not Found
 
 Resumen:
 
+- PR #153 fue aprobado visualmente por Aldo y mergeado a `main`.
+- Merge commit: `edaa009`.
 - Normalizar pantallas internas de error/no encontrado detectadas en TASK-021.
 - Archivos objetivo:
   - `app/app/error.tsx`.
@@ -51,10 +118,33 @@ Verificacion local:
 
 Pendiente:
 
-- Crear PR Draft.
-- Mantener PR en Draft.
-- No merge.
-- No deploy manual.
+- Cerrado en `main`.
+
+---
+
+### TASK-021.3: Tighten wallet empty-state copy
+
+Estado: DONE
+Prioridad: Baja
+Area: UI/UX v2.2 / Wallet / Empty States
+
+Resumen:
+
+- Hallazgo detectado en auditoria TASK-021 con severidad baja.
+- Tras revision visual, Aldo decidio no abrir PR por ahora.
+- Se evita tocar la pantalla antes del cierre de la barrida UI/UX.
+- Estado final: no requerida / diferida.
+
+Confirmaciones:
+
+- No se abre rama.
+- No se modifica codigo.
+- No se crea PR.
+- No hay deploy manual.
+
+Pendiente:
+
+- Ninguno para TASK-021.3.
 
 ---
 
