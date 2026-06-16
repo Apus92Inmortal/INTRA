@@ -5,7 +5,7 @@ export default function MatchNotFound() {
   return (
     <main className="intra-page-shell px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
-        <div className="rounded-3xl border border-intra-border bg-intra-card p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col items-center rounded-3xl border border-intra-border bg-intra-card p-6 text-center shadow-sm sm:p-8">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-intra-info-soft text-intra-info">
             <MessageCircleOff className="h-6 w-6" strokeWidth={1.9} aria-hidden="true" />
           </div>
@@ -18,10 +18,10 @@ export default function MatchNotFound() {
             Este match ya no está disponible o no tienes acceso.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
             <Link
               href="/app/matches"
-              className="intra-btn intra-btn-primary h-12 px-5 intra-caption-strong"
+              className="intra-btn intra-btn-primary h-12 w-full px-5 text-center intra-caption-strong sm:w-auto"
             >
               Volver a Matches
             </Link>

@@ -29,6 +29,7 @@ Resumen:
   - eliminar SVG inline de `app/app/error.tsx`.
   - usar iconos lucide-react proporcionales.
   - reemplazar `text-xs/sm/2xl`, `font-bold`, `font-semibold` y clases tipograficas legacy por clases semanticas INTRA.
+  - centrar contenido interno de `app/app/matches/[id]/not-found.tsx` despues de revision visual.
   - mantener rutas y comportamiento funcional intactos.
   - no tocar logica de producto, queries, actions, Supabase, RLS, tablas, migrations, RPCs, auth, wallet, admin, pagos ni matches.
 

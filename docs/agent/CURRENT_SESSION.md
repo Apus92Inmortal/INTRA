@@ -42,6 +42,10 @@ TASK-021.2 - normalizar pantallas internas de error/not-found y eliminar SVG inl
     - `Match no encontrado`.
     - `Este match ya no está disponible o no tienes acceso.`
     - `Volver a Matches`.
+  - ajuste visual posterior:
+    - contenido interno centrado.
+    - icono, titulo, descripcion y CTA centrados.
+    - CTA full width en mobile y compacto en desktop.
 - Reemplazadas clases legacy/prohibidas por clases semanticas INTRA:
   - `intra-h1`.
   - `intra-body`.
