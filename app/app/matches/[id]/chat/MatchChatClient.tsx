@@ -809,6 +809,16 @@ export default function MatchChatClient({
               const isMine = msg.sender_id === currentUserId;
               const isFailed = msg.status === "failed" || msg.status === "retrying";
               const read = msg.status === "sent" ? isMessageRead(msg) : false;
+              const messageTextClass = isFailed
+                ? "text-intra-danger"
+                : isMine
+                  ? "text-intra-card"
+                  : "text-intra-blue";
+              const metaTextClass = isFailed
+                ? "text-intra-danger"
+                : isMine
+                  ? "text-intra-card"
+                  : "text-intra-text-muted";
 
               return (
                 <div
@@ -819,34 +829,32 @@ export default function MatchChatClient({
                     <div
                       className={`rounded-[var(--intra-radius-sm)] px-4 py-3 shadow-sm ${
                         isFailed
-                          ? "rounded-br-[var(--intra-radius-xs)] border border-intra-danger-border bg-intra-blue text-intra-card"
+                          ? "rounded-br-[var(--intra-radius-xs)] border border-intra-danger-border bg-intra-danger-soft text-intra-danger"
                           : isMine
-                          ? "rounded-br-[var(--intra-radius-xs)] bg-intra-blue text-intra-card"
-                          : "rounded-bl-[var(--intra-radius-xs)] border border-intra-border bg-intra-card text-intra-blue"
+                            ? "rounded-br-[var(--intra-radius-xs)] bg-intra-blue text-intra-card"
+                            : "rounded-bl-[var(--intra-radius-xs)] border border-intra-border bg-intra-card text-intra-blue"
                       }`}
                     >
-                      <p className={`intra-body whitespace-pre-wrap break-words ${isMine ? "text-intra-card" : "text-intra-blue"}`}>
+                      <p className={`intra-body whitespace-pre-wrap break-words ${messageTextClass}`}>
                         {msg.message}
                       </p>
 
                       <div
                         suppressHydrationWarning
-                        className={`intra-caption mt-2 flex items-center justify-end gap-2 ${
-                          isMine ? "text-intra-card" : "text-intra-text-muted"
-                        }`}
+                        className={`intra-caption mt-2 flex items-center justify-end gap-2 ${metaTextClass}`}
                       >
                         <span>{formatMessageTime(msg.created_at)}</span>
                         {isMine && read ? <span>Leído</span> : null}
                       </div>
                     </div>
                     {isFailed ? (
-                      <p className="mt-1 flex justify-end gap-1 intra-caption text-intra-danger-text">
+                      <p className="mt-1 flex justify-end gap-1 intra-caption text-intra-danger">
                         <span>No se pudo enviar</span>
                         <span>·</span>
                         <button
                           type="button"
                           onClick={() => void handleRetryFailedMessage(msg)}
-                          className="intra-caption-strong text-intra-danger-text underline-offset-2 hover:underline disabled:cursor-not-allowed"
+                          className="intra-caption-strong text-intra-danger underline-offset-2 hover:underline disabled:cursor-not-allowed"
                           disabled={msg.status === "retrying"}
                         >
                           {msg.status === "retrying" ? "Reintentando" : "Reintentar"}
