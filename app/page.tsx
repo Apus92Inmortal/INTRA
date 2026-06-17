@@ -43,7 +43,7 @@ const atlasLandingHtml = String.raw`
         <a class="intra-body-strong" href="#como-funciona">Cómo funciona</a>
         <a class="intra-body-strong" href="#precios">Precios</a>
         <a class="intra-body-strong" href="#viaja-y-gana">Viaja y gana</a>
-        <a class="intra-body-strong" href="#faq">FAQ</a>
+        <a class="intra-body-strong nav-faq-link" href="#faq">FAQ</a>
       </nav>
     </div>
     <div class="nav-right">
@@ -575,6 +575,7 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
   .btn-row{flex-direction:column;align-items:center}
   .btn{width:100%;max-width:320px}
   .nav-right{flex-direction:column}
+  .nav-faq-link{display:none}
   .nav-cta{width:100%}
   .proof-bar-inner{flex-wrap:wrap;gap:16px}
   .proof-divider{display:none}
