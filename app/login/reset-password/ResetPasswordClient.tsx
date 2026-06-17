@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { AlertCircle, CheckCircle2, KeyRound, Send } from "lucide-react"
+import { AlertCircle, CheckCircle2, Send } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import {
   getPasswordRecoveryRedirectUrl,
@@ -91,9 +91,6 @@ export default function ResetPasswordClient() {
           ) : (
             <>
               <div className="mt-6">
-                <div className="mb-4 hidden h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-info-soft text-intra-info sm:flex">
-                  <KeyRound className="intra-icon-2xl" aria-hidden="true" />
-                </div>
                 <h1 className="intra-h1">Recupera tu contraseña</h1>
                 <p className="intra-body mt-2">
                   Te enviaremos un enlace para volver a entrar.
