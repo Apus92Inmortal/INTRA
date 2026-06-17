@@ -574,6 +574,8 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
   .grid-3{grid-template-columns:1fr}
   .btn-row{flex-direction:column;align-items:center}
   .btn{width:100%;max-width:320px}
+  .nav-center{justify-content:center}
+  .navlinks{width:100%;justify-content:center;text-align:center;gap:10px 12px}
   .nav-right{flex-direction:column}
   .nav-faq-link{display:none}
   .nav-cta{width:100%}
