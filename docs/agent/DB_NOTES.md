@@ -82,6 +82,34 @@
 - La liberacion al viajero depende de reglas operativas, entrega, disputa y bloqueos administrativos.
 - No exponer porcentajes internos de tarifa en UI publica; usar copy aprobado de la matriz legal operativa.
 
+## TASK-024 - Cancelacion Dashboard de envio pagado esperando viajero
+
+- No se agregaron migraciones, tablas, columnas, RLS ni RPCs.
+- Se reutiliza el patron existente de Wallet para devolucion interna al cliente:
+  - `wallet_ledger.entry_type = refund_available_credit`.
+  - `balance_type = available`.
+  - `direction = credit`.
+  - `wallet_ledger.amount = payments.amount - coalesce(gateway_fee_actual, gateway_fee_estimated, 0)`.
+  - `sync_wallet_balance` para recalcular saldos.
+- El costo de pasarela no se acredita al Wallet; queda trazado en metadata como `gateway_fee_amount`.
+- La action `cancelActiveWaitingTravelerShipmentAction` solo opera si:
+  - el envio pertenece al usuario autenticado.
+  - `shipments.status = open`.
+  - latest payment esta `held`.
+  - `gateway_status = approved`.
+  - `refund_status = none`.
+  - `dispute_status = none`.
+  - no existe `metadata.manual_refund_required`.
+  - no existen matches `pending`, `accepted` o `completed`.
+  - no existen reportes operativos `open` o `reviewing`.
+  - no existe ledger `release_available_credit`.
+- La action marca:
+  - `shipments.status = cancelled`.
+  - `payments.status = refunded`.
+  - `payments.refund_status = refunded`.
+- No ejecuta refund externo automatico Wompi.
+- Si existiera hold historico de viajero, registra `refund_pending_debit` antes de sincronizar Wallet del viajero.
+
 ## PR F1 - Profiles RLS hardening
 
 - Migracion nueva: `202606061830_profiles_rls_schema_hardening.sql`.

@@ -127,8 +127,15 @@ type PaymentRow = {
   status: string | null;
   gateway_status: string | null;
   refund_status: string | null;
+  dispute_status: string | null;
+  metadata?: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
+};
+
+type ShipmentReportEventRow = {
+  shipment_id: string | null;
+  status: string | null;
 };
 
 type CompatibleShipmentRow = {
@@ -388,9 +395,15 @@ const PROTECTED_GATEWAY_STATUSES = new Set([
   "succeeded",
   "success",
 ]);
+const ACTIVE_MATCH_STATUSES = new Set(["pending", "accepted", "completed"]);
+const ACTIVE_REPORT_STATUSES = new Set(["open", "reviewing"]);
 
 function normalizePaymentStatus(status: string | null | undefined) {
   return status?.trim().toLowerCase() ?? "";
+}
+
+function hasManualRefundFlag(metadata: Record<string, unknown> | null | undefined) {
+  return String(metadata?.manual_refund_required ?? "false").toLowerCase() === "true";
 }
 
 function canCancelPendingPaymentShipment(input: {
@@ -415,6 +428,40 @@ function canCancelPendingPaymentShipment(input: {
   return !input.matchesForShipment.some((match) =>
     ["accepted", "completed"].includes(normalizePaymentStatus(match.status))
   );
+}
+
+function canCancelWaitingTravelerShipment(input: {
+  shipmentStatus: string | null;
+  latestPayment: PaymentRow | null;
+  matchesForShipment: ShipmentMatchRow[];
+  reportsForShipment: ShipmentReportEventRow[];
+}) {
+  if (normalizePaymentStatus(input.shipmentStatus) !== "open") {
+    return false;
+  }
+
+  if (!input.latestPayment || !isShipmentPaymentReady(input.latestPayment.status)) {
+    return false;
+  }
+
+  if (normalizePaymentStatus(input.latestPayment.status) === "released") {
+    return false;
+  }
+
+  if (
+    normalizePaymentStatus(input.latestPayment.gateway_status) !== "approved" ||
+    normalizePaymentStatus(input.latestPayment.refund_status || "none") !== "none" ||
+    normalizePaymentStatus(input.latestPayment.dispute_status || "none") !== "none" ||
+    hasManualRefundFlag(input.latestPayment.metadata)
+  ) {
+    return false;
+  }
+
+  if (input.matchesForShipment.some((match) => ACTIVE_MATCH_STATUSES.has(normalizePaymentStatus(match.status)))) {
+    return false;
+  }
+
+  return !input.reportsForShipment.some((report) => ACTIVE_REPORT_STATUSES.has(normalizePaymentStatus(report.status)));
 }
 
 function normalizeTripRelation(
@@ -558,7 +605,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   const tripIds = trips.map((trip) => trip.id);
   const openMatchingTrips = trips.filter((trip) => trip.status === "open");
 
-  const [shipmentMatchesRes, tripMatchesRes, paymentsRes, routePricesRes] = await Promise.all([
+  const [shipmentMatchesRes, tripMatchesRes, paymentsRes, routePricesRes, reportEventsRes] = await Promise.all([
     shipmentIds.length
       ? supabase
           .from("matches")
@@ -594,7 +641,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     shipmentIds.length
       ? supabase
           .from("payments")
-          .select("id, shipment_id, amount, traveler_amount, status, gateway_status, refund_status, created_at, updated_at")
+          .select("id, shipment_id, amount, traveler_amount, status, gateway_status, refund_status, dispute_status, metadata, created_at, updated_at")
           .in("shipment_id", shipmentIds)
           .order("created_at", { ascending: false })
       : Promise.resolve({ data: [], error: null }),
@@ -614,12 +661,20 @@ export async function getDashboardData(): Promise<DashboardData | null> {
             )
           )
       : Promise.resolve({ data: [], error: null }),
+    shipmentIds.length
+      ? supabase
+          .from("shipment_report_events")
+          .select("shipment_id, status")
+          .in("shipment_id", shipmentIds)
+          .in("status", Array.from(ACTIVE_REPORT_STATUSES))
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
   const shipmentMatches = ((shipmentMatchesRes.data ?? []) as ShipmentMatchRow[]).filter(Boolean);
   const tripMatches = ((tripMatchesRes.data ?? []) as TripMatchRow[]).filter(Boolean);
   const payments = ((paymentsRes.data ?? []) as PaymentRow[]).filter(Boolean);
   const routePrices = ((routePricesRes.data ?? []) as RoutePriceRow[]).filter(Boolean);
+  const reportEvents = ((reportEventsRes.data ?? []) as ShipmentReportEventRow[]).filter(Boolean);
 
   const travelerIds = Array.from(
     new Set(
@@ -738,6 +793,14 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     const list = matchesByShipment.get(match.shipment_id) ?? [];
     list.push(match);
     matchesByShipment.set(match.shipment_id, list);
+  }
+
+  const reportEventsByShipment = new Map<string, ShipmentReportEventRow[]>();
+  for (const report of reportEvents) {
+    if (!report.shipment_id) continue;
+    const list = reportEventsByShipment.get(report.shipment_id) ?? [];
+    list.push(report);
+    reportEventsByShipment.set(report.shipment_id, list);
   }
 
   const activeShipmentStatuses = new Set(["open", "matched", "accepted", "in_transit"]);
@@ -940,6 +1003,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
   const activeShipments = activeShipmentsRaw
     .map((shipment): DashboardShipmentCard => {
       const matchesForShipment = matchesByShipment.get(shipment.id) ?? [];
+      const reportsForShipment = reportEventsByShipment.get(shipment.id) ?? [];
       const pendingMatch = matchesForShipment.find((match) => match.status === "pending") ?? null;
       const acceptedMatch =
         matchesForShipment.find((match) => match.status === "accepted") ??
@@ -986,6 +1050,12 @@ export async function getDashboardData(): Promise<DashboardData | null> {
         travelerVerified: relevantTravelerId ? travelerVerifiedSet.has(relevantTravelerId) : false,
         pendingMatchId: pendingMatch?.id ?? null,
         hasPendingAction: Boolean(pendingMatch),
+        canCancelWaitingTraveler: canCancelWaitingTravelerShipment({
+          shipmentStatus: shipment.status,
+          latestPayment: latestPayment ?? null,
+          matchesForShipment,
+          reportsForShipment,
+        }),
       };
     })
     .sort((a, b) => b.progressPercent - a.progressPercent)

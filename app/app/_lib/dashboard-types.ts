@@ -40,6 +40,7 @@ export type DashboardShipmentCard = {
   travelerVerified: boolean;
   pendingMatchId: string | null;
   hasPendingAction: boolean;
+  canCancelWaitingTraveler: boolean;
 };
 
 export type DashboardPendingPaymentShipmentCard = {
