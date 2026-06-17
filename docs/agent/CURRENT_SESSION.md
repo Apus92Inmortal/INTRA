@@ -6,59 +6,80 @@
 
 ## Objetivo de la sesion
 
-TASK-023: agregar menu discreto de cancelacion en la card de "Mis envios activos" pendiente de pago del Dashboard `/app`.
+TASK-024: agregar menu discreto de cancelacion en la card de "Mis envios activos" del Dashboard `/app` cuando el envio ya esta pagado y sigue en estado visual "Esperando viajero", sin match activo.
 
 ## Estado actual
 
-- Rama activa: `uiux/dashboard-shipment-cancel-menu`.
+- Rama activa: `uiux/task-024-active-shipment-cancel-menu`.
 - Base: `main` sincronizado con `origin/main` antes de crear la rama.
-- Ultimo merge funcional en `main`: PR #155, commit `20ef164`.
-- Cambios locales de codigo y memoria listos para commit en rama.
+- Ultimo merge funcional en `main`: PR #156, commit `73592d2`.
 - No hubo deploy manual.
 
 ## Cambio en curso
 
-- Se agrego menu de tres puntos en la card de pendientes de pago del Dashboard `/app`.
-- Se reubico `TrackingCodeBadge` como identificador superior izquierdo de la card pendiente de pago.
-- Se quito el badge interno `Pendiente de pago` para evitar redundancia con el encabezado de la seccion.
-- La accion principal `Ir al checkout` se mantiene visible y sin cambios.
-- La cancelacion queda oculta en el menu discreto.
-- Se usa `EllipsisVertical` de lucide.
-- Se usa `IntraConfirmDialog` para confirmar cancelacion.
-- `IntraConfirmDialog` queda estandarizado con el modal de `DashboardTripCloseButton`:
-  - sin icono de alerta en header.
-  - sin boton X de cierre en esta confirmacion.
-  - titulo alineado a la izquierda con `intra-h3 text-intra-blue`.
-  - descripcion alineada a la izquierda con `mt-2 intra-body text-intra-text-subtle`.
-  - footer `mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end`.
-  - boton secundario outline como `Cerrar viaje`.
-  - boton peligroso solido rojo como `Cerrar viaje`.
-- La accion server-side valida:
+- Se agrega un menu de tres puntos en la card de envio activo pagado solo cuando el envio sigue esperando viajero.
+- Se crea `DashboardActiveShipmentCancelMenu` para separar este flujo del menu de pendientes de pago.
+- La confirmacion usa `IntraConfirmDialog` con `visualVariant="dashboard-critical"`, sin icono y sin X, siguiendo el patron aprobado de `DashboardTripCloseButton`.
+- Copy del modal:
+  - Titulo: `¿Cancelar este envío?`
+  - Descripcion: `El envío dejará de estar disponible para viajeros. Se devolverá a tu Wallet el valor reembolsable, descontando el costo de pasarela.`
+  - Botones: `Volver` y `Cancelar envío`.
+- Se agrega `canCancelWaitingTraveler` a `DashboardShipmentCard`.
+- La condicion se calcula en `dashboard-queries`, no solo en UI.
+- La card mantiene visibles:
+  - estado `Esperando viajero`.
+  - `TrackingCodeBadge`.
+  - valor del envio.
+  - ruta/peso.
+  - progreso vacio y tiempo publicado.
+
+## Logica server-side
+
+- Nueva action: `cancelActiveWaitingTravelerShipmentAction`.
+- Validaciones:
   - usuario autenticado.
   - ownership del envio.
-  - envio en estado cancelable `open` o `matched`.
-  - ausencia de pago protegido/aprobado/liberado/procesando.
-  - ausencia de match aceptado/completado.
-- Si hay matches pendientes asociados, se actualizan a `cancelled` antes de cancelar el envio.
-- El envio se actualiza a `cancelled`; no se borra fisicamente.
-- Despues del update final del envio, la action valida que realmente haya retornado fila actualizada.
-- Si el estado cambia entre lectura y update, retorna: `Este envio ya no se puede cancelar desde aqui.`
+  - envio en estado `open`.
+  - pago latest en estado `held`, con `gateway_status = approved`.
+  - `refund_status = none`.
+  - `dispute_status = none`.
+  - sin `metadata.manual_refund_required`.
+  - sin match `pending`, `accepted` o `completed`.
+  - sin reportes operativos `open` o `reviewing`.
+  - sin ledger `release_available_credit`.
+  - update final de `payments` y `shipments` debe retornar fila actualizada.
+- El envio se marca `cancelled`; no se borra fisicamente.
+- La devolucion a Wallet reutiliza el patron existente, acreditando solo el neto reembolsable:
+  - `wallet_ledger.entry_type = refund_available_credit`.
+  - `balance_type = available`.
+  - `direction = credit`.
+  - `wallet_ledger.amount = payments.amount - coalesce(gateway_fee_actual, gateway_fee_estimated, 0)`.
+  - `payments.status = refunded`.
+  - `payments.refund_status = refunded`.
+  - `sync_wallet_balance` para el owner.
+- La pasarela no se devuelve al Wallet; queda trazada en metadata como `gateway_fee_amount`.
+- Si existiera un hold historico de viajero, se registra `refund_pending_debit` antes de sincronizar Wallet del viajero.
+- No se crea refund externo Wompi automatico.
 
 ## Confirmaciones de alcance
 
-- No se toco la pantalla general de Envios.
-- No se hizo barrida masiva de pantallas.
-- No se reemplazaron `intra-h1`, `intra-h2`, `intra-h3` ni `intra-h4` en pantallas.
-- No se cambio checkout ni flujo de pago.
-- No se cambio la logica de generacion del codigo de rastreo.
-- No se elimino el tracking code de base de datos.
-- No se tocaron Supabase migrations, RLS, tablas ni RPC.
-- No se toco wallet, admin, refunds, payouts ni rutas de auth.
+- No se toco checkout.
+- No se toco creacion de envios.
+- No se toco creacion de viajes.
+- No se toco la logica general de Matches.
+- No se toco la pantalla general de Envios salvo revalidacion de ruta.
+- No se tocaron migrations, RLS, tablas ni RPCs.
+- No se tocaron wallet UI, admin, payouts, refunds externos ni auth routes.
 - No hubo deploy manual.
 
 ## Verificacion registrada
 
-- Auditoria tecnica:
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
+- Auditoria v3.0:
   - `confirm()` en `app components lib`: 0.
   - `alert()` en `app components lib`: 0.
   - SVG inline en `app components lib`: 0.
@@ -66,20 +87,8 @@ TASK-023: agregar menu discreto de cancelacion en la card de "Mis envios activos
   - hex hardcoded solo en tokens oficiales:
     - `app/globals.css`.
     - `lib/ui/intra-theme.ts`.
-- Validaciones locales:
-  - `git diff --check`: PASS.
-  - `npm run lint`: PASS.
-  - `npx tsc --noEmit`: PASS.
-  - `npm run test:unit`: PASS, 13 archivos / 42 tests.
-  - `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
-
-## Decision
-
-- Manual UI/UX INTRA v3.0 sigue como fuente oficial vigente para este ajuste.
-- No se crea excepcion visual nueva.
-- Trazabilidad dedicada `cancelled_at/cancelled_by/cancel_reason` en `shipments` no existe en schema vigente; no se crea migracion en esta tarea.
 
 ## Pendiente
 
-- Commit, push y PR de la rama `uiux/dashboard-shipment-cancel-menu`.
-- Revision visual en preview antes de merge.
+- Commit, push y PR Draft de `uiux/task-024-active-shipment-cancel-menu`.
+- Revision de preview autenticada en PC/mobile antes de marcar Ready o mergear.

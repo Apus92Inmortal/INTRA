@@ -12,9 +12,106 @@
 
 ## P0 - En revision
 
-### TASK-023: Dashboard pending shipment cancel menu
+### TASK-024: Dashboard active shipment cancel menu while waiting traveler
 
 Estado: REVIEW
+Prioridad: Media
+Area: Dashboard `/app` / Active paid shipments / Wallet refund
+
+Resumen:
+
+- Agregar menu discreto de tres puntos en la card de "Mis envios activos" cuando el envio ya esta pagado y sigue visualmente como "Esperando viajero".
+- Mantener visible el estado, `TrackingCodeBadge`, valor, ruta/peso, progreso vacio y tiempo publicado.
+- No agregar CTA destructivo visible; la accion `Cancelar envio` queda dentro del menu.
+- Usar `EllipsisVertical` de lucide.
+- Usar `IntraConfirmDialog` con `visualVariant="dashboard-critical"`:
+  - sin icono.
+  - sin boton X.
+  - titulo y descripcion alineados a la izquierda.
+  - boton secundario outline.
+  - boton peligroso rojo solido.
+  - orden: `Volver` y `Cancelar envio`.
+- Crear action separada `cancelActiveWaitingTravelerShipmentAction`; no reutilizar la action de pendientes de pago.
+
+Condicion de visibilidad:
+
+- `canCancelWaitingTraveler` se calcula en `dashboard-queries`.
+- Solo es true si:
+  - envio del usuario autenticado.
+  - `shipments.status = open`.
+  - latest payment esta `held`.
+  - `gateway_status = approved`.
+  - `refund_status = none`.
+  - `dispute_status = none`.
+  - sin `metadata.manual_refund_required`.
+  - sin match `pending`, `accepted` o `completed`.
+  - sin reporte operativo `open` o `reviewing`.
+
+Logica de cancelacion:
+
+- Valida usuario autenticado, ownership, estado `open`, pago apto, ausencia de matches activos y ausencia de revision/disputa.
+- Bloquea si existe ledger `release_available_credit`.
+- Marca el envio como `cancelled`; sin borrado fisico.
+- Devuelve el valor al Wallet del cliente usando el patron existente:
+  - `wallet_ledger.entry_type = refund_available_credit`.
+  - `balance_type = available`.
+  - `direction = credit`.
+  - `wallet_ledger.amount = payments.amount - coalesce(gateway_fee_actual, gateway_fee_estimated, 0)`.
+  - `payments.status = refunded`.
+  - `payments.refund_status = refunded`.
+  - `sync_wallet_balance`.
+- El costo de pasarela no se acredita al Wallet y queda trazado en metadata.
+- Si existiera hold historico de viajero, registra `refund_pending_debit` antes de sincronizar el wallet del viajero.
+- No ejecuta refund externo automatico Wompi.
+- Revalida:
+  - `/app`.
+  - `/app/shipments`.
+  - `/app/wallet`.
+  - `/app/matches`.
+
+Archivos:
+
+- `app/app/page.tsx`.
+- `app/app/_components/dashboard/DashboardActiveShipmentCancelMenu.tsx`.
+- `app/app/_actions/shipment-actions.ts`.
+- `app/app/_lib/dashboard-queries.ts`.
+- `app/app/_lib/dashboard-types.ts`.
+
+Alcance:
+
+- No tocar checkout.
+- No tocar creacion de envios.
+- No tocar creacion de viajes.
+- No tocar logica general de Matches.
+- No tocar migrations, RLS, tablas ni RPC.
+- No tocar wallet UI, admin, refunds externos, payouts ni auth routes.
+- No hacer deploy manual.
+
+Validaciones:
+
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 13 archivos / 42 tests.
+- `npm run build`: PASS. Warning no bloqueante de Next por lockfiles multiples.
+- Auditoria v3.0:
+  - `confirm()` en `app components lib`: 0.
+  - `alert()` en `app components lib`: 0.
+  - SVG inline en `app components lib`: 0.
+  - clases tipograficas prohibidas en `app components lib`: 0.
+  - hex hardcoded solo en tokens oficiales:
+    - `app/globals.css`.
+    - `lib/ui/intra-theme.ts`.
+
+Pendiente:
+
+- Crear PR Draft y revisar preview autenticada en PC/mobile antes de Ready/merge.
+
+---
+
+### TASK-023: Dashboard pending shipment cancel menu
+
+Estado: DONE
 Prioridad: Media
 Area: Dashboard `/app` / Pending payment shipments / UI action
 
@@ -74,7 +171,10 @@ Validaciones:
 
 Pendiente:
 
-- Crear PR y revisar preview antes de merge.
+- PR #156 mergeado a `main`.
+- Merge commit: `73592d2`.
+- Rama local y remota eliminadas.
+- Sin deploy manual.
 
 ---
 

@@ -24,6 +24,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isSafeInternalPath } from "@/lib/safe-next";
 import AuthGateway from "./AuthGateway";
 import DashboardTripCloseButton from "./_components/dashboard/DashboardTripCloseButton";
+import DashboardActiveShipmentCancelMenu from "./_components/dashboard/DashboardActiveShipmentCancelMenu";
 import DashboardShipmentCancelMenu from "./_components/dashboard/DashboardShipmentCancelMenu";
 import DashboardPendingMatchActions from "./_components/dashboard/DashboardPendingMatchActions";
 import DashboardPublishedTimeLabel from "./_components/dashboard/DashboardPublishedTimeLabel";
@@ -608,19 +609,39 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
                   <div className="space-y-3">
                     {dashboard.activeShipments.map((shipment) => (
                       <div key={shipment.id} className="intra-card-compact p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
-                        <div className="mb-3 flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <div className="mb-1 flex items-center gap-2">
-                              <ShipmentBadge shipment={shipment} />
+                        {shipment.canCancelWaitingTraveler ? (
+                          <div className="mb-3 flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="mb-2 flex min-w-0 flex-wrap items-center gap-2">
+                                <ShipmentBadge shipment={shipment} />
+                                <TrackingCodeBadge
+                                  code={shipment.code}
+                                  className="!min-w-0 max-w-[9rem] overflow-hidden px-2 sm:max-w-[10rem] [&>span]:min-w-0 [&>span]:overflow-hidden [&>span>span]:truncate"
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                                <p className="min-w-0 break-words intra-h4">{shipment.title}</p>
+                                <span className="shrink-0 whitespace-nowrap intra-metric-sm">{shipment.amountLabel}</span>
+                              </div>
+                              <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
                             </div>
-                            <p className="truncate intra-h4">{shipment.title}</p>
-                            <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
+                            <DashboardActiveShipmentCancelMenu shipmentId={shipment.id} />
                           </div>
-                          <div className="flex shrink-0 flex-col items-center text-center">
-                            <TrackingCodeBadge code={shipment.code} />
-                            <span className="mt-1 intra-metric-sm">{shipment.amountLabel}</span>
+                        ) : (
+                          <div className="mb-3 flex items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1">
+                              <div className="mb-1 flex items-center gap-2">
+                                <ShipmentBadge shipment={shipment} />
+                              </div>
+                              <p className="truncate intra-h4">{shipment.title}</p>
+                              <p className="mt-0.5 intra-body">{shipment.routeLabel}</p>
+                            </div>
+                            <div className="flex shrink-0 flex-col items-center text-center">
+                              <TrackingCodeBadge code={shipment.code} />
+                              <span className="mt-1 intra-metric-sm">{shipment.amountLabel}</span>
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         {shipment.hasPendingAction && shipment.pendingMatchId ? (
                           <div className="rounded-[var(--intra-radius-sm)] border border-intra-trust-border bg-intra-trust-soft p-4">
