@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
-import { AlertCircle, CheckCircle2, Send } from "lucide-react"
+import { AlertCircle, Send } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import {
   getPasswordRecoveryRedirectUrl,
@@ -57,9 +57,6 @@ export default function ResetPasswordClient() {
 
           {success ? (
             <div className="mt-6 space-y-5">
-              <div className="hidden h-12 w-12 items-center justify-center rounded-[var(--intra-radius-xs)] bg-intra-success-soft text-intra-text-success sm:flex">
-                <CheckCircle2 className="intra-icon-2xl" aria-hidden="true" />
-              </div>
               <div>
                 <h1 className="intra-h1">Revisa tu correo</h1>
                 <p className="intra-body mt-2">
