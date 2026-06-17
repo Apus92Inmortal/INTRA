@@ -192,3 +192,31 @@ Impacto:
 - Las acciones criticas deben usar `IntraConfirmDialog`.
 - `window.confirm()`, `confirm()`, `window.alert()`, `alert()`, SVG inline en pantallas de producto, clases tipograficas Tailwind legacy directas y hex hardcoded fuera de tokens oficiales quedan prohibidos por regla vigente.
 - La adopcion inicial de v3.0 es foundation/tokens/componentes base; la barrida pantalla por pantalla queda para tareas posteriores.
+
+## DEC-010: Limites de cancelacion de envios desde Dashboard
+
+Fecha: 2026-06-16
+
+Decision:
+
+El Dashboard puede ofrecer cancelacion de envios desde menu de tres puntos solo en casos tempranos y sin relacion operativa activa con viajero.
+
+- En Dashboard / Pendientes de pago, el CTA visible debe seguir siendo `Ir al checkout`; la cancelacion vive en el menu de tres puntos.
+- En Dashboard / Mis envios activos, la cancelacion por tres puntos solo aplica cuando el envio esta pagado, activo, visualmente `Esperando viajero` y sin matches activos.
+- Si ya existe match `pending`, `accepted` o `completed`, la gestion/cancelacion corresponde al modulo Matches, no a la card del Dashboard.
+- Las acciones criticas de cancelacion en Dashboard deben usar `IntraConfirmDialog` con `visualVariant="dashboard-critical"`.
+- Queda prohibido usar `window.confirm()`, `confirm()`, `window.alert()`, `alert()` o SVG inline para estas acciones.
+- En cancelacion temprana de envio pagado sin viajero, Wallet recibe solo el valor neto reembolsable:
+  `payment.amount - coalesce(gateway_fee_actual, gateway_fee_estimated, 0)`.
+- INTRA no debe devolver a Wallet el costo de pasarela ni ejecutar refund externo automatico Wompi en este flujo.
+
+Motivo:
+
+El Dashboard debe mantener claridad de conversion y operacion: checkout visible antes del pago, cancelacion discreta para casos tempranos, y Matches como lugar unico para relaciones cliente-viajero activas.
+
+Impacto:
+
+- No agregar CTAs destructivos visibles en cards del Dashboard para estos casos.
+- No habilitar cancelacion desde Dashboard cuando exista match pendiente, aceptado o completado.
+- No acreditar costo de pasarela al Wallet en cancelaciones tempranas de envios ya pagados sin viajero.
+- Cualquier cambio futuro de refunds externos, estados parciales o pasarela requiere decision y validacion propia.

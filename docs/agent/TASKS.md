@@ -12,9 +12,15 @@
 
 ## P0 - En revision
 
+Sin tareas P0 en revision al cierre de esta sesion.
+
+---
+
+## Done Log
+
 ### TASK-024: Dashboard active shipment cancel menu while waiting traveler
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Media
 Area: Dashboard `/app` / Active paid shipments / Wallet refund
 
@@ -103,9 +109,12 @@ Validaciones:
     - `app/globals.css`.
     - `lib/ui/intra-theme.ts`.
 
-Pendiente:
+Cierre:
 
-- Crear PR Draft y revisar preview autenticada en PC/mobile antes de Ready/merge.
+- PR #157 mergeado a `main`.
+- Merge commit: `bed21e1`.
+- Rama local y remota eliminadas.
+- Sin deploy manual.
 
 ---
 
@@ -169,7 +178,7 @@ Validaciones:
     - `app/globals.css`.
     - `lib/ui/intra-theme.ts`.
 
-Pendiente:
+Cierre:
 
 - PR #156 mergeado a `main`.
 - Merge commit: `73592d2`.

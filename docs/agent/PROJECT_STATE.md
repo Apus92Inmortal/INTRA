@@ -68,6 +68,9 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 - PR #116 quedo mergeado y produccion contiene realtime/fallback visible-aware para `/app`, `/app/matches`, `/app/matches/[id]` y `/app/admin/disputes`.
 - Manual Oficial UI/UX INTRA v3.0 queda adoptado como fuente unica vigente para decisiones visuales. Manual UI/UX INTRA v2.2 y manuales anteriores quedan derogados.
 - TASK-022 adopto foundation tecnica del Manual UI/UX INTRA v3.0 y quedo mergeada a `main` en PR #155, commit `20ef164`.
+- TASK-023 quedo mergeada a `main` en PR #156, commit `73592d2`: Dashboard / Pendientes de pago mantiene `Ir al checkout` como CTA visible y mueve `Cancelar envio` al menu de tres puntos.
+- TASK-024 quedo mergeada a `main` en PR #157, commit `bed21e1`: Dashboard / Mis envios activos permite cancelar desde tres puntos solo envios pagados en `Esperando viajero`, sin matches activos, devolviendo a Wallet solo el neto reembolsable descontando pasarela.
+- Regla consolidada: si existe match `pending`, `accepted` o `completed`, la gestion/cancelacion debe hacerse desde Matches y no desde la card del Dashboard.
 - Barrida UI/UX v2.2 con frentes iniciales cerrados:
   - Foundation components: PR #129 mergeado a `main`.
   - Auth Gateway: PR #130 mergeado a `main`.

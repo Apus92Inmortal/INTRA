@@ -84,6 +84,8 @@
 
 ## TASK-024 - Cancelacion Dashboard de envio pagado esperando viajero
 
+- TASK-024 quedo cerrada en `main` con PR #157.
+- Merge commit: `bed21e1`.
 - No se agregaron migraciones, tablas, columnas, RLS ni RPCs.
 - Se reutiliza el patron existente de Wallet para devolucion interna al cliente:
   - `wallet_ledger.entry_type = refund_available_credit`.
@@ -92,6 +94,7 @@
   - `wallet_ledger.amount = payments.amount - coalesce(gateway_fee_actual, gateway_fee_estimated, 0)`.
   - `sync_wallet_balance` para recalcular saldos.
 - El costo de pasarela no se acredita al Wallet; queda trazado en metadata como `gateway_fee_amount`.
+- Regla financiera vigente: en cancelacion temprana de envio pagado sin viajero, Wallet recibe solo el valor neto reembolsable. INTRA no debe devolver a Wallet el costo de pasarela.
 - La action `cancelActiveWaitingTravelerShipmentAction` solo opera si:
   - el envio pertenece al usuario autenticado.
   - `shipments.status = open`.
