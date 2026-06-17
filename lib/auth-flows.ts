@@ -1,7 +1,36 @@
 import { isSafeInternalPath } from "@/lib/safe-next"
 
-const publicAppUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://intra-chi.vercel.app"
+const OFFICIAL_SITE_URL = "https://www.intra.com.co"
+const LOCAL_DEVELOPMENT_SITE_URL = "http://localhost:3000"
+
+function normalizeSiteUrl(value: string) {
+  try {
+    const url = new URL(value.trim())
+    url.search = ""
+    url.hash = ""
+    url.pathname = url.pathname.replace(/\/+$/, "")
+    return url.toString().replace(/\/$/, "")
+  } catch {
+    return null
+  }
+}
+
+export function getPublicAppUrl() {
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  const normalizedSiteUrl = configuredSiteUrl
+    ? normalizeSiteUrl(configuredSiteUrl)
+    : null
+
+  if (normalizedSiteUrl) {
+    return normalizedSiteUrl
+  }
+
+  return process.env.NODE_ENV === "development"
+    ? LOCAL_DEVELOPMENT_SITE_URL
+    : OFFICIAL_SITE_URL
+}
+
+const publicAppUrl = getPublicAppUrl()
 
 // Nota operativa: la verificacion de email queda lista en codigo.
 

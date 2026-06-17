@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import { getPublicAppUrl } from "@/lib/auth-flows";
 import "./globals.css";
 
 const inter = Inter({
@@ -12,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://intra-chi.vercel.app";
+const siteUrl = getPublicAppUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
