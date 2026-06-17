@@ -579,9 +579,13 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
   .nav-right{flex-direction:column}
   .nav-faq-link{display:none}
   .nav-cta{width:100%}
-  .proof-bar-inner{flex-wrap:wrap;gap:16px}
+  .proof-bar-inner{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 16px;align-items:stretch;padding:24px 20px}
   .proof-divider{display:none}
-  .proof-item{min-width:30%}
+  .proof-item{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center}
+  .proof-num,.proof-label{white-space:nowrap}
+  .footer-grid{gap:28px}
+  .footer-socials{flex-wrap:wrap}
+  .footer-bottom{flex-direction:column;align-items:center;text-align:center;gap:8px;padding-top:16px}
   .price-amount{font-size:40px}
 }
 `;
