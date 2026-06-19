@@ -213,6 +213,7 @@ export function NotificationsBell() {
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
 
+  const mountedRef = useRef(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const clearAllModalRef = useRef<HTMLDivElement | null>(null);
   const previousUnreadCountRef = useRef(0);
@@ -221,6 +222,13 @@ export function NotificationsBell() {
   const pointerStartXRef = useRef(0);
   const pointerStartOffsetRef = useRef(0);
   const suppressClickRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const loadCounterpartNames = useCallback(
     async (currentUserId: string, rows: NotificationItem[], signal?: AbortSignal) => {
@@ -251,11 +259,14 @@ export function NotificationsBell() {
       const { data: matchesData, error: matchesError } = await query;
 
       if (matchesError) {
-        if (
+        const isExpected =
           matchesError.message?.includes("abort") ||
-          matchesError.message?.includes("Failed to fetch")
-        )
-          return;
+          ((matchesError.message?.includes("Failed to fetch") ||
+            matchesError.message?.includes("FetchError")) &&
+            (signal?.aborted || !mountedRef.current));
+
+        if (isExpected) return;
+
         console.error(
           "Error loading match relations for notifications:",
           matchesError.message
@@ -301,11 +312,14 @@ export function NotificationsBell() {
       const { data: profilesData, error: profilesError } = await profilesQuery;
 
       if (profilesError) {
-        if (
+        const isExpected =
           profilesError.message?.includes("abort") ||
-          profilesError.message?.includes("Failed to fetch")
-        )
-          return;
+          ((profilesError.message?.includes("Failed to fetch") ||
+            profilesError.message?.includes("FetchError")) &&
+            (signal?.aborted || !mountedRef.current));
+
+        if (isExpected) return;
+
         console.error(
           "Error loading notification counterpart profiles:",
           profilesError.message
@@ -350,9 +364,10 @@ export function NotificationsBell() {
       if (error) {
         const isAbort =
           error.message?.includes("abort") ||
-          error.message?.includes("FetchError") ||
-          error.message?.includes("Failed to fetch") ||
-          error.code === "20";
+          error.code === "20" ||
+          ((error.message?.includes("FetchError") ||
+            error.message?.includes("Failed to fetch")) &&
+            (signal?.aborted || !mountedRef.current));
 
         if (isAbort) return;
 
@@ -667,7 +682,13 @@ export function NotificationsBell() {
         } = await supabase.auth.getUser();
 
         if (error) {
-          if (!error.message?.includes("abort")) {
+          const isExpected =
+            error.message?.includes("abort") ||
+            ((error.message?.includes("Failed to fetch") ||
+              error.message?.includes("FetchError")) &&
+              !mounted);
+
+          if (!isExpected) {
             console.error("Error getting current user:", error.message);
           }
           if (mounted) setLoading(false);
