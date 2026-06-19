@@ -6,43 +6,40 @@
 
 ## Objetivo de la sesion
 
-Implementar el PR D (Notificaciones Admin para Reportes Sospechosos).
+Implementar el PR de refuerzo admin para agregar confirmaciones a acciones críticas.
 
 ## Alcance ejecutado
 
-- Implementada Server Action `notifyAdminSuspiciousReportAction` en `app/app/matches/[id]/actions.ts` para notificar a los admins tras un reporte exitoso.
-- Agregada validación de seguridad en la Server Action (auth, existencia del reporte y autoría).
-- Mapeado el tipo `admin_suspicious_report_created` hacia `/app/admin/alerts` en `lib/notifications/navigation.ts`.
-- Integrada la llamada a la Server Action en `SuspiciousReportForm.tsx` tras el insert exitoso del reporte.
-- Actualizada la suite de pruebas unitarias para incluir el nuevo ruteo administrativo.
+- Integrado `IntraConfirmDialog` en `PayoutReviewClient.tsx` para las acciones de Aprobar, Rechazar y Marcar pagado en retiros.
+- Integrado `IntraConfirmDialog` en `DisputesReviewClient.tsx` para las acciones finales de resolución de disputas y alertas.
+- Configurado el estado de confirmación para evitar ejecuciones accidentales con un solo clic.
+- Asegurado el cumplimiento del Manual UI/UX INTRA v3.0 (sin window.alert/confirm, mobile first).
 
 ## Archivos tocados
 
-- `repos/intra/app/app/matches/[id]/actions.ts`
-- `repos/intra/app/app/matches/[id]/SuspiciousReportForm.tsx`
-- `repos/intra/lib/notifications/navigation.ts`
-- `repos/intra/tests/unit/lib/notifications/navigation.test.ts`
+- `repos/intra/app/app/admin/payouts/PayoutReviewClient.tsx`
+- `repos/intra/app/app/admin/disputes/DisputesReviewClient.tsx`
 
 ## Confirmaciones de alcance
 
-- No se modificó Wompi, Wallet transaccional, Ledger ni saldos.
-- No se crearon migraciones ni se cambió RLS.
-- No se abre disputa ni se cambia estado del match automáticamente.
-- El flujo de usuario no se bloquea si la notificación falla.
-- La Server Action valida que el reporte pertenezca al usuario que notifica.
+- No se modificó la lógica de negocio ni las Server Actions.
+- No se tocaron Wompi, Wallet transaccional, Ledger, RLS ni migraciones.
+- Las acciones de "En revisión" no requieren confirmación (no críticas/finales).
 
 ## Validaciones ejecutadas
 
-- `npm run test:unit tests/unit/lib/notifications/navigation.test.ts`: PASS (11/11).
 - `npm run lint`: PASS.
 - `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS (55 tests).
 - `npm run build`: PASS.
 
 ## Estado PR
 
-- Rama: `feat/admin-suspicious-report-notifications`.
+- Rama: `fix/admin-critical-action-confirmations`.
 - Estado: Preparado para PR.
 
 ## Pendiente despues de este PR
 
-- PR E: Notificaciones admin para disputas/evidencias/eventos críticos.
+- PR E: Notificaciones admin para disputas/evidencias.
+- RLS remoto.
+- Wompi + Wallet punta a punta.

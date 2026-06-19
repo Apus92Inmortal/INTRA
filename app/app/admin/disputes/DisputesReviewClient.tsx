@@ -12,6 +12,7 @@ import {
   AdminInboxTabs,
   AdminMetricCard,
 } from "@/app/app/admin/AdminUi"
+import { IntraConfirmDialog } from "@/components/ui"
 import { formatCop, formatDateTime } from "@/lib/payments/wallet"
 import {
   AdminCaseEvidencePanel,
@@ -517,6 +518,11 @@ export default function DisputesReviewClient({
   const [refundByPaymentId, setRefundByPaymentId] = useState<
     Record<string, string>
   >({})
+  const [confirmAction, setConfirmAction] = useState<{
+    type: "dispute" | "alert"
+    item: AdminDispute | AdminAlert
+    action: string
+  } | null>(null)
 
   const filteredDisputes = useMemo(
     () => filterByState(disputes, caseFilter, search),
@@ -590,7 +596,18 @@ export default function DisputesReviewClient({
   function handleDisputeAction(
     dispute: AdminDispute,
     action: "reviewing" | "customer_refund" | "traveler_release" | "rejected",
+    isConfirmed = false,
   ) {
+    if (
+      !isConfirmed &&
+      (action === "customer_refund" ||
+        action === "traveler_release" ||
+        action === "rejected")
+    ) {
+      setConfirmAction({ type: "dispute", item: dispute, action })
+      return
+    }
+
     if (action === "customer_refund") {
       const rawAmount = (refundByPaymentId[dispute.paymentId] ?? "").trim()
       if (!rawAmount) {
@@ -635,7 +652,21 @@ export default function DisputesReviewClient({
     })
   }
 
-  function handleAlertAction(alert: AdminAlert, action: string) {
+  function handleAlertAction(alert: AdminAlert, action: string, isConfirmed = false) {
+    const criticalAlertActions = [
+      "allow_shipment",
+      "reject_shipment",
+      "escalate_to_dispute",
+      "reprogram",
+      "cancel_match",
+      "dismiss",
+    ]
+
+    if (!isConfirmed && criticalAlertActions.includes(action)) {
+      setConfirmAction({ type: "alert", item: alert, action })
+      return
+    }
+
     setFeedback(null)
 
     startTransition(async () => {
@@ -805,6 +836,55 @@ export default function DisputesReviewClient({
             </div>
           )}
         </section>
+      ) : null}
+
+      {confirmAction ? (
+        <IntraConfirmDialog
+          open={!!confirmAction}
+          title={
+            confirmAction.action === "customer_refund"
+              ? "Reembolsar cliente"
+              : confirmAction.action === "traveler_release"
+                ? "Liberar pago a viajero"
+                : confirmAction.action === "rejected" ||
+                    confirmAction.action === "dismiss"
+                  ? "Cerrar caso"
+                  : confirmAction.action === "cancel_match"
+                    ? "Cancelar match"
+                    : "Confirmar acción"
+          }
+          description="Confirma que revisaste la evidencia disponible y que deseas aplicar esta resolución. Esta acción puede afectar el cierre del caso."
+          confirmLabel="Confirmar acción"
+          variant={
+            confirmAction.action === "rejected" ||
+            confirmAction.action === "cancel_match" ||
+            confirmAction.action === "reject_shipment"
+              ? "danger"
+              : "primary"
+          }
+          isLoading={isPending}
+          onConfirm={() => {
+            if (confirmAction.type === "dispute") {
+              handleDisputeAction(
+                confirmAction.item as AdminDispute,
+                confirmAction.action as
+                  | "reviewing"
+                  | "customer_refund"
+                  | "traveler_release"
+                  | "rejected",
+                true,
+              )
+            } else {
+              handleAlertAction(
+                confirmAction.item as AdminAlert,
+                confirmAction.action,
+                true,
+              )
+            }
+            setConfirmAction(null)
+          }}
+          onCancel={() => setConfirmAction(null)}
+        />
       ) : null}
     </div>
   )

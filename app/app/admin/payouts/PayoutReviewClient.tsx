@@ -9,6 +9,7 @@ import {
   AdminInboxTabs,
   AdminMetricCard,
 } from "@/app/app/admin/AdminUi"
+import { IntraConfirmDialog } from "@/components/ui"
 import { updatePayoutStatusAction } from "@/app/app/wallet/actions"
 import {
   formatCop,
@@ -260,6 +261,10 @@ export default function PayoutReviewClient({
   const [referenceById, setReferenceById] = useState<Record<string, string>>({})
   const [search, setSearch] = useState("")
   const [activeTab, setActiveTab] = useState<PayoutInboxTab>("pending")
+  const [confirmAction, setConfirmAction] = useState<{
+    payoutId: string
+    status: "approved" | "rejected" | "paid"
+  } | null>(null)
 
   const pendingPayouts = useMemo(
     () => payouts.filter((payout) => payout.status === "pending"),
@@ -311,7 +316,14 @@ export default function PayoutReviewClient({
   function handleStatusChange(
     payoutId: string,
     status: "approved" | "rejected" | "paid",
+    isConfirmed = false,
   ) {
+    if (!isConfirmed && (status === "approved" || status === "rejected" || status === "paid")) {
+      setConfirmAction({ payoutId, status })
+      return
+    }
+
+    setConfirmAction(null)
     setFeedback(null)
 
     startTransition(async () => {
@@ -527,6 +539,43 @@ export default function PayoutReviewClient({
           ) : null}
         </>
       )}
+
+      {confirmAction ? (
+        <IntraConfirmDialog
+          open={!!confirmAction}
+          title={
+            confirmAction.status === "approved"
+              ? "Aprobar retiro"
+              : confirmAction.status === "rejected"
+                ? "Rechazar retiro"
+                : "Marcar como pagado"
+          }
+          description={
+            confirmAction.status === "approved"
+              ? "Confirma que ya revisaste la solicitud y que deseas aprobar este retiro. Esta acción debe realizarse solo si la información está correcta."
+              : confirmAction.status === "rejected"
+                ? "Confirma que deseas rechazar esta solicitud de retiro. Revisa que el motivo esté claro antes de continuar."
+                : "Confirma que ya realizaste el pago y deseas marcar este retiro como pagado."
+          }
+          confirmLabel={
+            confirmAction.status === "approved"
+              ? "Sí, aprobar retiro"
+              : confirmAction.status === "rejected"
+                ? "Sí, rechazar retiro"
+                : "Sí, marcar como pagado"
+          }
+          variant={confirmAction.status === "rejected" ? "danger" : "primary"}
+          isLoading={isPending}
+          onConfirm={() =>
+            handleStatusChange(
+              confirmAction.payoutId,
+              confirmAction.status,
+              true,
+            )
+          }
+          onCancel={() => setConfirmAction(null)}
+        />
+      ) : null}
     </div>
   )
 }
