@@ -1,9 +1,34 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL =
-  process.env.SMOKE_BASE_URL ??
-  process.env.PLAYWRIGHT_BASE_URL ??
-  "https://intra-chi.vercel.app";
+const requiredEnvNames = [
+  "SMOKE_BASE_URL",
+  "SMOKE_CLIENT_EMAIL",
+  "SMOKE_CLIENT_PASSWORD",
+  "SMOKE_TRAVELER_EMAIL",
+  "SMOKE_TRAVELER_PASSWORD",
+] as const;
+
+function getRequiredEnv(name: (typeof requiredEnvNames)[number]) {
+  const value = process.env[name]?.trim();
+
+  if (!value) {
+    if (name === "SMOKE_BASE_URL") {
+      throw new Error(
+        "Falta SMOKE_BASE_URL. El smoke autenticado no usa production por defecto."
+      );
+    }
+
+    throw new Error(`Falta el secret requerido ${name}.`);
+  }
+
+  return value;
+}
+
+for (const name of requiredEnvNames) {
+  getRequiredEnv(name);
+}
+
+const baseURL = getRequiredEnv("SMOKE_BASE_URL");
 
 export default defineConfig({
   testDir: "./tests/smoke",

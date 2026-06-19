@@ -2,84 +2,66 @@
 
 ## Objetivo
 
-Validar de forma corta y no destructiva que los flujos autenticados principales de INTRA siguen vivos en Production antes de avanzar a UI/UX final.
+Validar de forma corta y no destructiva que el acceso autenticado de cliente y viajero sigue vivo antes de avanzar a smokes operativos.
 
-Este smoke no reemplaza pruebas end-to-end completas ni QA de pagos, wallet, disputas o seguridad.
+Este smoke no reemplaza QA de pagos, wallet, matches, envios, viajes, chat, disputas, seguridad ni revision manual del owner.
 
-## Alcance v1
+## Alcance
 
 - Login de cliente temporal.
-- Dashboard de cliente.
-- Campana de notificaciones de cliente.
-- Crear envío hasta checkout sin pagar.
+- Dashboard autenticado de cliente.
+- Navegacion segura de cliente por Inicio, Matches, Wallet y Perfil.
+- Logout de cliente.
 - Login de viajero temporal.
-- Dashboard de viajero.
-- Campana de notificaciones de viajero.
-- Crear viaje compatible cuando el formulario lo permita.
-- Revisar oportunidades compatibles si quedan disponibles.
-- Login de admin temporal.
-- Carga de `/app/admin`.
-- Carga de módulos admin de retiros, verificaciones y disputas/reportes.
-- Guard de payout pagado sin referencia solo si existe un payout aprobado de prueba visible.
+- Dashboard autenticado de viajero.
+- Navegacion segura de viajero por Inicio, Matches, Wallet y Perfil.
+- Logout de viajero.
 
-## Fuera de alcance v1
+## Fuera de alcance
 
-- Pago real.
-- Payment held simulado.
-- Release real.
-- Payout completo con dinero.
-- Disputa completa con pago real.
-- Resolución de disputa a favor de cliente o viajero si requiere fixtures de base de datos.
-- Paquete sospechoso completo si requiere match/pago armado.
+- Admin automatizado. El rol admin sera verificado manualmente por el owner.
+- Crear envios.
+- Publicar viajes.
+- Aceptar, rechazar o cancelar matches.
+- Enviar mensajes reales.
+- Confirmar entregas.
+- Abrir disputas.
+- Solicitar retiros.
+- Pagos Wompi reales o simulados desde el smoke.
+- Webhooks.
 - Fixtures con service role.
-- Cambios de producto, UI/UX, migraciones o lógica de dinero.
+- Cambios de producto, migraciones o logica sensible.
 
-## Secretos requeridos
+## Variables requeridas
 
-Cargar como GitHub Actions secrets del repo:
+El smoke exige variables explicitas y no apunta a production por defecto:
 
 - `SMOKE_BASE_URL`
 - `SMOKE_CLIENT_EMAIL`
 - `SMOKE_CLIENT_PASSWORD`
 - `SMOKE_TRAVELER_EMAIL`
 - `SMOKE_TRAVELER_PASSWORD`
-- `SMOKE_ADMIN_EMAIL`
-- `SMOKE_ADMIN_PASSWORD`
 
 No escribir valores reales en chat, docs, commits, PRs, issues ni archivos del repo.
 
-## Ejecución
+## Ejecucion
 
-1. Crear las cuentas temporales de cliente, viajero y admin.
-2. Agregar el admin temporal a `ADMIN_EMAILS` en Vercel Production.
-3. Redeployar Production para tomar la allowlist actualizada.
-4. Cargar los secrets en GitHub Actions.
-5. Ir a GitHub Actions.
-6. Ejecutar manualmente `Authenticated Smoke`.
-7. Revisar el log PASS/FAIL sin exponer secretos.
+Ejemplo:
 
-## Resultado validado
+```bash
+SMOKE_BASE_URL=http://127.0.0.1:3015 \
+SMOKE_CLIENT_EMAIL=cliente-temporal@example.com \
+SMOKE_CLIENT_PASSWORD='***' \
+SMOKE_TRAVELER_EMAIL=viajero-temporal@example.com \
+SMOKE_TRAVELER_PASSWORD='***' \
+npm run test:e2e:auth-smoke
+```
 
-Ejecucion manual en `main` el 2026-06-07:
-
-- Resultado general: PASS.
-- `Validate smoke secrets`: PASS.
-- `Run authenticated smoke`: PASS.
-- Cliente temporal: PASS.
-- Viajero temporal: PASS.
-- Admin temporal: PASS.
-- Duracion aproximada reportada por Aldo: 1 min 2 s.
-
-Commits/PRs relacionados:
-
-- PR #124: harness inicial, merge `d9127e6`.
-- PR #125: fix de fragilidad en smoke de envio, merge `2adf17e`.
-- PR #126: fix de fragilidad en smoke de viaje, merge `d4f4392`.
-- PR #127: cierre documental del smoke, merge `d5f3e2f`.
+Si falta `SMOKE_BASE_URL`, la prueba falla antes de abrir navegador con un mensaje claro. Si faltan credenciales, falla de forma controlada indicando el nombre de la variable requerida sin imprimir secretos.
 
 ## Seguridad
 
-La configuración de smoke usa:
+La configuracion de smoke usa:
 
 - `trace: off`
 - `screenshot: off`
@@ -87,22 +69,9 @@ La configuración de smoke usa:
 
 El workflow no sube artifacts. Los tests no imprimen credenciales ni valores de variables de entorno.
 
-## Limpieza posterior
+## Pendiente operativo
 
-- Retirar el admin temporal de `ADMIN_EMAILS`.
-- Redeployar Production.
-- Cambiar o eliminar las contraseñas temporales.
-- Eliminar datos de prueba solo si Aldo lo autoriza.
-
-## Limpieza confirmada
-
-Confirmado por Aldo el 2026-06-07:
-
-- GitHub Actions Secrets del smoke eliminados.
-- No quedan secrets de smoke activos en GitHub Actions.
-- Sin accesos temporales pendientes.
-- Aldo decidio no cambiar claves por ahora.
-
-Recomendacion pendiente:
-
-- Cambiar o eliminar claves usadas en smoke cuando Aldo lo considere conveniente.
+- Definir ambiente autorizado: preview, staging, local o produccion controlada.
+- Proveer cuentas temporales de cliente y viajero.
+- Ejecutar el smoke completo contra ese ambiente.
+- Verificar admin manualmente por el owner.

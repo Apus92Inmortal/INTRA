@@ -1,16 +1,49 @@
-import { expect, test, type Browser, type Locator, type Page } from "@playwright/test";
+import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
-type SmokeRole = "cliente" | "viajero" | "admin";
+type SmokeRole = "cliente" | "viajero";
 
-type SmokeCredentials = {
-  email: string;
-  password: string;
+type SmokeRoleSpec = {
+  role: SmokeRole;
+  emailEnv: string;
+  passwordEnv: string;
 };
 
-const shipmentDescription = `Smoke envio temporal ${Date.now()}`;
-const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
-  .toISOString()
-  .slice(0, 10);
+type RuntimeIssue = {
+  source: "console" | "pageerror";
+  message: string;
+};
+
+const roleSpecs: SmokeRoleSpec[] = [
+  {
+    role: "cliente",
+    emailEnv: "SMOKE_CLIENT_EMAIL",
+    passwordEnv: "SMOKE_CLIENT_PASSWORD",
+  },
+  {
+    role: "viajero",
+    emailEnv: "SMOKE_TRAVELER_EMAIL",
+    passwordEnv: "SMOKE_TRAVELER_PASSWORD",
+  },
+];
+
+const safeSections = [
+  {
+    label: "Inicio",
+    heading: /Hola|Tu operación|Panel/i,
+  },
+  {
+    label: "Matches",
+    heading: /^Matches$/i,
+  },
+  {
+    label: "Wallet",
+    heading: /Mi wallet/i,
+  },
+  {
+    label: "Perfil",
+    heading: /Mi perfil/i,
+  },
+] as const;
 
 function getRequiredSecret(name: string) {
   const value = process.env[name]?.trim();
@@ -22,238 +55,116 @@ function getRequiredSecret(name: string) {
   return value;
 }
 
-function getCredentials(role: SmokeRole): SmokeCredentials {
-  if (role === "cliente") {
-    return {
-      email: getRequiredSecret("SMOKE_CLIENT_EMAIL"),
-      password: getRequiredSecret("SMOKE_CLIENT_PASSWORD"),
-    };
-  }
-
-  if (role === "viajero") {
-    return {
-      email: getRequiredSecret("SMOKE_TRAVELER_EMAIL"),
-      password: getRequiredSecret("SMOKE_TRAVELER_PASSWORD"),
-    };
-  }
-
+function getCredentials(spec: SmokeRoleSpec) {
   return {
-    email: getRequiredSecret("SMOKE_ADMIN_EMAIL"),
-    password: getRequiredSecret("SMOKE_ADMIN_PASSWORD"),
+    email: getRequiredSecret(spec.emailEnv),
+    password: getRequiredSecret(spec.passwordEnv),
   };
 }
 
-async function newSmokePage(browser: Browser, role: SmokeRole) {
+function attachRuntimeIssueCollector(page: Page) {
+  const issues: RuntimeIssue[] = [];
+
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      issues.push({
+        source: "console",
+        message: message.text().slice(0, 500),
+      });
+    }
+  });
+
+  page.on("pageerror", (error) => {
+    issues.push({
+      source: "pageerror",
+      message: error.message.slice(0, 500),
+    });
+  });
+
+  return issues;
+}
+
+async function newSmokePage(browser: Browser, spec: SmokeRoleSpec) {
   const context = await browser.newContext();
   const page = await context.newPage();
+  const runtimeIssues = attachRuntimeIssueCollector(page);
 
-  await test.step(`login ${role}`, async () => {
-    const { email, password } = getCredentials(role);
+  await test.step(`login ${spec.role}`, async () => {
+    const { email, password } = getCredentials(spec);
 
     await page.goto("/app?tab=login");
-    await expect(
-      page.getByRole("heading", { name: /Bienvenido de nuevo/i })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Entra a INTRA" })).toBeVisible();
 
-    await page.getByPlaceholder("tu@email.com").fill(email);
-    await page.getByPlaceholder("tu contraseña").fill(password);
+    await page.getByLabel("Correo").fill(email);
+    await page.getByLabel("Contraseña").fill(password);
     await page.getByRole("button", { name: /^Entrar$/i }).click();
 
     await expect(page.getByRole("link", { name: /^Inicio$/i })).toBeVisible();
+    await expectNoFatalAppState(page);
   });
 
-  return { context, page };
-}
-
-async function openNotifications(page: Page) {
-  await page.getByRole("button", { name: "Notificaciones" }).click();
-  await expect(page.getByRole("heading", { name: "Notificaciones" })).toBeVisible();
-}
-
-async function closeNotifications(page: Page) {
-  await page.keyboard.press("Escape");
-}
-
-async function selectCity(page: Page, selector: string, preferredNames: string[]) {
-  const selectedValue = await page.locator(selector).evaluate((select, names) => {
-    const element = select as HTMLSelectElement;
-    const options = Array.from(element.options).filter((option) => option.value);
-    const preferred = options.find((option) =>
-      (names as string[]).some((name) =>
-        option.textContent?.toLowerCase().includes(name.toLowerCase())
-      )
-    );
-
-    return preferred?.value ?? options[0]?.value ?? "";
-  }, preferredNames);
-
-  if (!selectedValue) {
-    throw new Error(`No hay ciudades disponibles para ${selector}.`);
-  }
-
-  await page.locator(selector).selectOption(selectedValue);
-}
-
-async function fillCompatibleRoute(page: Page, prefix: "shipment" | "trip") {
-  await selectCity(page, `#${prefix}-origin-city`, ["Bogotá", "Bogota"]);
-  await selectCity(page, `#${prefix}-destination-city`, ["Medellín", "Medellin"]);
-}
-
-async function isVisible(locator: Locator) {
-  return locator.first().isVisible().catch(() => false);
-}
-
-function isAppDashboardUrl(value: string) {
-  return new URL(value).pathname === "/app";
+  return { context, page, runtimeIssues };
 }
 
 async function expectNoFatalAppState(page: Page) {
-  const fatalError = page.getByText(/Application error|Internal Server Error|Error 500/i);
-
-  if (await isVisible(fatalError)) {
-    throw new Error("La app mostró un error fatal durante el smoke.");
-  }
+  await expect(
+    page.getByText(
+      /Application error|Internal Server Error|Error 500|This page could not be found|Página no encontrada|No pudimos cargar/i
+    )
+  ).toHaveCount(0);
 }
 
-async function expectTripSubmitControlledResult(page: Page) {
-  await expect(async () => {
-    await expectNoFatalAppState(page);
-
-    const currentUrl = page.url();
-    const onDashboard = isAppDashboardUrl(currentUrl);
-    const onTripForm = new URL(currentUrl).pathname === "/app/trips/new";
-    const successVisible = await isVisible(page.getByText(/Viaje publicado correctamente/i));
-    const publishErrorVisible = await isVisible(page.getByText(/Error publicando viaje/i));
-    const tripFormVisible = await isVisible(page.locator("#trip-origin-city"));
-    const sessionVisible = await isVisible(page.getByRole("link", { name: /^Inicio$/i }));
-
-    if (publishErrorVisible) {
-      throw new Error("El formulario de viaje reportó un error explícito al publicar.");
-    }
-
-    if (successVisible || onDashboard || (onTripForm && tripFormVisible && sessionVisible)) {
-      return;
-    }
-
-    throw new Error("El submit de viaje no llegó a un estado controlado.");
-  }).toPass({ timeout: 15_000 });
+function expectNoRuntimeIssues(runtimeIssues: RuntimeIssue[]) {
+  expect(
+    runtimeIssues,
+    runtimeIssues
+      .map((issue) => `${issue.source}: ${issue.message}`)
+      .join("\n")
+  ).toEqual([]);
 }
 
-test("cliente temporal: dashboard, notificaciones y envío hasta checkout seguro", async ({
-  browser,
-}) => {
-  const { context, page } = await newSmokePage(browser, "cliente");
+async function expectAuthenticatedShell(page: Page) {
+  await expect(page.getByRole("link", { name: /^Inicio$/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Matches$/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Wallet$/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Perfil$/i })).toBeVisible();
+  await expectNoFatalAppState(page);
+}
 
-  await test.step("dashboard cliente carga", async () => {
-    await page.goto("/app");
-    await expect(page.getByRole("link", { name: /^Inicio$/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Crear envío/i }).first()).toBeVisible();
-  });
+async function visitSafeSection(page: Page, section: (typeof safeSections)[number]) {
+  await page.getByRole("link", { name: new RegExp(`^${section.label}$`, "i") }).click();
+  await expect(page.getByRole("heading", { name: section.heading }).first()).toBeVisible();
+  await expectAuthenticatedShell(page);
+}
 
-  await test.step("campana cliente carga", async () => {
-    await openNotifications(page);
-    await expect(
-      page.getByText(/Cargando|Sin novedades|Marcar leídas/i).first()
-    ).toBeVisible();
-    await closeNotifications(page);
-  });
-
-  await test.step("crear envío llega a checkout sin pago real", async () => {
-    await page.goto("/app/shipments/new");
-    await page.getByRole("button", { name: /Continuar/i }).click();
-    await expect(page).toHaveURL(/\/app\/shipments\/new/);
-    await expect(page.locator("#shipment-origin-city")).toBeVisible();
-
-    await fillCompatibleRoute(page, "shipment");
-    await page.locator("#shipment-kind").selectOption("document");
-    await page.locator("#shipment-description").fill(shipmentDescription);
-    await page.locator("#shipment-weight-kg").fill("1");
-    await page.locator("#shipment-declared-value").fill("50000");
-
-    await page.getByRole("button", { name: /Continuar/i }).click();
-    await expect(page).toHaveURL(/\/app\/payments\/checkout/);
-    await expect(page.getByText(/Checkout seguro/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /Pagar con Wompi/i })).toBeVisible();
-  });
-
+async function logout(context: BrowserContext, page: Page) {
+  await page.goto("/app/profile");
+  await expect(page.getByRole("heading", { name: /Mi perfil/i })).toBeVisible();
+  await page.getByRole("button", { name: /Cerrar sesión/i }).click();
+  await expect(page.getByRole("heading", { name: "Entra a INTRA" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Inicio$/i })).toHaveCount(0);
   await context.close();
-});
+}
 
-test("viajero temporal: dashboard, notificaciones y publicación de viaje", async ({
-  browser,
-}) => {
-  const { context, page } = await newSmokePage(browser, "viajero");
+for (const spec of roleSpecs) {
+  test(`${spec.role}: login, dashboard, navegacion segura y logout`, async ({ browser }) => {
+    const { context, page, runtimeIssues } = await newSmokePage(browser, spec);
 
-  await test.step("dashboard viajero carga", async () => {
-    await page.goto("/app");
-    await expect(page.getByRole("link", { name: /^Inicio$/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Publicar viaje/i }).first()).toBeVisible();
+    await test.step("dashboard autenticado carga", async () => {
+      await page.goto("/app");
+      await expectAuthenticatedShell(page);
+    });
+
+    await test.step("navegacion basica segura carga", async () => {
+      for (const section of safeSections) {
+        await visitSafeSection(page, section);
+      }
+    });
+
+    await test.step("logout cierra la sesion", async () => {
+      await logout(context, page);
+    });
+
+    expectNoRuntimeIssues(runtimeIssues);
   });
-
-  await test.step("campana viajero carga", async () => {
-    await openNotifications(page);
-    await expect(
-      page.getByText(/Cargando|Sin novedades|Marcar leídas/i).first()
-    ).toBeVisible();
-    await closeNotifications(page);
-  });
-
-  await test.step("crear viaje compatible si formulario lo permite", async () => {
-    await page.goto("/app/trips/new");
-    await fillCompatibleRoute(page, "trip");
-    await page.locator("#trip-departure-date").fill(tomorrow);
-    await page.locator("#trip-departure-time").fill("10:30");
-    await page.locator("#trip-capacity-kg").fill("5");
-    await page.locator("#trip-flight-number").fill("AV1234");
-
-    await page.getByRole("button", { name: /Publicar viaje/i }).click();
-
-    await expectTripSubmitControlledResult(page);
-  });
-
-  await test.step("oportunidades compatibles no rompen", async () => {
-    await page.goto("/app#envios-compatibles");
-    await expect(
-      page.getByText(/Envíos compatibles|No hay envíos compatibles|Publica un envío/i).first()
-    ).toBeVisible();
-  });
-
-  await context.close();
-});
-
-test("admin temporal: paneles administrativos cargan", async ({ browser }) => {
-  const { context, page } = await newSmokePage(browser, "admin");
-
-  await test.step("panel admin carga", async () => {
-    await page.goto("/app/admin");
-    await expect(page.getByRole("heading", { name: /Panel de Administración/i })).toBeVisible();
-  });
-
-  await test.step("payouts cargan y guard sin referencia si hay caso seguro", async () => {
-    await page.goto("/app/admin/payouts");
-    await expect(page.getByRole("heading", { name: /Panel de Administración/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Retiros/i })).toBeVisible();
-
-    const markPaid = page.getByRole("button", { name: /Marcar pagado/i }).first();
-    if ((await markPaid.count()) > 0 && (await markPaid.isEnabled())) {
-      await markPaid.click();
-      await expect(
-        page.getByText(/referencia externa|Registra la referencia/i).first()
-      ).toBeVisible();
-    }
-  });
-
-  await test.step("verificaciones cargan", async () => {
-    await page.goto("/app/admin/verifications");
-    await expect(page.getByRole("link", { name: /Verificaciones/i })).toBeVisible();
-    await expect(page.getByText(/Verificaciones/i).first()).toBeVisible();
-  });
-
-  await test.step("disputas y reportes cargan", async () => {
-    await page.goto("/app/admin/disputes");
-    await expect(page.getByRole("link", { name: /Disputas/i })).toBeVisible();
-    await expect(page.getByText(/Disputas|reportes|alertas/i).first()).toBeVisible();
-  });
-
-  await context.close();
-});
+}
