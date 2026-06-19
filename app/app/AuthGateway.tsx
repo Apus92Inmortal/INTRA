@@ -357,10 +357,11 @@ export default function AuthGateway({
                 {tab === "register" ? (
                   <div className="grid gap-3 lg:grid-cols-2">
                     <div>
-                      <label className="intra-label">
+                      <label className="intra-label" htmlFor="register-full-name">
                         Nombre completo
                       </label>
                       <input
+                        id="register-full-name"
                         className="intra-input mt-1"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
@@ -369,10 +370,11 @@ export default function AuthGateway({
                       />
                     </div>
                     <div>
-                      <label className="intra-label">
+                      <label className="intra-label" htmlFor="register-phone">
                         Teléfono
                       </label>
                       <input
+                        id="register-phone"
                         className="intra-input mt-1"
                         type="tel"
                         inputMode="tel"
@@ -388,8 +390,9 @@ export default function AuthGateway({
                 {tab === "register" ? (
                   <div className="grid gap-3 lg:grid-cols-2">
                     <div>
-                      <label className="intra-label">Correo</label>
+                      <label className="intra-label" htmlFor="register-email">Correo</label>
                       <input
+                        id="register-email"
                         className="intra-input mt-1"
                         type="email"
                         value={registerEmail}
@@ -400,10 +403,11 @@ export default function AuthGateway({
                     </div>
 
                     <div>
-                      <label className="intra-label">
+                      <label className="intra-label" htmlFor="register-password">
                         Contraseña
                       </label>
                       <input
+                        id="register-password"
                         className="intra-input mt-1"
                         type="password"
                         value={registerPassword}
@@ -417,8 +421,9 @@ export default function AuthGateway({
                 ) : (
                   <>
                     <div>
-                      <label className="intra-label">Correo</label>
+                      <label className="intra-label" htmlFor="login-email">Correo</label>
                       <input
+                        id="login-email"
                         className="intra-input mt-1"
                         type="email"
                         value={loginEmail}
@@ -430,7 +435,7 @@ export default function AuthGateway({
 
                     <div>
                       <div className="flex items-center justify-between gap-3">
-                        <label className="intra-label">
+                        <label className="intra-label" htmlFor="login-password">
                           Contraseña
                         </label>
                         <Link
@@ -441,6 +446,7 @@ export default function AuthGateway({
                         </Link>
                       </div>
                       <input
+                        id="login-password"
                         className="intra-input mt-1"
                         type="password"
                         value={loginPassword}

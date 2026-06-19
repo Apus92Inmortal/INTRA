@@ -12,104 +12,95 @@
 
 ## P0 - En revision
 
-### TASK-028: Public legal footer links
+### TASK-029: Public E2E update
 
 Estado: REVIEW
+Prioridad: Media
+Area: E2E publico / Landing y auth gateway publico
+
+Resumen:
+
+- Actualizar E2E publico desactualizado para reflejar la landing/app publica actual.
+- Evitar dependencias de copy largo o viejo.
+- Validar home publica, marca INTRA, CTAs publicos, login, registro, rutas legales publicas existentes y mobile sin scroll horizontal.
+- Agregar asociaciones accesibles `htmlFor`/`id` en labels de auth solo para habilitar selectores estables y mejorar accesibilidad, sin cambio visual.
+
+Archivos:
+
+- `tests/e2e/home.spec.ts`.
+- `app/app/AuthGateway.tsx`.
+- `docs/agent/CURRENT_SESSION.md`.
+- `docs/agent/TASKS.md`.
+
+Alcance:
+
+- No tocar Wompi.
+- No tocar wallet.
+- No tocar Supabase.
+- No tocar RLS, migraciones, tablas ni RPCs.
+- No tocar webhooks.
+- No tocar matches, envios, viajes, chat ni admin panel.
+- No cambiar logica autenticada.
+- No tocar variables de entorno.
+- No redisenar la landing.
+- No hacer deploy manual.
+
+Validaciones:
+
+- `npm run test:e2e`: FAIL inicial por copy antiguo `Registrarse gratis`.
+- `npm run test:e2e`: FAIL esperado por labels no asociados en auth gateway.
+- `npm run test:e2e`: PASS, 4 tests.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 14 archivos / 44 tests.
+- `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
+
+Estado de cierre:
+
+- Rama: `test/fix-public-e2e`.
+- PR #163 creado contra `main`.
+- Pendiente: esperar checks remotos y revision/merge. Sin deploy manual.
+
+---
+
+## Done Log
+
+### TASK-028: Public legal footer links
+
+Estado: DONE
 Prioridad: Media
 Area: Landing publica `/` / Legal publico
 
 Resumen:
 
-- Corregir links legales del footer publico de INTRA.
-- `Términos y condiciones` debe abrir `/legal/terms-conditions`.
-- `Política de privacidad` debe abrir `/legal/privacy-policy`.
-- Crear paginas publicas simples si no existen.
-- Reutilizar contenido legal versionado existente.
-- Mantener diseno alineado con Manual UI/UX INTRA v3.0.
-- Ajuste post-review: renderizar el contenido legal como documento en un solo contenedor blanco, no como lista de cards operativas.
-- Ajuste final post-review: quitar `Contáctanos` como link del footer y mostrar contacto visible bajo Legal.
-- Ajuste visual final: labels `Navegación`, `Legal` y `Contacto` en color oscuro consistente.
-
-Archivos:
-
-- `app/page.tsx`.
-- `app/legal/_components/PublicLegalDocumentPage.tsx`.
-- `app/legal/terms-conditions/page.tsx`.
-- `app/legal/privacy-policy/page.tsx`.
-- `tests/unit/app/home-page.test.tsx`.
-- `tests/unit/app/public-legal-pages.test.tsx`.
-
-Alcance:
-
-- No tocar pagos.
-- No tocar wallet.
-- No tocar Supabase.
-- No tocar RLS, migraciones, tablas ni RPCs.
-- No cambiar logica de aceptacion legal.
-- No redisenar la landing completa.
-- No hacer deploy manual.
-- Mantener header azul legal, boton `Volver al inicio`, rutas y contenido versionado.
-- No crear `/contacto`, formulario ni integracion de correo.
+- Footer publico corregido con links legales funcionales:
+  - `/legal/terms-conditions`.
+  - `/legal/privacy-policy`.
+- Paginas legales publicas creadas reutilizando contenido legal versionado.
+- Cuerpo legal ajustado a un solo contenedor blanco tipo documento.
+- Contacto visible en footer:
+  - `soporte@intra.com.co`.
+  - `+57 301 231 9742`.
+- `Contáctanos` ya no queda como link.
 
 Validaciones:
 
-- TDD rojo verificado: footer fallaba por `href="#"` y rutas legales inexistentes.
 - `git diff --check`: PASS.
-- `npm run test:unit -- tests/unit/app/home-page.test.tsx tests/unit/app/public-legal-pages.test.tsx`: PASS, 2 archivos / 3 tests.
 - `npm run lint`: PASS.
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 14 archivos / 44 tests.
-- `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
-- Post-review:
-  - `git diff --check`: PASS.
-  - `npm run test:unit -- tests/unit/app/home-page.test.tsx tests/unit/app/public-legal-pages.test.tsx`: PASS, 2 archivos / 3 tests.
-  - auditoria en archivos tocados: sin `alert()`, `confirm()`, SVG inline ni hex hardcoded.
-  - `npm run lint`: PASS.
-  - `npx tsc --noEmit`: PASS.
-  - `npm run test:unit`: PASS, 14 archivos / 44 tests.
-  - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
-- Smoke local `/`, `/legal/terms-conditions` y `/legal/privacy-policy`:
-  - desktop 1440x900: PASS.
-  - mobile 390x844: PASS.
-  - mobile 320x740: PASS.
-  - sin scroll horizontal.
-- Smoke local post-review:
-  - desktop 1440x900: PASS.
-  - mobile 390x844: PASS.
-  - mobile 320x740: PASS.
-  - header azul, boton `Volver al inicio` y un unico contenedor blanco principal verificados.
-  - sin scroll horizontal.
-- Footer post-review:
-  - TDD rojo verificado: `Contáctanos` seguia como link antes del ajuste.
-  - `npm run test:unit -- tests/unit/app/home-page.test.tsx`: PASS.
-  - `git diff --check`: PASS.
-  - auditoria en archivos tocados: sin `alert()`, `confirm()`, SVG inline ni hex hardcoded.
-  - `npm run lint`: PASS.
-  - `npx tsc --noEmit`: PASS.
-  - `npm run test:unit`: PASS, 14 archivos / 44 tests.
-  - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
-  - smoke local `127.0.0.1:3011`:
-    - desktop 1440x900: PASS.
-    - mobile 390x844: PASS.
-    - mobile 320x740: PASS.
-    - links legales intactos, `Contáctanos` ausente como link, contacto visible y sin scroll horizontal.
-- Footer label color:
-  - `git diff --check`: PASS.
-  - `npm run lint`: PASS.
-  - `npx tsc --noEmit`: PASS.
-  - `npm run test:unit`: PASS, 14 archivos / 44 tests.
-  - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
-  - smoke local desktop/mobile 390/mobile 320: PASS, labels visibles en color oscuro y sin scroll horizontal.
+- `npm run build`: PASS.
+- Smoke local desktop/mobile 390/mobile 320: PASS.
+- Checks remotos antes del merge: `validate`, `detect-impact`, Vercel y preview comment en SUCCESS.
 
-Estado de cierre:
+Cierre:
 
-- Rama: `fix/public-legal-footer-links`.
-- PR #162 creado contra `main`.
-- Pendiente: actualizar PR con ajuste visual final y esperar revision/merge. Sin deploy manual.
+- PR #162 mergeado a `main`.
+- Merge commit: `bfcce0e`.
+- Rama local/remota eliminada.
+- Sin deploy manual.
 
 ---
-
-## Done Log
 
 ### TASK-024: Dashboard active shipment cancel menu while waiting traveler
 
