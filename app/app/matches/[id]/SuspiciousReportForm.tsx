@@ -167,16 +167,17 @@ export default function SuspiciousReportForm({
       }
 
       // Notificar a los administradores tras éxito de inserts locales
-      // No bloqueamos el flujo principal si falla la notificación
+      // Usamos await para asegurar la persistencia en entornos serverless/Vercel.
+      // notifyAdminSuspiciousReportAction maneja sus propios errores internamente.
       if (matchId && reportData?.id) {
-        notifyAdminSuspiciousReportAction(matchId, reportData.id).catch(
-          (err) => {
-            console.error(
-              "Error al invocar notificación admin de reporte:",
-              err
-            );
-          }
-        );
+        try {
+          await notifyAdminSuspiciousReportAction(matchId, reportData.id);
+        } catch (notifyError) {
+          console.error(
+            "Error al invocar notificación admin de reporte:",
+            notifyError
+          );
+        }
       }
     } catch (error) {
       setLoading(false);
