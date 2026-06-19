@@ -311,9 +311,13 @@ const atlasLandingHtml = String.raw`
       <div>
         <h3 class="intra-body-strong">Legal</h3>
         <div class="list" style="margin-top:12px">
-          <a class="intra-body" href="#">Términos y condiciones</a>
-          <a class="intra-body" href="#">Política de privacidad</a>
-          <a class="intra-body" href="mailto:soporte@intra.com.co">Contáctanos</a>
+          <a class="intra-body" href="/legal/terms-conditions">Términos y condiciones</a>
+          <a class="intra-body" href="/legal/privacy-policy">Política de privacidad</a>
+        </div>
+        <div class="footer-contact">
+          <h4 class="intra-body-strong">Contacto</h4>
+          <a class="intra-body" href="mailto:soporte@intra.com.co">soporte@intra.com.co</a>
+          <p class="intra-body">+57 301 231 9742</p>
         </div>
       </div>
     </div>
@@ -542,12 +546,17 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
 .footer-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:44px 36px}
 .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:36px;align-items:start}
 .footer h2{margin-bottom:0}
-.footer h3{margin-bottom:0;color:var(--muted)}
+.footer h3{margin-bottom:0;color:var(--brand)}
 .footer hr{border:none;border-top:1px solid var(--line);margin:28px 0 0}
 .footer-bottom{display:flex;justify-content:space-between;gap:20px;padding-top:18px;color:var(--muted)}
 .list{display:flex;flex-direction:column;gap:14px}
 .list a{color:var(--muted);transition:color .2s}
 .list a:hover{color:var(--green)}
+.footer-contact{display:flex;flex-direction:column;gap:8px;margin-top:22px}
+.footer-contact h4{color:var(--brand)}
+.footer-contact a,.footer-contact p{color:var(--muted)}
+.footer-contact a{transition:color .2s}
+.footer-contact a:hover{color:var(--green)}
 .footer-socials{display:flex;gap:12px;margin-top:16px}
 .social-link{
   color:var(--muted);
