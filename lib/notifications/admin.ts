@@ -32,18 +32,18 @@ export async function notifyAdmins(payload: AdminNotificationPayload) {
     return
   }
 
-  const supabase = createAdminClient()
-
-  const notifications = adminIds.map((userId) => ({
-    user_id: userId,
-    type: payload.type,
-    title: payload.title,
-    message: payload.message,
-    related_match_id: payload.related_match_id ?? null,
-    is_read: false,
-  }))
-
   try {
+    const supabase = createAdminClient()
+
+    const notifications = adminIds.map((userId) => ({
+      user_id: userId,
+      type: payload.type,
+      title: payload.title,
+      message: payload.message,
+      related_match_id: payload.related_match_id ?? null,
+      is_read: false,
+    }))
+
     const { error } = await supabase.from("notifications").insert(notifications)
 
     if (error) {

@@ -305,15 +305,14 @@ export async function requestPayoutAction(formData: FormData): Promise<ActionRes
     revalidatePath("/app/wallet/payout")
     revalidatePath("/app/admin/payouts")
 
-    // Notificar a los administradores de forma asíncrona
-    // No usamos await para no bloquear el flujo del usuario si la notificación falla
-    notifyAdmins({
+    // Notificar a los administradores
+    // Usamos await para asegurar que se procese en entornos serverless/Vercel.
+    // notifyAdmins maneja sus propios errores internamente para no bloquear el flujo.
+    await notifyAdmins({
       type: "admin_payout_requested",
       title: "Nuevo retiro solicitado",
       message: `Un usuario ha solicitado un retiro de $${amount.toLocaleString("es-CO")}.`,
-    }).catch((err) => {
-      console.error("Error al intentar notificar admins sobre retiro:", err);
-    });
+    })
 
     return { success: true, message: "Solicitud de retiro enviada." }
   } catch (error) {
