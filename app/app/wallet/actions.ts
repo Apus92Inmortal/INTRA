@@ -6,6 +6,7 @@ import { PAYMENTS_POLICY_DOCUMENT } from "@/lib/legal/documents"
 import { WALLET_PAYOUT_ACCEPTANCE_FLOW } from "@/lib/legal/policy-acceptance"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
+import { notifyAdmins } from "@/lib/notifications/admin"
 
 type ActionResult = {
   success: boolean
@@ -303,6 +304,15 @@ export async function requestPayoutAction(formData: FormData): Promise<ActionRes
     revalidatePath("/app/wallet/history")
     revalidatePath("/app/wallet/payout")
     revalidatePath("/app/admin/payouts")
+
+    // Notificar a los administradores
+    // Usamos await para asegurar que se procese en entornos serverless/Vercel.
+    // notifyAdmins maneja sus propios errores internamente para no bloquear el flujo.
+    await notifyAdmins({
+      type: "admin_payout_requested",
+      title: "Nuevo retiro solicitado",
+      message: `Un usuario ha solicitado un retiro de $${amount.toLocaleString("es-CO")}.`,
+    })
 
     return { success: true, message: "Solicitud de retiro enviada." }
   } catch (error) {

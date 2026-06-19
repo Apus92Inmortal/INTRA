@@ -6,43 +6,43 @@
 
 ## Objetivo de la sesion
 
-Finalizar y validar el PR B para el mapeo de navegación de notificaciones existentes.
+Implementar el PR C (Notificaciones Admin) para alertas de retiros pendientes.
 
 ## Alcance ejecutado
 
-- Implementado `getNotificationHref` en `lib/notifications/navigation.ts` para mapear tipos de notificación a rutas seguras.
-- Integrado `getNotificationHref` en `NotificationsBell.tsx`.
-- Refinado el manejo de errores en `NotificationsBell.tsx` para silenciar `Failed to fetch` durante el cleanup, complementando el PR #166.
-- Creada suite de pruebas unitarias en `tests/unit/lib/notifications/navigation.test.ts` con cobertura para los tipos principales (Match, Wallet, Perfil).
+- Creado helper server-side `notifyAdmins` en `lib/notifications/admin.ts`.
+- Integrada la notificación `admin_payout_requested` en `requestPayoutAction` de forma asíncrona.
+- Configurada la navegación de `admin_payout_requested` hacia `/app/admin/payouts` en `lib/notifications/navigation.ts`.
+- Actualizada la suite de pruebas unitarias para incluir el nuevo ruteo administrativo.
 
 ## Archivos tocados
 
+- `repos/intra/lib/notifications/admin.ts` (Nuevo)
 - `repos/intra/lib/notifications/navigation.ts`
 - `repos/intra/tests/unit/lib/notifications/navigation.test.ts`
-- `repos/intra/components/notifications-bell.tsx`
+- `repos/intra/app/app/wallet/actions.ts`
 
 ## Confirmaciones de alcance
 
-- No se agregó columna `url` a la base de datos.
-- No se tocaron Wompi, Wallet transaccional, Supabase RLS, migraciones ni webhooks.
-- Los tipos de notificación desconocidos no rompen la navegación.
+- No se incluyeron reportes sospechosos (PR D).
+- No se modificó Wompi, Wallet transaccional, Ledger ni saldos.
+- La RPC `request_payout` no fue alterada.
+- No se crearon migraciones ni se cambió RLS.
+- El flujo de usuario no se bloquea si la notificación falla.
 
 ## Validaciones ejecutadas
 
-- `npm run test:unit tests/unit/lib/notifications/navigation.test.ts`: PASS (9/9).
+- `npm run test:unit tests/unit/lib/notifications/navigation.test.ts`: PASS (10/10).
 - `npm run lint`: PASS.
 - `npx tsc --noEmit`: PASS.
 - `npm run build`: PASS.
 
-## Hallazgos / Riesgos
-
-- El smoke test autenticado en producción sigue fallando en el paso de login por causas externas (credenciales o rate-limit), independiente de los cambios de este PR. El hallazgo ha sido clasificado y reportado.
-
 ## Estado PR
 
-- Rama: `fix/notification-navigation`.
+- Rama: `feat/admin-payout-notifications`.
 - Estado: Preparado para PR.
 
 ## Pendiente despues de este PR
 
-- PR C: Evaluar/agregar notificaciones admin para retiros/disputas.
+- PR D: Notificaciones admin para reportes sospechosos.
+- PR E: Notificaciones admin para disputas/evidencias.

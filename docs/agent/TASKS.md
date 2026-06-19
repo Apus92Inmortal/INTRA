@@ -12,6 +12,40 @@
 
 ## P0 - En revision
 
+### TASK-034: Admin Payout Notifications (PR C)
+
+Estado: REVIEW
+Prioridad: Media
+Area: Notificaciones / Admin / Wallet
+
+Resumen:
+
+- Notificar a los admins sobre solicitudes de retiro pendientes.
+- Implementar helper `notifyAdmins` en `lib/notifications/admin.ts`.
+- Configurar navegación de `admin_payout_requested` -> `/app/admin/payouts`.
+- Integrar en `requestPayoutAction` de forma no bloqueante.
+
+Archivos:
+
+- `repos/intra/lib/notifications/admin.ts`.
+- `repos/intra/lib/notifications/navigation.ts`.
+- `repos/intra/tests/unit/lib/notifications/navigation.test.ts`.
+- `repos/intra/app/app/wallet/actions.ts`.
+
+Validaciones:
+
+- `npm run test:unit`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Estado de cierre:
+
+- Rama: `feat/admin-payout-notifications`.
+- PR: #168.
+
+---
+
 ### TASK-033: Notification navigation mapping (PR B)
 
 Estado: REVIEW
