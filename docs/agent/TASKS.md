@@ -12,58 +12,97 @@
 
 ## P0 - En revision
 
-### TASK-029: Public E2E update
+### TASK-030: Auth smoke client/traveler guardrails
 
 Estado: REVIEW
 Prioridad: Media
-Area: E2E publico / Landing y auth gateway publico
+Area: Smoke autenticado / Cliente y viajero
 
 Resumen:
 
-- Actualizar E2E publico desactualizado para reflejar la landing/app publica actual.
-- Evitar dependencias de copy largo o viejo.
-- Validar home publica, marca INTRA, CTAs publicos, login, registro, rutas legales publicas existentes y mobile sin scroll horizontal.
-- Agregar asociaciones accesibles `htmlFor`/`id` en labels de auth solo para habilitar selectores estables y mejorar accesibilidad, sin cambio visual.
+- Preparar smoke autenticado no destructivo solo para cliente y viajero.
+- Validar login, dashboard autenticado, navegacion segura por Inicio/Matches/Wallet/Perfil y logout.
+- Exigir `SMOKE_BASE_URL` explicito para no apuntar a production por defecto.
+- Exigir credenciales cliente/viajero sin imprimir secretos.
+- Mantener `trace`, `screenshot` y `video` apagados.
+- Excluir admin automatizado; admin queda para verificacion manual del owner.
 
 Archivos:
 
-- `tests/e2e/home.spec.ts`.
-- `app/app/AuthGateway.tsx`.
+- `.github/workflows/smoke.yml`.
+- `playwright.smoke.config.ts`.
+- `tests/smoke/intra-smoke.spec.ts`.
+- `package.json`.
+- `docs/ops/authenticated-smoke.md`.
 - `docs/agent/CURRENT_SESSION.md`.
 - `docs/agent/TASKS.md`.
 
 Alcance:
 
+- No automatizar admin.
 - No tocar Wompi.
-- No tocar wallet.
+- No tocar wallet transaccional.
 - No tocar Supabase.
 - No tocar RLS, migraciones, tablas ni RPCs.
 - No tocar webhooks.
-- No tocar matches, envios, viajes, chat ni admin panel.
+- No crear, modificar ni eliminar envios o viajes.
+- No aceptar, rechazar ni cancelar matches.
+- No enviar mensajes reales.
+- No tocar chat real, disputas, retiros, evidencias ni admin.
 - No cambiar logica autenticada.
-- No tocar variables de entorno.
-- No redisenar la landing.
+- No tocar variables reales de produccion.
 - No hacer deploy manual.
 
 Validaciones:
 
-- `npm run test:e2e`: FAIL inicial por copy antiguo `Registrarse gratis`.
-- `npm run test:e2e`: FAIL esperado por labels no asociados en auth gateway.
+- `npm run test:e2e:auth-smoke` sin `SMOKE_BASE_URL`: FAIL esperado y controlado con mensaje claro; no apunta a production por defecto.
+- `SMOKE_BASE_URL=http://127.0.0.1:3015 npm run test:e2e:auth-smoke` sin credenciales: FAIL esperado y controlado por falta de `SMOKE_CLIENT_EMAIL`; no imprime secretos.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 14 archivos / 44 tests.
+- `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
+- `npm run test:e2e`: PASS, 4 tests.
+- `git diff --check`: PASS.
+
+Estado de cierre:
+
+- Rama: `test/auth-smoke-client-traveler`.
+- PR pendiente de crear.
+- Pendiente despues del PR: proveer cuentas temporales cliente/viajero, definir ambiente autorizado y ejecutar smoke completo con secrets. Sin deploy manual.
+
+---
+
+## Done Log
+
+### TASK-029: Public E2E update
+
+Estado: DONE
+Prioridad: Media
+Area: E2E publico / Landing y auth gateway publico
+
+Resumen:
+
+- E2E publico actualizado para reflejar la landing/app publica actual.
+- Evita dependencias de copy largo o viejo.
+- Valida home publica, marca INTRA, CTAs publicos, login, registro, rutas legales publicas existentes y mobile sin scroll horizontal.
+- Agrega asociaciones accesibles `htmlFor`/`id` en labels de auth para selectores estables, sin cambio visual.
+
+Validaciones:
+
 - `npm run test:e2e`: PASS, 4 tests.
 - `npm run lint`: PASS.
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 14 archivos / 44 tests.
 - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
+- Checks remotos antes del merge: `validate`, `detect-impact`, Vercel y preview comment en SUCCESS.
 
-Estado de cierre:
+Cierre:
 
-- Rama: `test/fix-public-e2e`.
-- PR #163 creado contra `main`.
-- Pendiente: esperar checks remotos y revision/merge. Sin deploy manual.
+- PR #163 mergeado a `main`.
+- Merge commit: `38b9b4f`.
+- Sin deploy manual.
 
 ---
-
-## Done Log
 
 ### TASK-028: Public legal footer links
 

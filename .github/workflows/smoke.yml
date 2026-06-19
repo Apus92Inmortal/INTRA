@@ -17,8 +17,6 @@ jobs:
       SMOKE_CLIENT_PASSWORD: ${{ secrets.SMOKE_CLIENT_PASSWORD }}
       SMOKE_TRAVELER_EMAIL: ${{ secrets.SMOKE_TRAVELER_EMAIL }}
       SMOKE_TRAVELER_PASSWORD: ${{ secrets.SMOKE_TRAVELER_PASSWORD }}
-      SMOKE_ADMIN_EMAIL: ${{ secrets.SMOKE_ADMIN_EMAIL }}
-      SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -40,9 +38,7 @@ jobs:
             SMOKE_CLIENT_EMAIL \
             SMOKE_CLIENT_PASSWORD \
             SMOKE_TRAVELER_EMAIL \
-            SMOKE_TRAVELER_PASSWORD \
-            SMOKE_ADMIN_EMAIL \
-            SMOKE_ADMIN_PASSWORD
+            SMOKE_TRAVELER_PASSWORD
           do
             if [ -z "${!name:-}" ]; then
               echo "::error::Missing required smoke secret: ${name}"
@@ -58,4 +54,4 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run authenticated smoke
-        run: npx playwright test --config=playwright.smoke.config.ts
+        run: npm run test:e2e:auth-smoke
