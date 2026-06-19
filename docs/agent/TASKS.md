@@ -12,6 +12,36 @@
 
 ## P0 - En revision
 
+### TASK-036: Admin Critical Action Confirmations
+
+Estado: REVIEW
+Prioridad: Media
+Area: Admin / UI-UX
+
+Resumen:
+
+- Agregar confirmaciones `IntraConfirmDialog` a acciones críticas del panel admin.
+- Protegidas acciones de retiros (Aprobar, Rechazar, Pagado).
+- Protegidas acciones de disputas y alertas (Resoluciones finales).
+
+Archivos:
+
+- `repos/intra/app/app/admin/payouts/PayoutReviewClient.tsx`.
+- `repos/intra/app/app/admin/disputes/DisputesReviewClient.tsx`.
+
+Validaciones:
+
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Estado de cierre:
+
+- Rama: `fix/admin-critical-action-confirmations`.
+- PR: #170.
+
+---
+
 ### TASK-035: Admin Suspicious Report Notifications (PR D)
 
 Estado: REVIEW
