@@ -236,7 +236,6 @@ type IntraModalProps = {
   onClose?: () => void;
   className?: string;
   panelClassName?: string;
-  compact?: boolean;
   align?: "start" | "center";
 };
 
@@ -250,7 +249,6 @@ export function IntraModal({
   onClose,
   className,
   panelClassName,
-  compact = false,
   align = "start",
 }: IntraModalProps) {
   const titleId = useId();
@@ -264,14 +262,14 @@ export function IntraModal({
       <div
         className={cx(
           "intra-modal-panel w-full max-w-[var(--intra-modal-max-width)]",
-          compact ? "p-4 sm:p-5" : "p-5",
+          "p-5",
           panelClassName
         )}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <div className={cx("flex items-start", onClose ? "justify-between" : "justify-center", compact ? "gap-3" : "gap-4")}>
+        <div className={cx("flex items-start", onClose ? "justify-between" : "justify-center", "gap-4")}>
           <div className={cx("min-w-0", align === "center" && "text-center")}>
             <div className={cx("flex min-w-0 items-center gap-2", align === "center" && "justify-center")}>
               {titleIcon ? (
@@ -279,26 +277,26 @@ export function IntraModal({
                   {titleIcon}
                 </span>
               ) : null}
-              <h2 id={titleId} className="intra-subtitle">
+              <h3 id={titleId} className="intra-subtitle text-intra-blue">
                 {title}
-              </h2>
+              </h3>
             </div>
-            {description ? <p className={cx("intra-body", compact ? "mt-2" : "mt-2")}>{description}</p> : null}
+            {description ? <p className={cx("intra-body text-intra-text-subtle mt-2")}>{description}</p> : null}
           </div>
           {onClose ? (
             <button
               type="button"
-              className={cx("intra-icon-button shrink-0 text-intra-text-muted", compact ? "h-8 w-8" : "h-10 w-10")}
+              className={cx("intra-icon-button shrink-0 text-intra-text-muted h-10 w-10")}
               onClick={onClose}
               aria-label="Cerrar"
             >
-              <X className={compact ? "intra-icon-body" : "intra-icon-lg"} aria-hidden="true" />
+              <X className="intra-icon-lg" aria-hidden="true" />
             </button>
           ) : null}
         </div>
-        {children ? <div className={compact ? "mt-3" : "mt-4"}>{children}</div> : null}
+        {children ? <div className="mt-4">{children}</div> : null}
         {footer ? (
-          <div className={cx("flex flex-col-reverse sm:flex-row sm:justify-end", compact ? "mt-4 gap-2" : "mt-5 gap-3")}>
+          <div className={cx("flex flex-col-reverse sm:flex-row sm:justify-end mt-5 gap-2")}>
             {footer}
           </div>
         ) : null}
@@ -318,7 +316,6 @@ type IntraConfirmDialogProps = {
   showIcon?: boolean;
   showCloseButton?: boolean;
   align?: "start" | "center";
-  visualVariant?: "foundation" | "dashboard-critical";
   isLoading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -332,57 +329,20 @@ export function IntraConfirmDialog({
   cancelLabel = "Cancelar",
   variant = "danger",
   icon,
-  showIcon = true,
-  showCloseButton = true,
+  showIcon = false,
+  showCloseButton = false,
   align = "start",
-  visualVariant = "foundation",
   isLoading = false,
   onConfirm,
   onCancel,
 }: IntraConfirmDialogProps) {
-  const ConfirmButton = variant === "danger" ? IntraDangerButton : IntraPrimaryButton;
-  const titleId = useId();
+  const isDanger = variant === "danger";
+  const ConfirmButtonClass = isDanger
+    ? "intra-btn bg-intra-danger text-intra-card hover:opacity-95 disabled:opacity-60"
+    : "intra-btn intra-btn-primary";
 
   if (!open) {
     return null;
-  }
-
-  if (visualVariant === "dashboard-critical") {
-    return portal(
-      <div className="intra-modal-backdrop p-4" role="presentation">
-        <div
-          className="intra-modal-panel w-full max-w-sm p-5"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-        >
-          <h3 id={titleId} className="intra-h3 text-intra-blue">
-            {title}
-          </h3>
-          <p className="mt-2 intra-body text-intra-text-subtle">{description}</p>
-
-          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="intra-btn border border-intra-border-soft px-4 py-2 intra-body-strong text-intra-blue hover:bg-intra-bg-app"
-              disabled={isLoading}
-            >
-              {cancelLabel}
-            </button>
-            <button
-              type="button"
-              onClick={onConfirm}
-              className="intra-btn bg-intra-danger px-4 py-2 intra-body-strong text-intra-card hover:opacity-95 disabled:opacity-60"
-              disabled={isLoading}
-              aria-busy={isLoading || undefined}
-            >
-              {confirmLabel}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -393,16 +353,26 @@ export function IntraConfirmDialog({
       description={description}
       onClose={showCloseButton ? onCancel : undefined}
       panelClassName="max-w-sm"
-      compact
       align={align}
       footer={
         <>
-          <IntraSecondaryButton type="button" className="w-full justify-center sm:w-auto" onClick={onCancel} disabled={isLoading}>
+          <IntraSecondaryButton
+            type="button"
+            className="w-full justify-center sm:w-auto"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
             {cancelLabel}
           </IntraSecondaryButton>
-          <ConfirmButton type="button" className="w-full justify-center sm:w-auto" onClick={onConfirm} isLoading={isLoading}>
-            {confirmLabel}
-          </ConfirmButton>
+          <button
+            type="button"
+            className={cx(ConfirmButtonClass, "w-full justify-center sm:w-auto")}
+            onClick={onConfirm}
+            disabled={isLoading}
+            aria-busy={isLoading || undefined}
+          >
+            {isLoading ? "Cargando..." : confirmLabel}
+          </button>
         </>
       }
     />

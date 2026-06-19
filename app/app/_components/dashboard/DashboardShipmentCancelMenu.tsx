@@ -129,9 +129,6 @@ export default function DashboardShipmentCancelMenu({
         confirmLabel="Cancelar envío"
         cancelLabel="Volver"
         variant="danger"
-        showIcon={false}
-        showCloseButton={false}
-        visualVariant="dashboard-critical"
         isLoading={isPending}
         onConfirm={handleConfirmCancel}
         onCancel={handleCancelConfirm}

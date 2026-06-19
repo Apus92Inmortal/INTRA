@@ -27,6 +27,15 @@ Regla clave:
 
 El manual manda, pero puede evolucionar. Lo que no se permite es improvisar.
 
+## Patrón Oficial de Modales de Confirmación
+
+Para mantener la consistencia en toda la plataforma, los modales de confirmación (ej. borrar, cancelar, acciones críticas) deben seguir el patrón oficial:
+
+- **Estructura:** Limpia, sin íconos decorativos en el título y sin botón de cerrar (X) en la esquina superior si la acción requiere una decisión binaria (Confirmar/Cancelar).
+- **Tipografía:** Título en `intra-subtitle` con color `text-intra-blue`. Descripción en `intra-body` con color `text-intra-text-subtle`.
+- **Botones:** Footer con `flex-col-reverse` en mobile y `sm:flex-row` en desktop, con un gap de `8px` (`gap-2`).
+- **Implementación recomendada:** Usar el componente centralizado `IntraConfirmDialog`.
+
 ## Tipografia oficial v3.0
 
 El sistema tipografico oficial de INTRA v3.0 usa solo cinco niveles:
