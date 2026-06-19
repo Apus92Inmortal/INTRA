@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Camera, ShieldAlert, X } from "lucide-react";
 import { compressImageFile } from "@/lib/uploads";
+import { notifyAdminSuspiciousReportAction } from "./actions";
 
 type SuspiciousReportFormProps = {
   shipmentId: string;
@@ -138,19 +139,23 @@ export default function SuspiciousReportForm({
       evidenceId = evidence?.id ?? null;
       evidenceCreatedAt = evidence?.created_at ?? null;
 
-      const { error } = await supabase.from("shipment_report_events").insert({
-        shipment_id: shipmentId,
-        match_id: matchId,
-        reported_by: user.id,
-        report_type: reportType,
-        reason: reason.trim(),
-        status: "open",
-        metadata: {
-          support_evidence_id: evidenceId,
-          support_evidence_type: SUSPICIOUS_EVIDENCE_TYPE,
-          support_evidence_created_at: evidenceCreatedAt,
-        },
-      });
+      const { data: reportData, error } = await supabase
+        .from("shipment_report_events")
+        .insert({
+          shipment_id: shipmentId,
+          match_id: matchId,
+          reported_by: user.id,
+          report_type: reportType,
+          reason: reason.trim(),
+          status: "open",
+          metadata: {
+            support_evidence_id: evidenceId,
+            support_evidence_type: SUSPICIOUS_EVIDENCE_TYPE,
+            support_evidence_created_at: evidenceCreatedAt,
+          },
+        })
+        .select("id")
+        .single();
 
       if (error) {
         if (evidenceId) {
@@ -159,6 +164,19 @@ export default function SuspiciousReportForm({
 
         await supabase.storage.from(EVIDENCE_BUCKET).remove([path]);
         throw new Error(error.message);
+      }
+
+      // Notificar a los administradores tras éxito de inserts locales
+      // No bloqueamos el flujo principal si falla la notificación
+      if (matchId && reportData?.id) {
+        notifyAdminSuspiciousReportAction(matchId, reportData.id).catch(
+          (err) => {
+            console.error(
+              "Error al invocar notificación admin de reporte:",
+              err
+            );
+          }
+        );
       }
     } catch (error) {
       setLoading(false);
