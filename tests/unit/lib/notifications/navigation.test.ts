@@ -73,4 +73,12 @@ describe("getNotificationHref", () => {
     };
     expect(getNotificationHref(notification)).toBe("/app/wallet");
   });
+
+  it("should return admin payout route for admin_payout_requested", () => {
+    const notification = {
+      type: "admin_payout_requested",
+      related_match_id: null,
+    };
+    expect(getNotificationHref(notification)).toBe("/app/admin/payouts");
+  });
 });

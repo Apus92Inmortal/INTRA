@@ -75,6 +75,11 @@ export function getNotificationHref(notification: NotificationLike): string | nu
     return "/app/profile";
   }
 
+  // 4. Notificaciones para Administradores
+  if (type === "admin_payout_requested") {
+    return "/app/admin/payouts";
+  }
+
   // Fallback para tipos desconocidos o sin match id cuando lo requieren
   return null;
 }
