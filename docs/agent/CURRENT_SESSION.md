@@ -6,25 +6,30 @@
 
 ## Objetivo de la sesion
 
-Implementar el PR de refuerzo admin para agregar confirmaciones a acciones críticas.
+Implementar el PR de alineación visual de modales INTRA para unificar el estilo de confirmaciones críticas.
 
 ## Alcance ejecutado
 
-- Integrado `IntraConfirmDialog` en `PayoutReviewClient.tsx` para las acciones de Aprobar, Rechazar y Marcar pagado en retiros.
-- Integrado `IntraConfirmDialog` en `DisputesReviewClient.tsx` para las acciones finales de resolución de disputas y alertas.
-- Configurado el estado de confirmación para evitar ejecuciones accidentales con un solo clic.
-- Asegurado el cumplimiento del Manual UI/UX INTRA v3.0 (sin window.alert/confirm, mobile first).
+- Unificado `IntraModal` para usar jerarquía `h3`, color `text-intra-blue` y descripción sutil.
+- Ajustado `IntraConfirmDialog` como el estándar oficial de la plataforma (sin iconos ni botones de cerrar por defecto, botones de confirmación de alto contraste).
+- Refactorizados `NotificationsBell.tsx` y `DashboardTripCloseButton.tsx` (Despegando) para eliminar JSX manual y usar el componente centralizado.
+- Actualizada la documentación oficial en `docs/ui-ux/README.md` definiendo el patrón oficial de modales.
+- Asegurado que los modales administrativos (PR #170) hereden automáticamente la nueva visual.
 
 ## Archivos tocados
 
-- `repos/intra/app/app/admin/payouts/PayoutReviewClient.tsx`
-- `repos/intra/app/app/admin/disputes/DisputesReviewClient.tsx`
+- `repos/intra/components/ui/intra-foundation.tsx`
+- `repos/intra/components/notifications-bell.tsx`
+- `repos/intra/app/app/_components/dashboard/DashboardTripCloseButton.tsx`
+- `repos/intra/app/app/_components/dashboard/DashboardShipmentCancelMenu.tsx`
+- `repos/intra/app/app/_components/dashboard/DashboardActiveShipmentCancelMenu.tsx`
+- `repos/intra/docs/ui-ux/README.md`
 
 ## Confirmaciones de alcance
 
 - No se modificó la lógica de negocio ni las Server Actions.
 - No se tocaron Wompi, Wallet transaccional, Ledger, RLS ni migraciones.
-- Las acciones de "En revisión" no requieren confirmación (no críticas/finales).
+- Se mantuvo la compatibilidad visual con el Manual UI/UX INTRA v3.0.
 
 ## Validaciones ejecutadas
 
@@ -35,8 +40,9 @@ Implementar el PR de refuerzo admin para agregar confirmaciones a acciones crít
 
 ## Estado PR
 
-- Rama: `fix/admin-critical-action-confirmations`.
-- Estado: Preparado para PR.
+- Rama: `fix/unify-intra-confirm-dialog-style`.
+- PR: #171.
+- Estado: Preparado para revisión.
 
 ## Pendiente despues de este PR
 

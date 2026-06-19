@@ -12,6 +12,38 @@
 
 ## P0 - En revision
 
+### TASK-037: Unify Intra Confirm Dialog Style
+
+Estado: REVIEW
+Prioridad: Media
+Area: UI-UX
+
+Resumen:
+
+- Unificar el estilo visual de `IntraConfirmDialog` con el patrón oficial de la app.
+- Refactorizar modales de Dashboard y Notificaciones para usar el componente centralizado.
+- Actualizar documentación de patrones oficiales en `docs/ui-ux/README.md`.
+
+Archivos:
+
+- `repos/intra/components/ui/intra-foundation.tsx`.
+- `repos/intra/components/notifications-bell.tsx`.
+- `repos/intra/app/app/_components/dashboard/DashboardTripCloseButton.tsx`.
+- `repos/intra/docs/ui-ux/README.md`.
+
+Validaciones:
+
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Estado de cierre:
+
+- Rama: `fix/unify-intra-confirm-dialog-style`.
+- PR: #171.
+
+---
+
 ### TASK-036: Admin Critical Action Confirmations
 
 Estado: REVIEW
