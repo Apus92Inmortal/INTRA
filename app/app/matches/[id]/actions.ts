@@ -353,6 +353,14 @@ export async function openDisputeAction(matchId: string) {
     revalidatePath(`/app/matches/${matchId}`);
     revalidatePath("/app/matches");
 
+    // Notificar a administradores sobre nueva disputa
+    void notifyAdmins({
+      type: "admin_dispute_created",
+      title: "Nueva disputa",
+      message: "Se abrió una disputa que requiere revisión administrativa.",
+      related_match_id: matchId,
+    });
+
     return { success: true };
   } catch (error) {
     return {

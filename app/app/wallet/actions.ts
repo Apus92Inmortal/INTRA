@@ -178,6 +178,17 @@ export async function savePayoutAccountAction(formData: FormData): Promise<Actio
     revalidatePath("/app/wallet/payout")
     revalidatePath("/app/wallet/payout/accounts")
 
+    if (!payload.id) {
+      // Notificar a administradores sobre nueva cuenta enviada para revisión
+      // Solo en creación (no edición) para evitar ruido.
+      // notifyAdmins maneja errores internos.
+      void notifyAdmins({
+        type: "admin_payout_account_submitted",
+        title: "Nueva cuenta de retiro",
+        message: "Un usuario envió una cuenta de retiro para revisión.",
+      })
+    }
+
     return {
       success: true,
       message: payload.id ? "Cuenta actualizada." : "Cuenta agregada.",

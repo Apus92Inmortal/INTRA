@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { compressImageFile } from "@/lib/uploads";
+import { notifyAdminUserVerificationAction } from "./actions";
 
 type VerificationPanelProps = {
   initialStatus: string | null;
@@ -317,6 +318,10 @@ export default function VerificationPanel({
       setAcceptConsent(false);
       setCurrentStep(1);
       setIsModalOpen(false);
+
+      // Notificar a administradores sobre la nueva verificación enviada
+      void notifyAdminUserVerificationAction();
+
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "No se pudo enviar la verificación.");

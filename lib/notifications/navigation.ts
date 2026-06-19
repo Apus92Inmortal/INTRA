@@ -80,6 +80,18 @@ export function getNotificationHref(notification: NotificationLike): string | nu
     return "/app/admin/payouts";
   }
 
+  if (type === "admin_payout_account_submitted") {
+    return "/app/admin/payout-accounts";
+  }
+
+  if (type === "admin_user_verification_submitted") {
+    return "/app/admin/verifications";
+  }
+
+  if (type === "admin_dispute_created") {
+    return "/app/admin/disputes";
+  }
+
   if (type === "admin_suspicious_report_created") {
     return "/app/admin/alerts";
   }
