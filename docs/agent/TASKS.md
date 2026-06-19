@@ -12,6 +12,40 @@
 
 ## P0 - En revision
 
+### TASK-033: Notification navigation mapping (PR B)
+
+Estado: REVIEW
+Prioridad: Media
+Area: Notificaciones / Navegación / Frontend
+
+Resumen:
+
+- Implementar mapeo de tipos de notificación a rutas internas seguras.
+- Centralizar lógica en `lib/notifications/navigation.ts`.
+- Integrar en `NotificationsBell.tsx`.
+- Reforzar silencio de errores `Failed to fetch` durante el cleanup de sesión.
+
+Archivos:
+
+- `repos/intra/lib/notifications/navigation.ts`.
+- `repos/intra/tests/unit/lib/notifications/navigation.test.ts`.
+- `repos/intra/components/notifications-bell.tsx`.
+
+Validaciones:
+
+- `npm run test:unit tests/unit/lib/notifications/navigation.test.ts`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Estado de cierre:
+
+- Rama: `fix/notification-navigation`.
+- PR: #167.
+- Pendiente de merge.
+
+---
+
 ### TASK-032: NotificationsBell stability (AbortController)
 
 Estado: DONE
