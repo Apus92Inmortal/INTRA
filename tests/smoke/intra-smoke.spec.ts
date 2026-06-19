@@ -97,7 +97,7 @@ async function newSmokePage(browser: Browser, spec: SmokeRoleSpec) {
 
     await page.getByLabel("Correo").fill(email);
     await page.getByLabel("Contraseña").fill(password);
-    await page.getByRole("button", { name: /^Entrar$/i }).click();
+    await page.locator("form").getByRole("button", { name: /^Entrar$/i }).click();
 
     await expect(page.getByRole("link", { name: /^Inicio$/i })).toBeVisible();
     await expectNoFatalAppState(page);

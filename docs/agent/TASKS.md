@@ -12,34 +12,28 @@
 
 ## P0 - En revision
 
-### TASK-030: Auth smoke client/traveler guardrails
+### TASK-031: Auth smoke login submit selector
 
 Estado: REVIEW
 Prioridad: Media
-Area: Smoke autenticado / Cliente y viajero
+Area: Smoke autenticado / Login cliente-viajero
 
 Resumen:
 
-- Preparar smoke autenticado no destructivo solo para cliente y viajero.
-- Validar login, dashboard autenticado, navegacion segura por Inicio/Matches/Wallet/Perfil y logout.
-- Exigir `SMOKE_BASE_URL` explicito para no apuntar a production por defecto.
-- Exigir credenciales cliente/viajero sin imprimir secretos.
-- Mantener `trace`, `screenshot` y `video` apagados.
-- Excluir admin automatizado; admin queda para verificacion manual del owner.
+- Corregir selector ambiguo del boton `Entrar` en el smoke autenticado.
+- Acotar el click al submit del formulario de login.
+- Evitar colision con el boton/tab `Entrar` de la vista login.
+- Mantener smoke read-only cliente/viajero.
 
 Archivos:
 
-- `.github/workflows/smoke.yml`.
-- `playwright.smoke.config.ts`.
 - `tests/smoke/intra-smoke.spec.ts`.
-- `package.json`.
-- `docs/ops/authenticated-smoke.md`.
 - `docs/agent/CURRENT_SESSION.md`.
 - `docs/agent/TASKS.md`.
 
 Alcance:
 
-- No automatizar admin.
+- No tocar UI de producto ni AuthGateway visual.
 - No tocar Wompi.
 - No tocar wallet transaccional.
 - No tocar Supabase.
@@ -55,6 +49,41 @@ Alcance:
 
 Validaciones:
 
+- Smoke autenticado contra `https://www.intra.com.co`: FAIL por hallazgo nuevo, ya no por selector ambiguo.
+  - Cliente: PASS completo.
+  - Viajero: FAIL final por `console.error` de notificaciones: `Error loading notifications: TypeError: Failed to fetch`.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 14 archivos / 44 tests.
+- `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
+- `npm run test:e2e`: PASS, 4 tests.
+
+Estado de cierre:
+
+- Rama: `test/fix-auth-smoke-login-submit`.
+- PR pendiente de crear.
+- Pendiente despues del PR: investigar notificaciones para viajero o decidir si el harness debe tratar ese error como no bloqueante.
+
+---
+
+## Done Log
+
+### TASK-030: Auth smoke client/traveler guardrails
+
+Estado: DONE
+Prioridad: Media
+Area: Smoke autenticado / Cliente y viajero
+
+Resumen:
+
+- Smoke autenticado no destructivo preparado solo para cliente y viajero.
+- Exige `SMOKE_BASE_URL` explicito para no apuntar a production por defecto.
+- Exige credenciales cliente/viajero sin imprimir secretos.
+- Mantiene `trace`, `screenshot` y `video` apagados.
+- Excluye admin automatizado; admin queda para verificacion manual del owner.
+
+Validaciones:
+
 - `npm run test:e2e:auth-smoke` sin `SMOKE_BASE_URL`: FAIL esperado y controlado con mensaje claro; no apunta a production por defecto.
 - `SMOKE_BASE_URL=http://127.0.0.1:3015 npm run test:e2e:auth-smoke` sin credenciales: FAIL esperado y controlado por falta de `SMOKE_CLIENT_EMAIL`; no imprime secretos.
 - `npm run lint`: PASS.
@@ -62,17 +91,15 @@ Validaciones:
 - `npm run test:unit`: PASS, 14 archivos / 44 tests.
 - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
 - `npm run test:e2e`: PASS, 4 tests.
-- `git diff --check`: PASS.
+- Checks remotos antes del merge: `validate`, `detect-impact`, Vercel y preview comment en SUCCESS.
 
-Estado de cierre:
+Cierre:
 
-- Rama: `test/auth-smoke-client-traveler`.
-- PR pendiente de crear.
-- Pendiente despues del PR: proveer cuentas temporales cliente/viajero, definir ambiente autorizado y ejecutar smoke completo con secrets. Sin deploy manual.
+- PR #164 mergeado a `main`.
+- Merge commit: `022fc42`.
+- Sin deploy manual.
 
 ---
-
-## Done Log
 
 ### TASK-029: Public E2E update
 

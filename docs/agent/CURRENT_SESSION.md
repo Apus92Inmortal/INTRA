@@ -6,67 +6,53 @@
 
 ## Objetivo de la sesion
 
-Crear PR pequeno para preparar un smoke autenticado no destructivo de cliente y viajero.
+Crear PR pequeno para corregir el selector ambiguo del submit de login en el smoke autenticado cliente/viajero.
 
 ## Alcance ejecutado
 
-- Se ajusto el smoke autenticado para cubrir solo:
-  - Login de cliente.
-  - Dashboard autenticado de cliente.
-  - Navegacion segura de cliente por Inicio, Matches, Wallet y Perfil.
-  - Logout de cliente.
-  - Login de viajero.
-  - Dashboard autenticado de viajero.
-  - Navegacion segura de viajero por Inicio, Matches, Wallet y Perfil.
-  - Logout de viajero.
-- Se excluyo admin del smoke automatizado. Admin queda para verificacion manual del owner.
-- Se exige `SMOKE_BASE_URL` explicito. El harness no apunta a production por defecto.
-- Se exigen credenciales cliente/viajero:
-  - `SMOKE_CLIENT_EMAIL`.
-  - `SMOKE_CLIENT_PASSWORD`.
-  - `SMOKE_TRAVELER_EMAIL`.
-  - `SMOKE_TRAVELER_PASSWORD`.
-- Se mantiene `trace`, `screenshot` y `video` apagados para evitar artifacts con datos sensibles.
+- Se acoto el click de `Entrar` al formulario de login en `tests/smoke/intra-smoke.spec.ts`.
+- Se evita la ambiguedad con el boton/tab `Entrar` de la vista login.
+- Se mantiene el smoke autenticado como read-only:
+  - Cliente: login, dashboard, navegacion segura y logout.
+  - Viajero: login, dashboard, navegacion segura y logout.
+- No se hicieron cambios visuales ni de producto.
 
 ## Archivos tocados
 
-- `.github/workflows/smoke.yml`.
-- `playwright.smoke.config.ts`.
 - `tests/smoke/intra-smoke.spec.ts`.
-- `package.json`.
-- `docs/ops/authenticated-smoke.md`.
 - `docs/agent/CURRENT_SESSION.md`.
 - `docs/agent/TASKS.md`.
 
 ## Confirmaciones de alcance
 
-- No se automatizo admin.
-- No se crean, modifican ni eliminan datos operativos.
-- No se prueban pagos, Wompi, wallet transaccional, webhooks, matches operativos, envios operativos, viajes operativos, chat real, disputas, retiros ni evidencias.
-- No se tocaron Supabase/RLS, migrations, service role, variables reales de produccion ni deploy.
-- El stash local `session-memory-pr162-close` sigue preservado y no debe aplicarse ni eliminarse en este trabajo.
+- No se tocaron UI de producto, AuthGateway visual, Wompi, wallet, Supabase/RLS, migrations, webhooks, ledger, retiros, disputas, evidencias, admin, envios, viajes, matches operativos, chat real, variables de entorno ni deploy.
+- No se aplico ni elimino el stash `session-memory-pr162-close`.
+- No se guardaron credenciales en archivos ni commits.
 
 ## Validaciones ejecutadas
 
-- `npm run test:e2e:auth-smoke` sin `SMOKE_BASE_URL`: FAIL esperado y controlado con mensaje claro; no apunta a production por defecto.
-- `SMOKE_BASE_URL=http://127.0.0.1:3015 npm run test:e2e:auth-smoke` sin credenciales: FAIL esperado y controlado por falta de `SMOKE_CLIENT_EMAIL`; no imprime secretos.
+- Smoke autenticado contra produccion controlada `https://www.intra.com.co`: FAIL esperado post-fix por hallazgo nuevo, ya no por selector ambiguo.
+  - Cliente: PASS completo.
+  - Viajero: FAIL al final por `console.error` de notificaciones: `Error loading notifications: TypeError: Failed to fetch`.
 - `npm run lint`: PASS.
 - `npx tsc --noEmit`: PASS.
 - `npm run test:unit`: PASS, 14 archivos / 44 tests.
 - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
 - `npm run test:e2e`: PASS, 4 tests.
-- `git diff --check`: PASS.
-- Auditoria de alcance en archivos activos del smoke: sin `SMOKE_ADMIN`, rutas admin, acciones Wompi/pago ni creacion de envios/viajes.
+
+## Hallazgo nuevo
+
+- Tipo: posible falla funcional/noise runtime en notificaciones para viajero.
+- Clasificacion inicial: Importante antes de beta cerrada.
+- No se corrige en este PR por estar fuera del alcance.
 
 ## Estado PR
 
-- Rama: `test/auth-smoke-client-traveler`.
+- Rama: `test/fix-auth-smoke-login-submit`.
 - PR: pendiente de crear.
 - Sin deploy manual.
 
 ## Pendiente despues de este PR
 
-- Proveer cuentas temporales cliente/viajero.
-- Definir ambiente autorizado: preview, staging, local o produccion controlada.
-- Ejecutar smoke autenticado completo con secrets.
-- Verificacion manual admin por parte del owner.
+- Investigar el `console.error` de notificaciones para viajero en un PR/tarea separada.
+- Reejecutar smoke autenticado completo despues de resolver o decidir tratamiento del hallazgo.
