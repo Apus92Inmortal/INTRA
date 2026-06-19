@@ -12,7 +12,100 @@
 
 ## P0 - En revision
 
-Sin tareas P0 en revision al cierre de esta sesion.
+### TASK-028: Public legal footer links
+
+Estado: REVIEW
+Prioridad: Media
+Area: Landing publica `/` / Legal publico
+
+Resumen:
+
+- Corregir links legales del footer publico de INTRA.
+- `Términos y condiciones` debe abrir `/legal/terms-conditions`.
+- `Política de privacidad` debe abrir `/legal/privacy-policy`.
+- Crear paginas publicas simples si no existen.
+- Reutilizar contenido legal versionado existente.
+- Mantener diseno alineado con Manual UI/UX INTRA v3.0.
+- Ajuste post-review: renderizar el contenido legal como documento en un solo contenedor blanco, no como lista de cards operativas.
+- Ajuste final post-review: quitar `Contáctanos` como link del footer y mostrar contacto visible bajo Legal.
+- Ajuste visual final: labels `Navegación`, `Legal` y `Contacto` en color oscuro consistente.
+
+Archivos:
+
+- `app/page.tsx`.
+- `app/legal/_components/PublicLegalDocumentPage.tsx`.
+- `app/legal/terms-conditions/page.tsx`.
+- `app/legal/privacy-policy/page.tsx`.
+- `tests/unit/app/home-page.test.tsx`.
+- `tests/unit/app/public-legal-pages.test.tsx`.
+
+Alcance:
+
+- No tocar pagos.
+- No tocar wallet.
+- No tocar Supabase.
+- No tocar RLS, migraciones, tablas ni RPCs.
+- No cambiar logica de aceptacion legal.
+- No redisenar la landing completa.
+- No hacer deploy manual.
+- Mantener header azul legal, boton `Volver al inicio`, rutas y contenido versionado.
+- No crear `/contacto`, formulario ni integracion de correo.
+
+Validaciones:
+
+- TDD rojo verificado: footer fallaba por `href="#"` y rutas legales inexistentes.
+- `git diff --check`: PASS.
+- `npm run test:unit -- tests/unit/app/home-page.test.tsx tests/unit/app/public-legal-pages.test.tsx`: PASS, 2 archivos / 3 tests.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS, 14 archivos / 44 tests.
+- `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
+- Post-review:
+  - `git diff --check`: PASS.
+  - `npm run test:unit -- tests/unit/app/home-page.test.tsx tests/unit/app/public-legal-pages.test.tsx`: PASS, 2 archivos / 3 tests.
+  - auditoria en archivos tocados: sin `alert()`, `confirm()`, SVG inline ni hex hardcoded.
+  - `npm run lint`: PASS.
+  - `npx tsc --noEmit`: PASS.
+  - `npm run test:unit`: PASS, 14 archivos / 44 tests.
+  - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
+- Smoke local `/`, `/legal/terms-conditions` y `/legal/privacy-policy`:
+  - desktop 1440x900: PASS.
+  - mobile 390x844: PASS.
+  - mobile 320x740: PASS.
+  - sin scroll horizontal.
+- Smoke local post-review:
+  - desktop 1440x900: PASS.
+  - mobile 390x844: PASS.
+  - mobile 320x740: PASS.
+  - header azul, boton `Volver al inicio` y un unico contenedor blanco principal verificados.
+  - sin scroll horizontal.
+- Footer post-review:
+  - TDD rojo verificado: `Contáctanos` seguia como link antes del ajuste.
+  - `npm run test:unit -- tests/unit/app/home-page.test.tsx`: PASS.
+  - `git diff --check`: PASS.
+  - auditoria en archivos tocados: sin `alert()`, `confirm()`, SVG inline ni hex hardcoded.
+  - `npm run lint`: PASS.
+  - `npx tsc --noEmit`: PASS.
+  - `npm run test:unit`: PASS, 14 archivos / 44 tests.
+  - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
+  - smoke local `127.0.0.1:3011`:
+    - desktop 1440x900: PASS.
+    - mobile 390x844: PASS.
+    - mobile 320x740: PASS.
+    - links legales intactos, `Contáctanos` ausente como link, contacto visible y sin scroll horizontal.
+- Footer label color:
+  - `git diff --check`: PASS.
+  - `npm run lint`: PASS.
+  - `npx tsc --noEmit`: PASS.
+  - `npm run test:unit`: PASS, 14 archivos / 44 tests.
+  - `npm run build`: PASS. Warning no bloqueante por lockfiles multiples.
+  - smoke local desktop/mobile 390/mobile 320: PASS, labels visibles en color oscuro y sin scroll horizontal.
+
+Estado de cierre:
+
+- Rama: `fix/public-legal-footer-links`.
+- PR #162 creado contra `main`.
+- Pendiente: actualizar PR con ajuste visual final y esperar revision/merge. Sin deploy manual.
 
 ---
 

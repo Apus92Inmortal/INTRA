@@ -22,5 +22,22 @@ describe("HomePage", () => {
     expect(
       screen.getAllByRole("link", { name: "Publicar envío" })[0]
     ).toHaveAttribute("href", "/register?next=/app/shipments/new");
+
+    expect(
+      screen.getByRole("link", { name: "Términos y condiciones" })
+    ).toHaveAttribute("href", "/legal/terms-conditions");
+
+    expect(
+      screen.getByRole("link", { name: "Política de privacidad" })
+    ).toHaveAttribute("href", "/legal/privacy-policy");
+
+    expect(
+      screen.queryByRole("link", { name: "Contáctanos" })
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Contacto")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "soporte@intra.com.co" })
+    ).toHaveAttribute("href", "mailto:soporte@intra.com.co");
+    expect(screen.getByText("+57 301 231 9742")).toBeInTheDocument();
   });
 });
