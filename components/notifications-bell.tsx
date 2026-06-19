@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import {
   AlertTriangle,
   Bell,
@@ -14,6 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getNotificationHref } from "@/lib/notifications/navigation";
+import { IntraConfirmDialog } from "./ui";
 
 type NotificationItem = {
   id: string;
@@ -215,7 +215,6 @@ export function NotificationsBell() {
 
   const mountedRef = useRef(true);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const clearAllModalRef = useRef<HTMLDivElement | null>(null);
   const previousUnreadCountRef = useRef(0);
   const badgeAnimationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeDragIdRef = useRef<string | null>(null);
@@ -780,7 +779,6 @@ export function NotificationsBell() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (clearAllModalRef.current?.contains(event.target as Node)) return;
       if (!containerRef.current) return;
 
       if (!containerRef.current.contains(event.target as Node)) {
@@ -977,38 +975,19 @@ export function NotificationsBell() {
 
     </div>
 
-    {open && showClearAllModal && typeof document !== "undefined"
-      ? createPortal(
-          <div className="intra-modal-backdrop p-4">
-            <div ref={clearAllModalRef} className="intra-modal-panel w-full max-w-sm p-5">
-              <h4 className="intra-h3 text-intra-blue">Borrar notificaciones</h4>
-              <p className="mt-2 intra-body text-intra-text-subtle">
-                Esta acción no se puede deshacer.
-              </p>
-
-              <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowClearAllModal(false)}
-                  className="intra-btn border border-intra-border-soft px-4 py-2 intra-body-strong text-intra-blue hover:bg-intra-bg-app"
-                  disabled={clearingAll}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void clearAllNotifications()}
-                  className="intra-btn bg-intra-danger px-4 py-2 intra-body-strong text-intra-card hover:opacity-95 disabled:opacity-60"
-                  disabled={clearingAll}
-                >
-                  {clearingAll ? "Borrando" : "Borrar"}
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )
-      : null}
+      {open && (
+        <IntraConfirmDialog
+          open={showClearAllModal}
+          title="Borrar notificaciones"
+          description="Esta acción no se puede deshacer."
+          confirmLabel={clearingAll ? "Borrando" : "Borrar"}
+          cancelLabel="Cancelar"
+          variant="danger"
+          isLoading={clearingAll}
+          onConfirm={() => void clearAllNotifications()}
+          onCancel={() => setShowClearAllModal(false)}
+        />
+      )}
     </>
   );
 }
