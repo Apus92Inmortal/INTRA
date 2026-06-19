@@ -12,6 +12,39 @@
 
 ## P0 - En revision
 
+### TASK-032: NotificationsBell stability (AbortController)
+
+Estado: DONE
+Prioridad: Media
+Area: Notificaciones / Estabilidad / Smoke Test
+
+Resumen:
+
+- Corregir `TypeError: Failed to fetch` en `NotificationsBell` durante logout o desmontaje.
+- Implementar `AbortController` para cancelar peticiones de Supabase pendientes.
+- Evitar `setState` en componentes desmontados mediante flag `mounted`.
+- Ignorar errores de abort/fetch durante la limpieza esperada de sesión.
+
+Archivos:
+
+- `repos/intra/components/notifications-bell.tsx`.
+
+Validaciones:
+
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run test:unit`: PASS.
+- `npm run build`: PASS.
+- `npm run test:e2e`: PASS.
+- Smoke autenticado contra `https://www.intra.com.co`: PASS (2 passed, 17.1s). Fix de estabilidad confirmado.
+
+Cierre:
+
+- PR #166 mergeado a `main`.
+- Merge commit: `65e1aab`.
+- Rama local/remota eliminada.
+- Sin deploy manual.
+
 ### TASK-031: Auth smoke login submit selector
 
 Estado: REVIEW
