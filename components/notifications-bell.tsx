@@ -222,7 +222,7 @@ export function NotificationsBell() {
   const suppressClickRef = useRef(false);
 
   const loadCounterpartNames = useCallback(
-    async (currentUserId: string, rows: NotificationItem[]) => {
+    async (currentUserId: string, rows: NotificationItem[], signal?: AbortSignal) => {
       const matchIds = Array.from(
         new Set(rows.map((row) => row.related_match_id).filter(Boolean))
       ) as string[];
@@ -232,7 +232,7 @@ export function NotificationsBell() {
         return;
       }
 
-      const { data: matchesData, error: matchesError } = await supabase
+      const query = supabase
         .from("matches")
         .select(
           `
@@ -243,7 +243,14 @@ export function NotificationsBell() {
         )
         .in("id", matchIds);
 
+      if (signal) {
+        query.abortSignal(signal);
+      }
+
+      const { data: matchesData, error: matchesError } = await query;
+
       if (matchesError) {
+        if (matchesError.message?.includes("abort")) return;
         console.error(
           "Error loading match relations for notifications:",
           matchesError.message
@@ -277,12 +284,19 @@ export function NotificationsBell() {
         return;
       }
 
-      const { data: profilesData, error: profilesError } = await supabase
+      const profilesQuery = supabase
         .from("profiles")
         .select("id, full_name")
         .in("id", counterpartIds);
 
+      if (signal) {
+        profilesQuery.abortSignal(signal);
+      }
+
+      const { data: profilesData, error: profilesError } = await profilesQuery;
+
       if (profilesError) {
+        if (profilesError.message?.includes("abort")) return;
         console.error(
           "Error loading notification counterpart profiles:",
           profilesError.message
@@ -308,8 +322,8 @@ export function NotificationsBell() {
   );
 
   const loadNotifications = useCallback(
-    async (currentUserId: string) => {
-      const { data, error } = await supabase
+    async (currentUserId: string, signal?: AbortSignal) => {
+      const query = supabase
         .from("notifications")
         .select(
           "id, user_id, title, message, type, related_match_id, is_read, read_at, created_at"
@@ -318,7 +332,20 @@ export function NotificationsBell() {
         .order("created_at", { ascending: false })
         .limit(20);
 
+      if (signal) {
+        query.abortSignal(signal);
+      }
+
+      const { data, error } = await query;
+
       if (error) {
+        const isAbort =
+          error.message?.includes("abort") ||
+          error.message?.includes("FetchError") ||
+          error.code === "20";
+
+        if (isAbort) return;
+
         console.error("Error loading notifications:", {
           message: error.message,
           details: error.details,
@@ -346,7 +373,7 @@ export function NotificationsBell() {
       previousUnreadCountRef.current = nextUnreadCount;
       setItems(rows);
       setUnreadCount(nextUnreadCount);
-      await loadCounterpartNames(currentUserId, rows);
+      await loadCounterpartNames(currentUserId, rows, signal);
     },
     [loadCounterpartNames, supabase]
   );
@@ -622,41 +649,53 @@ export function NotificationsBell() {
 
   useEffect(() => {
     let mounted = true;
+    const controller = new AbortController();
 
     async function init() {
       setLoading(true);
 
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
+      try {
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("Error getting current user:", error.message);
-        setLoading(false);
-        return;
+        if (error) {
+          if (!error.message?.includes("abort")) {
+            console.error("Error getting current user:", error.message);
+          }
+          if (mounted) setLoading(false);
+          return;
+        }
+
+        if (!user) {
+          if (mounted) {
+            setUserId(null);
+            setItems([]);
+            setUnreadCount(0);
+            setCounterpartNames({});
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (!mounted) return;
+
+        setUserId(user.id);
+        await loadNotifications(user.id, controller.signal);
+        if (mounted) setLoading(false);
+      } catch (err: unknown) {
+        if (mounted) setLoading(false);
+        if (err instanceof Error && err.name === "AbortError") return;
+        console.error("Unexpected error in notifications init:", err);
       }
-
-      if (!user) {
-        setUserId(null);
-        setItems([]);
-        setUnreadCount(0);
-        setCounterpartNames({});
-        setLoading(false);
-        return;
-      }
-
-      if (!mounted) return;
-
-      setUserId(user.id);
-      await loadNotifications(user.id);
-      setLoading(false);
     }
 
     init();
 
     return () => {
       mounted = false;
+      controller.abort();
     };
   }, [loadNotifications, supabase]);
 
