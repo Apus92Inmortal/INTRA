@@ -29,6 +29,18 @@ export async function notifyAdminUserVerificationAction() {
       return { success: false, error: "No hay verificación pendiente para notificar." };
     }
 
+    // Anti-spam básico: Validar que el envío es reciente (últimos 5 minutos)
+    const metadata = verification.metadata as Record<string, unknown> | null;
+    const submittedAt = metadata?.submitted_at;
+    if (typeof submittedAt === "string") {
+      const submittedDate = new Date(submittedAt);
+      const now = new Date();
+      const diffMs = Math.abs(now.getTime() - submittedDate.getTime());
+      if (diffMs > 5 * 60 * 1000) {
+        return { success: false, error: "La notificación ya fue procesada o el envío no es reciente." };
+      }
+    }
+
     await notifyAdmins({
       type: "admin_user_verification_submitted",
       title: "Nueva verificación de usuario",

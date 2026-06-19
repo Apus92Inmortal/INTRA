@@ -319,8 +319,12 @@ export default function VerificationPanel({
       setCurrentStep(1);
       setIsModalOpen(false);
 
-      // Notificar a administradores sobre la nueva verificación enviada
-      void notifyAdminUserVerificationAction();
+      // Notificar a administradores sobre la nueva verificación enviada (asíncrono pero con await y try/catch para confiabilidad)
+      try {
+        await notifyAdminUserVerificationAction();
+      } catch (notifyError) {
+        console.error("Error al notificar admins sobre verificación:", notifyError);
+      }
 
       router.refresh();
     } catch (error) {

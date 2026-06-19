@@ -181,12 +181,15 @@ export async function savePayoutAccountAction(formData: FormData): Promise<Actio
     if (!payload.id) {
       // Notificar a administradores sobre nueva cuenta enviada para revisión
       // Solo en creación (no edición) para evitar ruido.
-      // notifyAdmins maneja errores internos.
-      void notifyAdmins({
-        type: "admin_payout_account_submitted",
-        title: "Nueva cuenta de retiro",
-        message: "Un usuario envió una cuenta de retiro para revisión.",
-      })
+      try {
+        await notifyAdmins({
+          type: "admin_payout_account_submitted",
+          title: "Nueva cuenta de retiro",
+          message: "Un usuario envió una cuenta de retiro para revisión.",
+        })
+      } catch (notifyError) {
+        console.error("Error al notificar admins sobre nueva cuenta:", notifyError)
+      }
     }
 
     return {

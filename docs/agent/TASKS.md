@@ -12,6 +12,41 @@
 
 ## P0 - En revision
 
+### TASK-038: Admin Notifications Operational (PR E)
+
+Estado: REVIEW
+Prioridad: Media
+Area: Notificaciones / Admin
+
+Resumen:
+
+- Implementar notificaciones administrativas para eventos operativos: Cuentas de retiro, Verificaciones y Disputas.
+- Actualizar mapeo de navegación de notificaciones.
+- Integrar notificaciones en flujos de creación/envío.
+
+Archivos:
+
+- `repos/intra/lib/notifications/navigation.ts`.
+- `repos/intra/tests/unit/lib/notifications/navigation.test.ts`.
+- `repos/intra/app/app/wallet/actions.ts`.
+- `repos/intra/app/app/matches/[id]/actions.ts`.
+- `repos/intra/app/app/profile/actions.ts`.
+- `repos/intra/app/app/profile/VerificationPanel.tsx`.
+
+Validaciones:
+
+- `npm run test:unit`: PASS (58 tests).
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Estado de cierre:
+
+- Rama: `feat/admin-notifications-operational`.
+- PR: #172.
+
+---
+
 ### TASK-037: Unify Intra Confirm Dialog Style
 
 Estado: REVIEW

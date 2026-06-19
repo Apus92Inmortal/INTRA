@@ -10,11 +10,18 @@ Implementar el PR de alineación visual de modales INTRA para unificar el estilo
 
 ## Alcance ejecutado
 
-- Unificado `IntraModal` para usar jerarquía `h3`, color `text-intra-blue` y descripción sutil.
-- Ajustado `IntraConfirmDialog` como el estándar oficial de la plataforma (sin iconos ni botones de cerrar por defecto, botones de confirmación de alto contraste).
-- Refactorizados `NotificationsBell.tsx` y `DashboardTripCloseButton.tsx` (Despegando) para eliminar JSX manual y usar el componente centralizado.
-- Actualizada la documentación oficial en `docs/ui-ux/README.md` definiendo el patrón oficial de modales.
-- Asegurado que los modales administrativos (PR #170) hereden automáticamente la nueva visual.
+- Implementadas notificaciones administrativas para eventos operativos críticos:
+    - `admin_payout_account_submitted`: Nueva cuenta de retiro enviada.
+    - `admin_user_verification_submitted`: Verificación de usuario enviada.
+    - `admin_dispute_created`: Disputa abierta en un match.
+- Actualizada la lógica de navegación en `lib/notifications/navigation.ts` para mapear estos tipos a rutas del panel admin.
+- Agregados tests unitarios en `tests/unit/lib/notifications/navigation.test.ts` (14 tests pasando).
+- Integradas notificaciones en Server Actions:
+    - `savePayoutAccountAction` en `wallet/actions.ts`.
+    - `openDisputeAction` en `matches/[id]/actions.ts`.
+    - `notifyAdminUserVerificationAction` en nuevo archivo `app/app/profile/actions.ts`.
+- Conectado `VerificationPanel.tsx` para disparar la notificación tras éxito.
+- Validada la compilación, lint y build.
 
 ## Archivos tocados
 
