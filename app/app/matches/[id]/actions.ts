@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getReviewWindowState } from "@/lib/reviews";
+import { notifyAdmins } from "@/lib/notifications/admin";
 
 type ReviewPaymentRow = {
   created_at: string | null;
@@ -531,5 +532,59 @@ export async function createReviewAction(
           ? error.message
           : "Error inesperado al crear la review",
     };
+  }
+}
+
+/**
+ * Notifica a los administradores sobre un nuevo reporte sospechoso.
+ * Valida la existencia del reporte y la autorizacion del usuario antes de notificar.
+ */
+export async function notifyAdminSuspiciousReportAction(
+  matchId: string,
+  reportEventId: string
+) {
+  try {
+    if (!matchId || !reportEventId) {
+      return { success: false, error: "Faltan parámetros de reporte." };
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, error: "No autenticado." };
+    }
+
+    // Validar que el reporte existe y fue creado por el usuario actual
+    const { data: report, error: reportError } = await supabase
+      .from("shipment_report_events")
+      .select("id, report_type, match_id")
+      .eq("id", reportEventId)
+      .eq("reported_by", user.id)
+      .eq("match_id", matchId)
+      .single();
+
+    if (reportError || !report) {
+      console.warn(
+        `Intento de notificación de reporte sospechoso no válido por usuario ${user.id}`
+      );
+      return { success: false, error: "Reporte no encontrado o no autorizado." };
+    }
+
+    // Notificar a los admins (operación asíncrona pero con await para confiabilidad)
+    await notifyAdmins({
+      type: "admin_suspicious_report_created",
+      title: "Nuevo reporte sospechoso",
+      message: `Un usuario reportó un paquete sospechoso en el match ${matchId}.`,
+      related_match_id: matchId,
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error en notifyAdminSuspiciousReportAction:", error);
+    // No lanzamos error para no romper el flujo cliente, pero informamos el fallo
+    return { success: false, error: "No se pudo notificar a los administradores." };
   }
 }

@@ -81,4 +81,12 @@ describe("getNotificationHref", () => {
     };
     expect(getNotificationHref(notification)).toBe("/app/admin/payouts");
   });
+
+  it("should return admin alerts route for admin_suspicious_report_created", () => {
+    const notification = {
+      type: "admin_suspicious_report_created",
+      related_match_id: "match-alert-1",
+    };
+    expect(getNotificationHref(notification)).toBe("/app/admin/alerts");
+  });
 });

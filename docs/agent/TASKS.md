@@ -12,6 +12,40 @@
 
 ## P0 - En revision
 
+### TASK-035: Admin Suspicious Report Notifications (PR D)
+
+Estado: REVIEW
+Prioridad: Media
+Area: Notificaciones / Admin / Match
+
+Resumen:
+
+- Notificar a los admins sobre nuevos reportes sospechosos.
+- Implementar Server Action `notifyAdminSuspiciousReportAction` con validaciones de seguridad.
+- Configurar navegación de `admin_suspicious_report_created` -> `/app/admin/alerts`.
+- Integrar en `SuspiciousReportForm.tsx` tras inserts exitosos.
+
+Archivos:
+
+- `repos/intra/app/app/matches/[id]/actions.ts`.
+- `repos/intra/app/app/matches/[id]/SuspiciousReportForm.tsx`.
+- `repos/intra/lib/notifications/navigation.ts`.
+- `repos/intra/tests/unit/lib/notifications/navigation.test.ts`.
+
+Validaciones:
+
+- `npm run test:unit`: PASS.
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Estado de cierre:
+
+- Rama: `feat/admin-suspicious-report-notifications`.
+- PR: #169.
+
+---
+
 ### TASK-034: Admin Payout Notifications (PR C)
 
 Estado: REVIEW

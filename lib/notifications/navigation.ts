@@ -80,6 +80,10 @@ export function getNotificationHref(notification: NotificationLike): string | nu
     return "/app/admin/payouts";
   }
 
+  if (type === "admin_suspicious_report_created") {
+    return "/app/admin/alerts";
+  }
+
   // Fallback para tipos desconocidos o sin match id cuando lo requieren
   return null;
 }
