@@ -6,54 +6,43 @@
 
 ## Objetivo de la sesion
 
-PR A: Mejorar la estabilidad del componente `NotificationsBell` mediante el uso de `AbortController` y manejo de desmontaje para evitar errores de red durante el logout.
+Finalizar y validar el PR B para el mapeo de navegación de notificaciones existentes.
 
 ## Alcance ejecutado
 
-- Implementado `AbortController` en `NotificationsBell.tsx` para cancelar peticiones de Supabase.
-- Agregado flag `mounted` para prevenir `setState` en componentes desmontados.
-- Se ignoran específicamente los errores de tipo `abort` o `FetchError` durante el desmontaje/logout para evitar ruido en consola.
-- Mantenido el manejo de errores reales de notificaciones.
+- Implementado `getNotificationHref` en `lib/notifications/navigation.ts` para mapear tipos de notificación a rutas seguras.
+- Integrado `getNotificationHref` en `NotificationsBell.tsx`.
+- Refinado el manejo de errores en `NotificationsBell.tsx` para silenciar `Failed to fetch` durante el cleanup, complementando el PR #166.
+- Creada suite de pruebas unitarias en `tests/unit/lib/notifications/navigation.test.ts` con cobertura para los tipos principales (Match, Wallet, Perfil).
 
 ## Archivos tocados
 
+- `repos/intra/lib/notifications/navigation.ts`
+- `repos/intra/tests/unit/lib/notifications/navigation.test.ts`
 - `repos/intra/components/notifications-bell.tsx`
 
 ## Confirmaciones de alcance
 
-- No se modificaron Wompi, Wallet, Supabase RLS, migraciones ni webhooks.
-- No se alteró la navegación de las notificaciones ni las alertas administrativas.
-- Se respetó el stash `session-memory-pr162-close`.
+- No se agregó columna `url` a la base de datos.
+- No se tocaron Wompi, Wallet transaccional, Supabase RLS, migraciones ni webhooks.
+- Los tipos de notificación desconocidos no rompen la navegación.
 
 ## Validaciones ejecutadas
 
+- `npm run test:unit tests/unit/lib/notifications/navigation.test.ts`: PASS (9/9).
 - `npm run lint`: PASS.
 - `npx tsc --noEmit`: PASS.
-- `npm run test:unit`: PASS.
 - `npm run build`: PASS.
-- `npm run test:e2e`: PASS.
-- `npm run test:e2e:auth-smoke` (Producción controlada): PASS (2 passed, 17.1s).
-  - Cliente: PASS.
-  - Viajero: PASS (Fix de estabilidad confirmado, sin errores de fetch en logout).
 
-## Cierre
+## Hallazgos / Riesgos
 
-- PR #166 mergeado a `main`.
-- Merge commit: `65e1aab`.
-- Rama local/remota eliminada.
-- Árbol de `main` limpio y sincronizado.
-- Stash `session-memory-pr162-close` preservado.
-
-## Bloqueos
-
-- Ninguno.
+- El smoke test autenticado en producción sigue fallando en el paso de login por causas externas (credenciales o rate-limit), independiente de los cambios de este PR. El hallazgo ha sido clasificado y reportado.
 
 ## Estado PR
 
-- PR: #166 (https://github.com/Apus92Inmortal/INTRA/pull/166).
-- Estado: MERGED.
+- Rama: `fix/notification-navigation`.
+- Estado: Preparado para PR.
 
 ## Pendiente despues de este PR
 
-- PR B: Mapear navegación de notificaciones existentes.
 - PR C: Evaluar/agregar notificaciones admin para retiros/disputas.

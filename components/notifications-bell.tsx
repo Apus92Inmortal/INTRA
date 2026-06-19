@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { getNotificationHref } from "@/lib/notifications/navigation";
 
 type NotificationItem = {
   id: string;
@@ -250,7 +251,11 @@ export function NotificationsBell() {
       const { data: matchesData, error: matchesError } = await query;
 
       if (matchesError) {
-        if (matchesError.message?.includes("abort")) return;
+        if (
+          matchesError.message?.includes("abort") ||
+          matchesError.message?.includes("Failed to fetch")
+        )
+          return;
         console.error(
           "Error loading match relations for notifications:",
           matchesError.message
@@ -296,7 +301,11 @@ export function NotificationsBell() {
       const { data: profilesData, error: profilesError } = await profilesQuery;
 
       if (profilesError) {
-        if (profilesError.message?.includes("abort")) return;
+        if (
+          profilesError.message?.includes("abort") ||
+          profilesError.message?.includes("Failed to fetch")
+        )
+          return;
         console.error(
           "Error loading notification counterpart profiles:",
           profilesError.message
@@ -342,6 +351,7 @@ export function NotificationsBell() {
         const isAbort =
           error.message?.includes("abort") ||
           error.message?.includes("FetchError") ||
+          error.message?.includes("Failed to fetch") ||
           error.code === "20";
 
         if (isAbort) return;
@@ -592,14 +602,10 @@ export function NotificationsBell() {
     setOpen(false);
     setSwipedId(null);
 
-    if (!item.related_match_id) return;
-
-    if (item.type === "new_message") {
-      router.push(`/app/matches/${item.related_match_id}/chat`);
-      return;
+    const href = getNotificationHref(item);
+    if (href) {
+      router.push(href);
     }
-
-    router.push(`/app/matches/${item.related_match_id}`);
   }
 
   function handlePointerDown(notificationId: string) {
