@@ -18,9 +18,10 @@ import {
   type RouteCategory,
 } from "@/lib/payments/quote"
 import {
+  formatThousands,
+  parseIntegerWithThousands,
   parseNormalizedNumber,
   sanitizeDecimalInput,
-  sanitizeIntegerInput,
 } from "@/lib/forms/numeric"
 import {
   SHIPMENT_MAX_WEIGHT_KG,
@@ -240,7 +241,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
       nextErrors.weightKg = `El peso máximo permitido por envío es ${SHIPMENT_MAX_WEIGHT_KG} kg.`
     }
 
-    const declared = parseNormalizedNumber(nextDeclaredValueCop)
+    const declared = parseIntegerWithThousands(nextDeclaredValueCop)
     if (declared === null) {
       nextErrors.declaredValueCop = "El valor declarado es obligatorio."
     } else if (declared < 0) {
@@ -350,7 +351,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
   }
 
   const updateDeclaredValueCop = (rawValue: string) => {
-    const nextValue = sanitizeIntegerInput(rawValue)
+    const nextValue = formatThousands(rawValue)
     setDeclaredValueCop(nextValue)
     syncErrorsIfNeeded({ declaredValueCop: nextValue })
   }
@@ -391,7 +392,7 @@ export default function NewShipmentForm({ cities }: { cities: City[] }) {
     }
 
     const weight = parseNormalizedNumber(weightKg)
-    const declared = parseNormalizedNumber(declaredValueCop)
+    const declared = parseIntegerWithThousands(declaredValueCop)
 
     if (weight === null) {
       nextErrors.weightKg = "El peso es obligatorio."

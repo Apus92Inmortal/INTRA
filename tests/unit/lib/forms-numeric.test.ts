@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
+  formatThousands,
+  parseIntegerWithThousands,
   parseNormalizedNumber,
   sanitizeDecimalInput,
   sanitizeIntegerInput,
@@ -14,6 +16,19 @@ describe("numeric form helpers", () => {
 
   it("keeps only digits for integer input", () => {
     expect(sanitizeIntegerInput("20.000 COP")).toBe("20000")
+  })
+
+  it("formats integers with thousands separators (Colombian style)", () => {
+    expect(formatThousands("1000")).toBe("1.000")
+    expect(formatThousands("1000000")).toBe("1.000.000")
+    expect(formatThousands("abc 50000 xyz")).toBe("50.000")
+    expect(formatThousands("")).toBe("")
+  })
+
+  it("parses integers with thousands separators", () => {
+    expect(parseIntegerWithThousands("1.000.000")).toBe(1000000)
+    expect(parseIntegerWithThousands("50.000")).toBe(50000)
+    expect(parseIntegerWithThousands("")).toBeNull()
   })
 
   it("parses normalized numbers safely", () => {
