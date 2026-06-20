@@ -14,7 +14,7 @@
 
 ### TASK-038: Admin Notifications Operational (PR E)
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Media
 Area: Notificaciones / Admin
 
@@ -23,6 +23,8 @@ Resumen:
 - Implementar notificaciones administrativas para eventos operativos: Cuentas de retiro, Verificaciones y Disputas.
 - Actualizar mapeo de navegación de notificaciones.
 - Integrar notificaciones en flujos de creación/envío.
+- Corregido: Uso de `await` con `try/catch` para confiabilidad en Vercel.
+- Corregido: Anti-spam en verificaciones validando `submitted_at` desde `metadata`.
 
 Archivos:
 
@@ -40,10 +42,11 @@ Validaciones:
 - `npx tsc --noEmit`: PASS.
 - `npm run build`: PASS.
 
-Estado de cierre:
+Cierre:
 
-- Rama: `feat/admin-notifications-operational`.
-- PR: #172.
+- PR #172 squash-merged a `main`.
+- Merge commit: `6d95abe`.
+- Rama local/remota eliminada.
 
 ---
 
