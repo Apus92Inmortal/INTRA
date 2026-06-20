@@ -16,18 +16,26 @@ Finalizar PR #172 (Notificaciones Administrativas) y PR #173 (Formateo de Valor 
     - Realizada auditoría completa de políticas RLS, RPCs y Storage.
     - Identificado hallazgo crítico **SEC-001**: Escalada de privilegios en `user_verifications`.
     - Reportada la auditoría con estado 🟡 Amarillo.
-- **PR #174 (Harden user_verifications RLS):**
+- **PR #174 (Harden user_verifications RLS):** 
     - Creada migración SQL para restringir el `update` en verificaciones (Revocados INSERT/UPDATE/DELETE).
     - Implementada Server Action `submitUserVerificationAction` con validación de ownership de archivos (`user.id/`).
     - Eliminada acción obsoleta `notifyAdminUserVerificationAction`.
-    - Squash-merged a `main` (commit `bc308aa`).
+    - **Estado:** Cerrado y aplicado. Squash-merged a `main` (commit `bc308aa`).
     - Rama local/remota eliminada.
 - **PR #175 (Validación Fecha Viaje Bogota):**
     - Corregida la validación de `create_trip` para usar la zona horaria de Colombia (`America/Bogota`).
     - Prevenido el rechazo de viajes válidos publicados durante la noche (desfase UTC).
     - Asegurada la validación de hora cuando la fecha es el día actual.
-    - Squash-merged a `main` (commit `e9251cf`).
+    - **Estado:** Cerrado y aplicado. Squash-merged a `main` (commit `e9251cf`).
     - Rama local/remota eliminada.
+- **Auditoría Wompi Sandbox:**
+    - Variables de entorno presentes y correctas.
+    - Firmas de Integridad y Eventos: PASS.
+    - Verificado mediante `scripts/qa-wompi-audit.mjs` sin exponer secretos ni realizar llamadas a red.
+- **QA Manual Wompi + Wallet Sandbox:**
+    - **Resultado:** PASS.
+    - **Flujo Validado:** Pago → Webhook → Payment held → Match aceptado → Entrega → Release → Wallet/Ledger → Retiro.
+    - **Gate Cerrado:** Autorizado para producción controlada.
 - **Limpieza y Mantenimiento:**
     - Eliminadas ramas locales integradas.
     - Verificada la preservación del stash `session-memory-pr162-close`.

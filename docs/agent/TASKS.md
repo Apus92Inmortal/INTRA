@@ -12,9 +12,32 @@
 
 ## P0 - En revision
 
+---
+
+## Done Log
+
+### TASK-042: QA Manual Wompi + Wallet Sandbox
+
+Estado: DONE
+Prioridad: Critica
+Area: QA / Pagos / Wallet / Wompi
+
+Resumen:
+- Validación del flujo real de dinero en ambiente Sandbox.
+- Flujo cubierto: Pago (Nequi Sandbox) → Webhook → Payment held → Match aceptado → Entrega → Release → Wallet/Ledger → Retiro.
+- Verificación de integridad de firmas (Integrity/Events) exitosa.
+- Gate cerrado para producción controlada.
+
+Evidencia:
+- Auditoría de firmas: PASS (qa-wompi-audit.mjs).
+- Transacción Sandbox: `12078714-1781922525-29741`.
+- Referencia: `intra-shipment-c3a12f4b-9500-488e-9bfa-91116738fb35-...`.
+
+---
+
 ### TASK-041: Fix Trip Date Validation (Bogota Time)
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Media
 Area: Backend / Supabase RPC
 
@@ -391,8 +414,6 @@ Estado de cierre:
 - Pendiente despues del PR: investigar notificaciones para viajero o decidir si el harness debe tratar ese error como no bloqueante.
 
 ---
-
-## Done Log
 
 ### TASK-030: Auth smoke client/traveler guardrails
 
