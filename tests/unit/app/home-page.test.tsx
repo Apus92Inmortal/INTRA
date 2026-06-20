@@ -7,7 +7,7 @@ describe("HomePage", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /envía documentos y paquetes entre ciudades, hoy mismo/i,
+        name: /envía paquetes entre ciudades aprovechando viajeros que ya van en camino/i,
       })
     ).toBeInTheDocument();
 
@@ -22,6 +22,10 @@ describe("HomePage", () => {
     expect(
       screen.getAllByRole("link", { name: "Publicar envío" })[0]
     ).toHaveAttribute("href", "/register?next=/app/shipments/new");
+
+    expect(
+      screen.getAllByRole("link", { name: "Publicar viaje" })[0]
+    ).toHaveAttribute("href", "/register?next=/app/trips/new");
 
     expect(
       screen.getByRole("link", { name: "Términos y condiciones" })
