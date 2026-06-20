@@ -12,6 +12,39 @@
 
 ## P0 - En revision
 
+### TASK-039: Format Shipment Declared Value Input
+
+Estado: DONE
+Prioridad: Baja
+Area: UI-UX / Formulario Envío
+
+Resumen:
+
+- Mejorar la UX del campo "valor declarado" mostrando separadores de miles estilo Colombia mientras el usuario escribe.
+- Asegurar que el valor enviado al servidor sea numérico puro.
+- Mantener validaciones de límites de seguridad.
+
+Archivos:
+
+- `repos/intra/lib/forms/numeric.ts`.
+- `repos/intra/app/app/shipments/new/NewShipmentForm.tsx`.
+- `repos/intra/tests/unit/lib/forms-numeric.test.ts`.
+
+Validaciones:
+
+- `npm run test:unit`: PASS (58 tests + 2 nuevos casos).
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Cierre:
+
+- PR #173 squash-merged a `main`.
+- Merge commit: `976a239`.
+- Rama local/remota eliminada.
+
+---
+
 ### TASK-038: Admin Notifications Operational (PR E)
 
 Estado: DONE
