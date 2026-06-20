@@ -17,9 +17,10 @@ Finalizar PR #172 (Notificaciones Administrativas) y PR #173 (Formateo de Valor 
     - Identificado hallazgo crítico **SEC-001**: Escalada de privilegios en `user_verifications`.
     - Reportada la auditoría con estado 🟡 Amarillo.
 - **PR #174 (Harden user_verifications RLS):**
-    - Creada migración SQL para restringir el `update` en verificaciones.
-    - Bloqueada la posibilidad de que un usuario se marque como `verified` manualmente.
-    - Rama `fix/harden-user-verifications-rls` enviada y PR #174 creado.
+    - Creada migración SQL para restringir el `update` en verificaciones (Revocados INSERT/UPDATE/DELETE).
+    - Implementada Server Action `submitUserVerificationAction` con validación de ownership de archivos (`user.id/`).
+    - Eliminada acción obsoleta `notifyAdminUserVerificationAction`.
+    - Rama `fix/harden-user-verifications-rls` actualizada y PR #174 listo para squash merge.
 - **Limpieza y Mantenimiento:**
     - Eliminadas ramas locales integradas.
     - Verificada la preservación del stash `session-memory-pr162-close`.
