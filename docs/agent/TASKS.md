@@ -12,6 +12,31 @@
 
 ## P0 - En revision
 
+### TASK-040: Harden user_verifications RLS (SEC-001)
+
+Estado: IN_PROGRESS
+Prioridad: Alta
+Area: Seguridad / Supabase
+
+Resumen:
+- Mitigar riesgo de escalada de privilegios en el estado de verificación de usuario.
+- Bloquear actualizaciones directas de status a 'verified' desde el cliente.
+
+Archivos:
+- `repos/intra/supabase/migrations/202606192200_harden_user_verifications_rls_sec001.sql`.
+
+Validaciones:
+- `npm run test:unit`: PASS (60 tests).
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Cierre:
+- Rama `fix/harden-user-verifications-rls` enviada.
+- PR #174 creado.
+
+---
+
 ### TASK-039: Format Shipment Declared Value Input
 
 Estado: DONE
