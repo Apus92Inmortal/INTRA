@@ -22,6 +22,11 @@ Finalizar PR #172 (Notificaciones Administrativas) y PR #173 (Formateo de Valor 
     - Eliminada acción obsoleta `notifyAdminUserVerificationAction`.
     - Squash-merged a `main` (commit `bc308aa`).
     - Rama local/remota eliminada.
+- **PR #175 (Validación Fecha Viaje Bogota):**
+    - Corregida la validación de `create_trip` para usar la zona horaria de Colombia (`America/Bogota`).
+    - Prevenido el rechazo de viajes válidos publicados durante la noche (desfase UTC).
+    - Asegurada la validación de hora cuando la fecha es el día actual.
+    - Rama `fix/trip-date-validation-bogota-time` enviada y PR #175 creado.
 - **Limpieza y Mantenimiento:**
     - Eliminadas ramas locales integradas.
     - Verificada la preservación del stash `session-memory-pr162-close`.

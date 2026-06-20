@@ -12,6 +12,31 @@
 
 ## P0 - En revision
 
+### TASK-041: Fix Trip Date Validation (Bogota Time)
+
+Estado: REVIEW
+Prioridad: Media
+Area: Backend / Supabase RPC
+
+Resumen:
+- Corregir bug donde los viajes para el mismo día en Colombia eran rechazados debido al desfase de fecha con UTC.
+- Ajustar RPC `create_trip` para usar `America/Bogota` en las validaciones de fecha y hora.
+
+Archivos:
+- `repos/intra/supabase/migrations/202606192230_fix_trip_date_validation_bogota_time.sql`.
+
+Validaciones:
+- `npm run test:unit`: PASS (60 tests).
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Cierre:
+- Rama `fix/trip-date-validation-bogota-time` enviada.
+- PR #175 creado.
+
+---
+
 ### TASK-040: Harden user_verifications RLS (SEC-001)
 
 Estado: DONE
