@@ -16,6 +16,25 @@
 
 ## Done Log
 
+### TASK-043: Repo Cleanup Audit
+
+Estado: DONE / No action required
+Prioridad: Baja
+Area: Mantenimiento / QA
+
+Resumen:
+- Auditoría de limpieza del repo realizada antes de producción controlada.
+- Resultado: No se detectó basura crítica ni necesidad de limpieza inmediata.
+- Decisión: No abrir PR de limpieza por ahora para evitar riesgos innecesarios.
+- Archivos confirmados como necesarios: `proxy.ts`, `scripts/generate-workflows-impact.cjs`, `tests/e2e/home.spec.ts`.
+
+Cierre:
+- Auditoría validada por Aldo.
+- No se requiere intervención técnica adicional.
+- Siguiente gate: Revisión de variables de producción en Vercel.
+
+---
+
 ### TASK-042: QA Manual Wompi + Wallet Sandbox
 
 Estado: DONE

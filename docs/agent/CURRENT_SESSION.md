@@ -36,6 +36,10 @@ Finalizar PR #172 (Notificaciones Administrativas) y PR #173 (Formateo de Valor 
     - **Resultado:** PASS.
     - **Flujo Validado:** Pago → Webhook → Payment held → Match aceptado → Entrega → Release → Wallet/Ledger → Retiro.
     - **Gate Cerrado:** Autorizado para producción controlada.
+- **Auditoría de Limpieza Repo:**
+    - **Resultado:** PASS / No bloqueante.
+    - **Acción:** No se requiere PR de limpieza. Se conserva el estado actual para evitar riesgos antes de producción controlada.
+    - **Hallazgos:** `proxy.ts`, `generate-workflows-impact.cjs`, tests E2E y Smoke identificados como activos y necesarios. Artefactos temporales debidamente ignorados por `.gitignore`.
 - **Limpieza y Mantenimiento:**
     - Eliminadas ramas locales integradas.
     - Verificada la preservación del stash `session-memory-pr162-close`.
