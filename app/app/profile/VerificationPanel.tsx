@@ -13,7 +13,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { compressImageFile } from "@/lib/uploads";
-import { notifyAdminUserVerificationAction } from "./actions";
+import { submitUserVerificationAction } from "./actions";
 
 type VerificationPanelProps = {
   initialStatus: string | null;
@@ -288,27 +288,17 @@ export default function VerificationPanel({
         uploadFile(compressedSelfie, "selfie"),
       ]);
 
-      const { error } = await supabase.from("user_verifications").upsert(
-        {
-          user_id: user.id,
-          verification_status: "pending",
-          document_photo_url: documentPath,
-          selfie_url: selfiePath,
-          terms_version: TERMS_VERSION,
-          data_consent_accepted_at: new Date().toISOString(),
-          rejection_reason: null,
-          reviewed_at: null,
-          reviewed_by: null,
-          metadata: {
-            source: "profile_verification_panel",
-            submitted_at: new Date().toISOString(),
-          },
+      const result = await submitUserVerificationAction({
+        documentPhotoUrl: documentPath,
+        selfieUrl: selfiePath,
+        termsVersion: TERMS_VERSION,
+        metadata: {
+          source: "profile_verification_panel",
         },
-        { onConflict: "user_id" }
-      );
+      });
 
-      if (error) {
-        throw new Error(error.message);
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
       setMessage("Documentos enviados. Tu verificación quedó en revisión manual.");
@@ -318,13 +308,6 @@ export default function VerificationPanel({
       setAcceptConsent(false);
       setCurrentStep(1);
       setIsModalOpen(false);
-
-      // Notificar a administradores sobre la nueva verificación enviada (asíncrono pero con await y try/catch para confiabilidad)
-      try {
-        await notifyAdminUserVerificationAction();
-      } catch (notifyError) {
-        console.error("Error al notificar admins sobre verificación:", notifyError);
-      }
 
       router.refresh();
     } catch (error) {

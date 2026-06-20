@@ -10,20 +10,21 @@ Finalizar PR #172 (Notificaciones Administrativas) y PR #173 (Formateo de Valor 
 
 ## Alcance ejecutado
 
-- **PR #172 (Notificaciones Admin Operativas):**
-    - Implementadas notificaciones administrativas para eventos operativos críticos: Cuentas de retiro, Verificaciones de usuario y Disputas.
-    - Asegurado el estándar de confiabilidad (`await` + `try/catch`) para entornos serverless.
-    - Agregado anti-spam básico en verificaciones validando `submitted_at` desde `metadata`.
-    - Squash-merged a `main` (commit `6d95abe`).
-- **PR #173 (Formateo Valor Declarado):**
-    - Implementado formateo visual de separadores de miles (punto) para el campo "Valor declarado" en la creación de envíos.
-    - Creados helpers centralizados en `lib/forms/numeric.ts` (`formatThousands`, `parseIntegerWithThousands`).
-    - Validada la persistencia de las reglas de negocio y compatibilidad mobile.
-    - Squash-merged a `main` (commit `976a239`).
-- **Limpieza:**
-    - Eliminadas ramas locales y remotas integradas.
-    - Sincronizado `main` con `origin/main`.
+- **PR #172 (Notificaciones Admin Operativas):** Squash-merged a `main` (commit `6d95abe`).
+- **PR #173 (Formateo Valor Declarado):** Squash-merged a `main` (commit `976a239`).
+- **Auditoría de Seguridad Supabase/RLS:**
+    - Realizada auditoría completa de políticas RLS, RPCs y Storage.
+    - Identificado hallazgo crítico **SEC-001**: Escalada de privilegios en `user_verifications`.
+    - Reportada la auditoría con estado 🟡 Amarillo.
+- **PR #174 (Harden user_verifications RLS):**
+    - Creada migración SQL para restringir el `update` en verificaciones (Revocados INSERT/UPDATE/DELETE).
+    - Implementada Server Action `submitUserVerificationAction` con validación de ownership de archivos (`user.id/`).
+    - Eliminada acción obsoleta `notifyAdminUserVerificationAction`.
+    - Rama `fix/harden-user-verifications-rls` actualizada y PR #174 listo para squash merge.
+- **Limpieza y Mantenimiento:**
+    - Eliminadas ramas locales integradas.
     - Verificada la preservación del stash `session-memory-pr162-close`.
+    - 60 tests unitarios pasando en total.
 
 ## Archivos tocados (Resumen)
 

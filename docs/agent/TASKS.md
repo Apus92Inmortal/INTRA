@@ -12,6 +12,35 @@
 
 ## P0 - En revision
 
+### TASK-040: Harden user_verifications RLS (SEC-001)
+
+Estado: DONE
+Prioridad: Alta
+Area: Seguridad / Supabase
+
+Resumen:
+- Implementada Opción A (Server Action) para el envío de verificaciones.
+- Restringido el acceso SQL (Grants/RLS) para evitar manipulación directa de columnas administrativas.
+- Agregada validación de ownership de archivos en el servidor (paths deben empezar por `user.id/`).
+- Eliminada acción obsoleta `notifyAdminUserVerificationAction`.
+
+Archivos:
+- `repos/intra/supabase/migrations/202606192200_harden_user_verifications_rls_sec001.sql`.
+- `repos/intra/app/app/profile/actions.ts`.
+- `repos/intra/app/app/profile/VerificationPanel.tsx`.
+
+Validaciones:
+- `npm run test:unit`: PASS (60 tests).
+- `npm run lint`: PASS.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+
+Cierre:
+- Implementación de seguridad reforzada y validada.
+- Rama `fix/harden-user-verifications-rls` actualizada y PR #174 listo para squash merge.
+
+---
+
 ### TASK-039: Format Shipment Declared Value Input
 
 Estado: DONE
