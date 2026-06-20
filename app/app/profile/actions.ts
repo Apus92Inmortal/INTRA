@@ -21,7 +21,7 @@ export async function notifyAdminUserVerificationAction() {
     // Validar que el usuario tiene una verificación pendiente
     const { data: verification, error: verificationError } = await supabase
       .from("user_verifications")
-      .select("id, verification_status")
+      .select("id, verification_status, metadata")
       .eq("user_id", user.id)
       .single();
 
