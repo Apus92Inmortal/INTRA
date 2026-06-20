@@ -1,38 +1,34 @@
--- SEC-001: Harden user_verifications RLS to prevent unauthorized status escalations.
--- Prevents authenticated users from directly modifying sensitive fields like 'verification_status'.
+-- SEC-001: Harden user_verifications RLS and Grants to prevent unauthorized status escalations.
+-- Implementation: Option A (Server Action) + Restrictive SQL.
+-- This migration restricts direct client-side updates and ensures only the server-side action
+-- (using service_role) can modify sensitive verification fields.
 
 begin;
 
--- 1. Drop the broad and vulnerable update policy
+-- 1. Eliminar políticas de escritura que permitían acceso directo desde el cliente
 drop policy if exists "Users can update own verifications" on public.user_verifications;
+drop policy if exists "Users can update own unverified verifications" on public.user_verifications;
+drop policy if exists "Users can insert own verifications" on public.user_verifications;
+drop policy if exists "Users can insert own verifications as pending" on public.user_verifications;
 
--- 2. Create a restrictive update policy for users
--- This allows updating ONLY if the status is NOT 'verified' or 'pending' (locked).
--- Note: verification_status is still protected by this being a non-updatable field via RLS
--- if we only allow specific columns or use a check that ensures the status remains unchanged.
--- However, Supabase RLS 'with check' is the standard way to enforce column-level-like constraints.
+-- 2. Revocar permisos de escritura directos (INSERT, UPDATE, DELETE) para usuarios autenticados y anónimos.
+-- Esto protege todas las columnas (admin y de usuario) de manipulación directa vía API/SDK.
+-- El flujo de verificación ahora es exclusivo a través de la Server Action 'submitUserVerificationAction'.
+revoke insert, update, delete on public.user_verifications from authenticated, anon;
 
-create policy "Users can update own unverified verifications"
+-- 3. Mantener y asegurar el acceso de lectura para el propietario
+-- El usuario aún necesita ver su propio estado de verificación.
+grant select on public.user_verifications to authenticated;
+
+drop policy if exists "Users can view own verifications" on public.user_verifications;
+create policy "Users can view own verifications"
   on public.user_verifications
-  for update
+  for select
   to authenticated
-  using (
-    auth.uid() = user_id 
-    and verification_status in ('unverified', 'rejected')
-  )
-  with check (
-    auth.uid() = user_id
-    and verification_status = 'pending' -- Users can only transition to 'pending'
-  );
+  using (auth.uid() = user_id);
 
--- 3. Ensure service_role (Admin) can still manage all aspects
--- (Usually service_role bypasses RLS, but explicit grants are safer for RPCs)
-
--- Verify existing policies for select/insert to ensure they remain functional but secure
--- Users can still view their own
--- create policy "Users can view own verifications" on public.user_verifications for select to authenticated using (auth.uid() = user_id);
-
--- Users can still insert their own (initial submission)
--- create policy "Users can insert own verifications" on public.user_verifications for insert to authenticated with check (auth.uid() = user_id);
+-- 4. Nota sobre Service Role:
+-- Las operaciones administrativas (reviewUserVerificationAction) y el envío de usuario (submitUserVerificationAction)
+-- utilizan el cliente administrativo (service_role), por lo que omiten RLS y mantienen permisos completos.
 
 commit;
