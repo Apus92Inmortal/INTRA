@@ -20,7 +20,8 @@ Finalizar PR #172 (Notificaciones Administrativas) y PR #173 (Formateo de Valor 
     - Creada migración SQL para restringir el `update` en verificaciones (Revocados INSERT/UPDATE/DELETE).
     - Implementada Server Action `submitUserVerificationAction` con validación de ownership de archivos (`user.id/`).
     - Eliminada acción obsoleta `notifyAdminUserVerificationAction`.
-    - Rama `fix/harden-user-verifications-rls` actualizada y PR #174 listo para squash merge.
+    - Squash-merged a `main` (commit `bc308aa`).
+    - Rama local/remota eliminada.
 - **Limpieza y Mantenimiento:**
     - Eliminadas ramas locales integradas.
     - Verificada la preservación del stash `session-memory-pr162-close`.

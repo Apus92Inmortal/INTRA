@@ -37,7 +37,9 @@ Validaciones:
 
 Cierre:
 - Implementación de seguridad reforzada y validada.
-- Rama `fix/harden-user-verifications-rls` actualizada y PR #174 listo para squash merge.
+- PR #174 squash-merged a `main`.
+- Merge commit: `bc308aa`.
+- Rama local/remota eliminada.
 
 ---
 
