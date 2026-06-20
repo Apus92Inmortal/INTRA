@@ -89,4 +89,28 @@ describe("getNotificationHref", () => {
     };
     expect(getNotificationHref(notification)).toBe("/app/admin/alerts");
   });
+
+  it("should return admin payout accounts route for admin_payout_account_submitted", () => {
+    const notification = {
+      type: "admin_payout_account_submitted",
+      related_match_id: null,
+    };
+    expect(getNotificationHref(notification)).toBe("/app/admin/payout-accounts");
+  });
+
+  it("should return admin verifications route for admin_user_verification_submitted", () => {
+    const notification = {
+      type: "admin_user_verification_submitted",
+      related_match_id: null,
+    };
+    expect(getNotificationHref(notification)).toBe("/app/admin/verifications");
+  });
+
+  it("should return admin disputes route for admin_dispute_created", () => {
+    const notification = {
+      type: "admin_dispute_created",
+      related_match_id: null,
+    };
+    expect(getNotificationHref(notification)).toBe("/app/admin/disputes");
+  });
 });
