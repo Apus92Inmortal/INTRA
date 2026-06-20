@@ -32,8 +32,10 @@ Validaciones:
 - `npm run build`: PASS.
 
 Cierre:
-- Rama `fix/trip-date-validation-bogota-time` enviada.
-- PR #175 creado.
+- Rama `fix/trip-date-validation-bogota-time` integrada.
+- PR #175 squash-merged a `main`.
+- Merge commit: `e9251cf`.
+- Rama local/remota eliminada.
 
 ---
 
