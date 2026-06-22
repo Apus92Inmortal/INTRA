@@ -127,10 +127,7 @@ const atlasLandingHtml = String.raw`
     <p class="lead intra-body">Antes de aceptar un envío, la app muestra el valor del trayecto para que puedas decidir con claridad.</p>
     <div class="grid-3">
       <div class="price-card">
-        <div class="price-badge intra-body-strong">
-          <svg class="price-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M12 21s6-5.2 6-11a6 6 0 0 0-12 0c0 5.8 6 11 6 11Z"/><path d="M12 10.5h.01"/></svg>
-          <span>Corta distancia</span>
-        </div>
+        <div class="price-badge intra-body-strong">Corta distancia</div>
         <div class="price-tag"><span class="price-currency intra-subtitle">$</span><span class="price-amount intra-metric">20.000</span></div>
         <div class="price-unit intra-caption-strong">COP</div>
         <p class="price-desc intra-caption">Misma región</p>
@@ -143,10 +140,7 @@ const atlasLandingHtml = String.raw`
       </div>
       <div class="price-card price-popular">
         <div class="popular-tag intra-badge-text">Más popular</div>
-        <div class="price-badge intra-body-strong">
-          <svg class="price-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M6 20V8l6-3 6 3v12"/><path d="M9 11h.01"/><path d="M12 11h.01"/><path d="M15 11h.01"/><path d="M9 15h.01"/><path d="M12 15h.01"/><path d="M15 15h.01"/></svg>
-          <span>Media distancia</span>
-        </div>
+        <div class="price-badge intra-body-strong">Media distancia</div>
         <div class="price-tag"><span class="price-currency intra-subtitle">$</span><span class="price-amount intra-metric">25.000</span></div>
         <div class="price-unit intra-caption-strong">COP</div>
         <p class="price-desc intra-caption">Entre regiones</p>
@@ -158,10 +152,7 @@ const atlasLandingHtml = String.raw`
         <a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/shipments/new">Enviar ahora</a>
       </div>
       <div class="price-card">
-        <div class="price-badge intra-body-strong">
-          <svg class="price-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M10.5 20.5 13 13l7.5-2.5-3-3L10 10 7.5 2.5 5 5l1.5 6.5L2 14l2 2 4.5-1.5 6.5 1.5 2.5 2.5Z"/></svg>
-          <span>Larga distancia</span>
-        </div>
+        <div class="price-badge intra-body-strong">Larga distancia</div>
         <div class="price-tag"><span class="price-currency intra-subtitle">$</span><span class="price-amount intra-metric">35.000</span></div>
         <div class="price-unit intra-caption-strong">COP</div>
         <p class="price-desc intra-caption">Costa a costa</p>
@@ -483,14 +474,7 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
   padding:6px 18px;border-radius:999px;background:var(--green);color:var(--card);
   white-space:nowrap;
 }
-.price-badge{
-  display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  color:var(--muted);margin-bottom:16px;
-}
-.price-icon{
-  width:16px;height:16px;flex:0 0 16px;
-  stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none;
-}
+.price-badge{color:var(--muted);margin-bottom:16px}
 .price-tag{display:flex;align-items:flex-start;justify-content:center;gap:2px}
 .price-currency{color:var(--brand);margin-top:8px}
 .price-amount{font-size:48px;font-weight:900;color:var(--brand);line-height:1;letter-spacing:-.02em}
