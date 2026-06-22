@@ -7,7 +7,7 @@ describe("HomePage", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /envía documentos y paquetes entre ciudades, hoy mismo/i,
+        name: /envía paquetes entre ciudades aprovechando viajeros que ya van en camino/i,
       })
     ).toBeInTheDocument();
 
@@ -24,6 +24,10 @@ describe("HomePage", () => {
     ).toHaveAttribute("href", "/register?next=/app/shipments/new");
 
     expect(
+      screen.getAllByRole("link", { name: "Publicar viaje" })[0]
+    ).toHaveAttribute("href", "/register?next=/app/trips/new");
+
+    expect(
       screen.getByRole("link", { name: "Términos y condiciones" })
     ).toHaveAttribute("href", "/legal/terms-conditions");
 
@@ -34,6 +38,9 @@ describe("HomePage", () => {
     expect(
       screen.queryByRole("link", { name: "Contáctanos" })
     ).not.toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: "INTRA" })).toHaveLength(2);
+    expect(screen.getByRole("link", { name: "Instagram" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "TikTok" })).not.toBeInTheDocument();
     expect(screen.getByText("Contacto")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "soporte@intra.com.co" })

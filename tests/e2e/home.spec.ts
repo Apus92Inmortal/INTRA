@@ -28,15 +28,14 @@ test("public home page loads and shows current brand and CTAs", async ({ page })
   await expect(page.getByRole("img", { name: "INTRA" }).first()).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: /Envía documentos y paquetes entre ciudades, hoy mismo/i,
+      name: /Envía paquetes entre ciudades aprovechando viajeros que ya van en camino/i,
     })
   ).toBeVisible();
 
   await expect(page.getByRole("link", { name: "Iniciar sesión" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Registrarse" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Publicar envío" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Publicar mi viaje" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Comenzar gratis" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Publicar envío" }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Publicar viaje" }).first()).toBeVisible();
 });
 
 test("public navigation targets login and register auth views", async ({ page }) => {

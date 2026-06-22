@@ -3,16 +3,16 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "INTRA — Envía paquetes con viajeros reales",
+    absolute: "INTRA — Envía paquetes entre ciudades con viajeros",
   },
   description:
-    "Conecta con viajeros que ya van a tu destino. Envía documentos y paquetes entre ciudades desde $20.000 COP. Rápido, seguro y sin intermediarios.",
+    "INTRA conecta personas que necesitan enviar paquetes o documentos entre ciudades con viajeros disponibles en la misma ruta.",
   openGraph: {
-    title: "INTRA — Envía paquetes con viajeros reales",
+    title: "INTRA — Envía paquetes entre ciudades con viajeros",
     description:
-      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $20.000 COP.",
+      "Publica tu envío, acepta un match, coordina por chat y paga dentro de la app.",
     type: "website",
-    url: "https://intra-chi.vercel.app",
+    url: "https://www.intra.com.co",
     images: [
       {
         url: "/assets/ChatGPT-Image-1-feb-2026-12_09_59-a.m.png",
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "INTRA — Envía paquetes con viajeros reales",
+    title: "INTRA — Envía paquetes entre ciudades con viajeros",
     description:
-      "Envía documentos y paquetes entre ciudades colombianas. Viajeros reales, precios desde $20.000 COP.",
+      "Publica tu envío, acepta un match, coordina por chat y paga dentro de la app.",
     images: ["/assets/ChatGPT-Image-1-feb-2026-12_09_59-a.m.png"],
   },
 };
@@ -57,16 +57,15 @@ const atlasLandingHtml = String.raw`
   <div class="wrap hero-card" style="background-image:url(/assets/ChatGPT-Image-1-feb-2026-12_09_59-a.m.png)">
     <div class="overlay"></div>
     <div class="hero-content">
-      <div class="hero-badge intra-badge-text">✈️ 12 ciudades colombianas cubiertas</div>
-      <h1 class="intra-title">Envía documentos y paquetes entre ciudades, <span class="text-green">hoy mismo</span></h1>
-      <p class="intra-subtitle">Viajeros reales los llevan por ti entre aeropuertos. Desde <strong>$20.000 COP</strong>.</p>
+      <div class="hero-badge intra-badge-text">Pago protegido · Chat directo · Matches por ruta</div>
+      <h1 class="intra-title">Envía paquetes entre ciudades aprovechando viajeros que ya van en camino</h1>
+      <p class="intra-subtitle">Publica tu envío, acepta un match, coordina por chat y paga dentro de la app.</p>
       <div class="btn-row">
         <a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/shipments/new">Publicar envío</a>
-        <a class="btn btn-secondary intra-badge-text" href="#como-funciona">Cómo funciona</a>
+        <a class="btn btn-secondary intra-badge-text" href="https://intra-chi.vercel.app/trips/new">Publicar viaje</a>
       </div>
       <div class="hero-proof">
-        <div class="proof-stars intra-caption">★★★★★</div>
-        <div class="proof-text intra-caption">+120 viajeros activos · 132 rutas · <strong>4.9/5</strong></div>
+        <div class="proof-text intra-caption">Para enviar paquetes o documentos · Para ganar dinero extra viajando</div>
       </div>
     </div>
   </div>
@@ -75,47 +74,47 @@ const atlasLandingHtml = String.raw`
 <section class="proof-bar">
   <div class="wrap proof-bar-inner">
     <div class="proof-item">
-      <div class="proof-num intra-metric">12</div>
-      <div class="proof-label intra-badge-text">Ciudades</div>
+      <div class="proof-num intra-subtitle">Pago protegido</div>
+      <div class="proof-label intra-body">Tu pago se gestiona dentro del flujo de INTRA y se libera según el avance de la entrega.</div>
     </div>
     <div class="proof-divider"></div>
     <div class="proof-item">
-      <div class="proof-num intra-metric">132</div>
-      <div class="proof-label intra-badge-text">Rutas activas</div>
+      <div class="proof-num intra-subtitle">Chat directo</div>
+      <div class="proof-label intra-body">Coordina detalles con el viajero desde la app, sin perder el contexto del envío.</div>
     </div>
     <div class="proof-divider"></div>
     <div class="proof-item">
-      <div class="proof-num intra-metric">$20K</div>
-      <div class="proof-label intra-badge-text">Desde COP</div>
+      <div class="proof-num intra-subtitle">Matches por ruta</div>
+      <div class="proof-label intra-body">Conectamos envíos y viajes compatibles para aprovechar mejor cada trayecto.</div>
     </div>
     <div class="proof-divider"></div>
     <div class="proof-item">
-      <div class="proof-num intra-metric">24-48h</div>
-      <div class="proof-label intra-badge-text">Entrega</div>
+      <div class="proof-num intra-subtitle">Perfiles y evidencias</div>
+      <div class="proof-label intra-body">Revisa información del usuario, acuerdos y soportes del envío dentro de la plataforma.</div>
     </div>
   </div>
 </section>
 
 <section id="como-funciona" class="section">
   <div class="wrap card center">
-    <div class="section-label intra-badge-text">En 3 pasos</div>
-    <h2 class="intra-title">¿Cómo funciona?</h2>
-    <p class="lead intra-body">Conectamos personas que necesitan enviar algo con viajeros que ya van a volar y tienen espacio disponible en su equipaje. <strong>Sin intermediarios, sin bodegas, sin esperas.</strong></p>
+    <div class="section-label intra-badge-text">Para enviar</div>
+    <h2 class="intra-title">Publica un envío y encuentra un viajero compatible</h2>
+    <p class="lead intra-body">Una forma directa de mover paquetes o documentos entre ciudades, con coordinación dentro de la app y contexto claro para ambas partes.</p>
     <div class="grid-3">
       <div class="mini">
         <div class="num intra-badge-text">01</div>
         <h3 class="intra-subtitle">Publica tu envío</h3>
-        <p class="intra-body">Indica qué necesitas enviar, la ciudad de origen y destino. El precio se calcula automáticamente.</p>
+        <p class="intra-body">Indica origen, destino, peso y detalles básicos del paquete.</p>
       </div>
       <div class="mini">
         <div class="num intra-badge-text">02</div>
-        <h3 class="intra-subtitle">Elige un viajero</h3>
-        <p class="intra-body">Revisa viajeros disponibles en tu ruta, revisa su perfil y acepta al que más te convenga.</p>
+        <h3 class="intra-subtitle">Elige un viajero compatible</h3>
+        <p class="intra-body">Revisa las opciones disponibles y acepta el match que más te convenga.</p>
       </div>
       <div class="mini">
         <div class="num intra-badge-text">03</div>
-        <h3 class="intra-subtitle">Coordina y recibe</h3>
-        <p class="intra-body">Chat directo con el viajero, entrega en el punto acordado y confirma la recepción. El pago se libera automáticamente.</p>
+        <h3 class="intra-subtitle">Coordina y confirma</h3>
+        <p class="intra-body">Habla por chat, entrega el paquete y confirma cuando lo recibas.</p>
       </div>
     </div>
   </div>
@@ -125,10 +124,10 @@ const atlasLandingHtml = String.raw`
   <div class="wrap card center">
     <div class="section-label intra-badge-text">Transparente</div>
     <h2 class="intra-title">Precios claros por ruta</h2>
-    <p class="lead intra-body">Sin sorpresas, sin cobros ocultos. Sabes cuánto cuesta antes de publicar tu envío.</p>
+    <p class="lead intra-body">Antes de aceptar un envío, la app muestra el valor del trayecto para que puedas decidir con claridad.</p>
     <div class="grid-3">
       <div class="price-card">
-        <div class="price-badge intra-body-strong">📍 Corta distancia</div>
+        <div class="price-badge intra-body-strong">Corta distancia</div>
         <div class="price-tag"><span class="price-currency intra-subtitle">$</span><span class="price-amount intra-metric">20.000</span></div>
         <div class="price-unit intra-caption-strong">COP</div>
         <p class="price-desc intra-caption">Misma región</p>
@@ -140,8 +139,8 @@ const atlasLandingHtml = String.raw`
         <a class="btn btn-outline intra-badge-text" href="https://intra-chi.vercel.app/shipments/new">Enviar ahora</a>
       </div>
       <div class="price-card price-popular">
-        <div class="popular-tag intra-badge-text">⭐ Más popular</div>
-        <div class="price-badge intra-body-strong">🏙️ Media distancia</div>
+        <div class="popular-tag intra-badge-text">Más popular</div>
+        <div class="price-badge intra-body-strong">Media distancia</div>
         <div class="price-tag"><span class="price-currency intra-subtitle">$</span><span class="price-amount intra-metric">25.000</span></div>
         <div class="price-unit intra-caption-strong">COP</div>
         <p class="price-desc intra-caption">Entre regiones</p>
@@ -153,7 +152,7 @@ const atlasLandingHtml = String.raw`
         <a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/shipments/new">Enviar ahora</a>
       </div>
       <div class="price-card">
-        <div class="price-badge intra-body-strong">✈️ Larga distancia</div>
+        <div class="price-badge intra-body-strong">Larga distancia</div>
         <div class="price-tag"><span class="price-currency intra-subtitle">$</span><span class="price-amount intra-metric">35.000</span></div>
         <div class="price-unit intra-caption-strong">COP</div>
         <p class="price-desc intra-caption">Costa a costa</p>
@@ -165,75 +164,71 @@ const atlasLandingHtml = String.raw`
         <a class="btn btn-outline intra-badge-text" href="https://intra-chi.vercel.app/shipments/new">Enviar ahora</a>
       </div>
     </div>
-    <p class="price-note intra-body">Hasta 60% más barato que envíos tradicionales. El pago se retiene de forma segura hasta que confirmes la entrega.</p>
+    <p class="price-note intra-body">El pago se gestiona dentro de INTRA y sigue las reglas operativas del envío, la entrega y cualquier revisión necesaria.</p>
   </div>
 </section>
 
 <section id="viaja-y-gana" class="section">
   <div class="wrap card center">
     <div class="section-label intra-badge-text">Para viajeros</div>
-    <h2 class="intra-title">Viaja y gana dinero extra</h2>
-    <p class="lead intra-body">¿Vas a viajar con espacio libre en tu equipaje? Monetiza tu viaje llevando paquetes que ya van en tu dirección.</p>
-    <div class="grid-2 traveler-grid">
+    <h2 class="intra-title">Publica tu viaje y gana con rutas que ya vas a hacer</h2>
+    <p class="lead intra-body">Indica tu ruta, fecha y capacidad disponible. Acepta solo los paquetes que encajan con tu trayecto y coordina la entrega desde la app.</p>
+    <div class="grid-3">
       <div class="highlight-card">
-        <h3 class="intra-subtitle">💰 Gana por cada entrega</h3>
-        <p class="intra-body">Recibe el pago completo por llevar paquetes que van en tu misma ruta. Sin esfuerzo adicional.</p>
+        <div class="num intra-badge-text">01</div>
+        <h3 class="intra-subtitle">Publica tu viaje</h3>
+        <p class="intra-body">Indica tu ruta, fecha y capacidad disponible.</p>
       </div>
       <div class="highlight-card">
-        <h3 class="intra-subtitle">🛡️ Pago seguro garantizado</h3>
-        <p class="intra-body">El dinero se retiene hasta que confirmes la entrega. Sin riesgo de impago.</p>
+        <div class="num intra-badge-text">02</div>
+        <h3 class="intra-subtitle">Recibe envíos compatibles</h3>
+        <p class="intra-body">Acepta solo los paquetes que se ajusten a tu trayecto.</p>
       </div>
       <div class="highlight-card">
-        <h3 class="intra-subtitle">✅ Tú eliges qué llevar</h3>
-        <p class="intra-body">Aceptas solo los envíos que te acomoden. Tú controlas tu capacidad y tu tiempo.</p>
-      </div>
-      <div class="highlight-card">
-        <h3 class="intra-subtitle">⭐ Construye tu reputación</h3>
-        <p class="intra-body">Cada entrega exitosa mejora tu perfil. Más calificaciones = más envíos = más ingresos.</p>
+        <div class="num intra-badge-text">03</div>
+        <h3 class="intra-subtitle">Entrega y gana</h3>
+        <p class="intra-body">Coordina con el cliente, realiza la entrega y recibe tu ganancia según el flujo de INTRA.</p>
       </div>
     </div>
     <div class="btn-row" style="margin-top:36px">
-      <a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/trips/new">Publicar mi viaje</a>
+      <a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/trips/new">Publicar viaje</a>
     </div>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap card center">
-    <div class="section-label intra-badge-text">Lo que dicen</div>
-    <h2 class="intra-title">Historias reales</h2>
-    <p class="lead intra-body">Miles de envíos ya se han completado con éxito en INTRA.</p>
+    <div class="section-label intra-badge-text">Por qué confiar</div>
+    <h2 class="intra-title">Confianza en cada envío</h2>
+    <p class="lead intra-body">INTRA organiza la información del paquete, el viaje, el match y la coordinación para que puedas decidir con más seguridad.</p>
     <div class="grid-3">
       <div class="testimonial">
-        <div class="testimonial-stars intra-caption">★★★★★</div>
-        <p class="testimonial-text intra-body">"Necesitaba enviar unos documentos urgentes a Medellín. En menos de 24 horas los tenía. Increíble servicio."</p>
+        <p class="testimonial-text intra-body">El cliente publica origen, destino, peso y detalles básicos para que el viajero sepa qué está aceptando.</p>
         <div class="testimonial-author">
-          <div class="author-avatar intra-badge-text">LC</div>
+          <div class="author-avatar intra-badge-text">01</div>
           <div>
-            <div class="author-name intra-body-strong">Laura C.</div>
-            <div class="author-role intra-caption">Cliente · Bogotá → Medellín</div>
+            <div class="author-name intra-body-strong">Información del paquete</div>
+            <div class="author-role intra-caption">Detalles antes del match</div>
           </div>
         </div>
       </div>
       <div class="testimonial">
-        <div class="testimonial-stars intra-caption">★★★★★</div>
-        <p class="testimonial-text intra-body">"Viajo cada semana a Cartagena por trabajo. Ahora gano un extra llevando paquetes. No podía ser más fácil."</p>
+        <p class="testimonial-text intra-body">El chat conserva la conversación relacionada con el envío para coordinar puntos, horarios y acuerdos.</p>
         <div class="testimonial-author">
-          <div class="author-avatar intra-badge-text">AM</div>
+          <div class="author-avatar intra-badge-text">02</div>
           <div>
-            <div class="author-name intra-body-strong">Andrés M.</div>
-            <div class="author-role intra-caption">Viajero · Bogotá → Cartagena</div>
+            <div class="author-name intra-body-strong">Coordinación dentro de la app</div>
+            <div class="author-role intra-caption">Chat y contexto operativo</div>
           </div>
         </div>
       </div>
       <div class="testimonial">
-        <div class="testimonial-stars intra-caption">★★★★★</div>
-        <p class="testimonial-text intra-body">"Mucho más barato que Servientrega y más rápido. El chat directo con el viajero te da mucha tranquilidad."</p>
+        <p class="testimonial-text intra-body">Los soportes del envío y el avance de la entrega quedan asociados al flujo para facilitar seguimiento.</p>
         <div class="testimonial-author">
-          <div class="author-avatar intra-badge-text">CR</div>
+          <div class="author-avatar intra-badge-text">03</div>
           <div>
-            <div class="author-name intra-body-strong">Carolina R.</div>
-            <div class="author-role intra-caption">Cliente · Cali → Bogotá</div>
+            <div class="author-name intra-body-strong">Evidencias y seguimiento</div>
+            <div class="author-role intra-caption">Soportes del envío</div>
           </div>
         </div>
       </div>
@@ -252,23 +247,23 @@ const atlasLandingHtml = String.raw`
       </details>
       <details class="faq-item">
         <summary class="intra-body-strong">¿Qué pasa si mi paquete se pierde o daña?</summary>
-        <p class="intra-body">El pago se retiene de forma segura hasta que confirmas la entrega. Si hay algún problema, puedes reportarlo a través de la app y nuestro equipo lo revisa. Estamos trabajando en seguro adicional para mayor tranquilidad.</p>
+        <p class="intra-body">Puedes reportar el problema dentro de la app. INTRA conserva el contexto del envío, el match, el chat y las evidencias para apoyar la revisión operativa.</p>
       </details>
       <details class="faq-item">
         <summary class="intra-body-strong">¿Cómo funciona el pago?</summary>
-        <p class="intra-body">El cliente paga al publicar el envío. El dinero se retiene de forma segura hasta que el receptor confirma la entrega. Entonces se libera al viajero. Sin contacto directo con datos de tarjeta.</p>
+        <p class="intra-body">El pago se gestiona dentro del flujo de INTRA. La liberación al viajero depende del avance de la entrega y de las reglas operativas vigentes.</p>
       </details>
       <details class="faq-item">
         <summary class="intra-body-strong">¿Puedo elegir quién lleva mi paquete?</summary>
-        <p class="intra-body">Sí. Puedes ver perfiles de viajeros, sus calificaciones y reviews. Tú decides a quién aceptar. Si nadie te conviene, puedes cancelar sin costo.</p>
+        <p class="intra-body">Sí. Puedes revisar las opciones compatibles y aceptar el match que más te convenga antes de coordinar el envío.</p>
       </details>
       <details class="faq-item">
         <summary class="intra-body-strong">¿Cuánto puedo ganar como viajero?</summary>
-        <p class="intra-body">Desde $16.000 COP por envío corto, $20.000 por medio y $28.000 por largo. Si viajas con espacio libre y llevas varios paquetes, los ingresos se acumulan.</p>
+        <p class="intra-body">La ganancia depende de la ruta, el envío y las condiciones del match. Antes de aceptar, revisas si el paquete se ajusta a tu trayecto y capacidad.</p>
       </details>
       <details class="faq-item">
         <summary class="intra-body-strong">¿En qué ciudades están disponibles?</summary>
-        <p class="intra-body">Bogotá, Medellín, Cartagena, Bucaramanga, Cali, Barranquilla, San Andrés, Pereira, Cúcuta, Leticia, Santa Marta y Villavicencio. Cubrimos las 132 combinaciones de rutas entre estas ciudades.</p>
+        <p class="intra-body">INTRA está pensado para envíos entre ciudades. La disponibilidad depende de las rutas publicadas por viajeros y de los envíos activos en cada momento.</p>
       </details>
     </div>
   </div>
@@ -277,13 +272,13 @@ const atlasLandingHtml = String.raw`
 <section class="section">
   <div class="wrap banner" style="background-image:url(/assets/ChatGPT-Image-1-feb-2026-12_09_59-a.m.png)">
     <div class="overlay"></div>
-    <h2 class="intra-title">Tu próximo envío no tiene<br>que ser complicado</h2>
-    <p class="lead intra-body" style="color:rgba(255,255,255,.9)">Regístrate gratis, publica en 2 minutos y recibe matchs de viajeros reales hoy mismo.</p>
+    <h2 class="intra-title">Envía mejor. Viaja mejor. Aprovecha cada ruta con INTRA.</h2>
+    <p class="lead intra-body" style="color:rgba(255,255,255,.9)">Publica un envío o un viaje y deja que INTRA conecte rutas compatibles dentro de la app.</p>
     <div class="btn-row">
-      <a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/register">Comenzar gratis</a>
-      <a class="btn btn-secondary intra-badge-text" href="https://intra-chi.vercel.app/trips/new">Soy viajero</a>
+      <a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/shipments/new">Publicar envío</a>
+      <a class="btn btn-secondary intra-badge-text" href="https://intra-chi.vercel.app/trips/new">Publicar viaje</a>
     </div>
-    <p class="banner-micro intra-caption">Sin tarjeta de crédito · Sin compromiso · 12 ciudades cubiertas</p>
+    <p class="banner-micro intra-caption">Pago protegido · Chat directo · Matches por ruta</p>
   </div>
 </section>
 
@@ -291,11 +286,10 @@ const atlasLandingHtml = String.raw`
   <div class="wrap footer-card">
     <div class="footer-grid">
       <div>
-        <h2 class="intra-title">INTRA</h2>
+        <img class="footer-logo" src="/assets/cropped-Logo2sinfondo-1.png" alt="INTRA">
         <p class="lead intra-body" style="text-align:left;margin-left:0;margin-top:10px">Plataforma que conecta personas que necesitan enviar documentos o paquetes con viajeros reales entre ciudades colombianas.</p>
         <div class="footer-socials">
           <a href="#" class="social-link intra-caption-strong">Instagram</a>
-          <a href="#" class="social-link intra-caption-strong">TikTok</a>
         </div>
       </div>
       <div>
@@ -389,7 +383,7 @@ img{max-width:100%;display:block}
 .hero{padding:0 20px 16px}
 .hero-card{
   position:relative;overflow:hidden;border-radius:28px;
-  min-height:600px;padding:100px 24px 80px;
+  min-height:560px;padding:84px 24px 68px;
   display:flex;align-items:center;justify-content:center;text-align:center;
   color:var(--card);box-shadow:var(--intra-shadow-hero);
   background-size:cover;background-position:center;
@@ -403,7 +397,7 @@ img{max-width:100%;display:block}
   border:1px solid color-mix(in srgb, var(--intra-green) 30%, transparent);
 }
 .text-green{color:var(--green)}
-.hero h1{font-size:52px;line-height:1.08;letter-spacing:-.03em;margin-bottom:18px;color:var(--card)}
+.hero h1{font-size:48px;line-height:1.08;letter-spacing:0;margin-bottom:16px;color:var(--card)}
 .hero h1 strong{color:var(--green)}
 .hero-content>p{color:rgba(255,255,255,.9);max-width:700px;margin:0 auto}
 .btn-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:32px}
@@ -433,7 +427,8 @@ img{max-width:100%;display:block}
 }
 .proof-item{text-align:center;flex:1}
 .proof-num{color:var(--brand)}
-.proof-label{color:var(--muted);margin-top:6px;text-transform:uppercase}
+.proof-num{line-height:1.15}
+.proof-label{color:var(--muted);margin-top:8px}
 .proof-divider{width:1px;height:40px;background:var(--line);flex-shrink:0}
 .section{padding:16px 20px}
 .card{
@@ -500,6 +495,7 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
 }
 .highlight-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(11,44,74,.06)}
 .highlight-card h3{margin-bottom:8px}
+.highlight-card .num{margin-bottom:16px}
 .highlight-card p{color:var(--muted)}
 .testimonial{
   background:var(--bg);border-radius:var(--radius-sm);padding:28px 24px;
@@ -507,7 +503,7 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
 }
 .testimonial:hover{transform:translateY(-3px)}
 .testimonial-stars{color:var(--intra-rating-star);letter-spacing:2px;margin-bottom:14px}
-.testimonial-text{color:var(--intra-text-subtle);font-style:italic;margin-bottom:18px}
+.testimonial-text{color:var(--intra-text-subtle);margin-bottom:18px}
 .testimonial-author{display:flex;align-items:center;gap:12px}
 .author-avatar{
   width:42px;height:42px;border-radius:50%;
@@ -545,7 +541,7 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
 .footer{padding:16px 20px 40px}
 .footer-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:44px 36px}
 .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:36px;align-items:start}
-.footer h2{margin-bottom:0}
+.footer-logo{width:140px;height:auto}
 .footer h3{margin-bottom:0;color:var(--brand)}
 .footer hr{border:none;border-top:1px solid var(--line);margin:28px 0 0}
 .footer-bottom{display:flex;justify-content:space-between;gap:20px;padding-top:18px;color:var(--muted)}
@@ -577,25 +573,37 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
   .proof-bar-inner{padding:24px 20px}
 }
 @media(max-width:640px){
-  .hero-card{min-height:520px;padding:80px 20px 60px}
-  .hero h1,.banner h2{font-size:30px}
+  .header{padding:12px}
+  .nav{padding:12px 16px;gap:12px;border-radius:18px}
+  .logo{height:38px}
+  .hero{padding:0 12px 12px}
+  .hero-card{min-height:auto;padding:48px 16px 42px;border-radius:22px}
+  .hero h1,.banner h2{font-size:28px}
+  .hero-content>p{font-size:16px;line-height:1.45}
+  .hero-badge{margin-bottom:14px}
+  .hero-proof{margin-top:18px}
   .card,.footer-card{padding:32px 20px}
   .grid-3{grid-template-columns:1fr}
   .btn-row{flex-direction:column;align-items:center}
   .btn{width:100%;max-width:320px}
   .nav-center{justify-content:center}
+  .nav-center{display:none}
   .navlinks{width:100%;justify-content:center;text-align:center;gap:10px 12px}
-  .nav-right{flex-direction:column}
+  .nav-right{flex-direction:row;gap:8px}
   .nav-faq-link{display:none}
-  .nav-cta{width:100%}
-  .proof-bar-inner{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 16px;align-items:stretch;padding:24px 20px}
+  .nav-cta{width:auto;flex:1;min-height:40px;padding:9px 10px}
+  .proof-bar-inner{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px;align-items:stretch;padding:22px 16px}
   .proof-divider{display:none}
   .proof-item{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center}
-  .proof-num,.proof-label{white-space:nowrap}
+  .proof-num{font-size:17px;line-height:1.2;white-space:normal}
+  .proof-label{font-size:14px;line-height:1.4;margin-top:6px;white-space:normal;overflow-wrap:anywhere}
   .footer-grid{gap:28px}
   .footer-socials{flex-wrap:wrap}
   .footer-bottom{flex-direction:column;align-items:center;text-align:center;gap:8px;padding-top:16px}
   .price-amount{font-size:40px}
+}
+@media(max-width:360px){
+  .proof-bar-inner{grid-template-columns:1fr;gap:16px}
 }
 `;
 
@@ -632,12 +640,6 @@ export default async function HomePage() {
       `<a class="nav-cta nav-cta-outline intra-body-strong" href="https://intra-chi.vercel.app/login">Iniciar sesión</a>
       <a class="nav-cta nav-cta-solid intra-body-strong" href="https://intra-chi.vercel.app/register">Registrarse</a>`,
       navActionsHtml
-    )
-    .replace(
-      `<a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/register">Comenzar gratis</a>`,
-      isAuthenticated
-        ? `<a class="btn btn-primary intra-badge-text" href="/app">Abrir dashboard</a>`
-        : `<a class="btn btn-primary intra-badge-text" href="/register">Comenzar gratis</a>`
     )
     .replaceAll("https://intra-chi.vercel.app/shipments/new", shipmentCtaHref)
     .replaceAll("https://intra-chi.vercel.app/trips/new", tripCtaHref)
