@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     description:
       "Publica tu envío, acepta un match, coordina por chat y paga dentro de la app.",
     type: "website",
-    url: "https://intra-chi.vercel.app",
+    url: "https://www.intra.com.co",
     images: [
       {
         url: "/assets/ChatGPT-Image-1-feb-2026-12_09_59-a.m.png",
