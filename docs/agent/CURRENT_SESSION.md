@@ -154,4 +154,21 @@ Auditar el gate `Vercel production env review` antes de produccion controlada, s
 - No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
 - No se hizo deploy manual ni produccion manual.
 
+## Actualizacion 2026-06-22 - Runbook Operativo INTRA
+
+- Solicitud de Aldo/Cristhian: crear documentacion profesional de operacion para INTRA antes de produccion controlada y operacion real con usuarios y dinero.
+- Rama documental: `docs/ops-runbook-intra`.
+- Archivos nuevos:
+  - `docs/ops/runbook-operativo-intra-corto.md`
+  - `docs/ops/runbook-operativo-intra-completo.md`
+- Contenido cubierto:
+  - Checklists diario/semanal.
+  - Procedimientos Wompi, webhook, pagos, wallet/ledger, retiros manuales, disputas/evidencias, soporte, incidentes, seguridad operativa, escalamiento y bitacora.
+  - Gate explicito de Production env antes de produccion controlada.
+  - Primer pago real Wompi + Wallet como validacion critica pendiente.
+- Validaciones documentales: `git diff --check` PASS, revision de secretos PASS, enlaces locales PASS y cobertura de secciones obligatorias PASS.
+- No se corrio build/lint/test porque solo se tocaron archivos Markdown.
+- No se tocaron codigo de producto, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
+- No se hizo deploy manual ni produccion.
+
 😎

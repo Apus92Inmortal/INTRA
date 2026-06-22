@@ -12,6 +12,31 @@
 
 ## P0 - En revision
 
+### TASK-046: Runbook Operativo INTRA
+
+Estado: REVIEW
+Prioridad: Alta
+Area: Operacion / Produccion controlada / Soporte
+
+Resumen:
+- Crear dos documentos operativos profesionales para owner/admin/soporte antes de produccion controlada.
+- Documentar operacion diaria y completa para pagos Wompi, webhooks, wallet/ledger, retiros manuales, disputas/evidencias, soporte, incidentes, seguridad, escalamiento y bitacora.
+- Mantener alcance documental, sin tocar producto ni infraestructura.
+
+Archivos:
+- `docs/ops/runbook-operativo-intra-corto.md`
+- `docs/ops/runbook-operativo-intra-completo.md`
+
+Validaciones:
+- `git diff --check`: PASS.
+- Revision de secretos en runbooks y memoria: PASS.
+- Revision de enlaces locales: logo INTRA y `docs/agent/KNOWN_ISSUES.md` existentes.
+- Revision de cobertura documental: checklists, Wompi, wallet/ledger, retiros, disputas, soporte, incidentes, seguridad, escalamiento, bitacora y primer pago real Wompi incluidos.
+- No se corrio build/lint/test porque el cambio es solo documentacion Markdown.
+
+Pendiente:
+- Revision/merge del PR documental.
+
 ### TASK-045: Landing footer review tweak PR #176
 
 Estado: DONE
