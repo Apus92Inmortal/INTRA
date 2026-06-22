@@ -111,6 +111,7 @@
 - [ ] Aprobacion explicita para merge.
 - [ ] Aprobacion explicita para deploy.
 - [ ] Estado final reportado: local, rama, main o produccion.
+- [ ] Si la rama ya no se va a usar, borrarla local y remotamente despues de merge/cierre.
 
 ## Checks criticos por area
 

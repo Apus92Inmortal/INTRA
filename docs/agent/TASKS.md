@@ -12,6 +12,84 @@
 
 ## P0 - En revision
 
+### TASK-045: Landing footer review tweak PR #176
+
+Estado: DONE
+Prioridad: Baja
+Area: Landing publica / UI
+
+Resumen:
+- Review change solicitado por Aldo el 2026-06-22 sobre PR #176.
+- Reemplazar el titulo textual `INTRA` del footer por el logo sin fondo usado en header.
+- Remover CTA/boton de TikTok del footer.
+
+Validaciones:
+- `git diff --check`: PASS.
+- `npm run lint`: PASS.
+- `npm run test:unit`: PASS, 60 tests.
+- `npx tsc --noEmit`: PASS.
+- `npm run build`: PASS.
+- `npm run test:e2e -- tests/e2e/home.spec.ts`: PASS, 4 tests.
+- Ajuste minimo adicional solicitado por Aldo el 2026-06-22: OpenGraph public URL en `app/page.tsx` cambio de `https://intra-chi.vercel.app` a `https://www.intra.com.co`.
+- Commit PR branch: `fe86045` (`update landing opengraph url`).
+- GitHub checks PR #176: `validate` PASS, `detect-impact` PASS.
+- Ajustes visuales menores adicionales solicitados por Aldo el 2026-06-22:
+  - Hero: headline se mantiene, escala desktop compactada y subcopy simplificado.
+  - Bloque de confianza: compactacion mobile y fallback a una columna en <=360px.
+  - Seccion `Por qué confiar`: titulo cambiado a `Confianza en cada envío` y subtitulo actualizado.
+  - Boton flotante negro confirmado como Vercel Live Feedback/preview, no codigo de INTRA.
+- Commit PR branch: `5f6bd77` (`tune landing hero copy`).
+- GitHub/Vercel checks PR #176: `validate` PASS, `detect-impact` PASS, `Vercel` PASS, `Vercel Preview Comments` PASS.
+- Ajuste visual menor adicional solicitado por Aldo el 2026-06-22:
+  - Seccion `Precios claros por ruta`: emojis de distancia reemplazados por SVGs outline inline de 16px, sin contenedor.
+  - Badge `Más popular`: se removio emoji y quedo solo texto para reducir peso visual.
+  - No se cambiaron precios, estructura comercial ni CTAs.
+- Commit PR branch: `b5caac5` (`replace pricing emojis with icons`).
+- GitHub/Vercel checks PR #176: `validate` PASS, `detect-impact` PASS, `Vercel` PASS, `Vercel Preview Comments` PASS.
+- Ajuste visual menor adicional solicitado por Aldo el 2026-06-22:
+  - Seccion `Precios claros por ruta`: SVGs outline removidos por feedback visual.
+  - Labels de cards quedan solo texto: `Corta distancia`, `Media distancia`, `Larga distancia`.
+  - Badge central queda solo texto: `Más popular`.
+  - No se cambiaron precios, ejemplos de rutas, estructura comercial ni CTAs.
+- Commit PR branch: `bc26709` (`remove pricing icons`).
+- GitHub/Vercel checks PR #176: `validate` PASS, `detect-impact` PASS, `Vercel` PASS, `Vercel Preview Comments` PASS.
+- PR #176 mergeado a `main` con merge commit `cc319c3`.
+- Post-merge `main`: `CI / validate` PASS, `Workflows Impact Analysis / detect-impact` PASS, Vercel automatico PASS.
+- Rama `landing/task-031-conversion-copy-polish` eliminada local y remotamente.
+- Decision durable agregada: cuando una rama ya no se vaya a usar, borrarla de todo lado.
+
+Pendiente:
+- Ninguno.
+
+### TASK-044: Vercel Production Env Review
+
+Estado: BLOCKED / FAIL configuracion
+Prioridad: Critica
+Area: Release / Vercel / Wompi / Supabase / Cron
+
+Resumen:
+- Auditoria del gate `Vercel production env review` ejecutada el 2026-06-20.
+- No se hicieron cambios de codigo ni deploy.
+- El repo usa variables Wompi server-side con prefijo `INTRA_`; los nombres legacy `WOMPI_*` no son leidos por la app.
+- `.env.example` esta alineado con las variables runtime reales.
+
+Hallazgos:
+- Production efectivo en Vercel tiene vacias variables criticas: `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_USER_IDS`, `NEXT_PUBLIC_WOMPI_SANDBOX`, `NEXT_PUBLIC_WOMPI_PUBLIC_KEY`, `CRON_SECRET`, `INTERNAL_CRON_SECRET`.
+- `ADMIN_EMAILS` no existe en Vercel.
+- `INTRA_WOMPI_PRIVATE_KEY`, `INTRA_WOMPI_EVENTS_KEY` e `INTRA_WOMPI_INTEGRITY_KEY` existen en Production/Preview, pero clasifican como sandbox-like en el ambiente efectivo.
+- `NEXT_PUBLIC_SITE_URL` existe en Production, pero no coincide exactamente con `https://www.intra.com.co`; falta en Preview/Development.
+- Los registros legacy `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_KEY` y `WOMPI_INTEGRITY_KEY` existen en Vercel Production/Preview pero estan vacios en el ambiente efectivo.
+- GitHub Actions secrets esta vacio; el workflow `Authenticated Smoke` no puede ejecutarse hasta reponer secrets temporales.
+- Supabase Auth URL checks pasan para `www.intra.com.co`, `/auth/callback` y `/login/update-password`.
+- Wompi Dashboard webhook endpoint queda pendiente de confirmacion manual externa.
+
+Siguiente accion:
+- Configurar Vercel Production con Wompi real, service role, admins y cron.
+- Mantener Preview en sandbox con llaves sandbox no vacias.
+- Confirmar webhook Wompi de produccion.
+- Redeploy controlado solo con autorizacion explicita.
+- Ejecutar smoke minimo posterior al cambio.
+
 ---
 
 ## Done Log

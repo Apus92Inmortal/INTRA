@@ -220,3 +220,25 @@ Impacto:
 - No habilitar cancelacion desde Dashboard cuando exista match pendiente, aceptado o completado.
 - No acreditar costo de pasarela al Wallet en cancelaciones tempranas de envios ya pagados sin viajero.
 - Cualquier cambio futuro de refunds externos, estados parciales o pasarela requiere decision y validacion propia.
+
+## DEC-011: Limpieza obligatoria de ramas cerradas
+
+Fecha: 2026-06-22
+
+Decision:
+
+Cuando una rama ya no se vaya a usar porque su PR fue mergeado, abandonado o reemplazado, debe borrarse de todo lado:
+
+- rama local;
+- rama remota en `origin`;
+- cualquier referencia operativa pendiente asociada a esa rama.
+
+Motivo:
+
+Evitar acumulacion de ramas muertas, confusiones sobre trabajo activo y riesgo de reutilizar ramas obsoletas.
+
+Impacto:
+
+- Despues de cerrar o mergear un PR, validar si la rama sigue siendo necesaria.
+- Si no es necesaria, ejecutar limpieza local/remota y reportarla en el cierre.
+- No borrar ramas activas, ramas de terceros o ramas con trabajo no mergeado sin confirmacion explicita.

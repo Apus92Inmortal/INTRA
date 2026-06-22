@@ -65,3 +65,23 @@ Casos a revisar:
 Recomendacion:
 
 Antes de tocar pantallas operativas, identificar donde falta realtime/refetch y definir una estrategia consistente para matches, notificaciones, pagos, evidencias, alertas, wallet y chat segun aplique. Usar `router.refresh()` con throttling donde sea suficiente, `postgres_changes` para eventos criticos y fallback polling solo donde haga falta resiliencia.
+
+## ISSUE-005: Vercel Production env no esta listo para produccion controlada
+
+Estado: Abierto
+Riesgo: Critico
+
+Descripcion:
+
+El gate `Vercel production env review` del 2026-06-20 fallo. El ambiente efectivo de Production tiene vacias variables criticas para Supabase service role, admins, Wompi publico, bandera sandbox y cron. Las variables `INTRA_WOMPI_*` existen, pero clasifican como sandbox-like en Production.
+
+Impacto:
+
+- Checkout Wompi real puede fallar por llave publica ausente/vacia.
+- Webhook Wompi y cron de liberacion pueden fallar por `SUPABASE_SERVICE_ROLE_KEY` o secretos de cron vacios.
+- Admin puede quedar no configurado por allowlist vacia.
+- Production no debe avanzar a produccion controlada hasta corregir env y redeployar con aprobacion.
+
+Recomendacion:
+
+Configurar Vercel Production con llaves reales de Wompi, `NEXT_PUBLIC_WOMPI_SANDBOX=false`, service role, admins, `NEXT_PUBLIC_SITE_URL=https://www.intra.com.co` y secretos de cron. Mantener Preview en sandbox. Confirmar webhook Wompi de produccion y ejecutar smoke minimo posterior al redeploy.
