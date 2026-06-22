@@ -40,7 +40,9 @@ Este runbook define la operacion interna de INTRA para produccion controlada y o
 - Refunds y payouts son manuales para el MVP.
 - El admin opera desde pantallas existentes como `/app/admin/payouts`, `/app/admin/payout-accounts`, `/app/admin/disputes`, `/app/admin/alerts` y `/app/admin/verifications`.
 - La liberacion de pagos depende de reglas operativas, entrega, disputa, bloqueos administrativos y ledger.
-- Antes de produccion controlada debe cerrarse el bloqueo vigente de variables Production documentado en `docs/agent/KNOWN_ISSUES.md`.
+- Production env critico fue corregido segun contexto operativo reciente; antes de operar con dinero real debe hacerse revalidacion final.
+- Wompi production y webhook production quedaron configurados; el webhook de produccion es `https://www.intra.com.co/api/webhooks/wompi`.
+- El gate principal pendiente es el primer pago real Wompi + Wallet de punta a punta.
 
 ### 1.5 Fuera de alcance
 
@@ -102,7 +104,8 @@ Ejecuta movimientos externos manuales cuando el caso ya fue aprobado operacional
 - [ ] Revisar accesos admin.
 - [ ] Revisar documentos operativos vigentes.
 - [ ] Revisar que no se hayan registrado secretos, tokens, datos bancarios completos o datos personales innecesarios en bitacoras o chats.
-- [ ] Confirmar estado del gate de Production env antes de operar con dinero real.
+- [ ] Confirmar que Production env critico sigue corregido antes de operar con dinero real.
+- [ ] Confirmar que Wompi production y webhook production siguen configurados.
 
 ## 5. Procedimiento Wompi
 
@@ -653,22 +656,23 @@ Reglas:
 
 ## 15. Recomendaciones antes de produccion controlada
 
-- [ ] Cerrar el bloqueo de Production env documentado en `docs/agent/KNOWN_ISSUES.md`.
-- [ ] Confirmar `NEXT_PUBLIC_SITE_URL=https://www.intra.com.co` en Production.
-- [ ] Configurar Wompi real en Production.
-- [ ] Confirmar webhook Wompi de produccion.
-- [ ] Confirmar `SUPABASE_SERVICE_ROLE_KEY`, admins y secretos de cron en Production.
-- [ ] Hacer redeploy controlado solo con autorizacion explicita.
-- [ ] Ejecutar smoke minimo posterior al redeploy.
+- [ ] Revalidar que Production env critico sigue corregido.
+- [ ] Revalidar que Wompi production sigue configurado.
+- [ ] Revalidar que el webhook Wompi de produccion sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
+- [ ] Confirmar que el ultimo redeploy production requerido sigue READY.
+- [ ] Confirmar smoke publico/login/admin/checkout sin fallos recientes.
 - [ ] Validar primer pago real Wompi + Wallet como gate critico.
 - [ ] Validar primer retiro manual con referencia externa.
 - [ ] Confirmar bitacora operativa activa.
+- [ ] Completar revision legal final antes de produccion abierta.
 
 ## 16. Pendientes conocidos
 
-- Production env no esta listo para produccion controlada mientras siga abierto `ISSUE-005`.
+- Production env critico: corregido; pendiente revalidacion final antes de operacion real.
+- Wompi production y webhook production: configurados.
 - Primer pago real Wompi + Wallet debe tratarse como validacion critica.
 - Refunds y payouts siguen siendo manuales en MVP.
+- Legal final queda pendiente antes de produccion abierta.
 - Cualquier cambio futuro en dinero requiere decision documentada, validacion y PR propio.
 
 ## 17. Cierre del documento

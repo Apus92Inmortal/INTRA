@@ -73,7 +73,8 @@ Fuera de alcance:
 - [ ] Revisar logs de Vercel y Supabase de eventos criticos.
 - [ ] Revisar accesos admin y cuentas con privilegios.
 - [ ] Revisar documentos operativos y actualizar runbook si hubo cambios reales.
-- [ ] Confirmar si sigue abierto el bloqueo de Production env antes de produccion controlada.
+- [ ] Confirmar que Production env critico sigue corregido antes de operar con dinero real.
+- [ ] Confirmar que Wompi production y webhook production siguen configurados.
 
 ## 6. Revision de pagos Wompi
 
@@ -240,5 +241,13 @@ Registrar cada caso sensible con:
 - Pendiente.
 
 ## Bloque final
+
+Estado actual de gates:
+
+- Production env critico: corregido; requiere revalidacion final antes de operacion real.
+- Wompi production: configurado.
+- Webhook Wompi production: configurado en `https://www.intra.com.co/api/webhooks/wompi`.
+- Gate principal pendiente: primer pago real Wompi + Wallet de punta a punta.
+- Legal final: pendiente antes de produccion abierta.
 
 Este runbook debe revisarse antes de produccion controlada y despues de cualquier cambio en pagos, wallet, Wompi, retiros, disputas, admin, Supabase o variables. La operacion con dinero requiere evidencia, trazabilidad y escalamiento temprano.
