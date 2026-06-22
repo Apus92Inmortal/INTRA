@@ -59,7 +59,7 @@ const atlasLandingHtml = String.raw`
     <div class="hero-content">
       <div class="hero-badge intra-badge-text">Pago protegido · Chat directo · Matches por ruta</div>
       <h1 class="intra-title">Envía paquetes entre ciudades aprovechando viajeros que ya van en camino</h1>
-      <p class="intra-subtitle">INTRA conecta personas que necesitan enviar con viajeros disponibles en la misma ruta. Publica tu envío, acepta un match, coordina por chat y paga dentro de la app.</p>
+      <p class="intra-subtitle">Publica tu envío, acepta un match, coordina por chat y paga dentro de la app.</p>
       <div class="btn-row">
         <a class="btn btn-primary intra-badge-text" href="https://intra-chi.vercel.app/shipments/new">Publicar envío</a>
         <a class="btn btn-secondary intra-badge-text" href="https://intra-chi.vercel.app/trips/new">Publicar viaje</a>
@@ -199,8 +199,8 @@ const atlasLandingHtml = String.raw`
 <section class="section">
   <div class="wrap card center">
     <div class="section-label intra-badge-text">Por qué confiar</div>
-    <h2 class="intra-title">Más contexto para decidir antes de aceptar</h2>
-    <p class="lead intra-body">INTRA ordena la información clave del envío, el viaje, el match y la coordinación para reducir dudas antes de mover un paquete.</p>
+    <h2 class="intra-title">Confianza en cada envío</h2>
+    <p class="lead intra-body">INTRA organiza la información del paquete, el viaje, el match y la coordinación para que puedas decidir con más seguridad.</p>
     <div class="grid-3">
       <div class="testimonial">
         <p class="testimonial-text intra-body">El cliente publica origen, destino, peso y detalles básicos para que el viajero sepa qué está aceptando.</p>
@@ -383,7 +383,7 @@ img{max-width:100%;display:block}
 .hero{padding:0 20px 16px}
 .hero-card{
   position:relative;overflow:hidden;border-radius:28px;
-  min-height:600px;padding:100px 24px 80px;
+  min-height:560px;padding:84px 24px 68px;
   display:flex;align-items:center;justify-content:center;text-align:center;
   color:var(--card);box-shadow:var(--intra-shadow-hero);
   background-size:cover;background-position:center;
@@ -397,7 +397,7 @@ img{max-width:100%;display:block}
   border:1px solid color-mix(in srgb, var(--intra-green) 30%, transparent);
 }
 .text-green{color:var(--green)}
-.hero h1{font-size:52px;line-height:1.08;letter-spacing:-.03em;margin-bottom:18px;color:var(--card)}
+.hero h1{font-size:48px;line-height:1.08;letter-spacing:0;margin-bottom:16px;color:var(--card)}
 .hero h1 strong{color:var(--green)}
 .hero-content>p{color:rgba(255,255,255,.9);max-width:700px;margin:0 auto}
 .btn-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:32px}
@@ -592,15 +592,18 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
   .nav-right{flex-direction:row;gap:8px}
   .nav-faq-link{display:none}
   .nav-cta{width:auto;flex:1;min-height:40px;padding:9px 10px}
-  .proof-bar-inner{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 16px;align-items:stretch;padding:24px 20px}
+  .proof-bar-inner{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px;align-items:stretch;padding:22px 16px}
   .proof-divider{display:none}
   .proof-item{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center}
-  .proof-num{white-space:normal}
-  .proof-label{white-space:normal;overflow-wrap:anywhere}
+  .proof-num{font-size:17px;line-height:1.2;white-space:normal}
+  .proof-label{font-size:14px;line-height:1.4;margin-top:6px;white-space:normal;overflow-wrap:anywhere}
   .footer-grid{gap:28px}
   .footer-socials{flex-wrap:wrap}
   .footer-bottom{flex-direction:column;align-items:center;text-align:center;gap:8px;padding-top:16px}
   .price-amount{font-size:40px}
+}
+@media(max-width:360px){
+  .proof-bar-inner{grid-template-columns:1fr;gap:16px}
 }
 `;
 
