@@ -286,11 +286,10 @@ const atlasLandingHtml = String.raw`
   <div class="wrap footer-card">
     <div class="footer-grid">
       <div>
-        <h2 class="intra-title">INTRA</h2>
+        <img class="footer-logo" src="/assets/cropped-Logo2sinfondo-1.png" alt="INTRA">
         <p class="lead intra-body" style="text-align:left;margin-left:0;margin-top:10px">Plataforma que conecta personas que necesitan enviar documentos o paquetes con viajeros reales entre ciudades colombianas.</p>
         <div class="footer-socials">
           <a href="#" class="social-link intra-caption-strong">Instagram</a>
-          <a href="#" class="social-link intra-caption-strong">TikTok</a>
         </div>
       </div>
       <div>
@@ -542,7 +541,7 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
 .footer{padding:16px 20px 40px}
 .footer-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:44px 36px}
 .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:36px;align-items:start}
-.footer h2{margin-bottom:0}
+.footer-logo{width:140px;height:auto}
 .footer h3{margin-bottom:0;color:var(--brand)}
 .footer hr{border:none;border-top:1px solid var(--line);margin:28px 0 0}
 .footer-bottom{display:flex;justify-content:space-between;gap:20px;padding-top:18px;color:var(--muted)}

@@ -38,6 +38,9 @@ describe("HomePage", () => {
     expect(
       screen.queryByRole("link", { name: "Contáctanos" })
     ).not.toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: "INTRA" })).toHaveLength(2);
+    expect(screen.getByRole("link", { name: "Instagram" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "TikTok" })).not.toBeInTheDocument();
     expect(screen.getByText("Contacto")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "soporte@intra.com.co" })
