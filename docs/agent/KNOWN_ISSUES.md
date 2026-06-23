@@ -80,6 +80,8 @@ Impacto:
 - Production env ya no se considera impedimento actual para produccion controlada.
 - Antes de operacion real con dinero debe hacerse revalidacion final de env, Wompi production, webhook production y smoke minimo.
 - El gate critico pendiente pasa a ser el primer pago real Wompi + Wallet de punta a punta.
+- RLS remoto y smoke autenticado cliente/viajero/admin se consideran realizados segun memoria operativa reciente.
+- E2E publico y smoke publico/login/admin/checkout estan en verde segun memoria operativa reciente.
 
 Recomendacion:
 
@@ -91,3 +93,5 @@ Revalidar antes de operacion real:
 - Redeploy production requerido sigue READY.
 - Smoke publico/login/admin/checkout sigue sin fallos.
 - Primer pago real Wompi + Wallet se ejecuta y concilia correctamente.
+
+No abrir mas PRs de diseno o documentacion salvo hallazgo real. El proximo trabajo recomendado es un caso controlado con dinero real de bajo monto para validar pago, webhook, ledger, saldo retenido, liberacion y retiro/payout manual.
