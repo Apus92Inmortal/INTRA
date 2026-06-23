@@ -277,3 +277,10 @@ Impacto:
 - No se recomienda abrir mas PRs de diseno o documentacion salvo hallazgo real.
 - Legal final queda pendiente antes de produccion abierta, no como freno de produccion controlada.
 - Cualquier inconsistencia en el primer pago real debe congelar la operacion, registrarse en bitacora y escalarse antes de aceptar mas dinero real.
+
+Actualizacion 2026-06-22:
+
+- Aldo ejecuto el primer pago real Wompi y lo reporto como PASS operativo.
+- Este avance confirma cobro exitoso en Wompi, pero no cierra por si solo el gate completo Wompi + Wallet.
+- El siguiente paso es confirmar conciliacion interna: webhook, payment/ledger, saldo retenido, liberacion, wallet y retiro/payout manual si aplica.
+- Despues de confirmar conciliacion, preparar primer envio controlado con usuario cliente y viajero conocidos.

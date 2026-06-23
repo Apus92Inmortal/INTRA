@@ -14,23 +14,26 @@
 
 ### TASK-047: Primer pago real Wompi + Wallet
 
-Estado: TODO
+Estado: IN_PROGRESS / Wompi real payment PASS, wallet-ledger reconciliation pending
 Prioridad: Critica
 Area: Produccion controlada / Pagos / Wallet / Operacion
 
 Resumen:
-- Ejecutar el primer pago real Wompi + Wallet de punta a punta con monto pequeno y caso controlado.
-- Este es el gate principal pendiente antes de operar con dinero real de forma controlada.
-- Debe validar Wompi production, webhook production, ledger, saldo retenido, liberacion y retiro/payout manual.
+- Primer pago real Wompi ejecutado por Aldo y reportado como PASS operativo.
+- La prueba confirma cobro exitoso en Wompi.
+- Falta confirmar en memoria/revision operativa la conciliacion interna wallet/ledger.
+- El gate completo no queda cerrado hasta validar Wompi production, webhook production, ledger, saldo retenido, liberacion y retiro/payout manual.
 
 Precondiciones:
-- Revalidar Production env critico antes de operar con dinero real.
+- Production env critico se considera corregido segun memoria reciente; revalidar antes de continuar operacion con dinero real.
 - Confirmar que Wompi production sigue configurado.
 - Confirmar que el webhook Wompi production sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
 - Ejecutar smoke minimo publico/login/admin/checkout si aplica antes de mover dinero real.
 
-Validacion esperada:
-- Pago real aprobado en Wompi.
+Validado:
+- Pago real aprobado en Wompi segun prueba operativa de Aldo.
+
+Validacion pendiente:
 - Webhook production recibido y procesado.
 - Payment/ledger reflejado correctamente en INTRA.
 - Saldo retenido visible y consistente.
@@ -40,7 +43,8 @@ Validacion esperada:
 - Bitacora operativa completa.
 
 Pendiente:
-- Ejecutar cuando haya dinero disponible para prueba real controlada.
+- Validar conciliacion interna del pago real.
+- Preparar primer envio controlado con usuario cliente y viajero conocidos despues de confirmar conciliacion.
 
 ---
 

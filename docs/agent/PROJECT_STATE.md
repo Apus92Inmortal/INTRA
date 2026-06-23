@@ -76,6 +76,8 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 - Webhook Wompi production documentado: `https://www.intra.com.co/api/webhooks/wompi`.
 - Production env critico ya no es bloqueo vigente para produccion controlada; debe revalidarse antes de operar con dinero real.
 - RLS remoto, smoke autenticado cliente/viajero/admin, E2E publico y smoke publico/login/admin/checkout se consideran realizados segun memoria operativa reciente.
+- Primer pago real Wompi fue ejecutado por Aldo y reportado como PASS operativo.
+- Conciliacion interna wallet/ledger del pago real queda pendiente de confirmacion antes de considerar cerrado el gate completo Wompi + Wallet.
 - Barrida UI/UX v2.2 con frentes iniciales cerrados:
   - Foundation components: PR #129 mergeado a `main`.
   - Auth Gateway: PR #130 mergeado a `main`.
@@ -101,7 +103,9 @@ INTRA esta avanzado hacia produccion controlada. La auditoria funcional full ya 
 
 Los frentes iniciales y cierre final de UI/UX v2.2 ya quedaron cerrados e integrados en `main`. El Manual UI/UX INTRA v3.0 sigue siendo fuente vigente para futuros ajustes visuales.
 
-No se recomienda seguir haciendo PRs de diseno o documentacion salvo hallazgo real. El siguiente paso recomendado es ejecutar el primer pago real Wompi + Wallet de punta a punta con monto pequeno y caso controlado. Despues de ese pago, validar ledger, saldo retenido, liberacion y retiro/payout manual.
+No se recomienda seguir haciendo PRs de diseno o documentacion salvo hallazgo real. El siguiente paso recomendado es validar la conciliacion interna del primer pago real Wompi: webhook, payment/ledger, saldo retenido, liberacion, wallet y retiro/payout manual si aplica.
+
+Despues de confirmar la conciliacion interna, preparar el primer envio controlado con usuario cliente y viajero conocidos, monto pequeno y monitoreo operativo.
 
 Legal final queda pendiente antes de produccion abierta, no como freno de produccion controlada.
 

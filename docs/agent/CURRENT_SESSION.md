@@ -244,4 +244,35 @@ Confirmaciones:
 - No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables en este cierre documental.
 - No se hizo deploy manual.
 
+## Actualizacion 2026-06-22 - Primer pago real Wompi
+
+Estado nuevo reportado por Aldo:
+
+- Primer pago real Wompi: PASS operativo.
+- La prueba confirma cobro exitoso en Wompi.
+- No hay evidencia documentada en repo, dentro de esta actualizacion, de conciliacion completa wallet/ledger.
+
+Estado del gate:
+
+- Wompi real payment: PASS.
+- Wallet/ledger reconciliation: PENDING.
+- El gate completo `Wompi + Wallet` no debe marcarse como cerrado hasta confirmar:
+  - webhook production recibido y procesado;
+  - payment/ledger reflejado correctamente en INTRA;
+  - saldo retenido consistente;
+  - liberacion operativa;
+  - wallet del viajero con saldo disponible correcto;
+  - retiro/payout manual registrado con referencia externa y evidencia cuando aplique.
+
+Siguiente paso recomendado:
+
+- Validar conciliacion interna del pago real.
+- Preparar primer envio controlado con usuario cliente y viajero conocidos.
+- Despues de confirmar conciliacion, avanzar produccion controlada con monitoreo operativo.
+
+Confirmaciones:
+
+- No se tocaron codigo, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables.
+- No se hizo deploy manual.
+
 😎
