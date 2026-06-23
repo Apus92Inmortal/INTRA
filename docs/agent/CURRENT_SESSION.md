@@ -185,4 +185,16 @@ Auditar el gate `Vercel production env review` antes de produccion controlada, s
 - Runbook queda pendiente de merge.
 - Legal final queda pendiente antes de produccion abierta.
 
+## Actualizacion 2026-06-22 - PR #177 PDF oficiales
+
+- Solicitud de Aldo: agregar al PR #177 los PDF oficiales generados desde el contenido actualizado de los runbooks.
+- Archivos PDF agregados:
+  - `docs/ops/Runbook_Operativo_INTRA_Corto_v1_0.pdf`
+  - `docs/ops/Runbook_Operativo_INTRA_Completo_v1_0.pdf`
+- Se mantienen como fuente editable:
+  - `docs/ops/runbook-operativo-intra-corto.md`
+  - `docs/ops/runbook-operativo-intra-completo.md`
+- Alcance: documental; sin cambios de codigo, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables.
+- No se hizo deploy manual.
+
 😎

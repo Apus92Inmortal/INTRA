@@ -27,13 +27,16 @@ Resumen:
 Archivos:
 - `docs/ops/runbook-operativo-intra-corto.md`
 - `docs/ops/runbook-operativo-intra-completo.md`
+- `docs/ops/Runbook_Operativo_INTRA_Corto_v1_0.pdf`
+- `docs/ops/Runbook_Operativo_INTRA_Completo_v1_0.pdf`
 
 Validaciones:
 - `git diff --check`: PASS.
 - Revision de secretos en runbooks y memoria: PASS.
 - Revision de enlaces locales: logo INTRA y `docs/agent/KNOWN_ISSUES.md` existentes.
 - Revision de cobertura documental: checklists, Wompi, wallet/ledger, retiros, disputas, soporte, incidentes, seguridad, escalamiento, bitacora y primer pago real Wompi incluidos.
-- No se corrio build/lint/test porque el cambio es solo documentacion Markdown.
+- PDF oficiales agregados desde los adjuntos entregados por Aldo y mantenidos junto a la fuente Markdown editable.
+- No se corrio build/lint/test porque el cambio es solo documentacion.
 
 Pendiente:
 - Revision/merge del PR documental.
