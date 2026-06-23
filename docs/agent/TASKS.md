@@ -12,6 +12,35 @@
 
 ## P0 - En revision
 
+### TASK-046: Runbook Operativo INTRA
+
+Estado: REVIEW
+Prioridad: Alta
+Area: Operacion / Produccion controlada / Soporte
+
+Resumen:
+- Crear dos documentos operativos profesionales para owner/admin/soporte antes de produccion controlada.
+- Documentar operacion diaria y completa para pagos Wompi, webhooks, wallet/ledger, retiros manuales, disputas/evidencias, soporte, incidentes, seguridad, escalamiento y bitacora.
+- Mantener alcance documental, sin tocar producto ni infraestructura.
+- Ajuste posterior solicitado por Aldo: no presentar Production env como impedimento actual; documentar Production env critico corregido / pendiente de revalidacion final, Wompi production y webhook configurados, y primer pago real Wompi + Wallet como gate principal pendiente.
+
+Archivos:
+- `docs/ops/runbook-operativo-intra-corto.md`
+- `docs/ops/runbook-operativo-intra-completo.md`
+- `docs/ops/Runbook_Operativo_INTRA_Corto_v1_0.pdf`
+- `docs/ops/Runbook_Operativo_INTRA_Completo_v1_0.pdf`
+
+Validaciones:
+- `git diff --check`: PASS.
+- Revision de secretos en runbooks y memoria: PASS.
+- Revision de enlaces locales: logo INTRA y `docs/agent/KNOWN_ISSUES.md` existentes.
+- Revision de cobertura documental: checklists, Wompi, wallet/ledger, retiros, disputas, soporte, incidentes, seguridad, escalamiento, bitacora y primer pago real Wompi incluidos.
+- PDF oficiales agregados desde los adjuntos entregados por Aldo y mantenidos junto a la fuente Markdown editable.
+- No se corrio build/lint/test porque el cambio es solo documentacion.
+
+Pendiente:
+- Revision/merge del PR documental.
+
 ### TASK-045: Landing footer review tweak PR #176
 
 Estado: DONE
@@ -63,7 +92,7 @@ Pendiente:
 
 ### TASK-044: Vercel Production Env Review
 
-Estado: BLOCKED / FAIL configuracion
+Estado: DONE / corregido, pendiente revalidacion final antes de operacion real
 Prioridad: Critica
 Area: Release / Vercel / Wompi / Supabase / Cron
 
@@ -72,8 +101,15 @@ Resumen:
 - No se hicieron cambios de codigo ni deploy.
 - El repo usa variables Wompi server-side con prefijo `INTRA_`; los nombres legacy `WOMPI_*` no son leidos por la app.
 - `.env.example` esta alineado con las variables runtime reales.
+- Estado actualizado 2026-06-22 segun contexto operativo:
+  - Variables criticas de Vercel Production corregidas.
+  - Wompi production configurado.
+  - Webhook Wompi production configurado en `https://www.intra.com.co/api/webhooks/wompi`.
+  - Redeploy production requerido READY / ejecutado.
+  - Smoke publico/login/admin/checkout sin fallos.
+  - RLS remoto y smoke autenticado cliente/viajero/admin ejecutados.
 
-Hallazgos:
+Hallazgos historicos de la auditoria 2026-06-20:
 - Production efectivo en Vercel tiene vacias variables criticas: `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_USER_IDS`, `NEXT_PUBLIC_WOMPI_SANDBOX`, `NEXT_PUBLIC_WOMPI_PUBLIC_KEY`, `CRON_SECRET`, `INTERNAL_CRON_SECRET`.
 - `ADMIN_EMAILS` no existe en Vercel.
 - `INTRA_WOMPI_PRIVATE_KEY`, `INTRA_WOMPI_EVENTS_KEY` e `INTRA_WOMPI_INTEGRITY_KEY` existen en Production/Preview, pero clasifican como sandbox-like en el ambiente efectivo.
@@ -84,11 +120,9 @@ Hallazgos:
 - Wompi Dashboard webhook endpoint queda pendiente de confirmacion manual externa.
 
 Siguiente accion:
-- Configurar Vercel Production con Wompi real, service role, admins y cron.
-- Mantener Preview en sandbox con llaves sandbox no vacias.
-- Confirmar webhook Wompi de produccion.
-- Redeploy controlado solo con autorizacion explicita.
-- Ejecutar smoke minimo posterior al cambio.
+- Revalidar Production env critico antes de operacion real.
+- Ejecutar primer pago real Wompi + Wallet de punta a punta cuando haya dinero para probarlo.
+- Mantener legal final como pendiente antes de produccion abierta.
 
 ---
 

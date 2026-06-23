@@ -66,22 +66,28 @@ Recomendacion:
 
 Antes de tocar pantallas operativas, identificar donde falta realtime/refetch y definir una estrategia consistente para matches, notificaciones, pagos, evidencias, alertas, wallet y chat segun aplique. Usar `router.refresh()` con throttling donde sea suficiente, `postgres_changes` para eventos criticos y fallback polling solo donde haga falta resiliencia.
 
-## ISSUE-005: Vercel Production env no esta listo para produccion controlada
+## ISSUE-005: Vercel Production env corregido, pendiente revalidacion final
 
-Estado: Abierto
-Riesgo: Critico
+Estado: Corregido / monitoreo operativo
+Riesgo: Medio
 
 Descripcion:
 
-El gate `Vercel production env review` del 2026-06-20 fallo. El ambiente efectivo de Production tiene vacias variables criticas para Supabase service role, admins, Wompi publico, bandera sandbox y cron. Las variables `INTRA_WOMPI_*` existen, pero clasifican como sandbox-like en Production.
+El gate `Vercel production env review` del 2026-06-20 fallo en su momento. Segun contexto operativo actualizado del 2026-06-22, las variables criticas de Vercel Production fueron corregidas, Wompi production quedo configurado, el webhook Wompi production quedo en `https://www.intra.com.co/api/webhooks/wompi`, hubo redeploy production READY y smoke publico/login/admin/checkout sin fallos.
 
 Impacto:
 
-- Checkout Wompi real puede fallar por llave publica ausente/vacia.
-- Webhook Wompi y cron de liberacion pueden fallar por `SUPABASE_SERVICE_ROLE_KEY` o secretos de cron vacios.
-- Admin puede quedar no configurado por allowlist vacia.
-- Production no debe avanzar a produccion controlada hasta corregir env y redeployar con aprobacion.
+- Production env ya no se considera impedimento actual para produccion controlada.
+- Antes de operacion real con dinero debe hacerse revalidacion final de env, Wompi production, webhook production y smoke minimo.
+- El gate critico pendiente pasa a ser el primer pago real Wompi + Wallet de punta a punta.
 
 Recomendacion:
 
-Configurar Vercel Production con llaves reales de Wompi, `NEXT_PUBLIC_WOMPI_SANDBOX=false`, service role, admins, `NEXT_PUBLIC_SITE_URL=https://www.intra.com.co` y secretos de cron. Mantener Preview en sandbox. Confirmar webhook Wompi de produccion y ejecutar smoke minimo posterior al redeploy.
+Revalidar antes de operacion real:
+
+- Production env critico sigue corregido.
+- Wompi production sigue configurado.
+- Webhook Wompi production sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
+- Redeploy production requerido sigue READY.
+- Smoke publico/login/admin/checkout sigue sin fallos.
+- Primer pago real Wompi + Wallet se ejecuta y concilia correctamente.

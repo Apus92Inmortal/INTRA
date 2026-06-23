@@ -17,9 +17,9 @@ Auditar el gate `Vercel production env review` antes de produccion controlada, s
 - Revision de Supabase Auth por API de gestion, filtrando solo checks de URLs.
 - Revision de GitHub Actions secrets por nombre.
 
-## Resultado
+## Resultado historico de la auditoria 2026-06-20
 
-- Gate: FAIL / bloqueante de configuracion.
+- Gate en ese momento: FAIL de configuracion.
 - No se modifico logica de pagos, wallet, RLS, Supabase ni Wompi.
 - No se hizo deploy.
 - No se imprimieron valores secretos en reportes finales.
@@ -51,12 +51,15 @@ Auditar el gate `Vercel production env review` antes de produccion controlada, s
 - Supabase Auth config API: PASS para checks de URLs requeridas.
 - `gh secret list`: PASS, sin secrets activos.
 
-## Pendiente
+## Estado actualizado 2026-06-22
 
-- Corregir variables de Vercel por ambiente.
-- Confirmar Wompi Dashboard webhook endpoint de produccion.
-- Hacer redeploy controlado solo con autorizacion explicita.
-- Ejecutar smoke minimo posterior al cambio.
+- Production env critico: corregido segun contexto operativo reciente.
+- Wompi production: configurado.
+- Webhook Wompi production: `https://www.intra.com.co/api/webhooks/wompi`.
+- Redeploy production requerido: READY / ejecutado segun contexto operativo reciente.
+- Smoke publico/login/admin/checkout: sin fallos segun contexto operativo reciente.
+- Smoke autenticado cliente/viajero/admin y RLS remoto: ejecutados segun contexto operativo reciente.
+- Gate critico pendiente: primer pago real Wompi + Wallet de punta a punta.
 
 ## Actualizacion 2026-06-22 - PR #176 review tweak
 
@@ -153,5 +156,45 @@ Auditar el gate `Vercel production env review` antes de produccion controlada, s
 - Checklist actualizado para borrar local/remotamente ramas que ya no se usaran despues de merge/cierre.
 - No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
 - No se hizo deploy manual ni produccion manual.
+
+## Actualizacion 2026-06-22 - Runbook Operativo INTRA
+
+- Solicitud de Aldo/Cristhian: crear documentacion profesional de operacion para INTRA antes de produccion controlada y operacion real con usuarios y dinero.
+- Rama documental: `docs/ops-runbook-intra`.
+- Archivos nuevos:
+  - `docs/ops/runbook-operativo-intra-corto.md`
+  - `docs/ops/runbook-operativo-intra-completo.md`
+- Contenido cubierto:
+  - Checklists diario/semanal.
+  - Procedimientos Wompi, webhook, pagos, wallet/ledger, retiros manuales, disputas/evidencias, soporte, incidentes, seguridad operativa, escalamiento y bitacora.
+  - Production env critico como corregido y pendiente de revalidacion final antes de operacion real.
+  - Wompi production y webhook production como configurados.
+  - Primer pago real Wompi + Wallet como validacion critica pendiente.
+  - Legal final como pendiente antes de produccion abierta.
+- Validaciones documentales: `git diff --check` PASS, revision de secretos PASS, enlaces locales PASS y cobertura de secciones obligatorias PASS.
+- No se corrio build/lint/test porque solo se tocaron archivos Markdown.
+- No se tocaron codigo de producto, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
+- No se hizo deploy manual ni produccion.
+
+## Actualizacion 2026-06-22 - PR #177 estado Production env
+
+- Solicitud de Aldo: corregir estado desactualizado del runbook para no presentar `ISSUE-005` como impedimento actual.
+- Production env critico queda documentado como corregido / pendiente de revalidacion final antes de operacion real.
+- Wompi production y webhook production quedan documentados como configurados.
+- Gate principal pendiente queda como primer pago real Wompi + Wallet.
+- Runbook queda pendiente de merge.
+- Legal final queda pendiente antes de produccion abierta.
+
+## Actualizacion 2026-06-22 - PR #177 PDF oficiales
+
+- Solicitud de Aldo: agregar al PR #177 los PDF oficiales generados desde el contenido actualizado de los runbooks.
+- Archivos PDF agregados:
+  - `docs/ops/Runbook_Operativo_INTRA_Corto_v1_0.pdf`
+  - `docs/ops/Runbook_Operativo_INTRA_Completo_v1_0.pdf`
+- Se mantienen como fuente editable:
+  - `docs/ops/runbook-operativo-intra-corto.md`
+  - `docs/ops/runbook-operativo-intra-completo.md`
+- Alcance: documental; sin cambios de codigo, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables.
+- No se hizo deploy manual.
 
 😎
