@@ -182,7 +182,7 @@ Auditar el gate `Vercel production env review` antes de produccion controlada, s
 - Production env critico queda documentado como corregido / pendiente de revalidacion final antes de operacion real.
 - Wompi production y webhook production quedan documentados como configurados.
 - Gate principal pendiente queda como primer pago real Wompi + Wallet.
-- Runbook queda pendiente de merge.
+- En ese momento el runbook quedaba pendiente de merge; luego fue mergeado en PR #177 con commit `938db99`.
 - Legal final queda pendiente antes de produccion abierta.
 
 ## Actualizacion 2026-06-22 - PR #177 PDF oficiales
@@ -195,6 +195,84 @@ Auditar el gate `Vercel production env review` antes de produccion controlada, s
   - `docs/ops/runbook-operativo-intra-corto.md`
   - `docs/ops/runbook-operativo-intra-completo.md`
 - Alcance: documental; sin cambios de codigo, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables.
+- No se hizo deploy manual.
+
+## Cierre de sesion 2026-06-22 - Landing + Runbook
+
+Estado real:
+
+- PR #176 `Landing conversion copy polish`: MERGED.
+- Merge commit PR #176: `cc319c3`.
+- PR #177 `Runbook Operativo INTRA`: MERGED.
+- Merge commit PR #177: `938db99`.
+- `main` quedo actualizado con landing publica ajustada, runbook operativo en Markdown/PDF y memoria de Production env corregida.
+
+Cambios cerrados:
+
+- Landing publica ajustada para mayor conversion:
+  - Hero mas claro y menos pesado.
+  - Copy cliente/viajero mejorado.
+  - CTA principales claros: publicar envio / publicar viaje.
+  - Metadata publica apunta a `https://www.intra.com.co`.
+  - Seccion de precios limpia, sin emojis ni SVG inline.
+  - Tests publicos actualizados.
+- Runbook Operativo INTRA creado y mergeado:
+  - `docs/ops/runbook-operativo-intra-corto.md`.
+  - `docs/ops/runbook-operativo-intra-completo.md`.
+  - `docs/ops/Runbook_Operativo_INTRA_Corto_v1_0.pdf`.
+  - `docs/ops/Runbook_Operativo_INTRA_Completo_v1_0.pdf`.
+  - `.gitattributes` marca `*.pdf binary`.
+
+Estado operativo actualizado:
+
+- INTRA esta avanzado hacia produccion controlada.
+- Production env critico esta corregido segun memoria operativa reciente; debe revalidarse antes de operar con dinero real.
+- Wompi production esta configurado.
+- Webhook Wompi production configurado: `https://www.intra.com.co/api/webhooks/wompi`.
+- RLS remoto y smoke autenticado cliente/viajero/admin se consideran realizados segun memoria operativa reciente.
+- E2E publico y smoke publico/login/admin/checkout estan en verde segun memoria operativa reciente.
+- Legal final queda pendiente antes de produccion abierta, no como freno de produccion controlada.
+
+Siguiente paso recomendado:
+
+- Ejecutar primer pago real Wompi + Wallet de punta a punta con monto pequeno y caso controlado.
+- Despues del pago, validar ledger, saldo retenido, liberacion y retiro/payout manual.
+- No se recomienda abrir mas PRs de diseno o documentacion salvo hallazgo real.
+
+Confirmaciones:
+
+- No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables en este cierre documental.
+- No se hizo deploy manual.
+
+## Actualizacion 2026-06-22 - Primer pago real Wompi
+
+Estado nuevo reportado por Aldo:
+
+- Primer pago real Wompi: PASS operativo.
+- La prueba confirma cobro exitoso en Wompi.
+- No hay evidencia documentada en repo, dentro de esta actualizacion, de conciliacion completa wallet/ledger.
+
+Estado del gate:
+
+- Wompi real payment: PASS.
+- Wallet/ledger reconciliation: PENDING.
+- El gate completo `Wompi + Wallet` no debe marcarse como cerrado hasta confirmar:
+  - webhook production recibido y procesado;
+  - payment/ledger reflejado correctamente en INTRA;
+  - saldo retenido consistente;
+  - liberacion operativa;
+  - wallet del viajero con saldo disponible correcto;
+  - retiro/payout manual registrado con referencia externa y evidencia cuando aplique.
+
+Siguiente paso recomendado:
+
+- Validar conciliacion interna del pago real.
+- Preparar primer envio controlado con usuario cliente y viajero conocidos.
+- Despues de confirmar conciliacion, avanzar produccion controlada con monitoreo operativo.
+
+Confirmaciones:
+
+- No se tocaron codigo, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables.
 - No se hizo deploy manual.
 
 😎

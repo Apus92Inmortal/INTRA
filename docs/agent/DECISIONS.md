@@ -242,3 +242,45 @@ Impacto:
 - Despues de cerrar o mergear un PR, validar si la rama sigue siendo necesaria.
 - Si no es necesaria, ejecutar limpieza local/remota y reportarla en el cierre.
 - No borrar ramas activas, ramas de terceros o ramas con trabajo no mergeado sin confirmacion explicita.
+
+## DEC-012: Gate siguiente para produccion controlada
+
+Fecha: 2026-06-22
+
+Decision:
+
+Despues del cierre de PR #176 y PR #177, el siguiente gate operativo de INTRA no es otro ajuste de diseno o documentacion, sino el primer pago real Wompi + Wallet de punta a punta con monto pequeno y caso controlado.
+
+Antes de mover dinero real se debe revalidar:
+
+- Production env critico sigue corregido.
+- Wompi production sigue configurado.
+- Webhook Wompi production sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
+- Smoke minimo publico/login/admin/checkout sigue sin fallos.
+
+Durante el caso controlado se debe validar:
+
+- Pago real aprobado en Wompi.
+- Webhook production recibido y procesado.
+- Ledger y payment reflejados correctamente.
+- Saldo retenido consistente.
+- Liberacion operativa del pago.
+- Wallet del viajero con saldo disponible correcto.
+- Retiro/payout manual registrado con referencia externa y evidencia.
+
+Motivo:
+
+La landing publica y el runbook operativo ya quedaron mergeados. Production env critico ya no es bloqueo vigente para produccion controlada, pero operar con dinero real requiere validar la cadena completa Wompi + webhook + ledger + wallet + retiro manual.
+
+Impacto:
+
+- No se recomienda abrir mas PRs de diseno o documentacion salvo hallazgo real.
+- Legal final queda pendiente antes de produccion abierta, no como freno de produccion controlada.
+- Cualquier inconsistencia en el primer pago real debe congelar la operacion, registrarse en bitacora y escalarse antes de aceptar mas dinero real.
+
+Actualizacion 2026-06-22:
+
+- Aldo ejecuto el primer pago real Wompi y lo reporto como PASS operativo.
+- Este avance confirma cobro exitoso en Wompi, pero no cierra por si solo el gate completo Wompi + Wallet.
+- El siguiente paso es confirmar conciliacion interna: webhook, payment/ledger, saldo retenido, liberacion, wallet y retiro/payout manual si aplica.
+- Despues de confirmar conciliacion, preparar primer envio controlado con usuario cliente y viajero conocidos.

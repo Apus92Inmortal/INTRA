@@ -71,6 +71,13 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 - TASK-023 quedo mergeada a `main` en PR #156, commit `73592d2`: Dashboard / Pendientes de pago mantiene `Ir al checkout` como CTA visible y mueve `Cancelar envio` al menu de tres puntos.
 - TASK-024 quedo mergeada a `main` en PR #157, commit `bed21e1`: Dashboard / Mis envios activos permite cancelar desde tres puntos solo envios pagados en `Esperando viajero`, sin matches activos, devolviendo a Wallet solo el neto reembolsable descontando pasarela.
 - Regla consolidada: si existe match `pending`, `accepted` o `completed`, la gestion/cancelacion debe hacerse desde Matches y no desde la card del Dashboard.
+- PR #176 quedo mergeado a `main`, commit `cc319c3`: Landing publica ajustada para mayor conversion, metadata publica en `https://www.intra.com.co`, precios sin emojis/SVG inline y tests publicos actualizados.
+- PR #177 quedo mergeado a `main`, commit `938db99`: Runbook Operativo INTRA creado en Markdown y PDF oficial, Production env actualizado como corregido / pendiente revalidacion final, Wompi production y webhook production documentados como configurados.
+- Webhook Wompi production documentado: `https://www.intra.com.co/api/webhooks/wompi`.
+- Production env critico ya no es bloqueo vigente para produccion controlada; debe revalidarse antes de operar con dinero real.
+- RLS remoto, smoke autenticado cliente/viajero/admin, E2E publico y smoke publico/login/admin/checkout se consideran realizados segun memoria operativa reciente.
+- Primer pago real Wompi fue ejecutado por Aldo y reportado como PASS operativo.
+- Conciliacion interna wallet/ledger del pago real queda pendiente de confirmacion antes de considerar cerrado el gate completo Wompi + Wallet.
 - Barrida UI/UX v2.2 con frentes iniciales cerrados:
   - Foundation components: PR #129 mergeado a `main`.
   - Auth Gateway: PR #130 mergeado a `main`.
@@ -92,10 +99,14 @@ INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario
 
 ## Fase inmediata
 
-La auditoria funcional full ya fue cerrada y la etapa funcional minima quedo validada. La barrida UI/UX v2.2 quedo cerrada y el Manual UI/UX INTRA v3.0 queda adoptado para la siguiente etapa UI/UX.
+INTRA esta avanzado hacia produccion controlada. La auditoria funcional full ya fue cerrada, la etapa funcional minima quedo validada, la landing publica ya fue ajustada y mergeada, y el runbook operativo profesional ya quedo versionado en Markdown y PDF.
 
-Los frentes iniciales y cierre final de UI/UX v2.2 ya quedaron cerrados e integrados en `main`.
+Los frentes iniciales y cierre final de UI/UX v2.2 ya quedaron cerrados e integrados en `main`. El Manual UI/UX INTRA v3.0 sigue siendo fuente vigente para futuros ajustes visuales.
 
-Siguiente pendiente recomendado, solo cuando Aldo lo ordene: barrida UI/UX pantalla por pantalla contra Manual UI/UX INTRA v3.0, empezando por pantallas operativas principales y uso real de componentes foundation.
+No se recomienda seguir haciendo PRs de diseno o documentacion salvo hallazgo real. El siguiente paso recomendado es validar la conciliacion interna del primer pago real Wompi: webhook, payment/ledger, saldo retenido, liberacion, wallet y retiro/payout manual si aplica.
 
-Cualquier ajuste UI/UX debe validarse contra el Manual UI/UX INTRA v3.0 antes de implementarse. Si una pantalla contradice el manual, primero se reporta la contradiccion y se propone correccion, excepcion, anexo o nueva regla.
+Despues de confirmar la conciliacion interna, preparar el primer envio controlado con usuario cliente y viajero conocidos, monto pequeno y monitoreo operativo.
+
+Legal final queda pendiente antes de produccion abierta, no como freno de produccion controlada.
+
+Cualquier ajuste UI/UX futuro debe validarse contra el Manual UI/UX INTRA v3.0 antes de implementarse. Si una pantalla contradice el manual, primero se reporta la contradiccion y se propone correccion, excepcion, anexo o nueva regla.

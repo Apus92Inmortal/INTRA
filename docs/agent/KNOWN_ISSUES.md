@@ -79,7 +79,10 @@ Impacto:
 
 - Production env ya no se considera impedimento actual para produccion controlada.
 - Antes de operacion real con dinero debe hacerse revalidacion final de env, Wompi production, webhook production y smoke minimo.
-- El gate critico pendiente pasa a ser el primer pago real Wompi + Wallet de punta a punta.
+- Primer pago real Wompi fue ejecutado por Aldo y reportado como PASS operativo.
+- El gate critico pendiente pasa a ser la conciliacion interna wallet/ledger del pago real y el primer envio controlado con usuarios conocidos.
+- RLS remoto y smoke autenticado cliente/viajero/admin se consideran realizados segun memoria operativa reciente.
+- E2E publico y smoke publico/login/admin/checkout estan en verde segun memoria operativa reciente.
 
 Recomendacion:
 
@@ -90,4 +93,6 @@ Revalidar antes de operacion real:
 - Webhook Wompi production sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
 - Redeploy production requerido sigue READY.
 - Smoke publico/login/admin/checkout sigue sin fallos.
-- Primer pago real Wompi + Wallet se ejecuta y concilia correctamente.
+- Conciliacion interna del primer pago real Wompi se confirma: webhook, payment/ledger, saldo retenido, liberacion, wallet y retiro/payout manual si aplica.
+
+No abrir mas PRs de diseno o documentacion salvo hallazgo real. El proximo trabajo recomendado es validar la conciliacion interna del pago real y preparar un envio controlado con usuario cliente y viajero conocidos.

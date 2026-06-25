@@ -10,11 +10,49 @@
 
 ---
 
-## P0 - En revision
+## P0 - Pendiente critico
+
+### TASK-047: Primer pago real Wompi + Wallet
+
+Estado: IN_PROGRESS / Wompi real payment PASS, wallet-ledger reconciliation pending
+Prioridad: Critica
+Area: Produccion controlada / Pagos / Wallet / Operacion
+
+Resumen:
+- Primer pago real Wompi ejecutado por Aldo y reportado como PASS operativo.
+- La prueba confirma cobro exitoso en Wompi.
+- Falta confirmar en memoria/revision operativa la conciliacion interna wallet/ledger.
+- El gate completo no queda cerrado hasta validar Wompi production, webhook production, ledger, saldo retenido, liberacion y retiro/payout manual.
+
+Precondiciones:
+- Production env critico se considera corregido segun memoria reciente; revalidar antes de continuar operacion con dinero real.
+- Confirmar que Wompi production sigue configurado.
+- Confirmar que el webhook Wompi production sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
+- Ejecutar smoke minimo publico/login/admin/checkout si aplica antes de mover dinero real.
+
+Validado:
+- Pago real aprobado en Wompi segun prueba operativa de Aldo.
+
+Validacion pendiente:
+- Webhook production recibido y procesado.
+- Payment/ledger reflejado correctamente en INTRA.
+- Saldo retenido visible y consistente.
+- Liberacion de pago ejecutada segun regla operativa.
+- Wallet del viajero refleja saldo disponible correcto.
+- Solicitud de retiro/payout manual registrada con referencia externa y evidencia.
+- Bitacora operativa completa.
+
+Pendiente:
+- Validar conciliacion interna del pago real.
+- Preparar primer envio controlado con usuario cliente y viajero conocidos despues de confirmar conciliacion.
+
+---
+
+## Cierre reciente
 
 ### TASK-046: Runbook Operativo INTRA
 
-Estado: REVIEW
+Estado: DONE
 Prioridad: Alta
 Area: Operacion / Produccion controlada / Soporte
 
@@ -37,9 +75,11 @@ Validaciones:
 - Revision de cobertura documental: checklists, Wompi, wallet/ledger, retiros, disputas, soporte, incidentes, seguridad, escalamiento, bitacora y primer pago real Wompi incluidos.
 - PDF oficiales agregados desde los adjuntos entregados por Aldo y mantenidos junto a la fuente Markdown editable.
 - No se corrio build/lint/test porque el cambio es solo documentacion.
+- PR #177 mergeado a `main` con merge commit `938db99`.
+- Rama `docs/ops-runbook-intra` eliminada/removida del remoto y podada localmente.
 
 Pendiente:
-- Revision/merge del PR documental.
+- Ninguno.
 
 ### TASK-045: Landing footer review tweak PR #176
 
@@ -123,6 +163,24 @@ Siguiente accion:
 - Revalidar Production env critico antes de operacion real.
 - Ejecutar primer pago real Wompi + Wallet de punta a punta cuando haya dinero para probarlo.
 - Mantener legal final como pendiente antes de produccion abierta.
+
+---
+
+## P1 - Antes de produccion abierta
+
+### TASK-048: Legal final antes de produccion abierta
+
+Estado: TODO
+Prioridad: Alta
+Area: Legal / Operacion / Produccion abierta
+
+Resumen:
+- Completar revision legal final antes de pasar de produccion controlada a produccion abierta.
+- No bloquea la produccion controlada si el alcance sigue siendo controlado y operativo.
+- Debe revisarse junto con matriz legal vigente, terminos operativos, pagos, disputas, evidencias, privacidad y soporte.
+
+Pendiente:
+- Ejecutar antes de apertura publica amplia.
 
 ---
 
