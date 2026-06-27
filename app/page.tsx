@@ -289,7 +289,9 @@ const atlasLandingHtml = String.raw`
         <img class="footer-logo" src="/assets/cropped-Logo2sinfondo-1.png" alt="INTRA">
         <p class="lead intra-body" style="text-align:left;margin-left:0;margin-top:10px">Plataforma que conecta personas que necesitan enviar documentos o paquetes con viajeros reales entre ciudades colombianas.</p>
         <div class="footer-socials">
-          <a href="#" class="social-link intra-caption-strong">Instagram</a>
+          <a href="https://www.instagram.com/intra.app.co/" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="Instagram de INTRA" title="Instagram de INTRA">
+            <img class="social-icon" src="/assets/instagram-icon.svg" alt="">
+          </a>
         </div>
       </div>
       <div>
@@ -555,10 +557,12 @@ h2{font-size:44px;line-height:1.1;letter-spacing:-.03em}
 .footer-contact a:hover{color:var(--green)}
 .footer-socials{display:flex;gap:12px;margin-top:16px}
 .social-link{
+  display:inline-flex;align-items:center;justify-content:center;
   color:var(--muted);
-  padding:8px 16px;border-radius:999px;border:1px solid var(--line);
+  width:38px;height:38px;border-radius:999px;border:1px solid var(--line);
   transition:all .2s;
 }
+.social-icon{width:18px;height:18px;display:block}
 .social-link:hover{color:var(--green);border-color:var(--green)}
 @media(max-width:980px){
   .hero h1,.banner h2{font-size:38px}
