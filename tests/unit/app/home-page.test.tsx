@@ -39,7 +39,18 @@ describe("HomePage", () => {
       screen.queryByRole("link", { name: "Contáctanos" })
     ).not.toBeInTheDocument();
     expect(screen.getAllByRole("img", { name: "INTRA" })).toHaveLength(2);
-    expect(screen.getByRole("link", { name: "Instagram" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Instagram de INTRA" })
+    ).toHaveAttribute("href", "https://www.instagram.com/intra.app.co/");
+    expect(
+      screen.getByRole("link", { name: "Instagram de INTRA" })
+    ).toHaveAttribute("target", "_blank");
+    expect(
+      screen.getByRole("link", { name: "Instagram de INTRA" })
+    ).toHaveAttribute("rel", "noopener noreferrer");
+    expect(
+      screen.getByRole("link", { name: "Instagram de INTRA" })
+    ).toHaveAttribute("title", "Instagram de INTRA");
     expect(screen.queryByRole("link", { name: "TikTok" })).not.toBeInTheDocument();
     expect(screen.getByText("Contacto")).toBeInTheDocument();
     expect(
