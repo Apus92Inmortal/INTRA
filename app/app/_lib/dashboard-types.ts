@@ -4,6 +4,8 @@ export type DashboardUser = {
   fullName: string | null;
   phone: string | null;
   showWelcomeModal: boolean;
+  onboardingCompleted: boolean;
+  onboardingIntent: string | null;
 };
 
 export type DashboardSummary = {

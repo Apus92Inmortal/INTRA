@@ -65,6 +65,31 @@ async function syncProfileFromMetadata(
   )
 }
 
+async function applyOnboardingRedirect(
+  supabase: ReturnType<typeof createServerClient>,
+  response: NextResponse,
+  requestUrl: URL,
+  isRecoveryFlow: boolean
+) {
+  if (isRecoveryFlow) return
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  if (!profile?.onboarding_completed) {
+    response.headers.set("Location", new URL("/app/onboarding", requestUrl.origin).toString())
+  }
+}
+
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get("code")
@@ -100,6 +125,7 @@ export async function GET(request: NextRequest) {
     }
 
     await syncProfileFromMetadata(supabase)
+    await applyOnboardingRedirect(supabase, response, requestUrl, isRecoveryFlow)
     return response
   }
 
@@ -120,6 +146,7 @@ export async function GET(request: NextRequest) {
     }
 
     await syncProfileFromMetadata(supabase)
+    await applyOnboardingRedirect(supabase, response, requestUrl, isRecoveryFlow)
     return response
   }
 

@@ -141,6 +141,23 @@ export default function AuthGateway({
     window.location.assign(getSafeInternalPath(path));
   };
 
+  const getPostAuthPath = async (path?: string | null) => {
+    const safePath = getSafeInternalPath(path);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return safePath;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    return profile?.onboarding_completed ? safePath : "/app/onboarding";
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -165,7 +182,7 @@ export default function AuthGateway({
       return;
     }
 
-    goAfterAuth(nextDestination);
+    goAfterAuth(await getPostAuthPath(nextDestination));
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -230,7 +247,7 @@ export default function AuthGateway({
       }
 
       setLoading(false);
-      goAfterAuth(nextDestination);
+      goAfterAuth(await getPostAuthPath(nextDestination));
       return;
     }
 

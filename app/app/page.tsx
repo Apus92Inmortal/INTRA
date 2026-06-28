@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import {
   ArrowRight,
@@ -16,8 +17,10 @@ import {
 } from "lucide-react";
 import { AppNavbar } from "@/components/app-navbar";
 import { EvidenceImagePreview } from "@/components/evidence-image-preview";
+import { FirstStepsCard } from "@/components/onboarding/FirstStepsCard";
 import { RatingSummaryBadge } from "@/components/rating-summary-badge";
 import { TrackingCodeBadge } from "@/components/tracking-code-badge";
+import { isOnboardingIntent } from "@/lib/onboarding";
 import WelcomeModal from "@/components/WelcomeModal";
 import { formatRatingValue } from "@/lib/reviews";
 import { createClient } from "@/lib/supabase/server";
@@ -444,6 +447,16 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
     );
   }
 
+  const { data: onboardingProfile } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!onboardingProfile?.onboarding_completed) {
+    redirect("/app/onboarding");
+  }
+
   const dashboard = await getDashboardData();
 
   if (!dashboard) {
@@ -457,6 +470,15 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
   const revenueMonthName = new Intl.DateTimeFormat("es-CO", { month: "long" }).format(new Date());
   const revenueTitle = `Ganancias de ${revenueMonthName}`;
   const hasMonthlyRevenue = dashboard.monthlyRevenue.releasedAmount > 0;
+  const preferredIntent = isOnboardingIntent(dashboard.user.onboardingIntent)
+    ? dashboard.user.onboardingIntent
+    : "send";
+  const showFirstSteps =
+    dashboard.summary.activeShipmentsCount === 0 &&
+    dashboard.summary.publishedTripsCount === 0 &&
+    dashboard.summary.completedDeliveriesCount === 0 &&
+    dashboard.pendingPaymentShipments.length === 0 &&
+    dashboard.compatibleShipments.length === 0;
 
   const pendingPaymentItems = getVisibleItems(
     dashboard.pendingPaymentShipments,
@@ -486,22 +508,46 @@ export default async function AppHomePage({ searchParams }: AppHomePageProps) {
             <p className="mt-1 intra-body">Gestiona tus envíos, viajes y matches desde aquí.</p>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <DashboardShortcutCard
-              href="/app/shipments/new"
-              title="Crear envío"
-              description="Publica un paquete y encuentra un viajero."
-              tone="green"
-              icon={<PackageCheck className="intra-icon-emphasis" />}
-            />
+          {showFirstSteps ? <FirstStepsCard intent={dashboard.user.onboardingIntent} /> : null}
 
-            <DashboardShortcutCard
-              href="/app/trips/new"
-              title="Publicar viaje"
-              description="Gana llevando paquetes en tu ruta."
-              tone="blue"
-              icon={<Plane className="intra-icon-emphasis" />}
-            />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {preferredIntent === "travel" ? (
+              <>
+                <DashboardShortcutCard
+                  href="/app/trips/new"
+                  title="Publicar viaje"
+                  description="Gana llevando paquetes en tu ruta."
+                  tone="green"
+                  icon={<Plane className="intra-icon-emphasis" />}
+                />
+
+                <DashboardShortcutCard
+                  href="/app/shipments/new"
+                  title="Crear envío"
+                  description="Publica un paquete y encuentra un viajero."
+                  tone="blue"
+                  icon={<PackageCheck className="intra-icon-emphasis" />}
+                />
+              </>
+            ) : (
+              <>
+                <DashboardShortcutCard
+                  href="/app/shipments/new"
+                  title="Crear envío"
+                  description="Publica un paquete y encuentra un viajero."
+                  tone="green"
+                  icon={<PackageCheck className="intra-icon-emphasis" />}
+                />
+
+                <DashboardShortcutCard
+                  href="/app/trips/new"
+                  title="Publicar viaje"
+                  description="Gana llevando paquetes en tu ruta."
+                  tone="blue"
+                  icon={<Plane className="intra-icon-emphasis" />}
+                />
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

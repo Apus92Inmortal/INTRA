@@ -545,7 +545,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     await Promise.all([
       supabase
         .from("profiles")
-        .select("full_name, phone, show_welcome_modal")
+        .select("full_name, phone, show_welcome_modal, onboarding_completed, onboarding_intent")
         .eq("id", user.id)
         .single(),
       supabase
@@ -1220,6 +1220,8 @@ export async function getDashboardData(): Promise<DashboardData | null> {
     fullName: profile?.full_name ?? null,
     phone: profile?.phone ?? null,
     showWelcomeModal: profile?.show_welcome_modal ?? false,
+    onboardingCompleted: profile?.onboarding_completed ?? false,
+    onboardingIntent: profile?.onboarding_intent ?? null,
   };
 
   return {

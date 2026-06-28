@@ -71,7 +71,10 @@ create table if not exists public."profiles" (
     "document_number" text,
     "city_id" uuid,
     "created_at" timestamp without time zone default now(),
-    "show_welcome_modal" boolean default true not null
+    "show_welcome_modal" boolean default true not null,
+    "onboarding_completed" boolean default false not null,
+    "onboarding_intent" text,
+    "onboarding_completed_at" timestamp with time zone
 );
 
 comment on table public."profiles" is 'Table de Perfiles';
@@ -144,6 +147,7 @@ alter table only public."payments" add constraint "payments_user_id_fkey" FOREIG
 alter table only public."profiles" add constraint "profiles_id_fkey" FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
 alter table only public."profiles" add constraint "profiles_city_id_fkey" FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE SET NULL;
 alter table only public."profiles" add constraint "profiles_pkey" PRIMARY KEY (id);
+alter table only public."profiles" add constraint "profiles_onboarding_intent_check" CHECK (((onboarding_intent IS NULL) OR (onboarding_intent = ANY (ARRAY['send'::text, 'travel'::text, 'explore'::text]))));
 
 alter table only public."route_prices" add constraint "route_prices_base_price_check" CHECK (base_price > 0);
 alter table only public."route_prices" add constraint "route_prices_customer_price_check" CHECK ((customer_price is null) or (customer_price > 0 and customer_price >= base_price));

@@ -41,6 +41,24 @@
 - Las policies deben limitar acceso a usuarios relacionados y admins.
 - No asociar liberacion de pagos solo a carga de evidencia sin regla operativa aprobada.
 
+## TASK-050 - Onboarding inicial guiado
+
+- Migracion nueva: `202606282230_guided_onboarding_profiles.sql`.
+- Objetivo: persistir estado del onboarding inicial guiado en `profiles` sin crear tablas nuevas ni tocar policies sensibles.
+- Columnas agregadas:
+  - `onboarding_completed boolean default false not null`.
+  - `onboarding_intent text nullable`.
+  - `onboarding_completed_at timestamptz nullable`.
+- Constraint nueva:
+  - `profiles_onboarding_intent_check`: permite `send`, `travel`, `explore` o `null`.
+- RLS:
+  - No se modificaron policies.
+  - Se reutiliza `profiles_update_self`, por lo que cada usuario solo actualiza su propio perfil.
+- Backfill:
+  - Perfiles existentes antes del 2026-06-28 se marcan como onboarding completado para no interrumpir usuarios actuales.
+  - Nuevos perfiles quedan con `onboarding_completed = false` por default.
+- No se tocaron pagos, wallet, Wompi, webhook, refunds, payouts ni admin sensible.
+
 ## QA temporal Dashboard Typography - 2026-06-09
 
 - Marker temporal: `QA_DASHBOARD_TYPOGRAPHY_20260609`.
