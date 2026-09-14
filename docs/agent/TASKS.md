@@ -30,6 +30,12 @@ Area: Supabase / Seguridad / Pagos
   local se alineo a la version remota. A01 queda mitigado; faltan smoke con
   cuentas reales/DB aislada y revisar guards NULL. A02/A06 y TASK-051 siguen
   abiertos y bloquean nuevos cobros.
+- 2026-09-14: A02 preparado en rama local `codex/fix-a02-financial-writes`.
+  Checkout usa RPC `create_payment_retry`; dos migraciones separan creacion de
+  RPC y revocacion de escrituras directas. Lint, 60 unit, TS, build y 4 E2E
+  publicos PASS (estos E2E no cubren checkout autenticado).
+  Falta autorizacion para aplicacion/publicacion escalonada y pruebas reales
+  por rol; A02 **no** esta corregido en Production.
 - Security Advisor posterior mantiene 22 avisos de otras funciones anon
   SECURITY DEFINER (no todos son vulnerabilidades verificadas); clasificar
   permisos y cuerpos como parte del cierre RPC de TASK-050.

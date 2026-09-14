@@ -12,6 +12,9 @@ Estado: Parcialmente mitigado / P0 por A02 y verificaciones pendientes
   para PUBLIC, anon, authenticated y service_role; HTTP anon 401/42501.
   Sus guards NULL internos siguen sin reescribirse y falta smoke con cuentas.
 - payments conserva INSERT/UPDATE por usuarios relacionados; payouts conserva INSERT propio fuera de request_payout.
+- Existe correccion A02 en rama local con RPC y revocacion en dos migraciones;
+  no se ha aplicado a Production. El despliegue requiere RPC -> app -> permisos
+  para mantener operativo el reintento de checkout. Faltan pruebas por rol.
 - create_operational_notification tambien perdio EXECUTE directo para esos
   roles; llamadas anonimas denegadas. No hay prueba de evento real por trigger.
 - Evidencia: metadatos/definiciones remotos y migracion `20260914145957`

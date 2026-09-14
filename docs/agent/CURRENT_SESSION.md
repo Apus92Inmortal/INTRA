@@ -1,5 +1,38 @@
 # INTRA - Current Session
 
+## Estado vigente - 2026-09-14 (A02 local)
+
+Objetivo: corregir A02 sin cortar los reintentos de Wompi durante el despliegue.
+
+- Rama: `codex/fix-a02-financial-writes`, basada en el cierre local A01.
+- `CheckoutClient.tsx` deja de insertar directamente en `payments` al reintentar
+  y llama a `create_payment_retry`. La RPC valida actor, envio abierto propio,
+  evidencia inicial, estado de pagos existentes y tarifa activa; calcula el
+  importe/referencia en DB y serializa intentos concurrentes.
+- Dos migraciones separadas: `20260914151031_a02_create_payment_retry.sql`
+  crea la RPC; `20260914151234_a02_restrict_financial_table_writes.sql`
+  elimina policies INSERT/UPDATE legacy y revoca DML cliente sobre `payments`
+  y `payouts`, conservando SELECT autenticado y service_role.
+- Orden requerido para Production: aplicar primera migracion, publicar app con
+  checkout nuevo, validar reintento controlado sin cobrar, aplicar segunda
+  migracion y ejecutar `supabase/tests/a02_financial_table_access.sql` y pruebas
+  negativas/positivas por rol. Aplicar la segunda antes del codigo romperia el
+  checkout anterior. No usar `supabase db push` por historial desalineado.
+- Validacion local: lint PASS, 60 unitarias PASS, TypeScript PASS, build PASS,
+  E2E publico 4/4 PASS (no cubre checkout autenticado).
+  No existe DB aislada ni cuentas de prueba activas para ejecutar el flujo
+  autenticado de reintento o concurrencia. Consulta remota de solo lectura
+  confirmo que los tres precios activos y `calculate_payment_amount` coinciden
+  con los importes mostrados (20k/25k/35k COP).
+- Estado: **solo rama local**; ninguna migracion A02 aplicada, sin push GitHub,
+  sin merge/deploy Vercel y sin movimiento financiero. A02 permanece abierto en
+  Production y los nuevos cobros siguen bloqueados.
+- Siguiente paso: revisar y autorizar la secuencia de despliegue completa;
+  validar permisos cliente/viajero/tercero y ruta legitima en entorno aislado
+  o con cuentas controladas antes de cerrar TASK-050.
+
+---
+
 ## Estado vigente - 2026-09-14
 
 Objetivo: iniciar TASK-050 por A01 y aplicar la migracion autorizada a

@@ -158,14 +158,6 @@ function SummaryRow({
   )
 }
 
-function buildReference(shipmentId: string) {
-  const randomPart = typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.round(Math.random() * 100000)}`
-
-  return `intra-shipment-${shipmentId}-${randomPart}`
-}
-
 function getFileExtension(file: File) {
   const parts = file.name.split(".")
   return parts.length > 1 ? parts.pop()?.toLowerCase() ?? "bin" : "bin"
@@ -294,8 +286,6 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
   const intraFee = view.quote?.intra_fee ?? null
   const gatewayFee = view.quote?.gateway_fee_estimated ?? null
   const totalAmount = view.quote?.amount ?? null
-  const autoReleaseHours = view.quote?.auto_release_hours ?? 48
-  const disputeWindowHours = view.quote?.dispute_window_hours ?? 24
   const initialEvidenceReady = view.hasInitialEvidence || initialEvidenceUploaded
   const initialEvidencePreviewUrl = useMemo(
     () => initialEvidenceFile ? URL.createObjectURL(initialEvidenceFile) : null,
@@ -482,46 +472,25 @@ export default function CheckoutClient({ initialRetryData = null }: CheckoutClie
     }
 
     if (!paymentId) {
-      const externalReference = buildReference(shipmentId)
+      const { data: retryData, error: retryError } = await supabase.rpc("create_payment_retry", {
+        p_shipment_id: shipmentId,
+        p_retry_payment_id: view.retryPaymentId || null,
+        p_payment_policy_accepted: acceptedPaymentConditions,
+        p_payment_policy_version: PAYMENT_CONDITIONS_VERSION,
+      })
+      const retryResult = retryData as {
+        success?: boolean
+        payment_id?: string
+        error?: string
+      } | null
 
-      const { data: payment, error: paymentError } = await supabase
-        .from("payments")
-        .insert({
-          shipment_id: shipmentId,
-          user_id: user.id,
-          amount: quote.amount,
-          gross_amount: quote.gross_amount ?? quote.amount,
-          traveler_amount: quote.traveler_amount ?? 0,
-          intra_fee: quote.intra_fee ?? 0,
-          gateway_fee_estimated: quote.gateway_fee_estimated ?? 0,
-          net_amount_received: quote.net_amount_received ?? quote.amount,
-          currency: quote.currency ?? "COP",
-          status: "pending",
-          gateway_provider: "wompi",
-          gateway_status: "created",
-          payment_method: "wompi_widget",
-          external_reference: externalReference,
-          metadata: {
-            source: "wompi_widget",
-            sandbox: process.env.NEXT_PUBLIC_WOMPI_SANDBOX === "true",
-            auto_release_hours: quote.auto_release_hours ?? autoReleaseHours,
-            dispute_window_hours: quote.dispute_window_hours ?? disputeWindowHours,
-            payment_conditions_accepted: acceptedPaymentConditions,
-            payment_conditions_version: PAYMENT_CONDITIONS_VERSION,
-            payment_conditions_flow: "shipment_checkout",
-            retry_of_payment_id: view.retryPaymentId || null,
-          },
-        })
-        .select("id")
-        .single()
-
-      if (paymentError || !payment) {
+      if (retryError || !retryResult?.success || !retryResult.payment_id) {
         setLoading(false)
-        setErrorMsg("No se pudo registrar el pago: " + (paymentError?.message ?? "Error desconocido"))
+        setErrorMsg("No se pudo registrar el pago: " + (retryError?.message ?? retryResult?.error ?? "Error desconocido"))
         return
       }
 
-      paymentId = payment.id
+      paymentId = retryResult.payment_id
     }
 
     const params = new URLSearchParams({ paymentId })
