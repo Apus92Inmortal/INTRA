@@ -14,8 +14,8 @@ operativas explicitas y el backend privilegiado conservan sus funciones.
 
 Impacto:
 
-Publicar RPC, codigo de checkout y cierre de permisos en ese orden. La
-implementacion A02 sigue local hasta aprobar y validar la publicacion.
+Publicar RPC, codigo de checkout y cierre de permisos en ese orden. Aldo
+autorizo el despliegue escalonado; la primera migracion ya esta aplicada.
 
 ## DEC-001: Roles contextuales
 

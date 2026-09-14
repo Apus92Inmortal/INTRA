@@ -34,8 +34,11 @@ Area: Supabase / Seguridad / Pagos
   Checkout usa RPC `create_payment_retry`; dos migraciones separan creacion de
   RPC y revocacion de escrituras directas. Lint, 60 unit, TS, build y 4 E2E
   publicos PASS (estos E2E no cubren checkout autenticado).
-  Falta autorizacion para aplicacion/publicacion escalonada y pruebas reales
-  por rol; A02 **no** esta corregido en Production.
+  En ese momento faltaban aplicacion/publicacion y pruebas por rol; A02
+  **no** estaba corregido en Production.
+- Aldo autorizo la secuencia escalonada; RPC `create_payment_retry` aplicada
+  como migracion remota `20260914152150` y verificada. Checkout y revocacion
+  de permisos siguen pendientes de publicacion; A02 aun abierto.
 - Security Advisor posterior mantiene 22 avisos de otras funciones anon
   SECURITY DEFINER (no todos son vulnerabilidades verificadas); clasificar
   permisos y cuerpos como parte del cierre RPC de TASK-050.

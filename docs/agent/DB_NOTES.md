@@ -1,21 +1,23 @@
 # INTRA - Database Notes
 
-## 2026-09-14 - A02 preparado localmente; Production sin cambios
+## 2026-09-14 - A02 en despliegue escalonado
 
 - Rama: `codex/fix-a02-financial-writes`.
-- `20260914151031_a02_create_payment_retry.sql` crea RPC SECURITY DEFINER para
+- `20260914152150_a02_create_payment_retry.sql` crea RPC SECURITY DEFINER para
   reintentar pago de envio propio abierto con evidencia inicial. Bloquea envio
   y pagos previos, rechaza cualquier cobro aprobado/held/refunded, reutiliza
   intento pendiente y calcula importe con `route_prices` y
   `calculate_payment_amount`. EXECUTE solo para authenticated.
-- `20260914151234_a02_restrict_financial_table_writes.sql` elimina
+- `20260914152217_a02_restrict_financial_table_writes.sql` elimina
   `payments_insert_own`, `payments_update_related_users`, `payouts_insert_own`,
   revoca privilegios de tabla a PUBLIC/anon/authenticated y repone SELECT a
   authenticated. `service_role` conserva sus grants para operaciones admin;
   las RPC de draft y request_payout son SECURITY DEFINER de postgres.
-- Las dos migraciones **no se han aplicado**. Publicar en orden RPC -> app ->
-  revocacion para no romper el reintento existente. La segunda sin el nuevo
-  cliente bloquea reintentos; el nuevo cliente sin la primera falla en retry.
+- Primera migracion aplicada en Supabase Production con version remota
+  `20260914152150`, autorizada por Aldo. Owner `postgres`, SECURITY DEFINER,
+  search_path vacio, EXECUTE authenticated=true y anon=false; llamada sin
+  autenticacion retorno `not_authenticated`. La segunda migracion sigue sin
+  aplicarse. Publicar en orden RPC -> app -> revocacion para no romper retry.
 - Test de metadatos preparado: `supabase/tests/a02_financial_table_access.sql`.
   Falta ejecutar en DB tras despliegue y complementar con pruebas de roles y
   flujo legitimamente autenticado. No hubo movimientos de dinero.

@@ -1,6 +1,6 @@
 # INTRA - Current Session
 
-## Estado vigente - 2026-09-14 (A02 local)
+## Estado vigente - 2026-09-14 (A02 en despliegue)
 
 Objetivo: corregir A02 sin cortar los reintentos de Wompi durante el despliegue.
 
@@ -9,8 +9,8 @@ Objetivo: corregir A02 sin cortar los reintentos de Wompi durante el despliegue.
   y llama a `create_payment_retry`. La RPC valida actor, envio abierto propio,
   evidencia inicial, estado de pagos existentes y tarifa activa; calcula el
   importe/referencia en DB y serializa intentos concurrentes.
-- Dos migraciones separadas: `20260914151031_a02_create_payment_retry.sql`
-  crea la RPC; `20260914151234_a02_restrict_financial_table_writes.sql`
+- Dos migraciones separadas: `20260914152150_a02_create_payment_retry.sql`
+  crea la RPC; `20260914152217_a02_restrict_financial_table_writes.sql`
   elimina policies INSERT/UPDATE legacy y revoca DML cliente sobre `payments`
   y `payouts`, conservando SELECT autenticado y service_role.
 - Orden requerido para Production: aplicar primera migracion, publicar app con
@@ -24,10 +24,12 @@ Objetivo: corregir A02 sin cortar los reintentos de Wompi durante el despliegue.
   autenticado de reintento o concurrencia. Consulta remota de solo lectura
   confirmo que los tres precios activos y `calculate_payment_amount` coinciden
   con los importes mostrados (20k/25k/35k COP).
-- Estado: **solo rama local**; ninguna migracion A02 aplicada, sin push GitHub,
-  sin merge/deploy Vercel y sin movimiento financiero. A02 permanece abierto en
-  Production y los nuevos cobros siguen bloqueados.
-- Siguiente paso: revisar y autorizar la secuencia de despliegue completa;
+- Estado: Aldo autorizo la publicacion escalonada. Primera migracion A02
+  aplicada en Supabase Production como `20260914152150`; firma/owner/grants
+  verificados y llamada sin autenticacion devolvio `not_authenticated`.
+  La revocacion aun no esta aplicada; checkout nuevo aun no publicado. Sin
+  movimiento financiero. A02 permanece abierto y nuevos cobros bloqueados.
+- Siguiente paso: publicar codigo en GitHub/Vercel, verificar deployment;
   validar permisos cliente/viajero/tercero y ruta legitima en entorno aislado
   o con cuentas controladas antes de cerrar TASK-050.
 
