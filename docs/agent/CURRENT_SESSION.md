@@ -1,5 +1,78 @@
 # INTRA - Current Session
 
+## Estado vigente - 2026-09-14
+
+Objetivo: iniciar TASK-050 por A01, bloqueando la ejecucion directa de RPCs
+financieras y del helper de notificaciones expuestos por Supabase.
+
+- Rama: `codex/fix-a01-financial-rpc`, creada desde `main` conservando los
+  cambios documentales locales de la auditoria anterior.
+- Archivos preparados: nueva migracion
+  `supabase/migrations/20260914143425_a01_restrict_financial_rpc_execute.sql`
+  y consulta `supabase/tests/a01_financial_rpc_grants.sql`; actualizadas
+  `TASKS.md`, `DB_NOTES.md` y esta memoria.
+- Se confirmo en Supabase real `okajyhkdyapbsornjeeb` que las tres funciones
+  admiten anon y authenticated. Los callers internos relevantes son SECURITY
+  DEFINER de `postgres`; la app no llama directamente estas tres RPCs.
+- La migracion revoca EXECUTE a PUBLIC, anon, authenticated y service_role. No
+  se aplico DDL/DML remoto, no se hizo push ni deploy.
+- Validacion local: lint PASS, 60/60 unitarias PASS, TypeScript PASS, build PASS.
+  La consulta remota antes del cambio confirma la exposicion; no existe DB
+  local/aislada disponible para ejecutar la migracion y las pruebas dinamicas.
+- Riesgo vigente: A01 sigue abierto en produccion hasta aplicacion y pruebas;
+  A02/A06 y TASK-051 permanecen abiertos. No iniciar nuevos cobros.
+- Siguiente paso: revisar y probar esta migracion en DB aislada, autorizar su
+  aplicacion a produccion, verificar grants y flujos legitimos, y continuar
+  con el cierre de policies A02/A06.
+
+---
+
+## Estado vigente - 2026-09-04
+
+Objetivo: auditoria de lanzamiento de carpeta local, GitHub, Vercel y Supabase usado por produccion, solicitada por Aldo.
+
+**Resultado: NO LISTA para lanzamiento abierto ni nuevos cobros de piloto.** Las notas de junio conservadas abajo son historicas; sus PASS no sustituyen las verificaciones remotas de esta sesion.
+
+Informe completo: [Auditoria 2026-09-04](../audits/2026-09-04-launch-readiness.md).
+Consultas repetibles sin mutaciones: [SQL de lectura](../audits/2026-09-04-readonly-checks.sql).
+
+Estado verificado:
+
+- Carpeta inicialmente limpia en `main`; local y GitHub en `b220f7d038c849efae76f27b075a82a22bbc2214`.
+- `www.intra.com.co` usa ese mismo SHA en deployment Production READY `dpl_BCxpJYJn1gv9n8LYuMJAFLXWPJub`.
+- El bundle publico de Production apunta a Supabase `okajyhkdyapbsornjeeb`, proyecto auditado.
+- RPC `release_payment` y `refund_payment`: SECURITY DEFINER, EXECUTE anon/authenticated, guarda permite actor NULL. Helpers de notificacion tambien expuestos.
+- Policies remotas permiten escritura directa sobre pagos y creacion propia de payouts fuera de RPC; policy legacy de shipments usa `USING (true)`.
+- Devoluciones a wallet no atomicas; falta unicidad para `refund_available_credit`.
+- Webhook puede marcar processed un resultado RPC `success:false`.
+- 5 payments pending/created; 0 eventos Wompi, wallets, ledger y payouts. Pago real historico reportado no queda conciliado; no se concluye que el cobro no existio.
+- 40 migraciones locales frente a 4 registradas remotamente; existen objetos posteriores, por lo que debe compararse DDL real, no reaplicar todo a ciegas.
+- Vercel Hobby y Preview con acceso a Supabase/credencial administrativa de Production; main sin proteccion GitHub.
+
+Validacion:
+
+- Lint, TypeScript y build local PASS; 60 unit tests PASS.
+- Build local usa Next 16.1.6; lockfile y Production usan 16.2.4. Se encontraron 11 diferencias de paquetes instalados vs lock.
+- E2E publico local: 4 PASS. E2E publico Production: 4 PASS. Chromium faltaba, se instalo con el script del repo y se repitieron las pruebas.
+- Landing/login/registro en 1440, 1366, 390 y 320 px: sin overflow, imagen rota o excepcion JS observada.
+- npm audit produccion: FAIL, 5 paquetes high (next, nanoid, postcss, sharp, ws).
+- Cron SQL activo cada 5 minutos, 2016 ejecuciones succeeded en 7 dias; no demuestra liberacion real.
+- No se ejecuto smoke autenticado con cuentas, pagos reales, restauracion ni carga.
+
+Archivos tocados: informe/SQL en `docs/audits/`, `CURRENT_SESSION.md`, `TASKS.md`, `KNOWN_ISSUES.md`, `DB_NOTES.md` y aviso de estado en `PROJECT_STATE.md`.
+
+Alcance: solo documentacion y herramientas de validacion. Sin cambios de producto, DB, RLS, env, infraestructura, push, merge o deploy. No se revelaron valores secretos. No se reinstalaron dependencias del producto; solo se instalo el navegador de pruebas en cache.
+
+Rama de cierre: `codex/audit-launch-2026-09-04`, cambios documentales locales sin commit ni push.
+
+Siguiente paso: TASK-050, hardening de permisos reales con migracion y pruebas negativas en entorno aislado; despues TASK-051 y gates de infraestructura/operacion. No repetir un cobro real antes de cerrar bloqueos. No se adoptaron decisiones nuevas de producto.
+
+El siguiente agente debe leer AGENTS/START_HERE, este estado vigente, el informe completo, KNOWN_ISSUES, DB_NOTES y DECISIONS antes de modificar permisos o dinero.
+
+---
+
+## Contexto historico conservado - junio de 2026
+
 ## Fecha
 
 2026-06-20

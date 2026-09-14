@@ -1,5 +1,47 @@
 # INTRA - Database Notes
 
+## 2026-09-14 - Migracion A01 preparada, sin aplicar
+
+- Rama: `codex/fix-a01-financial-rpc`.
+- Migracion: `supabase/migrations/20260914143425_a01_restrict_financial_rpc_execute.sql`.
+- Objetivo: quitar EXECUTE directo a `PUBLIC`, `anon`, `authenticated` y
+  `service_role` en `release_payment(uuid,text)`, `refund_payment(uuid,text)` y
+  `create_operational_notification(uuid,text,text,text,uuid,text,boolean)`.
+- La inspeccion remota confirmo que esas funciones y sus callers internos son
+  propiedad de `postgres` y SECURITY DEFINER. `confirm_shipment_delivery` y
+  `auto_release_due_payments` siguen siendo las rutas autorizadas para la
+  liberacion. `refund_payment` no tiene caller actual en la app ni en el
+  `cancel_match` remoto. El helper de notificaciones se invoca desde triggers.
+- Prueba de grants de solo lectura: `supabase/tests/a01_financial_rpc_grants.sql`.
+  Antes de la migracion, los tres campos `blocked_*` dieron `false`; los dos
+  entry points legitimos consultados dieron `true`.
+- La migracion NO se aplico a produccion. No hubo DDL/DML remoto. Falta probar
+  en DB aislada, aplicar con autorizacion, repetir la consulta de grants y
+  probar como anon/cliente/viajero/tercero/admin los flujos permitidos.
+- A02/A06 y TASK-051 permanecen abiertos; no iniciar cobros nuevos.
+
+## Auditoria remota 2026-09-04 - solo lectura
+
+Proyecto inspeccionado: `okajyhkdyapbsornjeeb`, confirmado como destino del bundle publico de www.intra.com.co. **No se aplico DDL, DML, migracion ni cambio de configuracion.** Esta nota actualiza evidencia, no registra una correccion.
+
+- release_payment/refund_payment: SECURITY DEFINER, owner postgres, EXECUTE para PUBLIC/anon/authenticated; condicion `v_actor is not null` deja pasar actor NULL.
+- create_operational_notification tambien admite anon y carece de auth guard.
+- payments conserva policies payments_insert_own y payments_update_related_users; authenticated tiene INSERT/UPDATE tabla completa. Unico trigger no interno observado: notificacion AFTER UPDATE.
+- payouts conserva payouts_insert_own. Estas policies debian borrarse en 202605212300; comparar definiciones reales.
+- shipments tiene policy legacy llamada `Authenticated users can view open shipments` con USING(true), que neutraliza restricciones de visibilidad mas estrechas.
+- Falta unique index para wallet_ledger/refund_available_credit; si hay unicidad para hold/release/debitos refund/payout_paid.
+- Historia remota: 20260424, 20260426, 202604260105, 202605252230. Hay 40 archivos locales y objetos posteriores presentes; no inferir 36 migraciones totalmente ausentes.
+- Agregados: payments 5 (pending/created), wompi_webhook_events 0, wallets 0, wallet_ledger 0, payouts 0. No certifica pago historico ni significa que no haya ocurrido fuera del estado actual.
+- RLS habilitada en todas las tablas ordinarias public inspeccionadas. profiles self-only y user_verifications SELECT propio.
+- Buckets identity-verification/shipment-evidence privados; allowed_mime_types y file_size_limit por bucket en NULL.
+- Cron SQL auto-release-payments activo cada 5 minutos; 2016 succeeded en 7 dias. No demuestra movimiento financiero real.
+- process_wompi_payment_event restringido respecto a anon/authenticated; devuelve JSON success:false en payment_not_found. Handler debe manejar esa respuesta antes de marcar processed.
+
+Detalle, prioridades y criterios de cierre: [auditoria](../audits/2026-09-04-launch-readiness.md).
+Consultas repetibles: [SQL solo lectura](../audits/2026-09-04-readonly-checks.sql).
+
+Antes de nuevas operaciones: TASK-050 y TASK-051. Verificar grants heredados de PUBLIC y policies permisivas combinadas; evitar aplicar nuevamente todas las migraciones sin diff, respaldo y pruebas.
+
 ## Reglas
 
 - Toda modificacion de DB debe ir por migracion.

@@ -1,5 +1,56 @@
 # INTRA - Known Issues
 
+## Hallazgos vigentes - auditoria 2026-09-04
+
+**No autorizar nuevos cobros basandose en PASS historicos.** Ver [informe completo](../audits/2026-09-04-launch-readiness.md). Los siguientes hallazgos estan abiertos; no se aplicaron fixes durante la auditoria.
+
+### ISSUE-006: Permisos financieros peligrosos en Supabase Production
+
+Estado: Abierto / P0
+
+- release_payment/refund_payment SECURITY DEFINER ejecutables por anon/authenticated y guards que no rechazan actor NULL.
+- payments conserva INSERT/UPDATE por usuarios relacionados; payouts conserva INSERT propio fuera de request_payout.
+- create_operational_notification admite invocacion anonima sin auth guard.
+- Evidencia: metadatos/definiciones remotos del Supabase usado por www.intra.com.co, contrastados sin ejecutar mutaciones.
+- Seguimiento: TASK-050, hallazgos A01/A02 del informe.
+
+### ISSUE-007: Devoluciones no atomicas y credito sin unicidad
+
+Estado: Abierto / P1 antes de nuevos cobros
+
+- Dashboard y refund admin insertan credito/sincronizan wallet antes de actualizar el estado en solicitudes separadas.
+- No existe indice unico remoto para refund_available_credit. Riesgo de doble credito o estado parcial; no se reprodujo con dinero real.
+- Seguimiento: TASK-051, A03.
+
+### ISSUE-008: Webhook reconoce errores funcionales como procesados
+
+Estado: Abierto / P1
+
+- process_wompi_payment_event puede devolver success:false/payment_not_found; handler solo comprueba rpcError y marca processed:true.
+- Reintentos posteriores pueden descartarse como duplicados sin conciliar el pago.
+- Seguimiento: TASK-051, A04. No se atribuye a este defecto la ausencia de transacciones historicas sin evidencia.
+
+### ISSUE-009: Privacidad e historial remoto desalineados
+
+Estado: Abierto / P1
+
+- Policy legacy de shipments usa USING(true) para authenticated, excediendo envios abiertos.
+- 40 archivos de migracion locales, 4 entradas remotas; objetos mas nuevos si existen. Algunas policies que debian borrarse siguen activas.
+- Seguimiento: TASK-050, A06; ampliar ISSUE-001 con diff real, no replay ciego.
+
+### ISSUE-010: Dependencias, aislamiento y gates de lanzamiento pendientes
+
+Estado: Abierto / P1
+
+- npm audit prod: 5 paquetes high; Next 16.2.4 en lock/Production y 16.1.6 instalado localmente.
+- Vercel Hobby para producto comercial; Preview comparte acceso a Supabase/credencial administrativa Production.
+- main sin proteccion/checks exigidos; smoke autenticado remoto historico, no reciente.
+- Conciliacion TASK-047 pendiente: 5 payments pending/created y 0 eventos Wompi/wallets/ledger/payouts en base consultada.
+- Recuperacion, alertas y legal final sin evidencia de cierre; mejoras adicionales A12-A15 en informe.
+- Seguimiento: TASK-047, TASK-048, TASK-052 y TASK-053.
+
+---
+
 ## ISSUE-001: Supabase migrations pueden desalinearse del schema consolidado
 
 Estado: Abierto

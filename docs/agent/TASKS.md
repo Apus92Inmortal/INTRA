@@ -12,9 +12,37 @@
 
 ## P0 - Pendiente critico
 
+### TASK-050: Cerrar exposicion financiera y drift RLS/RPC de produccion
+
+Estado: IN_PROGRESS / BLOQUEA nuevos cobros
+Prioridad: Critica
+Area: Supabase / Seguridad / Pagos
+
+- Hallazgos A01, A02 y A06 de [auditoria 2026-09-04](../audits/2026-09-04-launch-readiness.md).
+- Corregir permisos efectivos de release/refund/helpers, guards NULL y policies legacy de payments/payouts/matches/shipments mediante migracion nueva.
+- Comparar DDL real e historial (40 archivos locales, 4 registros remotos); no reaplicar a ciegas.
+- Cierre exige pruebas de permisos anon/cliente/viajero/tercero/admin y flujos legitimos, mas verificacion remota posterior.
+- No se aplico ninguna correccion en la auditoria.
+- 2026-09-14: preparada en `codex/fix-a01-financial-rpc` una primera migracion A01
+  para revocar EXECUTE directo de `release_payment`, `refund_payment` y
+  `create_operational_notification`; verificacion SQL de grants incluida.
+  Sigue sin aplicarse a Supabase ni cerrarse A01/A02/A06. Faltan prueba en DB
+  aislada, revision de flujos legitimos y despliegue autorizado.
+
+### TASK-051: Hacer devoluciones atomicas y webhook conciliable
+
+Estado: TODO / antes de nuevos cobros
+Prioridad: Critica
+Area: Wallet / Ledger / Wompi
+
+- Hallazgos A03 y A04 del informe.
+- Refund al cliente: transaccion, bloqueo e idempotencia para `refund_available_credit`; cubrir Dashboard y resolucion admin.
+- Webhook: no marcar processed un resultado funcional fallido; definir reintentos, cotejo de importe/moneda y eventos fuera de orden.
+- Cierre exige pruebas concurrentes y de fallo intermedio en DB aislada, sin operar dinero real.
+
 ### TASK-047: Primer pago real Wompi + Wallet
 
-Estado: IN_PROGRESS / Wompi real payment PASS, wallet-ledger reconciliation pending
+Estado: BLOCKED / pago real PASS reportado historicamente; conciliacion pendiente y bloqueos de seguridad 2026-09-04
 Prioridad: Critica
 Area: Produccion controlada / Pagos / Wallet / Operacion
 
@@ -25,6 +53,7 @@ Resumen:
 - El gate completo no queda cerrado hasta validar Wompi production, webhook production, ledger, saldo retenido, liberacion y retiro/payout manual.
 
 Precondiciones:
+- Cerrar TASK-050 y TASK-051 y gates de infraestructura antes de iniciar nuevos cobros. Auditoria remota 2026-09-04: 5 payments pending/created, 0 eventos Wompi/wallets/ledger/payouts en el proyecto usado por Production; ubicar y conciliar referencia historica sin negar el cobro reportado.
 - Production env critico se considera corregido segun memoria reciente; revalidar antes de continuar operacion con dinero real.
 - Confirmar que Wompi production sigue configurado.
 - Confirmar que el webhook Wompi production sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
@@ -49,6 +78,38 @@ Pendiente:
 ---
 
 ## Cierre reciente
+
+### TASK-049: Auditoria local, GitHub, Vercel y Supabase para lanzamiento
+
+Estado: DONE / auditoria realizada; producto NO LISTO
+Prioridad: Critica
+Area: Release / Seguridad / Operacion
+
+- Informe: `docs/audits/2026-09-04-launch-readiness.md`.
+- SQL repetible de lectura: `docs/audits/2026-09-04-readonly-checks.sql`.
+- Local/GitHub/Production coinciden en b220f7d. Lint/typecheck/build PASS; 60 unit tests; 4 E2E publicos local y 4 Production PASS.
+- Build local usa Next 16.1.6, lock/Production 16.2.4; 11 diferencias de dependencias instaladas.
+- npm audit prod FAIL: 5 paquetes high. Hallazgos criticos remotos documentados; no ejecutados ni corregidos.
+- Sin cambios de producto/DB/env, pagos, push, merge ni deploy. Rama local `codex/audit-launch-2026-09-04`.
+
+### TASK-052: Preparar dependencias, Vercel comercial y ambientes aislados
+
+Estado: TODO
+Prioridad: Alta / antes de operacion comercial
+
+- A07-A09/A12 del informe: actualizar dependencias vulnerables, instalar desde lockfile y repetir checks.
+- Plan Vercel apto para uso comercial; separar Supabase/secretos/Wompi de Preview y Development.
+- Verificar valores efectivos Production, allowlist admin, webhook Wompi y cron sin exponer secretos.
+
+### TASK-053: Gates de release, recuperacion y QA operativo
+
+Estado: TODO
+Prioridad: Alta
+
+- A10-A15 del informe: proteger main/checks, E2E en CI, smoke autenticado reciente, rollback y restauracion DB/Storage probados, alertas y correo/soporte.
+- Cerrar TASK-047 tras seguridad; primer envio controlado con bitacora y evidencia financiera completa.
+- Para apertura, mantener TASK-048 legal final y validar capacidad, privacidad, accesibilidad y soporte.
+- Mejoras P2 concretas en informe: foco en modales, SPF/DMARC, Storage, headers, SEO y estados documentales antiguos.
 
 ### TASK-046: Runbook Operativo INTRA
 
