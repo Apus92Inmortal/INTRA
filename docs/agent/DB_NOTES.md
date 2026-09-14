@@ -1,9 +1,11 @@
 # INTRA - Database Notes
 
-## 2026-09-14 - Migracion A01 preparada, sin aplicar
+## 2026-09-14 - Migracion A01 aplicada a Production
 
 - Rama: `codex/fix-a01-financial-rpc`.
-- Migracion: `supabase/migrations/20260914143425_a01_restrict_financial_rpc_execute.sql`.
+- Migracion: `supabase/migrations/20260914145957_a01_restrict_financial_rpc_execute.sql`.
+  Supabase registro version `20260914145957`, nombre
+  `a01_restrict_financial_rpc_execute`; archivo local alineado a esa version.
 - Objetivo: quitar EXECUTE directo a `PUBLIC`, `anon`, `authenticated` y
   `service_role` en `release_payment(uuid,text)`, `refund_payment(uuid,text)` y
   `create_operational_notification(uuid,text,text,text,uuid,text,boolean)`.
@@ -15,9 +17,28 @@
 - Prueba de grants de solo lectura: `supabase/tests/a01_financial_rpc_grants.sql`.
   Antes de la migracion, los tres campos `blocked_*` dieron `false`; los dos
   entry points legitimos consultados dieron `true`.
-- La migracion NO se aplico a produccion. No hubo DDL/DML remoto. Falta probar
-  en DB aislada, aplicar con autorizacion, repetir la consulta de grants y
-  probar como anon/cliente/viajero/tercero/admin los flujos permitidos.
+- Aldo autorizo la prueba reversible y el cambio Production. La subtransaccion
+  de prueba confirmo los REVOKE y el mantenimiento de entry points; se revirtio
+  y se observo el ACL original antes de aplicar la migracion registrada.
+- Post-aplicacion: `blocked_release`, `blocked_refund` y
+  `blocked_notification_helper` = true;
+  `customer_delivery_still_callable` y `cron_still_callable` = true.
+  ACL explicito de las tres RPCs: solo `postgres`.
+- Llamadas HTTP anon a las tres RPCs con UUID inexistente: HTTP 401,
+  PostgreSQL 42501, permission denied. Cron `auto-release-payments` de
+  2026-09-14 15:00 UTC: `succeeded`. No se movio dinero ni se crearon datos;
+  agregados: 5 payments pending, 0 wallets/ledger/payouts.
+- No hay DB aislada disponible ni smoke cliente/viajero/admin con datos reales.
+  Los guards NULL siguen en el cuerpo, pero ya no son alcanzables como RPC
+  por `anon`/`authenticated`/`service_role`. Mantener A01 como mitigado,
+  no como certificacion de todos los flujos financieros.
+- Security Advisor posterior: 22 avisos de otras funciones SECURITY DEFINER
+  ejecutables por anon, que requieren clasificacion individual; el ejemplo
+  `mark_shipment_delivered` fue revisado y rechaza `auth.uid() IS NULL`.
+  Tambien hay dos avisos de search_path mutable. No tratarlos como 22
+  vulnerabilidades verificadas.
+- Historial actual remoto: cinco registros; local: 41 archivos. El resto del
+  drift historico sigue abierto. No ejecutar `supabase db push` a ciegas.
 - A02/A06 y TASK-051 permanecen abiertos; no iniciar cobros nuevos.
 
 ## Auditoria remota 2026-09-04 - solo lectura

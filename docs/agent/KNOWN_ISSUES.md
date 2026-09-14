@@ -6,12 +6,16 @@
 
 ### ISSUE-006: Permisos financieros peligrosos en Supabase Production
 
-Estado: Abierto / P0
+Estado: Parcialmente mitigado / P0 por A02 y verificaciones pendientes
 
-- release_payment/refund_payment SECURITY DEFINER ejecutables por anon/authenticated y guards que no rechazan actor NULL.
+- El 2026-09-14 se revoco EXECUTE directo de release_payment/refund_payment
+  para PUBLIC, anon, authenticated y service_role; HTTP anon 401/42501.
+  Sus guards NULL internos siguen sin reescribirse y falta smoke con cuentas.
 - payments conserva INSERT/UPDATE por usuarios relacionados; payouts conserva INSERT propio fuera de request_payout.
-- create_operational_notification admite invocacion anonima sin auth guard.
-- Evidencia: metadatos/definiciones remotos del Supabase usado por www.intra.com.co, contrastados sin ejecutar mutaciones.
+- create_operational_notification tambien perdio EXECUTE directo para esos
+  roles; llamadas anonimas denegadas. No hay prueba de evento real por trigger.
+- Evidencia: metadatos/definiciones remotos y migracion `20260914145957`
+  aplicada; no se ejecutaron movimientos financieros.
 - Seguimiento: TASK-050, hallazgos A01/A02 del informe.
 
 ### ISSUE-007: Devoluciones no atomicas y credito sin unicidad
@@ -35,7 +39,14 @@ Estado: Abierto / P1
 Estado: Abierto / P1
 
 - Policy legacy de shipments usa USING(true) para authenticated, excediendo envios abiertos.
-- 40 archivos de migracion locales, 4 entradas remotas; objetos mas nuevos si existen. Algunas policies que debian borrarse siguen activas.
+- 41 archivos de migracion locales, 5 entradas remotas tras A01; objetos mas
+  nuevos si existen. Algunas policies que debian borrarse siguen activas.
+- Security Advisor posterior a A01 lista 22 funciones SECURITY DEFINER aun
+  ejecutables por anon; algunas tienen guardas y la calculadora publica es
+  intencional. Revisar cada firma/definicion y retirar permisos innecesarios.
+  [Guia del aviso](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable).
+- Dos funciones (`generate_payout_code`, `notify_match_requested`) conservan
+  search_path mutable; [guia del aviso](https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable).
 - Seguimiento: TASK-050, A06; ampliar ISSUE-001 con diff real, no replay ciego.
 
 ### ISSUE-010: Dependencias, aislamiento y gates de lanzamiento pendientes

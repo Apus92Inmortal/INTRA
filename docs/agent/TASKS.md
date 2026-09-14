@@ -23,11 +23,16 @@ Area: Supabase / Seguridad / Pagos
 - Comparar DDL real e historial (40 archivos locales, 4 registros remotos); no reaplicar a ciegas.
 - Cierre exige pruebas de permisos anon/cliente/viajero/tercero/admin y flujos legitimos, mas verificacion remota posterior.
 - No se aplico ninguna correccion en la auditoria.
-- 2026-09-14: preparada en `codex/fix-a01-financial-rpc` una primera migracion A01
-  para revocar EXECUTE directo de `release_payment`, `refund_payment` y
-  `create_operational_notification`; verificacion SQL de grants incluida.
-  Sigue sin aplicarse a Supabase ni cerrarse A01/A02/A06. Faltan prueba en DB
-  aislada, revision de flujos legitimos y despliegue autorizado.
+- 2026-09-14: migracion A01 aplicada a Supabase Production con autorizacion
+  de Aldo (version `20260914145957`). Revocados EXECUTE directos de
+  `release_payment`, `refund_payment` y `create_operational_notification`;
+  grants esperados, HTTP anon 401/42501 y cron posterior PASS. El archivo
+  local se alineo a la version remota. A01 queda mitigado; faltan smoke con
+  cuentas reales/DB aislada y revisar guards NULL. A02/A06 y TASK-051 siguen
+  abiertos y bloquean nuevos cobros.
+- Security Advisor posterior mantiene 22 avisos de otras funciones anon
+  SECURITY DEFINER (no todos son vulnerabilidades verificadas); clasificar
+  permisos y cuerpos como parte del cierre RPC de TASK-050.
 
 ### TASK-051: Hacer devoluciones atomicas y webhook conciliable
 

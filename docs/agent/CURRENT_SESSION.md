@@ -2,28 +2,38 @@
 
 ## Estado vigente - 2026-09-14
 
-Objetivo: iniciar TASK-050 por A01, bloqueando la ejecucion directa de RPCs
-financieras y del helper de notificaciones expuestos por Supabase.
+Objetivo: iniciar TASK-050 por A01 y aplicar la migracion autorizada a
+Supabase Production para bloquear ejecucion directa de RPCs internas.
 
 - Rama: `codex/fix-a01-financial-rpc`, creada desde `main` conservando los
   cambios documentales locales de la auditoria anterior.
-- Archivos preparados: nueva migracion
-  `supabase/migrations/20260914143425_a01_restrict_financial_rpc_execute.sql`
-  y consulta `supabase/tests/a01_financial_rpc_grants.sql`; actualizadas
-  `TASKS.md`, `DB_NOTES.md` y esta memoria.
+- Archivos: migracion
+  `supabase/migrations/20260914145957_a01_restrict_financial_rpc_execute.sql`
+  (renombrada para coincidir con version remota), consulta
+  `supabase/tests/a01_financial_rpc_grants.sql` y memoria agent actualizada.
 - Se confirmo en Supabase real `okajyhkdyapbsornjeeb` que las tres funciones
   admiten anon y authenticated. Los callers internos relevantes son SECURITY
   DEFINER de `postgres`; la app no llama directamente estas tres RPCs.
-- La migracion revoca EXECUTE a PUBLIC, anon, authenticated y service_role. No
-  se aplico DDL/DML remoto, no se hizo push ni deploy.
-- Validacion local: lint PASS, 60/60 unitarias PASS, TypeScript PASS, build PASS.
-  La consulta remota antes del cambio confirma la exposicion; no existe DB
-  local/aislada disponible para ejecutar la migracion y las pruebas dinamicas.
-- Riesgo vigente: A01 sigue abierto en produccion hasta aplicacion y pruebas;
-  A02/A06 y TASK-051 permanecen abiertos. No iniciar nuevos cobros.
-- Siguiente paso: revisar y probar esta migracion en DB aislada, autorizar su
-  aplicacion a produccion, verificar grants y flujos legitimos, y continuar
-  con el cierre de policies A02/A06.
+- Aldo autorizo prueba reversible y aplicacion a Production. La subtransaccion
+  de prueba paso permisos internos/entry points y revirtio los REVOKE. La
+  migracion quedo aplicada con version remota `20260914145957`.
+- Verificacion posterior: los tres `blocked_*` dieron true; delivery cliente
+  y cron siguieron con EXECUTE. HTTP anon real devolvio 401/42501 permission
+  denied para las tres RPCs. Cron de 15:00 UTC termino `succeeded`. Agregados
+  financieros permanecieron en 5 payments pending, 0 wallets/ledger/payouts.
+- Validacion local previa: lint PASS, 60/60 unitarias PASS, TypeScript PASS,
+  build PASS. No hubo push GitHub ni deploy Vercel. No se hicieron movimientos
+  financieros ni pruebas con cuentas autenticadas/entrega real.
+- Riesgo vigente: la exposicion directa A01 quedo contenida, pero los guards
+  NULL de funciones internas no se reescribieron; A02/A06, TASK-051 y los
+  flujos legitimos con datos reales siguen pendientes. No iniciar cobros.
+- Security Advisor aun enumera 22 funciones SECURITY DEFINER ejecutables por
+  anon (incluye calculadora publica y funciones con guardas); clasificarlas
+  individualmente en la continuacion de TASK-050. Dos funciones conservan
+  search_path mutable. No se infiere explotabilidad solo del aviso.
+- Siguiente paso: cerrar policies financieras/privacy A02/A06 y verificar
+  casos autenticados en ambiente aislado antes de nuevos cobros. No ejecutar
+  `supabase db push` sobre el historial remoto desalineado sin reconciliacion.
 
 ---
 
