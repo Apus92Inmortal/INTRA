@@ -1,5 +1,22 @@
 # INTRA - Technical Decisions
 
+## DEC-007: Los reintentos de pago se crean en la base
+
+Fecha: 2026-09-14
+
+Decision:
+
+El checkout no inserta intentos de pago ni determina su importe o referencia
+desde el navegador. Una RPC autenticada valida propiedad, estado y evidencia
+del envio; deriva la tarifa activa en la base y serializa reintentos. Las
+tablas `payments` y `payouts` quedan de solo lectura para clientes; las rutas
+operativas explicitas y el backend privilegiado conservan sus funciones.
+
+Impacto:
+
+Publicar RPC, codigo de checkout y cierre de permisos en ese orden. Aldo
+autorizo el despliegue escalonado; la primera migracion ya esta aplicada.
+
 ## DEC-001: Roles contextuales
 
 Fecha: 2026-05-21

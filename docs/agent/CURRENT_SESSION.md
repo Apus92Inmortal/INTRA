@@ -1,5 +1,123 @@
 # INTRA - Current Session
 
+## Estado vigente - 2026-09-14 (A02 en despliegue)
+
+Objetivo: corregir A02 sin cortar los reintentos de Wompi durante el despliegue.
+
+- Rama: `codex/fix-a02-financial-writes`, basada en el cierre local A01.
+- `CheckoutClient.tsx` deja de insertar directamente en `payments` al reintentar
+  y llama a `create_payment_retry`. La RPC valida actor, envio abierto propio,
+  evidencia inicial, estado de pagos existentes y tarifa activa; calcula el
+  importe/referencia en DB y serializa intentos concurrentes.
+- Dos migraciones separadas: `20260914152150_a02_create_payment_retry.sql`
+  crea la RPC; `20260914152217_a02_restrict_financial_table_writes.sql`
+  elimina policies INSERT/UPDATE legacy y revoca DML cliente sobre `payments`
+  y `payouts`, conservando SELECT autenticado y service_role.
+- Orden requerido para Production: aplicar primera migracion, publicar app con
+  checkout nuevo, validar reintento controlado sin cobrar, aplicar segunda
+  migracion y ejecutar `supabase/tests/a02_financial_table_access.sql` y pruebas
+  negativas/positivas por rol. Aplicar la segunda antes del codigo romperia el
+  checkout anterior. No usar `supabase db push` por historial desalineado.
+- Validacion local: lint PASS, 60 unitarias PASS, TypeScript PASS, build PASS,
+  E2E publico 4/4 PASS (no cubre checkout autenticado).
+  No existe DB aislada ni cuentas de prueba activas para ejecutar el flujo
+  autenticado de reintento o concurrencia. Consulta remota de solo lectura
+  confirmo que los tres precios activos y `calculate_payment_amount` coinciden
+  con los importes mostrados (20k/25k/35k COP).
+- Estado: Aldo autorizo la publicacion escalonada. Primera migracion A02
+  aplicada en Supabase Production como `20260914152150`; firma/owner/grants
+  verificados y llamada sin autenticacion devolvio `not_authenticated`.
+  La revocacion aun no esta aplicada; checkout nuevo aun no publicado. Sin
+  movimiento financiero. A02 permanece abierto y nuevos cobros bloqueados.
+- Siguiente paso: publicar codigo en GitHub/Vercel, verificar deployment;
+  validar permisos cliente/viajero/tercero y ruta legitima en entorno aislado
+  o con cuentas controladas antes de cerrar TASK-050.
+
+---
+
+## Estado vigente - 2026-09-14
+
+Objetivo: iniciar TASK-050 por A01 y aplicar la migracion autorizada a
+Supabase Production para bloquear ejecucion directa de RPCs internas.
+
+- Rama: `codex/fix-a01-financial-rpc`, creada desde `main` conservando los
+  cambios documentales locales de la auditoria anterior.
+- Archivos: migracion
+  `supabase/migrations/20260914145957_a01_restrict_financial_rpc_execute.sql`
+  (renombrada para coincidir con version remota), consulta
+  `supabase/tests/a01_financial_rpc_grants.sql` y memoria agent actualizada.
+- Se confirmo en Supabase real `okajyhkdyapbsornjeeb` que las tres funciones
+  admiten anon y authenticated. Los callers internos relevantes son SECURITY
+  DEFINER de `postgres`; la app no llama directamente estas tres RPCs.
+- Aldo autorizo prueba reversible y aplicacion a Production. La subtransaccion
+  de prueba paso permisos internos/entry points y revirtio los REVOKE. La
+  migracion quedo aplicada con version remota `20260914145957`.
+- Verificacion posterior: los tres `blocked_*` dieron true; delivery cliente
+  y cron siguieron con EXECUTE. HTTP anon real devolvio 401/42501 permission
+  denied para las tres RPCs. Cron de 15:00 UTC termino `succeeded`. Agregados
+  financieros permanecieron en 5 payments pending, 0 wallets/ledger/payouts.
+- Validacion local previa: lint PASS, 60/60 unitarias PASS, TypeScript PASS,
+  build PASS. No hubo push GitHub ni deploy Vercel. No se hicieron movimientos
+  financieros ni pruebas con cuentas autenticadas/entrega real.
+- Riesgo vigente: la exposicion directa A01 quedo contenida, pero los guards
+  NULL de funciones internas no se reescribieron; A02/A06, TASK-051 y los
+  flujos legitimos con datos reales siguen pendientes. No iniciar cobros.
+- Security Advisor aun enumera 22 funciones SECURITY DEFINER ejecutables por
+  anon (incluye calculadora publica y funciones con guardas); clasificarlas
+  individualmente en la continuacion de TASK-050. Dos funciones conservan
+  search_path mutable. No se infiere explotabilidad solo del aviso.
+- Siguiente paso: cerrar policies financieras/privacy A02/A06 y verificar
+  casos autenticados en ambiente aislado antes de nuevos cobros. No ejecutar
+  `supabase db push` sobre el historial remoto desalineado sin reconciliacion.
+
+---
+
+## Estado vigente - 2026-09-04
+
+Objetivo: auditoria de lanzamiento de carpeta local, GitHub, Vercel y Supabase usado por produccion, solicitada por Aldo.
+
+**Resultado: NO LISTA para lanzamiento abierto ni nuevos cobros de piloto.** Las notas de junio conservadas abajo son historicas; sus PASS no sustituyen las verificaciones remotas de esta sesion.
+
+Informe completo: [Auditoria 2026-09-04](../audits/2026-09-04-launch-readiness.md).
+Consultas repetibles sin mutaciones: [SQL de lectura](../audits/2026-09-04-readonly-checks.sql).
+
+Estado verificado:
+
+- Carpeta inicialmente limpia en `main`; local y GitHub en `b220f7d038c849efae76f27b075a82a22bbc2214`.
+- `www.intra.com.co` usa ese mismo SHA en deployment Production READY `dpl_BCxpJYJn1gv9n8LYuMJAFLXWPJub`.
+- El bundle publico de Production apunta a Supabase `okajyhkdyapbsornjeeb`, proyecto auditado.
+- RPC `release_payment` y `refund_payment`: SECURITY DEFINER, EXECUTE anon/authenticated, guarda permite actor NULL. Helpers de notificacion tambien expuestos.
+- Policies remotas permiten escritura directa sobre pagos y creacion propia de payouts fuera de RPC; policy legacy de shipments usa `USING (true)`.
+- Devoluciones a wallet no atomicas; falta unicidad para `refund_available_credit`.
+- Webhook puede marcar processed un resultado RPC `success:false`.
+- 5 payments pending/created; 0 eventos Wompi, wallets, ledger y payouts. Pago real historico reportado no queda conciliado; no se concluye que el cobro no existio.
+- 40 migraciones locales frente a 4 registradas remotamente; existen objetos posteriores, por lo que debe compararse DDL real, no reaplicar todo a ciegas.
+- Vercel Hobby y Preview con acceso a Supabase/credencial administrativa de Production; main sin proteccion GitHub.
+
+Validacion:
+
+- Lint, TypeScript y build local PASS; 60 unit tests PASS.
+- Build local usa Next 16.1.6; lockfile y Production usan 16.2.4. Se encontraron 11 diferencias de paquetes instalados vs lock.
+- E2E publico local: 4 PASS. E2E publico Production: 4 PASS. Chromium faltaba, se instalo con el script del repo y se repitieron las pruebas.
+- Landing/login/registro en 1440, 1366, 390 y 320 px: sin overflow, imagen rota o excepcion JS observada.
+- npm audit produccion: FAIL, 5 paquetes high (next, nanoid, postcss, sharp, ws).
+- Cron SQL activo cada 5 minutos, 2016 ejecuciones succeeded en 7 dias; no demuestra liberacion real.
+- No se ejecuto smoke autenticado con cuentas, pagos reales, restauracion ni carga.
+
+Archivos tocados: informe/SQL en `docs/audits/`, `CURRENT_SESSION.md`, `TASKS.md`, `KNOWN_ISSUES.md`, `DB_NOTES.md` y aviso de estado en `PROJECT_STATE.md`.
+
+Alcance: solo documentacion y herramientas de validacion. Sin cambios de producto, DB, RLS, env, infraestructura, push, merge o deploy. No se revelaron valores secretos. No se reinstalaron dependencias del producto; solo se instalo el navegador de pruebas en cache.
+
+Rama de cierre: `codex/audit-launch-2026-09-04`, cambios documentales locales sin commit ni push.
+
+Siguiente paso: TASK-050, hardening de permisos reales con migracion y pruebas negativas en entorno aislado; despues TASK-051 y gates de infraestructura/operacion. No repetir un cobro real antes de cerrar bloqueos. No se adoptaron decisiones nuevas de producto.
+
+El siguiente agente debe leer AGENTS/START_HERE, este estado vigente, el informe completo, KNOWN_ISSUES, DB_NOTES y DECISIONS antes de modificar permisos o dinero.
+
+---
+
+## Contexto historico conservado - junio de 2026
+
 ## Fecha
 
 2026-06-20

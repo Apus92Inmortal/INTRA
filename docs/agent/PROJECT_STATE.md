@@ -1,5 +1,21 @@
 # INTRA - Project State
 
+## Actualizacion 2026-09-14
+
+La migracion A01 `20260914145957` ya esta aplicada en Supabase Production:
+las RPC internas de release/refund y notificaciones no admiten ejecucion
+directa anonima o autenticada. Grants, HTTP anon y cron posterior se verificaron.
+Esto mitiga esa exposicion puntual; A02/A06, TASK-051 y las pruebas de flujos
+financieros reales permanecen abiertos. **No iniciar nuevos cobros.**
+
+## Advertencia de estado vigente - 2026-09-04
+
+La [auditoria de lanzamiento](../audits/2026-09-04-launch-readiness.md) verifico local/GitHub/Production en b220f7d y pruebas publicas satisfactorias, pero encontro bloqueos reales de permisos financieros/RLS en el Supabase de produccion, riesgo de devoluciones duplicadas y conciliacion Wompi pendiente.
+
+**Estado actual: NO LISTA para lanzamiento abierto ni nuevos cobros de piloto.** TASK-050/051 tienen prioridad sobre el siguiente pago o envio controlado. Tambien deben cerrarse dependencias vulnerables, infraestructura comercial/aislamiento y gates operativos (TASK-052/053).
+
+Las confirmaciones de junio que se conservan abajo son historicas. No considerar produccion segura solo porque la memoria anterior marque hardening o smoke como realizados. Consultar CURRENT_SESSION, KNOWN_ISSUES y DB_NOTES actualizados.
+
 ## Resumen
 
 INTRA es una plataforma peer-to-peer de envios aprovechando viajeros. Un usuario puede crear envios como cliente y tambien publicar viajes como viajero.

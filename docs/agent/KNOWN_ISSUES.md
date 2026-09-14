@@ -1,5 +1,71 @@
 # INTRA - Known Issues
 
+## Hallazgos vigentes - auditoria 2026-09-04
+
+**No autorizar nuevos cobros basandose en PASS historicos.** Ver [informe completo](../audits/2026-09-04-launch-readiness.md). Los siguientes hallazgos estan abiertos; no se aplicaron fixes durante la auditoria.
+
+### ISSUE-006: Permisos financieros peligrosos en Supabase Production
+
+Estado: Parcialmente mitigado / P0 por A02 y verificaciones pendientes
+
+- El 2026-09-14 se revoco EXECUTE directo de release_payment/refund_payment
+  para PUBLIC, anon, authenticated y service_role; HTTP anon 401/42501.
+  Sus guards NULL internos siguen sin reescribirse y falta smoke con cuentas.
+- payments conserva INSERT/UPDATE por usuarios relacionados; payouts conserva INSERT propio fuera de request_payout.
+- Existe correccion A02 en rama local con RPC y revocacion en dos migraciones;
+  la RPC ya esta aplicada en Production (`20260914152150`), pero app y
+  revocacion aun faltan. El despliegue requiere RPC -> app -> permisos para
+  mantener operativo el reintento de checkout. Faltan pruebas por rol.
+- create_operational_notification tambien perdio EXECUTE directo para esos
+  roles; llamadas anonimas denegadas. No hay prueba de evento real por trigger.
+- Evidencia: metadatos/definiciones remotos y migracion `20260914145957`
+  aplicada; no se ejecutaron movimientos financieros.
+- Seguimiento: TASK-050, hallazgos A01/A02 del informe.
+
+### ISSUE-007: Devoluciones no atomicas y credito sin unicidad
+
+Estado: Abierto / P1 antes de nuevos cobros
+
+- Dashboard y refund admin insertan credito/sincronizan wallet antes de actualizar el estado en solicitudes separadas.
+- No existe indice unico remoto para refund_available_credit. Riesgo de doble credito o estado parcial; no se reprodujo con dinero real.
+- Seguimiento: TASK-051, A03.
+
+### ISSUE-008: Webhook reconoce errores funcionales como procesados
+
+Estado: Abierto / P1
+
+- process_wompi_payment_event puede devolver success:false/payment_not_found; handler solo comprueba rpcError y marca processed:true.
+- Reintentos posteriores pueden descartarse como duplicados sin conciliar el pago.
+- Seguimiento: TASK-051, A04. No se atribuye a este defecto la ausencia de transacciones historicas sin evidencia.
+
+### ISSUE-009: Privacidad e historial remoto desalineados
+
+Estado: Abierto / P1
+
+- Policy legacy de shipments usa USING(true) para authenticated, excediendo envios abiertos.
+- 41 archivos de migracion locales, 5 entradas remotas tras A01; objetos mas
+  nuevos si existen. Algunas policies que debian borrarse siguen activas.
+- Security Advisor posterior a A01 lista 22 funciones SECURITY DEFINER aun
+  ejecutables por anon; algunas tienen guardas y la calculadora publica es
+  intencional. Revisar cada firma/definicion y retirar permisos innecesarios.
+  [Guia del aviso](https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable).
+- Dos funciones (`generate_payout_code`, `notify_match_requested`) conservan
+  search_path mutable; [guia del aviso](https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable).
+- Seguimiento: TASK-050, A06; ampliar ISSUE-001 con diff real, no replay ciego.
+
+### ISSUE-010: Dependencias, aislamiento y gates de lanzamiento pendientes
+
+Estado: Abierto / P1
+
+- npm audit prod: 5 paquetes high; Next 16.2.4 en lock/Production y 16.1.6 instalado localmente.
+- Vercel Hobby para producto comercial; Preview comparte acceso a Supabase/credencial administrativa Production.
+- main sin proteccion/checks exigidos; smoke autenticado remoto historico, no reciente.
+- Conciliacion TASK-047 pendiente: 5 payments pending/created y 0 eventos Wompi/wallets/ledger/payouts en base consultada.
+- Recuperacion, alertas y legal final sin evidencia de cierre; mejoras adicionales A12-A15 en informe.
+- Seguimiento: TASK-047, TASK-048, TASK-052 y TASK-053.
+
+---
+
 ## ISSUE-001: Supabase migrations pueden desalinearse del schema consolidado
 
 Estado: Abierto
