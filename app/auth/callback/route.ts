@@ -2,6 +2,7 @@ import { type EmailOtpType } from "@supabase/supabase-js"
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 import { getSafeInternalPath } from "@/lib/safe-next"
+import { hasSafeSupabaseEnv } from "@/lib/supabase/environment"
 
 function createSupabaseRouteClient(request: NextRequest, response: NextResponse) {
   return createServerClient(
@@ -12,9 +13,14 @@ function createSupabaseRouteClient(request: NextRequest, response: NextResponse)
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headersToSet?: Record<string, string>) {
           cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value)
             response.cookies.set(name, value, options)
+          })
+          // SSR 0.8 supplies cookies only; preserve headers from compatible adapters.
+          Object.entries(headersToSet ?? {}).forEach(([name, value]) => {
+            response.headers.set(name, value)
           })
         },
       },
@@ -83,6 +89,24 @@ export async function GET(request: NextRequest) {
     requestUrl.origin
   )
   const response = NextResponse.redirect(successUrl)
+  response.headers.set("Cache-Control", "private, no-store")
+  response.headers.set("Pragma", "no-cache")
+  response.headers.set("Expires", "0")
+
+  function redirectError(message: string) {
+    errorUrl.searchParams.set("error", message)
+    // Keep SDK cookie writes and session headers on failed exchanges too.
+    response.headers.set("Location", errorUrl.toString())
+    return response
+  }
+
+  if (!hasSafeSupabaseEnv()) {
+    return redirectError(
+      isRecoveryFlow
+        ? "El enlace para cambiar tu contraseña no es válido."
+        : "El enlace de confirmación no es válido."
+    )
+  }
 
   const supabase = createSupabaseRouteClient(request, response)
 
@@ -90,13 +114,11 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      errorUrl.searchParams.set(
-        "error",
+      return redirectError(
         isRecoveryFlow
           ? "No pude validar el enlace para cambiar tu contraseña."
           : "No pude validar el enlace de confirmación."
       )
-      return NextResponse.redirect(errorUrl)
     }
 
     await syncProfileFromMetadata(supabase)
@@ -110,24 +132,20 @@ export async function GET(request: NextRequest) {
     })
 
     if (error) {
-      errorUrl.searchParams.set(
-        "error",
+      return redirectError(
         isRecoveryFlow
           ? "El enlace para cambiar tu contraseña es inválido o expiró."
           : "El enlace de confirmación es inválido o expiró."
       )
-      return NextResponse.redirect(errorUrl)
     }
 
     await syncProfileFromMetadata(supabase)
     return response
   }
 
-  errorUrl.searchParams.set(
-    "error",
+  return redirectError(
     isRecoveryFlow
       ? "El enlace para cambiar tu contraseña no es válido."
       : "El enlace de confirmación no es válido."
   )
-  return NextResponse.redirect(errorUrl)
 }
