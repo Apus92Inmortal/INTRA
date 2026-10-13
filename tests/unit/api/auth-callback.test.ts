@@ -182,4 +182,33 @@ describe("auth callback deployment isolation and session continuity", () => {
     expect(response.headers.get("location")).toBe(`${callbackOrigin}/app`)
     expect(fetchMock).not.toHaveBeenCalled()
   })
+
+  it.each(["\n", "\r", "\t"].flatMap(control => flows.map(flow => ({ control, ...flow }))))(
+    "keeps successful $label on the same origin when encoded next hides a control character $control",
+    async ({ control, label, query }) => {
+      const unsafeNext = "/" + control + "/untrusted.example.test"
+      const response = await GET(callbackRequest(query + "&next=" + encodeURIComponent(unsafeNext)))
+      const location = new URL(response.headers.get("location")!)
+
+      expect(location.origin).toBe(callbackOrigin)
+      expect(location.pathname).toBe(label === "OTP" ? "/login/update-password" : "/app")
+      expect(location.searchParams.has("code")).toBe(false)
+      expect(location.searchParams.has("token_hash")).toBe(false)
+      expect(response.headers.get("cache-control")).toBe("private, no-store")
+      expect(fetchMock).not.toHaveBeenCalled()
+    },
+  )
+
+  it("retains legitimate internal next query parameters and fragment after a successful exchange", async () => {
+    const next = "/app/profile?tab=security&returnTo=%2Fapp#factores"
+    const response = await GET(callbackRequest("code=synthetic-code&next=" + encodeURIComponent(next)))
+    const location = new URL(response.headers.get("location")!)
+
+    expect(location.origin).toBe(callbackOrigin)
+    expect(location.pathname).toBe("/app/profile")
+    expect(location.searchParams.get("tab")).toBe("security")
+    expect(location.searchParams.get("returnTo")).toBe("/app")
+    expect(location.hash).toBe("#factores")
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
 })
