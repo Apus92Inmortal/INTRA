@@ -23,7 +23,9 @@ export function isConfiguredAdmin(user: { id: string; email?: string | null }) {
   return adminUserIds.has(user.id)
 }
 
-export async function requireAdminUser() {
+// Identity-only guard for enrollment/challenge. Never use it for admin data
+// or service-role operations: those must call requireAdminUser below.
+export async function requireConfiguredAdminUser() {
   const supabase = await createClient()
   const {
     data: { user },
@@ -46,5 +48,26 @@ export async function requireAdminUser() {
     throw new Error("No autorizado para acceder a este panel.")
   }
 
+  return { supabase, user }
+}
+
+export class AdminMfaRequiredError extends Error {
+  constructor() {
+    super("Verifica el código de tu aplicación de autenticación para entrar a Admin.")
+    this.name = "AdminMfaRequiredError"
+  }
+}
+
+export async function requireAdminUser() {
+  const { supabase, user } = await requireConfiguredAdminUser()
+  // getClaims verifies the signature/expiry (or checks with Auth for symmetric
+  // signing keys). Neither decoded cookies nor user_metadata authorize MFA.
+  const { data, error } = await supabase.auth.getClaims()
+  if (error || !data?.claims || data.claims.sub !== user.id) {
+    throw new Error("No pudimos verificar tu sesión. Vuelve a iniciar sesión.")
+  }
+  if (data.claims.aal !== "aal2") {
+    throw new AdminMfaRequiredError()
+  }
   return { supabase, user }
 }

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react"
 import { AppNavbar } from "@/components/app-navbar"
-import { isConfiguredAdmin } from "@/lib/auth/admin"
-import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
+import { AdminMfaRequiredError, requireAdminUser } from "@/lib/auth/admin"
 import AdminSectionNav from "./AdminSectionNav"
 
 export default async function AdminLayout({
@@ -9,14 +9,13 @@ export default async function AdminLayout({
 }: {
   children: ReactNode
 }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const showTabs = user
-    ? isConfiguredAdmin({ id: user.id, email: user.email })
-    : false
+  try {
+    await requireAdminUser()
+  } catch (error) {
+    // The enrollment route lives outside this layout to prevent redirect loops.
+    if (error instanceof AdminMfaRequiredError) redirect("/app/profile/security")
+    redirect("/app")
+  }
 
   return (
     <>
@@ -31,11 +30,9 @@ export default async function AdminLayout({
               </div>
             </div>
 
-            {showTabs ? (
-              <div className="mt-6">
-                <AdminSectionNav />
-              </div>
-            ) : null}
+            <div className="mt-6">
+              <AdminSectionNav />
+            </div>
           </section>
 
           {children}
