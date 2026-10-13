@@ -3,20 +3,44 @@
 Alcance elegido por Aldo: piloto controlado con usuarios conocidos.
 Este documento prepara la publicacion; no autoriza cobros ni certifica el piloto.
 
+Estado local final: `4341dfc` agrega guard/cookies al callback y `88819c8`
+MFA admin con claims verificados, sub coincidente y aal2. Safe-next ademas
+bloquea controles/destinos externos y valida origen/fallback. Unit 165/26 archivos,
+lint, TypeScript, build y E2E publico/seguridad 8/8 PASS. El CI completo
+del producto `d7ded3d` PASS y su Preview READY tras el lote Vercel completo.
+Comprobar HEAD/checks del cierre documental en PR #183 antes de publicar.
+Las cinco migraciones y estas correcciones siguen sin publicar en Production.
+
 ## Precondiciones
 
 1. Revisar PR y exigir CI `validate`, `database` y `detect-impact` PASS para su SHA.
-2. Comprobar `ADMIN_USER_IDS` en Production con IDs existentes y acceso del titular.
-   El correo ya no concede permisos admin; `ADMIN_EMAILS` se ignora.
+2. El unico UUID autorizado ya se guardo en `ADMIN_USER_IDS` Secret Production,
+   sin versionar su identidad. Comprobar efecto tras el redeploy aprobado y
+   acceso del titular: la nueva version exige sesion vigente y MFA aal2
+   verificada, ademas del ID; `ADMIN_EMAILS` se ignora. Preparar acceso seguro
+   del titular a consola Supabase para recuperacion si pierde el dispositivo:
+   verificar identidad y aprobar cualquier reset de factor antes de ejecutarlo.
+   No habilitar bypass aal1/email para operaciones admin como recuperacion.
 3. Aislar Preview/Development de Production: URL, anon y service-role de otro
-   proyecto; Wompi Sandbox y secretos test. Quitar overrides antiguos despues
-   de inventario y respaldo seguro. El bloqueo del codigo no elimina credenciales
-   antiguas de Vercel ni impide que otro codigo las utilice.
+   proyecto; Wompi Sandbox y secretos test. Ya se restringieron diez variables
+   y borraron cinco Config legacy nonprod; quedan 16 variables solo Production.
+   Los cambios afectan deployments futuros. Inventariar/retirar o rotar copias
+   de deployments antiguos mediante lote compatible revisado: no fueron
+   revocadas y el guard no protege codigo antiguo. A09 permanece abierto.
 4. Verificar plan Vercel apto para actividad comercial, configuracion efectiva
    Wompi Production/webhook y secretos de cron. No comprar ni rotar a ciegas.
 5. Respaldo DB y Storage con restauracion aislada verificada y responsables.
    Las pruebas con DDL/fixtures sinteticos no certifican recuperacion de usuarios.
 6. Aprobacion explicita de Aldo para las cinco migraciones nuevas, merge y deploy.
+
+SMTP elegido: Google con el buzon publico `soporte@intra.com.co`. El formulario
+Supabase contiene solo un borrador no guardado (`smtp.gmail.com:465`, remitente
+INTRA, usuario/remitente de ese buzon y password vacio). Workspace suspendido
+por impago y acceso al inbox son reportes del titular; no hubo reactivacion.
+2-Step esta desactivada y App Password no disponible; sin SIM durante varios
+dias, el paso humano 2FA queda pendiente. No se verifico otro metodo disponible
+ni una causa especifica por suspension. No guardar sin credencial valida ni
+dar por cerrados SMTP/confirmacion/recovery sin prueba de entrega autorizada.
 
 ## Secuencia
 
@@ -40,6 +64,9 @@ RPC legitimas, triggers y cron. Registrar cada version realmente aplicada.
 Despues, mergear el SHA aprobado, esperar CI postmerge y Vercel READY del mismo
 SHA, comprobar cabeceras, publico, login, admin, uploads y checkout sandbox
 en entorno aislado. No usar E2E publico como prueba de devolucion/ledger.
+Probar enrollment/challenge real del titular, aal1 denegado en Admin/acciones,
+aal2 permitido solo al UUID autorizado y logout/revocacion. Las pruebas
+unitarias y vistas sinteticas sin QR/codigos no acreditan Auth/TOTP operativo.
 
 ## Eventos Wompi pendientes
 
@@ -48,7 +75,7 @@ antes de consultar al proveedor. Wompi realiza un numero limitado de reintentos;
 revisar pendientes diariamente y despues de incidentes. Referencia:
 [eventos Wompi](https://docs.wompi.co/docs/colombia/eventos/).
 
-Un admin autenticado por ID puede reintentar **un evento existente**, desde
+Un admin autenticado por ID y sesion aal2 verificada puede reintentar **un evento existente**, desde
 la consola del navegador en el mismo origen de INTRA:
 
 ```js
@@ -89,7 +116,8 @@ y su registro deben estar definidos/probados antes de abrir dinero real.
 ## Apertura del piloto
 
 Completar primero smoke Auth cliente/viajero/tercero/admin, confirmacion y
-recuperacion de correo, carga/descarga privada de evidencia, y ciclo Wompi
+recuperacion de correo con SMTP efectivo, MFA real del titular,
+carga/descarga privada de evidencia, y ciclo Wompi
 sandbox entrega/disputa/devolucion/payout en ambiente aislado. El pago antiguo
 no fue localizado; sigue pendiente A05/TASK-047 sin ejecutar un cobro nuevo.
 

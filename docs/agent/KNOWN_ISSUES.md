@@ -13,15 +13,25 @@ Production mientras no haya rollout y postflight. Ver [matriz actual](../audits/
 - ISSUE-010: audit prod local 0 y lock alineado. Full audit mantiene 5 high
   derivados de braces3.0.3 sin parche en herramientas dev. Navegador Vercel
   confirma Hobby; diez variables restringidas a Production sin cambiar valores.
-  Cinco registros legacy nonprod y deployments antiguos pendientes; falta
-  entorno aislado. Gates comerciales/operativos abiertos; main ya protegido.
+  Cinco registros legacy nonprod ya borrados; 16 variables solo Production.
+  Deployments antiguos y entorno aislado pendientes. Gates comerciales/operativos
+  abiertos; main ya protegido. El borrado no revoco claves en su fuente.
 - ISSUE-011: Auth autoconfirm=true, sin factores MFA. Email allowlist admin
-  permitia suplantacion por registro; fix local exige UUID. Cuenta del titular
-  localizada; Vercel ADMIN_USER_IDS y smoke admin pendientes antes de publicar.
+  permitia suplantacion por registro; fix local exige UUID y JWT verificado
+  `sub` coincidente/`aal2`. Bootstrap TOTP preparado fuera de operaciones admin;
+  pendiente enrollment/challenge real del titular y recuperacion por consola.
+  Cuenta del titular
+  localizada; ADMIN_USER_IDS Secret Production guardado con unico UUID autorizado.
+  Efecto tras deployment aprobado y smoke admin pendientes.
 - A05: seis intentos antiguos pendientes, referencia del pago reportado sin
   identificar; no iniciar otro cobro para sustituir esa conciliacion.
 - SMTP/confirm/reset, leaked-password, SPF/DMARC/DKIM, restore DB+objetos,
   alertas recibidas, aforo y revision legal/contable requieren evidencia externa.
+- Correo: titular reporta suspension Google Workspace por impago y acceso a
+  buzones; eligio conservarlo con `soporte@intra.com.co`. El borrador SMTP no
+  fue guardado ni tiene credencial. 2-step Google desactivada y SIM no disponible
+  varios dias; pendiente paso humano. No se verificaron envio/recepcion, ni
+  se cambio proveedor/MX, ni se realizo reactivacion o pago.
 
 No declarar lista INTRA hasta aplicar/verificar el paquete y completar esos
 gates. Las notas inferiores se conservan como historial y no sustituyen este

@@ -22,8 +22,17 @@ Fecha: 2026-10-13
 
 Solo `ADMIN_USER_IDS` concede acceso admin. `ADMIN_EMAILS` deja de autorizar:
 un correo autoconfirmado no demuestra titularidad. La seleccion humana de la
-cuenta se verifico contra Auth y su UUID se conserva fuera del repo; confirmar
-allowlist Vercel antes de publicar.
+cuenta se verifico contra Auth y su UUID se conserva fuera del repo. El titular
+confirmo designar esa cuenta como unico admin; se guardo el ID en el Secret
+Production de Vercel. Probar acceso tras deployment aprobado antes de operar.
+
+Operaciones admin exigen ademas claims JWT verificados por el SDK, identidad
+`sub` coincidente y `aal2`; metadata o sesion `aal1` no conceden privilegios.
+El bootstrap TOTP vive fuera del layout admin, en `/app/profile/security`,
+accesible solo al usuario configurado. Activacion explicita, QR/codigo en
+memoria y limpieza ante signOut/cambio de cuenta; sin bypass ni desactivacion
+de factores. Titular debe probar enrollment/challenge y recuperacion por consola
+antes del rollout operativo. No se crearon factores remotos en esta sesion.
 
 Hosted Preview/Development bloquean la DB conocida de Production en clientes,
 SSR, proxy y admin; Wompi requiere Sandbox y llaves test. Es defensa adicional:
@@ -39,6 +48,18 @@ nuevos cobros, contratar planes, mergear main ni desplegar Production. Preparar
 el paquete revisable y cerrar gates de dinero, infraestructura, correo,
 recuperacion, soporte y limites antes de operar. La apertura publica requiere
 validacion legal/contable y capacidad adicionales.
+
+## DEC-016: Correo de Auth con Google Workspace
+
+Fecha: 2026-10-13
+
+Titular eligio conservar Google Workspace y usar `soporte@intra.com.co` como
+cuenta SMTP y remitente publico INTRA. Formulario Supabase preparado como
+borrador, sin credencial ni guardado. Verificacion en dos pasos de Google
+desactivada y SIM temporalmente no disponible; la credencial y su submission
+son paso humano. No sustituir proveedor, cambiar MX, reactivar suscripcion
+ni atribuir funcionamiento al acceso a buzones. Probar envio/recepcion y
+confirmacion/reset antes de cerrar el gate; no enviar a terceros sin permiso.
 
 ## DEC-007: Los reintentos de pago se crean en la base
 

@@ -3,22 +3,31 @@
 Inspeccion de GitHub, Vercel, Supabase Auth/Storage y DNS, incluido fallback
 de navegador autenticado en Vercel para plan y scopes sin revelar valores.
 Se protegio main por API y se limitaron diez variables a Production por UI,
-sin cambiar sus valores. No se cambiaron planes, DNS, usuarios, correos ni
-dinero; cinco registros legacy nonprod siguen pendientes.
+inicialmente sin cambiar sus valores. Despues, con confirmacion del titular,
+se guardo su unico UUID admin en el Secret Production y se borraron cinco
+Config legacy nonprod. No se cambiaron planes, DNS, usuarios ni dinero;
+el formulario SMTP Google quedo en borrador sin guardar ni enviar correo.
 Las correcciones de codigo/SQL de esta rama no estan certificadas en Production.
 El procedimiento de publicacion esta en [rollout](launch-corrections-rollout-20261013.md).
+
+Los commits locales `4341dfc` y `88819c8` agregan guard/cookies del callback
+y MFA admin con claims verificados. Validacion local final: 151 unit / 26
+archivos, lint, TypeScript y build PASS; E2E publico/seguridad 8/8 PASS.
+El CI remoto comprobado de `016a489` no certifica esos commits nuevos: exigir
+los tres checks del SHA que se publique. No se aplico DDL remoto ni se
+crearon factores MFA; no se publicaron estas correcciones en Production.
 
 ## Estado comprobado
 
 | Auditoria | Evidencia actual | Condicion para cerrar |
 |---|---|---|
 | A08 plan Vercel | Navegador autenticado el 13-oct confirma equipo Hobby. API de plan no disponible. | Resolver autorizacion comercial y alertas de coste con el titular; no comprar automaticamente. |
-| A09 aislamiento | Solo hay un proyecto Supabase disponible: Production. API env da 403 y CLI sin sesion. Navegador confirma diez variables restringidas a Production; cinco registros legacy nonprod pendientes. | Retirar registros legacy y copias en deployments antiguos; usar base aislada y Wompi test. |
-| A10 GitHub | Main protected=true: validate/database/detect-impact strict, admins, PR, sin force-push/borrado. PR #183 tres checks PASS de aa5acf2 y Preview READY del mismo SHA. Secrets Actions: 0. | Revalidar HEAD tras cierre documental, CI postmerge y smoke autenticado aislado. |
+| A09 aislamiento | Solo hay un proyecto Supabase disponible: Production. API env da 403 y CLI sin sesion. Navegador confirma diez scopes restringidos y cinco Config legacy eliminados; 16 variables del proyecto solo Production. | Retirar/rotar copias en deployments antiguos; usar base aislada y Wompi test. |
+| A10 GitHub | Main protected=true: validate/database/detect-impact strict, admins, PR, sin force-push/borrado. PR #183 tres checks PASS del producto d7ded3d y Preview READY del mismo SHA. Secrets Actions: 0. | SHA/checks del cierre documental en PR #183, CI postmerge y smoke autenticado aislado. |
 | A11 recuperacion/operacion | No se ejecuto restauracion de datos/objetos, prueba de alertas ni smoke completo con usuarios aislados. | Ensayo de recuperacion, alertas recibidas, aforo/responsables del piloto y aprobacion legal/contable documentados. |
-| A13 Auth | Email Auth y signup activos; email autoconfirm=true; anonymous signin=false. Advisor marca leaked-password protection desactivada. 0 factores MFA, 0 verificados. | Confirmacion/recuperacion SMTP probadas; privilegios admin por UUID del titular; plan de MFA con enforcement y proteccion de contrasenas. |
+| A13 Auth | Inspeccion remota: autoconfirm=true, anonymous signin=false, leaked-password desactivada y 0 factores MFA. Rama local exige UUID, sesion vigente, claims firmados/sub coincidente y aal2; enrollment/challenge y callback protegidos. | Publicar version aprobada; enrollment/challenge/revocacion reales del titular, confirmacion/recovery SMTP y proteccion de contrasenas probados. |
 | A13 Storage | Ambos buckets privados sin limites especificos en Production. Objetos existentes agregados: JPEG/PNG/WebP; mayor 2.046.594 bytes. | Aplicar migracion de 5 MiB y 3 MIME; verificar HTTP privado, bytes de imagen, retencion/borrado/restauracion. |
-| A13 correo | MX Google; TXT raiz sin SPF; DMARC NXDOMAIN. Selectores DKIM comunes consultados: NXDOMAIN. | Verificar proveedor/selector real, publicar registros correctos y comprobar soporte y Auth. |
+| A13 correo | Titular elige Google y soporte@intra.com.co; informa Workspace suspendido con acceso al inbox y 2-Step desactivada. SMTP Google solo borrador sin password ni guardar. DNS observado: MX Google, NS dns-parking, sin SPF/DMARC y selectores DKIM comunes NXDOMAIN. | Paso humano 2FA/App Password, servicio SMTP y recepcion reales, DNS correcto y entrega Auth probados; no hay reactivacion autorizada. |
 
 Referencias de entorno inspeccionado: Supabase `okajyhkdyapbsornjeeb`;
 Vercel equipo `team_Ol4y0BzimnFUPgzQUcEIJ5AX`, proyecto
@@ -29,9 +38,11 @@ No se imprimieron valores de secretos ni identidades/correos de usuarios.
 
 El titular indico su cuenta admin durante la sesion. La consulta protegida por
 correo encontro exactamente una cuenta existente, confirmada y no bloqueada.
-Su UUID se conserva fuera del repo para preparar `ADMIN_USER_IDS`; la variable
-existe como Secret, ahora solo Production, y su valor no puede revelarse. Falta
-comprobar/escribir la allowlist efectiva en Vercel y probar acceso autenticado.
+Su UUID se conserva fuera del repo. Con confirmacion explicita se guardo como
+unico admin en `ADMIN_USER_IDS` Secret Production; su valor no puede revelarse.
+El cambio afecta futuros deployments: falta redeploy aprobado y comprobar
+el acceso autenticado del titular con MFA; la allowlist guardada no acredita
+efecto en el deployment Production existente.
 Autoconfirm sigue sin demostrar propiedad de correo por si sola.
 
 ## Vercel: plan e inventario de variables
@@ -51,13 +62,15 @@ values: `SUPABASE_SERVICE_ROLE_KEY` general (Secret), `INTERNAL_CRON_SECRET`,
 `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 Las dos variables publicas tambien perdieron su scope Development.
 Esto afecta deployments futuros; no elimina credenciales de deployments
-existentes. No se redeployo Production ni se sobrescribio la allowlist admin.
+existentes. No se redeployo Production. Un lote posterior autorizado reemplazo
+exclusivamente el valor Secret admin por el UUID seleccionado.
 
-Persisten cinco registros Config no productivos: service-role Preview override
+Se eliminaron cinco registros Config no productivos: service-role Preview override
 `joy/wompi-migration`, Wompi public/sandbox override de esa misma rama,
 service-role Development y ADMIN_USER_IDS Development. El
-[lote de finalizacion](vercel-configuration-finalization-20261013.md) identifica
-exactamente su borrado y el cambio admin pendiente de confirmacion.
+[lote de finalizacion](vercel-configuration-finalization-20261013.md) registra
+su borrado y el cambio admin autorizados; metadata final: 16 variables del
+proyecto, todas Production. Los valores restantes se conservaron ocultos.
 
 El titular debe resolver Billing del equipo. Se confirma Hobby; resolver el
 uso comercial antes de operar cobros: [condiciones Hobby](https://vercel.com/docs/plans/hobby).
@@ -102,8 +115,9 @@ Para cerrar A09, completar tambien:
    y sandbox=false solo cuando el titular valide la configuracion comercial;
    cron secret efectivo y `ADMIN_USER_IDS` correcto.
 3. Revisar overrides antiguos de ramas y todos los custom environments.
-4. Redeploy y revisar deployments antiguos: las variables se incorporan a
-   deployments existentes y un cambio de scopes no elimina sus copias.
+4. Crear el deployment aprobado y revisar los antiguos: cada deployment
+   incorpora sus variables al crearse; los existentes conservan sus copias.
+   Cambiar scopes o borrar registros no revoca claves en su fuente.
 5. Verificar que un preview no pueda leer/escribir datos Production, incluidos
    server actions, SSR, browser, proxy y service-role. El guard local no
    protege codigo antiguo ni revoca credenciales existentes.
@@ -114,8 +128,9 @@ Para cerrar A09, completar tambien:
 0 aprobaciones para el titular unico, strict checks `validate`, `database` y
 `detect-impact`, enforcement para admins, resolucion de conversaciones y
 bloqueo de force-push/borrado. No establece bypass ni restricciones de actores.
-`database` es el job nuevo y paso en CI del PR #183. Los tres checks pasaron
-en `aa5acf2` (CI 38469809063 e impacto 38469808885). La politica ya se aplico y verifico por GET:
+`database` es el job nuevo y paso en CI del PR #183. El ultimo CI completo
+comprobado es `016a489` (CI 38472628754 e impacto 38472628723); callback/MFA
+locales posteriores requieren CI del nuevo SHA. La politica se verifico por GET:
 main protected=true, strict=true, enforce_admins=true, tres contextos exactos,
 force-push/borrado=false y resolucion de conversaciones=true; main no cambio SHA.
 
@@ -138,11 +153,12 @@ automaticamente. Configuracion completa de password policy, rate limits y
 SMTP no esta disponible en el conector: no fue validada.
 
 El endpoint publico Auth settings confirma `mailer_autoconfirm=true`:
-registro por correo no demuestra control del buzon. La rama cambia admin
-para aceptar exclusivamente `ADMIN_USER_IDS`; `ADMIN_EMAILS` deja de conceder
-privilegios. **Antes del deploy**, el titular debe validar los UUID de las
-cuentas que realmente administra y su acceso actual. No seleccionar cuentas
-por coincidencia de correo ni aceptar user_metadata controlada por el usuario.
+registro por correo no demuestra control del buzon. La rama acepta admin
+exclusivamente por `ADMIN_USER_IDS`, sesion vigente y MFA aal2 verificada;
+`ADMIN_EMAILS` deja de conceder privilegios. El titular designo un unico admin
+y su UUID se guardo privadamente en el Secret Production de Vercel. Confirmar
+su acceso actual y, tras el deployment aprobado, su acceso con MFA. No
+autorizar por coincidencia de correo ni por user_metadata del usuario.
 
 Conteo protegido de Auth: 3 cuentas, 3 con email_confirmed_at y ninguna con
 role/is_admin en app_metadata. El archivo local no contiene allowlist admin;
@@ -152,11 +168,22 @@ devuelve solo conteos/booleanos de UUIDs suministrados privadamente. Cuenta
 existente/confirmada no equivale a titular autentico; autoconfirm invalida esa
 inferencia. No conservar IDs/correos ni credenciales en evidencia publica.
 
-MFA tiene cero factores registrados y no se encontro enrollment/challenge/aal2
-en la app inspeccionada. Activar proveedor no impone MFA al panel. Para cerrar,
-enrolar al titular, probar challenge/recovery y exigir aal2 en acciones
-privilegiadas segun [Supabase MFA](https://supabase.com/docs/guides/auth/auth-mfa).
-Hasta implementar/probar ese enforcement, registrar MFA como pendiente.
+La inspeccion remota encontro cero factores MFA; no se genero ninguno durante
+esta sesion. En `88819c8`, `/app/profile/security` permite enrollment TOTP por
+CTA explicito y challenge; `requireAdminUser` exige sesion vigente, claims
+verificados por el SDK, sub coincidente y aal2 para panel/acciones admin.
+El componente protege cambios de cuenta y respuestas tardias. El bloque
+MFA/admin tiene 25 pruebas unitarias; la revision visual sintetica no usa
+QR/codigos y no acredita Auth/TOTP real. Este enforcement sigue en la rama,
+sin efecto en Production hasta publicar. Despues, enrolar al titular y probar
+challenge, cierre/revocacion de sesion y recuperacion de dispositivo antes de
+operar: [Supabase MFA](https://supabase.com/docs/guides/auth/auth-mfa).
+
+El callback `4341dfc` aplica el mismo guard de entorno antes de construir
+Supabase y conserva cookies/cabeceras tanto en PKCE/OTP correctos como en
+errores. Revision posterior de safe-next bloquea controles/destinos externos
+y valida origen/fallback; callback suma 20 casos, helper tiene regresiones
+adicionales. Estas pruebas no sustituyen entrega/consumo de enlaces reales.
 
 Configurar SMTP propio, remitente y URLs de confirmacion/recovery permitidas.
 El SMTP predeterminado tiene limites y no sirve como validacion de correo
@@ -164,6 +191,28 @@ operativo: [Supabase SMTP](https://supabase.com/docs/guides/auth/auth-smtp).
 Activar confirmacion de correo y probar registro, confirmacion, recovery,
 logout/revocacion y acceso del titular en ambiente aislado. Registrar entrega
 recibida y latencia sin guardar enlaces de acceso ni tokens.
+
+El titular eligio **Google** con el buzon publico `soporte@intra.com.co`.
+Informa Workspace suspendido por impago, pero acceso al inbox. No autorizo
+reactivacion/pago; ese acceso no verifica envio SMTP ni recepcion nueva.
+Resend no es el camino elegido: no se creo cuenta, clave ni dominio alli.
+
+En el formulario Supabase SMTP se dejo un **borrador no guardado**: host
+`smtp.gmail.com`, puerto `465`, nombre del remitente `INTRA`, remitente y
+usuario `soporte@intra.com.co`, password vacio. No es configuracion efectiva
+ni prueba de entrega; no se envio correo ni se modifico DNS.
+
+El titular informa App Password no disponible y **2-Step desactivada**.
+Google exige verificacion en dos pasos para contrasenas de aplicacion;
+despues debe comprobarse si esta cuenta permite esa opcion:
+[Google App Passwords](https://support.google.com/accounts/answer/185833?hl=es).
+No dispone de SIM durante varios dias; el paso humano queda pendiente hasta
+que pueda completarlo con un metodo disponible. No se verifico ningun metodo
+alternativo para esta cuenta ni se atribuye un bloqueo especifico a la
+suspension de Workspace. No se activaron 2FA ni factores en Google/Supabase.
+La credencial, si llega a estar disponible, se introduce directamente en el
+servicio; no va en chat, Git, capturas ni logs. SMTP y confirmacion/recovery
+seguirán pendientes de guardar configuracion y probar entrega autorizada.
 
 DNS observado por Google DoH: TXT raiz solo verificacion Google; SPF ausente;
 `_dmarc.intra.com.co` NXDOMAIN; MX `1 SMTP.GOOGLE.COM.`. Los selectores
@@ -216,12 +265,14 @@ No prueban recuperacion de datos/objetos. Antes de abrir el piloto:
 
 ## Limites y postflight
 
-El cierre requiere evidencia nueva del entorno publicado. Hobby y los diez
-scopes se comprobaron por UI; no se certificaron env values efectivos,
-aptitud comercial resuelta, SMTP, entrega de correo, DKIM real,
-allowlist del titular, MFA enforced, restore, alertas, dinero ni aprobacion
-legal. Storage y permisos SQL tienen migraciones/test locales revisables;
-cabeceras, SEO y guard de previews tienen cambios de codigo en la rama.
+El cierre requiere evidencia nueva del entorno publicado. Hobby, diez scopes,
+la allowlist unica guardada y cinco borrados se comprobaron por UI; metadata
+final: 16 variables solo Production. No se certificaron efecto de esos valores
+en deployments existentes, aislamiento completo, aptitud comercial, SMTP,
+entrega de correo, DKIM real, acceso del titular con MFA, restore, alertas,
+dinero ni aprobacion legal. No se rotaron/revocaron copias antiguas. Storage
+y permisos SQL tienen migraciones/test locales revisables; callback, MFA,
+cabeceras, SEO y guards permanecen en la rama, sin publicar en Production.
 Volver a comprobar Advisor, grants/policies, buckets, headers y smoke luego
 de aplicar el paquete aprobado. La reparacion completa del historial Supabase
 con drift queda separada: no hacer replay indiscriminado de migraciones antiguas.

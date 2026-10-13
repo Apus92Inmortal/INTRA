@@ -9,20 +9,27 @@ no certifican el nuevo paquete ni reemplazan sus gates.
 - [x] Manual UI/UX v3.0 y decisiones/DB_NOTES revisados.
 - [x] Cinco migraciones nuevas revisadas contra DDL remoto exacto sin filas.
 - [x] SQL aislado PASS: A03 18, A04 15, roles/privacidad/guards/concurrencia A06.
-- [x] Lint PASS (una advertencia de redirect existente), unit 115 PASS,
+- [x] Lint PASS (una advertencia de redirect existente), unit 165/26 PASS,
   TypeScript PASS, build webpack PASS, audit Production 0.
 - [x] E2E publico/seguridad 8/8 PASS tras ajuste de URL vacia.
+- [x] Callback guard/cookies y MFA JWT verificado `sub`/`aal2` probados localmente.
+- [x] Retorno Auth bloquea controles/destinos externos y mantiene query/hash interno.
+- [x] Pantalla MFA sintetica revisada en mobile/PC con CSS/fuentes reales.
 - [x] Memoria, matriz A01-A15, revision financiera y rollout preparados.
-- [x] PR #183 y checks `validate`, `database`, `detect-impact` de `aa5acf2` PASS.
-- [ ] Revalidar HEAD tras cierre documental y CI postmerge antes de publicar.
+- [x] PR #183 y checks `validate`, `database`, `detect-impact` del producto `d7ded3d` PASS.
+- [ ] CI postmerge del SHA aprobado antes de publicar; consultar HEAD/checks en PR #183.
 - [x] Proteccion main efectiva verificada por API: tres checks strict,
   enforcement admins, PR obligatorio, sin force-push/borrado.
 - [ ] ADMIN_USER_IDS efectivo y acceso del titular comprobados.
+- [x] ADMIN_USER_IDS Secret Production guardado al unico UUID autorizado.
 - [x] Diez variables Vercel restringidas a Production sin cambiar valores.
-- [ ] Cinco registros legacy nonprod retirados segun el plan revisable.
+- [x] Cinco registros legacy nonprod retirados segun el lote autorizado.
 - [ ] Preview/Development aislados y credenciales/overrides antiguos retirados.
 - [ ] Plan Vercel/configuracion comercial del proveedor verificados.
 - [ ] SMTP/confirm/reset, MFA con enforcement y DNS verificados.
+- [x] Google Workspace/cuenta remitente elegidos y formulario SMTP preparado.
+- [ ] 2-step Google/App Password por titular y guardado SMTP; borrador sin guardar.
+- [ ] Enrollment/challenge real MFA admin y recuperacion por consola probados.
 - [ ] Restore DB+Storage aislado y alertas recibidas demostrados.
 - [ ] Smoke Auth por roles y ciclo Wompi sandbox sin datos Production.
 - [ ] A05/pagos antiguos conciliados; caso de aprobacion tardia resuelto

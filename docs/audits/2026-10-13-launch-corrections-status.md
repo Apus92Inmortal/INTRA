@@ -17,24 +17,34 @@ sus IDs y no declara cerrado un cambio remoto por una prueba local.
 | A06 | Comparacion DDL remoto; policies contextuales, chat sender/estado, RPCs privados y race request_match corregidos | Aplicar/postflight; repair completo de historial separado, sin replay antiguo |
 | A07 | Next 16.3.8 y transitivas actualizadas; audit produccion 0 | Publicar; advisory sin parche en braces de herramientas dev permanece (5 high derivados) |
 | A08 | Navegador autenticado confirma equipo Hobby; condiciones documentadas | Resolver aptitud comercial/costes con el titular sin compra automatica |
-| A09 | Browser/SSR/proxy/admin bloquean DB Production en Preview; Wompi hosted nonprod exige test; diez variables Vercel limitadas a Production sin cambiar valores | Retirar cinco registros legacy nonprod y copias de deployments antiguos; crear entorno aislado; guard no revoca secretos antiguos |
-| A10 | CI Node24, audit prod, E2E y PostgreSQL17; PR #183, validate/database/detect-impact PASS de aa5acf2; main protegido con tres checks strict y admins | Revalidar HEAD tras cierre documental, CI postmerge y smoke Auth aislado |
+| A09 | Guards browser/SSR/proxy/admin/callback; callback mantiene cookies SDK y no cache; Wompi hosted nonprod exige test; diez scopes Production y cinco Config legacy nonprod borrados con confirmacion; inventario final 16 variables Production | Publicar/verificar callback directo; retirar/rotar copias de deployments antiguos y crear entorno aislado; guard no revoca secretos antiguos |
+| A10 | CI Node24, audit prod, E2E y PostgreSQL17; PR #183, validate/database/detect-impact PASS del producto d7ded3d; main protegido con tres checks strict y admins | SHA/checks del cierre documental en PR #183, CI postmerge y smoke Auth aislado |
 | A11 | Monitoreo agregado y rollout/rollback/reconciliacion operativos preparados | Restore DB+Storage real aislado, prueba de alertas recibidas, limites/responsables y legal/contable |
 | A12 | npm ci, lock e instalacion alineados; instrucciones locales actualizadas | Mantener Node24/npm11 en CI/Vercel |
-| A13 | Headers, limites/MIME privados, validacion cliente; admin por UUID exclusivamente, evita suplantacion por email autoconfirm | Aplicar/publicar; SMTP/confirm/reset, MFA, leaked-password, SPF/DMARC/DKIM, validacion bytes/retencion y restore |
+| A13 | Headers, limites/MIME privados, validacion cliente; admin por UUID y JWT verificado `sub`/`aal2`, bootstrap TOTP y QA sintetico; correo Google elegido/formulario SMTP borrador | Aplicar/publicar; 2-step Google/credencial/SMTP/confirm/reset, MFA real y recuperacion del titular, leaked-password, SPF/DMARC/DKIM, validacion bytes/retencion y restore |
 | A14 | Focus/Tab/Escape/restore/portals en modales, confirm oficial de retiro, robots/sitemap, manual README y estados historicos evidencias aclarados | QA autenticado mobile/PC y prueba remota; no certifica WCAG completo |
 | A15 | Limites/medicion del piloto incluidos como gate operativo | Fijar aforo real y medir carga/archivos/costes antes de escalar; no crear indices sin evidencia |
 
 ## Evidencia y limites
 
-Lint PASS (una advertencia de redirect existente), unit 115/115 PASS,
+Lint PASS (una advertencia de redirect existente), unit 165/165 en 26 archivos PASS,
 TypeScript/build webpack PASS y audit Production 0. E2E publico/seguridad
 8/8 PASS; URL vacia normalizada. SQL: A03 18 checks, A04 15 y A06
 permisos/roles/guards/concurrencia PASS. PR #183 abierto: los tres checks
-validate/database/detect-impact PASS de `aa5acf2` (CI 38469809063 e impacto
-38469808885). El fallo inicial por SITE_URL heredado en tests se corrigio
+validate/database/detect-impact PASS del producto `d7ded3d` (CI 38480193586 e impacto
+38480194052; CI push 38480189646). El fallo inicial por SITE_URL heredado en tests se corrigio
 y verifico remotamente. Preview del mismo SHA READY; el cierre documental
-requiere verificar su nuevo HEAD. No es un fallo del callback runtime.
+se contrasta con el SHA y los checks actuales del PR. No es un fallo del callback runtime.
+
+Los commits posteriores `4341dfc`/`88819c8` protegen callback y MFA. Callback
+tiene 20 casos y MFA 25 casos focales (guards/pantalla). Safe-next tambien
+bloquea redireccion externa con controles ASCII y verifica origen/fallback;
+14 regresiones adicionales tras revision independiente. Visual sintetico inicial,
+challenge/error revisado en mobile/PC con CSS/fuentes reales, sin QR, credenciales
+ni requests Auth. No equivale a enrollment o challenge remoto.
+Preview de producto `d7ded3d` READY tras el lote Vercel completo; HTTP protegido
+portada/login/robots 200, nosniff/DENY, Disallow:/ y callback con codigo sintetico
+rechazado con error y no-store. No hubo enlace ni sesion Auth real.
 
 Las suites SQL crean y eliminan bases desechables sobre PostgreSQL17 en
 loopback. El fixture contiene solo DDL remoto inspeccionado: 22 tablas,
@@ -45,10 +55,13 @@ separadas. No sustituyen Supabase Auth/REST/Storage HTTP ni una restauracion
 de usuarios/evidencias reales.
 
 La cuenta admin elegida por el titular se encontro (una coincidencia,
-confirmada, no bloqueada), sin versionar email/UUID. Falta Vercel
-`ADMIN_USER_IDS` efectivo. El navegador confirma que la variable existe como
-Secret (valor no revelable), ahora solo Production; no se presume que contiene
-el UUID seleccionado. La lectura actual encontro seis payments pendientes
+confirmada, no bloqueada), sin versionar email/UUID. Con confirmacion expresa,
+se guardo el unico UUID en `ADMIN_USER_IDS` Secret Production; falta efecto
+tras redeploy aprobado y smoke admin. El valor guardado es no revelable.
+Titular eligio Google Workspace y `soporte@intra.com.co`; formulario SMTP en
+Supabase preparado sin password ni guardado. 2-step Google desactivada, SIM
+no disponible varios dias; queda pendiente el paso humano y envio/recepcion real.
+La lectura actual encontro seis payments pendientes
 antiguos; no se atribuyen a un cobro efectivo sin consultar el proveedor.
 
 Referencias: [revision financiera](2026-10-13-financial-corrections-review.md),

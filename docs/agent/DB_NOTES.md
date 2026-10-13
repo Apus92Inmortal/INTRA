@@ -24,6 +24,32 @@ Suite completa PASS local y remoto en `aa5acf2`: A03 18 checks, A04 15,
 A06 privacidad/roles/guards/concurrencia y 16 postflight; grants A01/A02
 tambien verificados. Las cinco migraciones siguen sin aplicar a Production.
 
+Cambios Auth posteriores, locales: `4341dfc` protege callback PKCE/OTP antes
+de construir Supabase y conserva cookies/cabeceras (13 tests); `88819c8`
+exige sesion vigente, claims verificados, sub coincidente y aal2 para admin,
+con enrollment/challenge explicitos y proteccion de cambios de cuenta (25
+tests MFA/admin). Revision posterior de safe-next bloquea controles ASCII y
+destinos/fallback externos, con 14 regresiones adicionales; callback suma 20
+casos. Validacion final local: 165 unit / 26 archivos, lint,
+TypeScript, build y E2E publico/seguridad 8/8 PASS. No se creo ningun factor
+ni se probo Auth/TOTP real. Estos cambios no agregan migraciones ni estan
+publicados en Production; exigir CI remoto del nuevo SHA y smoke posterior.
+
+Lote Vercel autorizado completado: unico UUID admin en Secret Production,
+cinco Config legacy nonprod eliminados y metadata final de 16 variables
+solo Production. La identidad es privada. Los cambios afectan futuros
+deployments; faltan redeploy aprobado/acceso admin, base aislada y tratamiento
+de copias antiguas. No se rotaron/revocaron claves ni se cambio DDL/DML remoto.
+
+SMTP elegido por el titular: Google y `soporte@intra.com.co` (buzon publico).
+Formulario Supabase solo borrador no guardado: `smtp.gmail.com:465`, nombre
+INTRA, remitente/usuario de ese buzon y password vacio. Workspace suspendido
+por impago con acceso al inbox, segun el titular; no hubo reactivacion ni
+pago. Informa 2-Step desactivada, App Password no disponible y SIM ausente
+varios dias. Pendiente el paso humano 2FA/credencial y las pruebas de entrega;
+ningun metodo alternativo de esa cuenta fue verificado. No se guardo SMTP,
+no se envio correo ni se modificaron DNS, factores o ajustes efectivos Auth.
+
 Production sigue con siete registros de migracion (historicas + A01/A02).
 No se modifico su DDL/DML en esta sesion. Drift historico no reparado; no usar
 db push/replay antiguo. `schema.sql` queda marcado historico; el fixture

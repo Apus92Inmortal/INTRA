@@ -1,8 +1,10 @@
-# Lote pendiente de configuracion Vercel — 2026-10-13
+# Lote ejecutado de configuracion Vercel — 2026-10-13
 
 Proyecto `intra`, equipo `aldo-antonio-altamar-cervantes-projects`.
-Este lote esta preparado para revision; **no se ejecuto**. No incluye merge,
-migraciones, deployment Production, compras, rotacion de claves ni cobros.
+El titular confirmo expresamente este lote y se ejecuto por UI el 13-oct.
+No incluye merge, migraciones, deployment Production, compras, rotacion de
+claves ni cobros. Preview del producto `d7ded3d` READY despues de todo el lote;
+HEAD del cierre documental debe comprobarse con sus checks antes de publicar.
 
 ## Estado ya comprobado
 
@@ -12,24 +14,24 @@ y URL/anon Supabase. Ver [detalle](launch-external-gates-20261013.md).
 Las asignaciones originales Production se conservaron. Los deployments
 existentes conservan sus copias; restringir scopes no revoca esas claves.
 
-## Cambio admin propuesto
+## Cambio admin guardado
 
-Fijar `ADMIN_USER_IDS` **Secret de Production** a un unico UUID: el de la
-cuenta existente que el titular indico durante esta sesion. El dato se conserva
-privadamente y se escribira exclusivamente en Vercel para autorizar esa cuenta.
+Se fijo `ADMIN_USER_IDS` **Secret de Production** a un unico UUID: el de la
+cuenta existente que el titular indico durante esta sesion. El dato se conservo
+privadamente y se escribio exclusivamente en Vercel para autorizar esa cuenta.
 La consulta protegida encontro una coincidencia, confirmada y no bloqueada.
 El correo y UUID no van en Git, capturas, logs ni descripciones del PR.
 
-El valor Secret actual no se puede leer: este cambio reemplaza su allowlist,
-no puede afirmar que conserva otros administradores desconocidos. Confirmar
-la designacion de esa cuenta como unico admin antes de guardar. Autoconfirm
+El valor Secret guardado no se puede leer: este cambio reemplazo su allowlist,
+sin afirmar que conserva otros administradores desconocidos. El titular
+confirmo la designacion de esa cuenta como unico admin antes de guardar. Autoconfirm
 de Supabase no prueba propiedad del correo; el titular debe probar acceso
 autenticado antes del deploy. La nueva app ignora `ADMIN_EMAILS` para privilegios.
 
-## Cinco registros a borrar
+## Cinco registros borrados y verificados
 
-Cada fila identifica un registro completo, no una eliminacion por nombre
-global. Las variables generales de Production se conservan.
+Cada fila identifica un registro completo eliminado, no una eliminacion por
+nombre global. Las variables generales de Production se conservaron.
 
 | Nombre | Tipo | Entorno | Override de rama |
 |---|---|---|---|
@@ -46,20 +48,29 @@ La politica de uso del navegador requiere confirmacion al momento de borrar
 y al autorizar acceso admin; la autorizacion general de correcciones no
 sustituye esa confirmacion especifica.
 
-## Ejecucion y comprobacion tras confirmar
+## Ejecucion y comprobacion realizadas
 
-1. Revisar metadata actual por registro: nombre, tipo, entorno y rama.
-   Cancelar si no coincide exactamente con la tabla o comparte Production.
-2. Guardar el UUID seleccionado en el Secret admin de Production. Verificar
-   scope y resultado sin revelar valor; probar acceso con el titular despues
-   de publicar el codigo aprobado. No cambiar contrasenas ni iniciar sesion
-   como otro usuario.
-3. Borrar exclusivamente las cinco filas indicadas. Verificar su ausencia
-   y la permanencia de los registros generales Production, con valores ocultos.
-4. Crear/verificar solamente un nuevo Preview del SHA revisado. Sin base
+1. Metadata y modal de confirmacion revisados para cada registro: nombre,
+   tipo, entorno y rama; ninguno compartia Production.
+2. UUID seleccionado guardado en el Secret admin de Production; valor
+   privado comprobado en el campo antes de enviar, scope y exito comprobados
+   sin revelar valor. El archivo temporal de transferencia se elimino.
+3. Cinco filas borradas y ausencia verificada por UI. Inventario final del
+   proyecto: 16 variables, todas con scope Production. Valores ajenos al
+   Secret admin conservados. Capturas privadas con valores ocultos fuera de Git.
+
+## Verificacion operativa que sigue pendiente
+
+1. Probar acceso admin del titular despues de publicar el codigo aprobado.
+   Cambiar una variable no actualiza los deployments existentes; no se
+   considera aplicado a Production ni comprobado el acceso por este guardado.
+2. Crear/verificar solamente un nuevo Preview del SHA revisado. Sin base
    Supabase aislada, los flujos con datos deben permanecer inactivos; no
    reponer claves Production para conseguir que funcione el Preview.
-5. Inventariar deployments antiguos y acordar retiro/rotacion compatible con
+   El Preview de producto `d7ded3d` (`dpl_22DMCDkWTJZcVdRWY4sTWmw9u6Ri`) ya
+   paso HTTP publico/login/robots y rechazo de callback sintetico, posterior al
+   lote completo. No certifica Auth real ni retiro de copias anteriores.
+3. Inventariar deployments antiguos y acordar retiro/rotacion compatible con
    Production como lote separado. Los secretos de copias antiguas no se
    consideran revocados por este cambio.
 

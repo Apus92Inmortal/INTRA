@@ -8,22 +8,34 @@ con usuarios conocidos. Se prepara `codex/launch-corrections` desde `main`
 migraciones nuevas y el codigo de esta rama aun no estan publicados.
 
 A03/A04/A06, guards NULL, privacidad, dependencias, aislamiento defensivo,
-acceso admin por UUID, Storage, cabeceras, accesibilidad, SEO y CI PostgreSQL
+acceso admin por UUID y JWT `aal2` verificado, callback Auth aislado con cookies
+del SDK, Storage, cabeceras, accesibilidad, SEO y CI PostgreSQL
 estan implementados para revision. Ver [matriz actual](../audits/2026-10-13-launch-corrections-status.md)
 y CURRENT_SESSION para resultados reales. No marcar el piloto listo por tests
 sinteticos ni deployment READY. La cuenta admin seleccionada se localizo sin
 versionar identidad; Vercel allowlist efectiva sigue por validar.
 
 PR [#183](https://github.com/Apus92Inmortal/INTRA/pull/183) abierto: CI completo
-validate/database/detect-impact PASS y Preview READY de `aa5acf2`.
+validate/database/detect-impact PASS y Preview READY del producto `d7ded3d`.
 Main protegido por API con esos checks strict y enforcement de admins.
 Navegador Vercel confirma Hobby y diez variables limitadas a Production,
-sin cambiar valores. Queda retirar cinco registros legacy nonprod y copias
-de deployments antiguos; falta un entorno Supabase aislado. A09 no esta cerrado.
+inicialmente sin cambiar valores. Lote posterior autorizado: unico UUID admin
+guardado en Secret Production y cinco registros legacy nonprod borrados;
+16 variables del proyecto solo Production. Falta efecto del admin tras redeploy
+aprobado/smoke, retiro/rotacion de copias antiguas y base aislada. A09 sigue abierto.
 
 Persisten A05, aislamiento/aptitud comercial del plan Hobby, SMTP/MFA/DNS,
 recuperacion DB+Storage, alertas, smoke autenticado, limites operativos y
 aprobacion legal/contable.
+MFA codigo preparado (`88819c8`), aun sin enrollment/challenge remoto del
+titular. Local: 165 unit/26 archivos, lint/TS/build PASS y E2E publico 8/8 PASS;
+Comprobar SHA y checks del HEAD documental en el PR antes de publicar.
+El retorno Auth rechaza destinos externos ocultos con controles y comprueba
+origen/fallback; regresiones helper/callback agregadas tras revision independiente.
+Correo Google elegido con cuenta publica `soporte@intra.com.co`: formulario
+SMTP borrador no guardado, sin password.
+Titular confirma 2-step Google desactivada y SIM no disponible varios dias.
+No se cambio proveedor, reactivo/pago Workspace ni envio correo de prueba.
 Los registros antiguos inferiores son historicos, incluido el estado de tareas
 de UI v2.2; el manual vigente es v3.0. No iniciar nuevos cobros.
 

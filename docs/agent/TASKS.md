@@ -8,19 +8,31 @@
 - TASK-050/051: implementacion en revision; no cerradas en Production.
 - TASK-052: dependencias/lock corregidos; plan/aislamiento remoto pendientes.
 - TASK-053: CI/SQL/E2E/accesibilidad/SEO preparados y main protegido; Auth,
-  recovery/alertas y operacion final pendientes.
+  recovery/alertas y operacion final pendientes. Callback y MFA `aal2` firmado
+  implementados en rama; enrollment/prueba real y recuperacion del titular pendientes.
 - TASK-047/A05: pago antiguo sin localizar, sin cobro nuevo. Aldo no recuerda
   la referencia. Conciliar los pagos existentes desde el proveedor cuando haya
   acceso y no interpretar pending como dinero recibido.
-- Cuenta admin elegida y localizada; confirmar ADMIN_USER_IDS en Vercel.
+- Cuenta admin elegida y localizada; ADMIN_USER_IDS Secret Production guardado
+  como unico admin con confirmacion. Efecto en deployment/acceso aun pendiente.
 - PR #183 abierto (producto `8c01a2e`, pruebas `aa5acf2`); main protegido
   por API con checks strict validate/database/detect-impact. Los tres checks
-  PASS remotos de `aa5acf2` y Preview del mismo SHA READY; cierre documental
-  requiere verificar su nuevo HEAD. Unit 115 PASS local/remoto.
+  PASS remotos del producto `d7ded3d` y Preview del mismo SHA READY, posteriores
+  al lote Vercel completo. Verificar checks del HEAD documental en PR #183
+  y del SHA aprobado antes de publicar; CI postmerge sigue pendiente.
+  Unit 165/26 PASS local, lint/TS/build PASS; E2E publico 8/8 PASS.
+  Safe-next rechaza controles y verifica origen/fallback; callback 20 casos.
 - Navegador confirma Vercel Hobby. Diez variables limitadas a Production
-  sin cambiar valores; cinco registros legacy nonprod y deployments antiguos
-  pendientes. Lote admin/limpieza revisable en
-  [plan Vercel](../ops/vercel-configuration-finalization-20261013.md).
+  inicialmente sin cambiar valores. Lote posterior autorizado: Secret admin
+  reemplazado por unico UUID y cinco Config legacy nonprod borrados; quedan
+  16 variables Production. Copias de deployments antiguos/entorno aislado
+  pendientes. Ver [registro Vercel](../ops/vercel-configuration-finalization-20261013.md).
+- Correo: titular eligio Google Workspace, cuenta publica `soporte@intra.com.co`.
+  Reporta suspension por impago y acceso a buzones; MX Google permanece,
+  NS externos dns-parking. SMTP preparado en Supabase como borrador sin password
+  ni Save changes. Google 2-step desactivada, SIM no disponible varios dias:
+  pendiente paso humano/credencial y prueba autorizada de confirmacion/recovery,
+  recepcion de soporte y DNS. No se contrato, reactivo ni pago nada.
 - Las tareas UI REVIEW/TODO y PRs antiguos conservados abajo son historial;
   su presencia no demuestra falta funcional. Manual v3.0 vigente. La evidencia
   inicial/panel/visor/expediente/realtime ya fueron integrados por PR B-H.
