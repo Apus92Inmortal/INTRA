@@ -1,5 +1,45 @@
 # INTRA - Technical Decisions
 
+## DEC-013: Transacciones para devolucion y conciliacion Wompi
+
+Fecha: 2026-10-13
+
+Las acciones server verifican sesion/allowlist antes de RPCs service-role.
+Cancelacion, devolucion Wallet neta y revision admin se ejecutan con locks,
+credito unico por payment y audit dentro de la transaccion. No se cambia el
+contrato de DEC-010 ni se llama a Wompi para refund externo automatico.
+No borrar creditos historicos para instalar la unicidad.
+
+El webhook conserva el delivery firmado antes de consulta, coteja el estado
+actual de la transaccion con Wompi y procesa payment+evento atomicamente.
+`success:false` permanece pendiente para retry. Aprobacion posterior a
+cancelacion queda en conciliacion, sin hold sobre shipment cancelado ni credito
+automatico nuevo. No resucitar estados finales ni forzar JSON por SQL.
+
+## DEC-014: Identidad admin y aislamiento de entornos
+
+Fecha: 2026-10-13
+
+Solo `ADMIN_USER_IDS` concede acceso admin. `ADMIN_EMAILS` deja de autorizar:
+un correo autoconfirmado no demuestra titularidad. La seleccion humana de la
+cuenta se verifico contra Auth y su UUID se conserva fuera del repo; confirmar
+allowlist Vercel antes de publicar.
+
+Hosted Preview/Development bloquean la DB conocida de Production en clientes,
+SSR, proxy y admin; Wompi requiere Sandbox y llaves test. Es defensa adicional:
+separar/quitar credenciales remotas sigue siendo obligatorio, incluidos
+deployments/overrides antiguos. No usar secretos de produccion en CI SQL/E2E.
+
+## DEC-015: Primer destino de lanzamiento
+
+Fecha: 2026-10-13
+
+Aldo eligio piloto controlado con usuarios conocidos. No equivale a autorizar
+nuevos cobros, contratar planes, mergear main ni desplegar Production. Preparar
+el paquete revisable y cerrar gates de dinero, infraestructura, correo,
+recuperacion, soporte y limites antes de operar. La apertura publica requiere
+validacion legal/contable y capacidad adicionales.
+
 ## DEC-007: Los reintentos de pago se crean en la base
 
 Fecha: 2026-09-14

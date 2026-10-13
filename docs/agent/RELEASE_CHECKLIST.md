@@ -1,5 +1,36 @@
 # INTRA - Release Checklist
 
+## Paquete de correcciones para piloto - 2026-10-13
+
+Este bloque es el estado actual. Los checks fechados antiguos son historial,
+no certifican el nuevo paquete ni reemplazan sus gates.
+
+- [x] Rama `codex/launch-corrections` desde `5574036`; A01/A02 previo publicado.
+- [x] Manual UI/UX v3.0 y decisiones/DB_NOTES revisados.
+- [x] Cinco migraciones nuevas revisadas contra DDL remoto exacto sin filas.
+- [x] SQL aislado PASS: A03 18, A04 15, roles/privacidad/guards/concurrencia A06.
+- [x] Lint PASS (una advertencia de redirect existente), unit 114 PASS,
+  TypeScript PASS, build webpack PASS, audit Production 0.
+- [x] E2E publico/seguridad 8/8 PASS tras ajuste de URL vacia.
+- [x] Memoria, matriz A01-A15, revision financiera y rollout preparados.
+- [ ] PR y checks `validate`, `database`, `detect-impact` del SHA final PASS.
+- [ ] Proteccion main efectiva verificada por API.
+- [ ] ADMIN_USER_IDS efectivo y acceso del titular comprobados.
+- [ ] Preview/Development aislados y credenciales/overrides antiguos retirados.
+- [ ] Plan Vercel/configuracion comercial del proveedor verificados.
+- [ ] SMTP/confirm/reset, MFA con enforcement y DNS verificados.
+- [ ] Restore DB+Storage aislado y alertas recibidas demostrados.
+- [ ] Smoke Auth por roles y ciclo Wompi sandbox sin datos Production.
+- [ ] A05/pagos antiguos conciliados; caso de aprobacion tardia resuelto
+  por procedimiento externo sin duplicar creditos Wallet.
+- [ ] Limites/participantes/soporte y revision legal/contable fijados.
+- [ ] Aprobacion final de migraciones, merge y deployment Production.
+- [ ] Aplicacion/postflight, CI postmerge y deployment READY del SHA aprobado.
+
+Estado: correcciones locales preparadas; piloto con dinero permanece bloqueado.
+Detalle en [matriz](../audits/2026-10-13-launch-corrections-status.md) y
+[gates externos](../ops/launch-external-gates-20261013.md).
+
 ## Smoke autenticado minimo - 2026-06-07
 
 - [x] PR #124 creado para harness `Authenticated Smoke`.

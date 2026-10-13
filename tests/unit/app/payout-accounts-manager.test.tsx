@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react"
+import { render, screen, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import PayoutAccountsManager from "@/app/app/wallet/payout/accounts/PayoutAccountsManager"
+import { deletePayoutAccountAction } from "@/app/app/wallet/actions"
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -90,5 +91,23 @@ describe("PayoutAccountsManager", () => {
     expect(
       screen.getByRole("button", { name: "Editar" })
     ).toBeInTheDocument()
+  })
+
+  it("opens deletion with Cancelar focused, cycles within the confirmation and restores its opener", async () => {
+    const user = userEvent.setup()
+    render(<PayoutAccountsManager accounts={[{
+      id: "synthetic-account", account_holder_name: "Prueba", document_number: "123",
+      bank_name: "Nequi", account_type: "nequi", account_number: "3001234567", breb_key: null, is_default: true,
+    }]} />)
+    const opener = screen.getByRole("button", { name: "Eliminar" })
+    await user.click(opener)
+    const dialog = screen.getByRole("dialog", { name: "Eliminar método de retiro" })
+    expect(within(dialog).getByRole("button", { name: "Cancelar" })).toHaveFocus()
+    await user.tab({ shift: true })
+    expect(within(dialog).getByRole("button", { name: "Eliminar" })).toHaveFocus()
+    await user.keyboard("{Escape}")
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
+    expect(deletePayoutAccountAction).not.toHaveBeenCalled()
   })
 })

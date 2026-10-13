@@ -2,6 +2,10 @@
 -- Generated from linked Supabase project on 2026-04-24T01:56:55.180Z
 -- Scope: schema public only
 -- Excludes Supabase-managed system schemas and global role/grant configuration.
+-- HISTORICAL: do not use this April snapshot as the current Production schema.
+-- The DDL inspected 2026-10-13 is versioned for isolated regression tests at
+-- tests/fixtures/pre-corrections-schema-20261013.json. New corrections live in
+-- migrations/20261013*.sql; migration-history drift still needs a separate repair.
 
 -- Installed extensions in the linked project (reference only)
 -- - pg_graphql (schema: graphql)

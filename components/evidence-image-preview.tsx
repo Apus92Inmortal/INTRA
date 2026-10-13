@@ -2,7 +2,9 @@
 
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, ZoomIn } from "lucide-react";
+import { useModalFocus } from "@/lib/ui/use-modal-focus";
 
 type EvidenceImagePreviewProps = {
   src: string | null;
@@ -18,6 +20,7 @@ export function EvidenceImagePreview({
   modalTitle = "Evidencia del envío",
 }: EvidenceImagePreviewProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const panelRef = useModalFocus({ open: isOpen && Boolean(src), onDismiss: () => setIsOpen(false) });
 
   if (!src) {
     return <>{children}</>;
@@ -37,14 +40,12 @@ export function EvidenceImagePreview({
         </span>
       </button>
 
-      {isOpen ? (
+      {isOpen ? createPortal(
         <div
           className="intra-modal-backdrop p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label={modalTitle}
+          role="presentation"
         >
-          <div className="intra-modal-panel relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
+          <div ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={modalTitle} className="intra-modal-panel relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
             <div className="flex items-center justify-between gap-3 border-b border-intra-border px-4 py-3">
               <p className="min-w-0 intra-caption-strong text-intra-blue">{modalTitle}</p>
               <button
@@ -65,7 +66,8 @@ export function EvidenceImagePreview({
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </>
   );

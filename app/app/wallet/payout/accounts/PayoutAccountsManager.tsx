@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react"
-import { createPortal } from "react-dom"
+import { useMemo, useState, useTransition, type ReactNode } from "react"
+import { IntraConfirmDialog } from "@/components/ui/intra-foundation"
 import {
   Check,
   ChevronLeft,
@@ -92,7 +92,6 @@ export default function PayoutAccountsManager({
   accounts: PayoutAccount[]
 }) {
   const router = useRouter()
-  const deleteModalRef = useRef<HTMLDivElement | null>(null)
   const [isPending, startTransition] = useTransition()
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null)
   const [deleteAccountId, setDeleteAccountId] = useState<string | null>(null)
@@ -103,22 +102,6 @@ export default function PayoutAccountsManager({
 
   const accountsBadgeLabel = useMemo(() => getAccountsBadgeLabel(accounts.length), [accounts.length])
   const isBankAccount = form.accountType === "ahorros" || form.accountType === "corriente"
-
-  useEffect(() => {
-    if (!deleteAccountId) return
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !isPending) {
-        setDeleteAccountId(null)
-      }
-    }
-
-    document.addEventListener("keydown", handleEscape)
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape)
-    }
-  }, [deleteAccountId, isPending])
 
   function resetForm() {
     setForm({
@@ -478,50 +461,16 @@ export default function PayoutAccountsManager({
           )}
         </section>
       </div>
-      {deleteAccountId && typeof document !== "undefined"
-        ? createPortal(
-            <div
-              className="intra-modal-backdrop p-4"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="payout-account-delete-title"
-              onMouseDown={(event) => {
-                if (!deleteModalRef.current?.contains(event.target as Node)) {
-                  handleCancelDelete()
-                }
-              }}
-            >
-              <div ref={deleteModalRef} className="intra-modal-panel w-full max-w-sm p-5">
-                <h3 id="payout-account-delete-title" className="intra-h3 text-intra-blue">
-                  Eliminar método de retiro
-                </h3>
-                <p className="mt-2 intra-body text-intra-text-subtle">
-                  Esta acción no se puede deshacer.
-                </p>
-
-                <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                  <button
-                    type="button"
-                    onClick={handleCancelDelete}
-                    className="intra-btn border border-intra-border-soft px-4 py-2 intra-body-strong text-intra-blue hover:bg-intra-bg-app"
-                    disabled={isPending}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleConfirmDelete}
-                    className="intra-btn bg-intra-danger px-4 py-2 intra-body-strong text-intra-card hover:opacity-95 disabled:opacity-60"
-                    disabled={isPending}
-                  >
-                    {isPending ? "Eliminando" : "Eliminar"}
-                  </button>
-                </div>
-              </div>
-            </div>,
-            document.body
-          )
-        : null}
+      <IntraConfirmDialog
+        open={Boolean(deleteAccountId)}
+        title="Eliminar método de retiro"
+        description="Esta acción no se puede deshacer."
+        confirmLabel="Eliminar"
+        isLoading={isPending}
+        closeOnBackdropClick
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   )
 }

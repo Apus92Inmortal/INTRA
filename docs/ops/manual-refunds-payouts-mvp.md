@@ -22,6 +22,18 @@
 
 ## Refunds manuales
 
+### Aclaracion vigente del credito Wallet
+
+La cancelacion Dashboard sin viajero (DEC-010) y la resolucion admin
+`customer_refund` acreditan Wallet en INTRA; no llaman a Wompi para devolver
+dinero externamente. El codigo excluye costo de pasarela del neto. A03 conserva
+esta conducta y la hace atomica, con credito unico y auditoria.
+
+Los pasos de refund **externo** siguientes aplican a casos gestionados fuera
+de ese credito Wallet. No transferir/refundear externamente y despues ejecutar
+`customer_refund`: acreditaria tambien Wallet. Ante un movimiento externo ya
+hecho, suspender la resolucion y conciliar el caso antes de registrar estados.
+
 ### Cuando aplica
 
 - Disputa resuelta a favor del cliente.

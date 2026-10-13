@@ -1,5 +1,22 @@
 # INTRA - Active Tasks
 
+## Actualizacion operativa 2026-10-13
+
+- Alcance: todas las correcciones de auditoria para piloto con conocidos.
+- Rama `codex/launch-corrections` desde `5574036`; cinco migraciones nuevas
+  preparadas y probadas localmente. Ver [matriz A01-A15](../audits/2026-10-13-launch-corrections-status.md).
+- TASK-050/051: implementacion en revision; no cerradas en Production.
+- TASK-052: dependencias/lock corregidos; plan/aislamiento remoto pendientes.
+- TASK-053: CI/SQL/E2E/accesibilidad/SEO preparados; proteccion remota, Auth,
+  recovery/alertas y operacion final pendientes.
+- TASK-047/A05: pago antiguo sin localizar, sin cobro nuevo. Aldo no recuerda
+  la referencia. Conciliar los pagos existentes desde el proveedor cuando haya
+  acceso y no interpretar pending como dinero recibido.
+- Cuenta admin elegida y localizada; confirmar ADMIN_USER_IDS en Vercel.
+- Las tareas UI REVIEW/TODO y PRs antiguos conservados abajo son historial;
+  su presencia no demuestra falta funcional. Manual v3.0 vigente. La evidencia
+  inicial/panel/visor/expediente/realtime ya fueron integrados por PR B-H.
+
 ## Convencion de estados
 
 - TODO: pendiente
@@ -52,7 +69,7 @@ Area: Supabase / Seguridad / Pagos
 
 ### TASK-051: Hacer devoluciones atomicas y webhook conciliable
 
-Estado: TODO / antes de nuevos cobros
+Estado: REVIEW / local preparado; antes de nuevos cobros
 Prioridad: Critica
 Area: Wallet / Ledger / Wompi
 
@@ -60,6 +77,11 @@ Area: Wallet / Ledger / Wompi
 - Refund al cliente: transaccion, bloqueo e idempotencia para `refund_available_credit`; cubrir Dashboard y resolucion admin.
 - Webhook: no marcar processed un resultado funcional fallido; definir reintentos, cotejo de importe/moneda y eventos fuera de orden.
 - Cierre exige pruebas concurrentes y de fallo intermedio en DB aislada, sin operar dinero real.
+- 2026-10-13: RPCs refund/revision/cancelacion pendientes atomicas con credito
+  unico, audit e idempotencia. Handler conserva delivery firmado y consulta
+  Wompi antes de ingerir; redirect y retry admin usan la misma transaccion.
+  Fallos de negocio no quedan processed. Pruebas con DDL remoto y cinco
+  migraciones, carreras y rollback. Aplicacion/postflight remoto pendientes.
 
 ### TASK-047: Primer pago real Wompi + Wallet
 
@@ -115,7 +137,7 @@ Area: Release / Seguridad / Operacion
 
 ### TASK-052: Preparar dependencias, Vercel comercial y ambientes aislados
 
-Estado: TODO
+Estado: IN_PROGRESS / codigo en revision; gates remotos abiertos
 Prioridad: Alta / antes de operacion comercial
 
 - A07-A09/A12 del informe: actualizar dependencias vulnerables, instalar desde lockfile y repetir checks.
@@ -124,7 +146,7 @@ Prioridad: Alta / antes de operacion comercial
 
 ### TASK-053: Gates de release, recuperacion y QA operativo
 
-Estado: TODO
+Estado: IN_PROGRESS / CI y codigo preparados; operacion pendiente
 Prioridad: Alta
 
 - A10-A15 del informe: proteger main/checks, E2E en CI, smoke autenticado reciente, rollback y restauracion DB/Storage probados, alertas y correo/soporte.

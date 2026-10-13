@@ -1,5 +1,24 @@
 # INTRA - Project State
 
+## Actualizacion 2026-10-13 — paquete para piloto en revision
+
+Aldo autorizo todas las correcciones de la auditoria y eligio piloto controlado
+con usuarios conocidos. Se prepara `codex/launch-corrections` desde `main`
+`5574036` (PR #182). Production conserva A01/A02 y ese SHA; las cinco
+migraciones nuevas y el codigo de esta rama aun no estan publicados.
+
+A03/A04/A06, guards NULL, privacidad, dependencias, aislamiento defensivo,
+acceso admin por UUID, Storage, cabeceras, accesibilidad, SEO y CI PostgreSQL
+estan implementados para revision. Ver [matriz actual](../audits/2026-10-13-launch-corrections-status.md)
+y CURRENT_SESSION para resultados reales. No marcar el piloto listo por tests
+sinteticos ni deployment READY. La cuenta admin seleccionada se localizo sin
+versionar identidad; Vercel allowlist efectiva sigue por validar.
+
+Persisten A05, aislamiento/plan Vercel, SMTP/MFA/DNS, recuperacion DB+Storage,
+alertas, smoke autenticado, limites operativos y aprobacion legal/contable.
+Los registros antiguos inferiores son historicos, incluido el estado de tareas
+de UI v2.2; el manual vigente es v3.0. No iniciar nuevos cobros.
+
 ## Actualizacion 2026-09-14
 
 La migracion A01 `20260914145957` ya esta aplicada en Supabase Production:

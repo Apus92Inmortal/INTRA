@@ -106,23 +106,6 @@ function validateWompiTransactionIdentity(payment: PaymentRow, transaction: Awai
   return null
 }
 
-function getAlreadyProcessedTargetPath(payment: PaymentRow, transactionStatus: string | null | undefined) {
-  const normalizedStatus = (payment.status ?? "").trim().toLowerCase()
-
-  if (isWompiApprovedStatus(transactionStatus) && (normalizedStatus === "held" || normalizedStatus === "released")) {
-    return "/app/payments/success"
-  }
-
-  if (
-    !isWompiApprovedStatus(transactionStatus) &&
-    (normalizedStatus === "failed" || normalizedStatus === "cancelled" || normalizedStatus === "refunded")
-  ) {
-    return "/app/payments/failed"
-  }
-
-  return null
-}
-
 export async function GET(request: NextRequest) {
   const paymentId = request.nextUrl.searchParams.get("paymentId")?.trim()
   const transactionId = request.nextUrl.searchParams.get("id")?.trim()
@@ -187,60 +170,19 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const alreadyProcessedTargetPath = getAlreadyProcessedTargetPath(paymentRow, transaction.status)
-
-    if (paymentRow.status !== "pending" && paymentRow.status !== "processing") {
-      await recordWompiReturnTrace(admin, {
-        eventKey,
-        eventStatus: transaction.status ?? null,
-        gatewayTransactionId: transaction.id ?? transactionId,
-        externalReference: transaction.reference ?? null,
-        payload: tracePayload,
-        processed: Boolean(alreadyProcessedTargetPath),
-        processingError: alreadyProcessedTargetPath ? null : "payment_not_processable",
-      })
-
-      return NextResponse.redirect(
-        buildRedirectUrl(request, alreadyProcessedTargetPath ?? "/app/payments/failed", paymentId)
-      )
-    }
-
-    await recordWompiReturnTrace(admin, {
-      eventKey,
-      eventStatus: transaction.status ?? null,
-      gatewayTransactionId: transaction.id ?? transactionId,
-      externalReference: transaction.reference ?? null,
-      payload: tracePayload,
-    })
-
-    const { error } = await admin.rpc("process_wompi_payment_event", {
+    const { data: result, error } = await admin.rpc("ingest_wompi_payment_event", {
+      p_event_key: eventKey,
+      p_event_type: "wompi_redirect",
       p_gateway_transaction_id: transaction.id ?? transactionId,
       p_status: transaction.status ?? "PENDING",
       p_external_reference: transaction.reference ?? null,
       p_payload: tracePayload,
+      p_headers: getTraceHeaders(request),
     })
 
-    if (error) {
-      await recordWompiReturnTrace(admin, {
-        eventKey,
-        eventStatus: transaction.status ?? null,
-        gatewayTransactionId: transaction.id ?? transactionId,
-        externalReference: transaction.reference ?? null,
-        payload: tracePayload,
-        processingError: error.message,
-      })
-
-      throw new Error(error.message)
+    if (error || result?.success !== true) {
+      throw new Error("Wompi return reconciliation failed")
     }
-
-    await recordWompiReturnTrace(admin, {
-      eventKey,
-      eventStatus: transaction.status ?? null,
-      gatewayTransactionId: transaction.id ?? transactionId,
-      externalReference: transaction.reference ?? null,
-      payload: tracePayload,
-      processed: true,
-    })
 
     const targetPath = isWompiApprovedStatus(transaction.status)
       ? "/app/payments/success"

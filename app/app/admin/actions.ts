@@ -490,6 +490,38 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
     }
 
     const admin = createAdminClient()
+    if (action === "customer_refund") {
+      const { data, error } = await admin.rpc("admin_resolve_dispute_for_customer", {
+        p_payment_id: paymentId,
+        p_match_id: matchIdInput || null,
+        p_refund_amount: refundAmount,
+        p_resolution_notes: resolutionNotes,
+        p_admin_id: user.id,
+      })
+      if (error || !data || typeof data !== "object" || data.success !== true) {
+        return { success: false, error: "No pudimos aplicar la devolución. Revisa el monto y el estado de la disputa." }
+      }
+      revalidateAdminDisputePaths(typeof data.match_id === "string" ? data.match_id : matchIdInput)
+      return { success: true, message: "Disputa resuelta a favor del cliente." }
+    }
+    if (action === "reviewing" || action === "rejected") {
+      const { data, error } = await admin.rpc("admin_review_dispute", {
+        p_payment_id: paymentId,
+        p_match_id: matchIdInput || null,
+        p_action: action,
+        p_notes: resolutionNotes || null,
+        p_admin_id: user.id,
+      })
+      if (error || !data || typeof data !== "object" || data.success !== true) {
+        return { success: false, error: "No pudimos actualizar la disputa. Revisa si sigue abierta." }
+      }
+      revalidateAdminDisputePaths(typeof data.match_id === "string" ? data.match_id : matchIdInput)
+      return {
+        success: true,
+        message: action === "reviewing" ? "Disputa marcada en revisión." : "Disputa cerrada sin movimiento de dinero.",
+      }
+    }
+
     const { data: payment, error: paymentError } = await admin
       .from("payments")
       .select(
@@ -545,207 +577,8 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
       }
     }
 
-    const now = new Date().toISOString()
-    const paymentMeta = asJsonObject(payment.metadata)
-
-    if (action === "reviewing") {
-      const { error: updateError } = await admin
-        .from("payments")
-        .update({
-          metadata: mergeMetadata(paymentMeta, {
-            admin_dispute_status: "reviewing",
-            admin_dispute_reviewed_by: user.id,
-            admin_dispute_reviewed_at: now,
-            admin_dispute_notes: resolutionNotes || null,
-          }),
-          updated_at: now,
-        })
-        .eq("id", payment.id)
-
-      if (updateError) {
-        return { success: false, error: updateError.message }
-      }
-
-      revalidateAdminDisputePaths(resolvedMatchId)
-      return { success: true, message: "Disputa marcada en revisión." }
-    }
-
     if (payment.dispute_status !== "open") {
       return { success: false, error: "Esta disputa ya no está abierta para resolución." }
-    }
-
-    const resolutionMeta = mergeMetadata(paymentMeta, {
-      admin_dispute_status: "resolved",
-      admin_dispute_resolution: action,
-      admin_dispute_resolved_by: user.id,
-      admin_dispute_resolved_at: now,
-      admin_dispute_notes: resolutionNotes || null,
-      admin_dispute_refund_amount: action === "customer_refund" ? refundAmount : null,
-    })
-
-    if (action === "customer_refund") {
-      const resolvedRefundAmount = refundAmount ?? 0
-      const travelerAmount = Number(payment.traveler_amount ?? payment.amount ?? 0)
-      const ledgerReason = resolutionNotes || `Devolución manual por disputa · ${shipment.tracking_code ?? resolvedMatchId}`
-
-      const [customerWalletResult, travelerWalletResult, existingEntriesResult] = await Promise.all([
-        ensureWalletForUser(admin, shipment.owner_id),
-        ensureWalletForUser(admin, trip.traveler_id),
-        admin
-          .from("wallet_ledger")
-          .select("entry_type")
-          .eq("payment_id", payment.id),
-      ])
-
-      if (!customerWalletResult.success) {
-        return customerWalletResult
-      }
-
-      if (!travelerWalletResult.success) {
-        return travelerWalletResult
-      }
-
-      const customerWalletId = customerWalletResult.walletId
-      const travelerWalletId = travelerWalletResult.walletId
-
-      if (existingEntriesResult.error) {
-        return {
-          success: false,
-          error: existingEntriesResult.error.message,
-        }
-      }
-
-      const existingEntryTypes = new Set((existingEntriesResult.data ?? []).map((row) => row.entry_type).filter(Boolean))
-      const ledgerRowsToInsert: Array<{
-        wallet_id: string
-        user_id: string
-        payment_id: string
-        match_id: string
-        payout_id: null
-        entry_type: string
-        balance_type: "available" | "pending"
-        direction: "credit" | "debit"
-        amount: number
-        description: string
-        metadata: Record<string, unknown>
-      }> = []
-
-      if (travelerAmount > 0 && existingEntryTypes.has("payment_hold") && !existingEntryTypes.has("refund_pending_debit")) {
-        ledgerRowsToInsert.push({
-          wallet_id: travelerWalletId,
-          user_id: trip.traveler_id,
-          payment_id: payment.id,
-          match_id: resolvedMatchId,
-          payout_id: null,
-          entry_type: "refund_pending_debit",
-          balance_type: "pending",
-          direction: "debit",
-          amount: travelerAmount,
-          description: "Reverso de retención temporal por disputa resuelta a favor del cliente",
-          metadata: {
-            source: "admin_dispute_customer_refund",
-            reason: ledgerReason,
-          },
-        })
-      }
-
-      if (travelerAmount > 0 && existingEntryTypes.has("release_available_credit") && !existingEntryTypes.has("refund_available_debit")) {
-        ledgerRowsToInsert.push({
-          wallet_id: travelerWalletId,
-          user_id: trip.traveler_id,
-          payment_id: payment.id,
-          match_id: resolvedMatchId,
-          payout_id: null,
-          entry_type: "refund_available_debit",
-          balance_type: "available",
-          direction: "debit",
-          amount: travelerAmount,
-          description: "Ajuste de saldo por disputa resuelta a favor del cliente",
-          metadata: {
-            source: "admin_dispute_customer_refund",
-            reason: ledgerReason,
-          },
-        })
-      }
-
-      if (!existingEntryTypes.has("refund_available_credit")) {
-        ledgerRowsToInsert.push({
-          wallet_id: customerWalletId,
-          user_id: shipment.owner_id,
-          payment_id: payment.id,
-          match_id: resolvedMatchId,
-          payout_id: null,
-          entry_type: "refund_available_credit",
-          balance_type: "available",
-          direction: "credit",
-          amount: resolvedRefundAmount,
-          description: ledgerReason,
-          metadata: {
-            source: "admin_dispute_customer_refund",
-            reason: ledgerReason,
-          },
-        })
-      }
-
-      if (ledgerRowsToInsert.length > 0) {
-        const { error: ledgerInsertError } = await admin.from("wallet_ledger").insert(ledgerRowsToInsert)
-
-        if (ledgerInsertError) {
-          return {
-            success: false,
-            error: ledgerInsertError.message,
-          }
-        }
-      }
-
-      const [customerSyncResult, travelerSyncResult] = await Promise.all([
-        syncWalletSummary(admin, shipment.owner_id),
-        syncWalletSummary(admin, trip.traveler_id),
-      ])
-
-      if (!customerSyncResult.success) {
-        return customerSyncResult
-      }
-
-      if (!travelerSyncResult.success) {
-        return travelerSyncResult
-      }
-
-      const [{ error: paymentUpdateError }, { error: matchUpdateError }] = await Promise.all([
-        admin
-          .from("payments")
-          .update({
-            status: "refunded",
-            refund_status: "refunded",
-            refund_reason: resolutionNotes || "dispute_customer_refund",
-            refund_processed_at: now,
-            refund_admin_id: user.id,
-            refunded_at: now,
-            dispute_status: "resolved",
-            dispute_resolved_at: now,
-            updated_at: now,
-            metadata: resolutionMeta,
-          })
-          .eq("id", payment.id),
-        admin
-          .from("matches")
-          .update({
-            status: "resolved",
-            resolved_at: now,
-            resolution_notes: resolutionNotes || "Disputa resuelta a favor del cliente con devolución manual.",
-          })
-          .eq("id", resolvedMatchId),
-      ])
-
-      if (paymentUpdateError || matchUpdateError) {
-        return {
-          success: false,
-          error: paymentUpdateError?.message ?? matchUpdateError?.message ?? "No pudimos cerrar la disputa.",
-        }
-      }
-
-      revalidateAdminDisputePaths(resolvedMatchId)
-      return { success: true, message: "Disputa resuelta a favor del cliente." }
     }
 
     if (action === "traveler_release") {
@@ -760,10 +593,10 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
         return { success: false, error: releaseError.message }
       }
 
-      if (releaseResult && typeof releaseResult === "object" && "success" in releaseResult && releaseResult.success === false) {
+      if (!releaseResult || typeof releaseResult !== "object" || releaseResult.success !== true) {
         return {
           success: false,
-          error: typeof releaseResult.error === "string" ? releaseResult.error : "No se pudo liberar el pago.",
+          error: typeof releaseResult?.error === "string" ? releaseResult.error : "No se pudo liberar el pago.",
         }
       }
 
@@ -771,35 +604,7 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
       return { success: true, message: "Disputa resuelta a favor del viajero." }
     }
 
-    const [{ error: paymentUpdateError }, { error: matchUpdateError }] = await Promise.all([
-      admin
-        .from("payments")
-        .update({
-          dispute_status: "resolved",
-          dispute_resolved_at: now,
-          updated_at: now,
-          metadata: resolutionMeta,
-        })
-        .eq("id", payment.id),
-      admin
-        .from("matches")
-        .update({
-          status: "resolved",
-          resolved_at: now,
-          resolution_notes: resolutionNotes || "Disputa cerrada sin movimiento de dinero.",
-        })
-        .eq("id", resolvedMatchId),
-    ])
-
-    if (paymentUpdateError || matchUpdateError) {
-      return {
-        success: false,
-        error: paymentUpdateError?.message ?? matchUpdateError?.message ?? "No pudimos cerrar la disputa.",
-      }
-    }
-
-    revalidateAdminDisputePaths(resolvedMatchId)
-    return { success: true, message: "Disputa cerrada sin movimiento de dinero." }
+    return { success: false, error: "Acción de disputa no válida." }
   } catch (error) {
     return {
       success: false,

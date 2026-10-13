@@ -1,6 +1,7 @@
 "use client"
 
-import type { ReactNode } from "react"
+import { useRef, type ReactNode } from "react"
+import { createPortal } from "react-dom"
 import {
   CheckCircle2,
   FileText,
@@ -8,6 +9,7 @@ import {
   X,
 } from "lucide-react"
 import type { LegalDocument } from "@/lib/legal/documents"
+import { useModalFocus } from "@/lib/ui/use-modal-focus"
 
 type LegalDocumentModalProps<DocumentKey extends LegalDocument["id"]> = {
   documentKey: DocumentKey | null
@@ -68,26 +70,30 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
   onClose,
   onAcceptAndContinue,
 }: LegalDocumentModalProps<DocumentKey>) {
+  const titleRef = useRef<HTMLHeadingElement>(null)
+  const panelRef = useModalFocus({ open: Boolean(documentKey), onDismiss: onClose, initialFocusRef: titleRef })
   if (!documentKey) {
     return null
   }
 
   const content = documents[documentKey]
 
-  return (
+  if (typeof document === "undefined") return null
+
+  return createPortal(
     <div
       className="intra-modal-backdrop px-3 py-4 sm:px-5 sm:py-6"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={titleId}
+      role="presentation"
     >
-      <div className="intra-modal-panel flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
+      <div ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={titleId} className="intra-modal-panel flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
         <div className="flex items-start gap-4 px-5 pb-4 pt-5 sm:px-8 sm:pt-7">
           <div className="hidden h-16 w-16 shrink-0 items-center justify-center rounded-full bg-intra-success-soft text-intra-text-success sm:flex">
             <FileText className="h-8 w-8" />
           </div>
           <div className="min-w-0 flex-1">
             <h2
+              ref={titleRef}
+              tabIndex={-1}
               id={titleId}
               className="intra-h2 text-intra-blue"
             >
@@ -191,6 +197,7 @@ export function LegalDocumentModal<DocumentKey extends LegalDocument["id"]>({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

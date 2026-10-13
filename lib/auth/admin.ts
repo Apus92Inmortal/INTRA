@@ -14,19 +14,13 @@ function parseCsvEnv(value: string | undefined) {
 function getAdminAllowlists() {
   return {
     adminUserIds: parseCsvEnv(process.env.ADMIN_USER_IDS),
-    adminEmails: new Set(
-      Array.from(parseCsvEnv(process.env.ADMIN_EMAILS)).map((email) =>
-        email.toLowerCase()
-      )
-    ),
   }
 }
 
 export function isConfiguredAdmin(user: { id: string; email?: string | null }) {
-  const { adminUserIds, adminEmails } = getAdminAllowlists()
-  const normalizedEmail = user.email?.trim().toLowerCase() ?? ""
-
-  return adminUserIds.has(user.id) || (normalizedEmail ? adminEmails.has(normalizedEmail) : false)
+  const { adminUserIds } = getAdminAllowlists()
+  // Email strings do not prove account ownership when Auth auto-confirms signup.
+  return adminUserIds.has(user.id)
 }
 
 export async function requireAdminUser() {
@@ -40,11 +34,11 @@ export async function requireAdminUser() {
     throw new Error("Debes iniciar sesión para continuar.")
   }
 
-  const { adminUserIds, adminEmails } = getAdminAllowlists()
+  const { adminUserIds } = getAdminAllowlists()
 
-  if (adminUserIds.size === 0 && adminEmails.size === 0) {
+  if (adminUserIds.size === 0) {
     throw new Error(
-      "Panel admin no configurado. Define ADMIN_USER_IDS o ADMIN_EMAILS en el entorno."
+      "Panel admin no configurado. Define ADMIN_USER_IDS en el entorno."
     )
   }
 

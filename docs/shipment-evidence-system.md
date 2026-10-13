@@ -182,7 +182,14 @@ Estados:
 - Cambia: estado formal de disputa segun flujo existente.
 - No cambia: integracion Wompi ni reglas de wallet sin analisis especifico.
 
-## Auditoria del repo
+## Auditoria historica del repo — 2026-05-25
+
+Este inventario describe el punto de partida, no carencias vigentes. PR B-H
+implementaron tipos extendidos, foto inicial obligatoria antes de checkout,
+miniaturas para viajero, panel/visor en detalle, gates de recogida y entrega,
+foto sospechosa, expediente admin y refetch/realtime. Ver cierres TASK-004 y
+TASK-006-PR-H en `docs/agent/TASKS.md`. Las reglas funcionales anteriores siguen
+vigentes; verificar privacidad y acceso real en el smoke del release.
 
 ### Existe
 
@@ -215,7 +222,7 @@ Estados:
 - Admin disputes/alerts como base para expediente operativo.
 - `/app` como experiencia integrada de oportunidades y matches.
 
-### Incompleto
+### Incompleto en aquel momento
 
 - No hay evidencia inicial obligatoria en creacion de envio.
 - `EvidenceUploader.tsx` no esta integrado en match detail.
@@ -248,15 +255,18 @@ Tipos recomendados:
 - `delivery_note`
 - `admin_resolution_note`
 
-## Salvedad tecnica actual
+## Salvedad tecnica historica — superada por PR B
 
-La tabla `shipment_evidence` existe, pero el constraint actual de `evidence_type` solo acepta:
+El constraint original de `evidence_type` solo aceptaba:
 
 - `pickup`
 - `delivery`
 - `package_state`
 
-Para no ensuciar semantica, se recomienda una migracion futura que amplie `shipment_evidence.evidence_type` antes de implementar `customer_initial_photo` como tipo real.
+PR B amplio el constraint para `customer_initial_photo`, `pickup_photo`,
+`delivery_photo` y `suspicious_photo`, preservando los tres valores originales.
+La inspeccion DDL del 2026-10-13 confirma esos tipos en Production. No aplicar
+de nuevo la migracion historica solo por leer esta salvedad.
 
 Alternativa temporal no recomendada:
 

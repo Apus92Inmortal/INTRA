@@ -1,10 +1,14 @@
 import "server-only"
 
 import { createClient } from "@supabase/supabase-js"
+import { isProductionDatabaseBlocked } from "@/lib/supabase/environment"
 
 export function createAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (isProductionDatabaseBlocked(url, process.env.VERCEL_ENV ?? process.env.NEXT_PUBLIC_INTRA_DEPLOYMENT_ENV)) {
+    throw new Error("Production database access is disabled in this deployment environment.")
+  }
 
   if (!url || !serviceRoleKey) {
     throw new Error(

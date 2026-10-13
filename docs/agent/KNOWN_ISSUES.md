@@ -1,5 +1,30 @@
 # INTRA - Known Issues
 
+## Estado vigente 2026-10-13
+
+El paquete de correcciones esta preparado en `codex/launch-corrections`; aun
+no se aplico/publico. Los riesgos financieros/privacy inferiores describen
+Production mientras no haya rollout y postflight. Ver [matriz actual](../audits/2026-10-13-launch-corrections-status.md).
+
+- ISSUE-006/009: A01/A02 remotos mitigados; guards NULL y A06 probados local.
+- ISSUE-007/008: A03/A04 locales atomicos, con pruebas de carreras/rollback.
+  Se corrigio tambien metadata stale admin y cancelacion pendiente vs webhook.
+  Late approval de shipment cancelado exige conciliacion, no hold/credito nuevo.
+- ISSUE-010: audit prod local 0 y lock alineado. Full audit mantiene 5 high
+  derivados de braces3.0.3 sin parche en herramientas dev. Plan Vercel actual
+  y scopes no verificables (env403/CLI sin sesion), gates operativos abiertos.
+- ISSUE-011: Auth autoconfirm=true, sin factores MFA. Email allowlist admin
+  permitia suplantacion por registro; fix local exige UUID. Cuenta del titular
+  localizada; Vercel ADMIN_USER_IDS y smoke admin pendientes antes de publicar.
+- A05: seis intentos antiguos pendientes, referencia del pago reportado sin
+  identificar; no iniciar otro cobro para sustituir esa conciliacion.
+- SMTP/confirm/reset, leaked-password, SPF/DMARC/DKIM, restore DB+objetos,
+  alertas recibidas, aforo y revision legal/contable requieren evidencia externa.
+
+No declarar lista INTRA hasta aplicar/verificar el paquete y completar esos
+gates. Las notas inferiores se conservan como historial y no sustituyen este
+estado ni autorizan nuevos movimientos financieros.
+
 ## Hallazgos vigentes - auditoria 2026-09-04
 
 **No autorizar nuevos cobros basandose en PASS historicos.** Ver [informe completo](../audits/2026-09-04-launch-readiness.md). Los siguientes hallazgos estan abiertos; no se aplicaron fixes durante la auditoria.

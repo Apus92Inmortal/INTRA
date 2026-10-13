@@ -6,12 +6,15 @@ import {
   type HTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
+  type RefObject,
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
   useId,
+  useRef,
 } from "react";
 import { createPortal } from "react-dom";
 import { AlertTriangle, Info, X } from "lucide-react";
+import { useModalFocus } from "@/lib/ui/use-modal-focus";
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -234,6 +237,10 @@ type IntraModalProps = {
   children?: ReactNode;
   footer?: ReactNode;
   onClose?: () => void;
+  onEscape?: () => void;
+  isDismissDisabled?: boolean;
+  initialFocusRef?: RefObject<HTMLElement | null>;
+  closeOnBackdropClick?: boolean;
   className?: string;
   panelClassName?: string;
   align?: "start" | "center";
@@ -247,19 +254,35 @@ export function IntraModal({
   children,
   footer,
   onClose,
+  onEscape,
+  isDismissDisabled = false,
+  initialFocusRef,
+  closeOnBackdropClick = false,
   className,
   panelClassName,
   align = "start",
 }: IntraModalProps) {
   const titleId = useId();
+  const descriptionId = useId();
+  const panelRef = useModalFocus({ open, onDismiss: isDismissDisabled ? undefined : onEscape ?? onClose, initialFocusRef });
 
   if (!open) {
     return null;
   }
 
   return portal(
-    <div className={cx("intra-modal-backdrop p-4", className)} role="presentation">
+    <div
+      className={cx("intra-modal-backdrop p-4", className)}
+      role="presentation"
+      onMouseDown={(event) => {
+        if (closeOnBackdropClick && !isDismissDisabled && event.target === event.currentTarget) {
+          (onEscape ?? onClose)?.();
+        }
+      }}
+    >
       <div
+        ref={panelRef}
+        tabIndex={-1}
         className={cx(
           "intra-modal-panel w-full max-w-[var(--intra-modal-max-width)]",
           "p-5",
@@ -268,6 +291,7 @@ export function IntraModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
       >
         <div className={cx("flex items-start", onClose ? "justify-between" : "justify-center", "gap-4")}>
           <div className={cx("min-w-0", align === "center" && "text-center")}>
@@ -281,13 +305,14 @@ export function IntraModal({
                 {title}
               </h3>
             </div>
-            {description ? <p className={cx("intra-body text-intra-text-subtle mt-2")}>{description}</p> : null}
+            {description ? <p id={descriptionId} className={cx("intra-body text-intra-text-subtle mt-2")}>{description}</p> : null}
           </div>
           {onClose ? (
             <button
               type="button"
               className={cx("intra-icon-button shrink-0 text-intra-text-muted h-10 w-10")}
               onClick={onClose}
+              disabled={isDismissDisabled}
               aria-label="Cerrar"
             >
               <X className="intra-icon-lg" aria-hidden="true" />
@@ -315,6 +340,7 @@ type IntraConfirmDialogProps = {
   icon?: ReactNode;
   showIcon?: boolean;
   showCloseButton?: boolean;
+  closeOnBackdropClick?: boolean;
   align?: "start" | "center";
   isLoading?: boolean;
   onConfirm: () => void;
@@ -331,11 +357,13 @@ export function IntraConfirmDialog({
   icon,
   showIcon = false,
   showCloseButton = false,
+  closeOnBackdropClick = false,
   align = "start",
   isLoading = false,
   onConfirm,
   onCancel,
 }: IntraConfirmDialogProps) {
+  const cancelRef = useRef<HTMLButtonElement>(null);
   const isDanger = variant === "danger";
   const ConfirmButtonClass = isDanger
     ? "intra-btn bg-intra-danger text-intra-card hover:opacity-95 disabled:opacity-60"
@@ -352,11 +380,16 @@ export function IntraConfirmDialog({
       titleIcon={showIcon ? (icon ?? <AlertTriangle className="intra-icon-body" aria-hidden="true" />) : undefined}
       description={description}
       onClose={showCloseButton ? onCancel : undefined}
+      onEscape={onCancel}
+      isDismissDisabled={isLoading}
+      initialFocusRef={cancelRef}
+      closeOnBackdropClick={closeOnBackdropClick}
       panelClassName="max-w-sm"
       align={align}
       footer={
         <>
           <IntraSecondaryButton
+            ref={cancelRef}
             type="button"
             className="w-full justify-center sm:w-auto"
             onClick={onCancel}
@@ -389,6 +422,7 @@ type IntraDrawerProps = {
 
 export function IntraDrawer({ open, title, children, onClose, className }: IntraDrawerProps) {
   const titleId = useId();
+  const panelRef = useModalFocus<HTMLElement>({ open, onDismiss: onClose });
 
   if (!open) {
     return null;
@@ -396,7 +430,7 @@ export function IntraDrawer({ open, title, children, onClose, className }: Intra
 
   return portal(
     <div className="intra-drawer-backdrop" role="presentation">
-      <aside className={cx("intra-drawer-panel overflow-y-auto p-5", className)} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <aside ref={panelRef} tabIndex={-1} className={cx("intra-drawer-panel overflow-y-auto p-5", className)} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-start justify-between gap-4">
           <h2 id={titleId} className="intra-subtitle">
             {title}
@@ -421,6 +455,7 @@ type IntraBottomSheetProps = {
 
 export function IntraBottomSheet({ open, title, children, onClose, className }: IntraBottomSheetProps) {
   const titleId = useId();
+  const panelRef = useModalFocus<HTMLElement>({ open, onDismiss: onClose });
 
   if (!open) {
     return null;
@@ -429,6 +464,8 @@ export function IntraBottomSheet({ open, title, children, onClose, className }: 
   return portal(
     <div className="intra-bottom-sheet-backdrop" role="presentation">
       <section
+        ref={panelRef}
+        tabIndex={-1}
         className={cx("intra-bottom-sheet-panel overflow-y-auto p-5", className)}
         role="dialog"
         aria-modal="true"

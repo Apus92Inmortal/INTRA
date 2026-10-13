@@ -1,5 +1,40 @@
 # INTRA - Database Notes
 
+## 2026-10-13 — correcciones nuevas locales, sin aplicar a Production
+
+Cinco migraciones generadas por CLI en `codex/launch-corrections`:
+
+- `20261013201539`: A03 refund Wallet/cancelacion/review admin atomicos,
+  credito unico y audit; orden de locks consistente con resolucion viajero.
+- `20261013201622`: A06 policies contextuales y grants; request_match toma
+  shipment lock antes de revalidar disponibilidad para evitar carrera refund.
+- `20261013201714`: A04 processor/ingest/record delivery service-only,
+  amount/currency/transaction/reference y estados finales; payment+processed
+  en una transaccion. API outage conserva evento para retry del operador.
+- `20261013201744`: actor NULL de release/refund, manteniendo cron legitimo.
+- `20261013201827`: buckets privados 5 MiB, JPEG/PNG/WebP.
+
+Se clono solo DDL real inspeccionado por lectura (22 tablas, 55 funciones,
+113 constraints, 62 policies). Fixture versionado en `supabase/tests/fixtures/`
+con interfaces Auth/Storage sinteticas y sin filas/secretos Production. Suites
+crean/eliminan DBs desechables PG17 localhost con todas las migraciones nuevas.
+No certificar Auth/REST/Storage HTTP ni restauracion de datos a partir de ellas.
+CI agrega PostgreSQL17 y `npm run test:db`, sin envs de aplicacion.
+
+Production sigue con siete registros de migracion (historicas + A01/A02).
+No se modifico su DDL/DML en esta sesion. Drift historico no reparado; no usar
+db push/replay antiguo. `schema.sql` queda marcado historico; el fixture
+describe baseline inspeccionado y las cinco migraciones describen el cambio.
+
+Preflight remoto: sin creditos refund duplicados; referencias ambiguas se
+rechazan. Monitoreo actual: seis payments pending/processing antiguos,
+sin eventos Wompi pendientes/fallidos ni balances negativos observados.
+No concluir que se cobro o no se cobro por esos estados. A05 sigue abierto.
+
+Ver [rollout](../ops/launch-corrections-rollout-20261013.md),
+[comparacion DDL](../../supabase/tests/a06-ddl-comparison-20261013.md) y
+[estado A01-A15](../audits/2026-10-13-launch-corrections-status.md).
+
 ## 2026-09-14 - A02 aplicado a Production
 
 - Rama: `codex/fix-a02-financial-writes`.
