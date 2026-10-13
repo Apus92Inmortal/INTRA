@@ -20,6 +20,9 @@ con interfaces Auth/Storage sinteticas y sin filas/secretos Production. Suites
 crean/eliminan DBs desechables PG17 localhost con todas las migraciones nuevas.
 No certificar Auth/REST/Storage HTTP ni restauracion de datos a partir de ellas.
 CI agrega PostgreSQL17 y `npm run test:db`, sin envs de aplicacion.
+Suite completa PASS local y remoto en `aa5acf2`: A03 18 checks, A04 15,
+A06 privacidad/roles/guards/concurrencia y 16 postflight; grants A01/A02
+tambien verificados. Las cinco migraciones siguen sin aplicar a Production.
 
 Production sigue con siete registros de migracion (historicas + A01/A02).
 No se modifico su DDL/DML en esta sesion. Drift historico no reparado; no usar

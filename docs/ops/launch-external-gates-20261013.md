@@ -2,9 +2,9 @@
 
 Inspeccion de GitHub, Vercel, Supabase Auth/Storage y DNS, incluido fallback
 de navegador autenticado en Vercel para plan y scopes sin revelar valores.
-Se protegio main por API y se retiro Preview del service-role general por UI,
-sin cambiar su valor Production. No se cambiaron planes, DNS, usuarios,
-correos ni dinero; scopes restantes se registran por separado.
+Se protegio main por API y se limitaron diez variables a Production por UI,
+sin cambiar sus valores. No se cambiaron planes, DNS, usuarios, correos ni
+dinero; cinco registros legacy nonprod siguen pendientes.
 Las correcciones de codigo/SQL de esta rama no estan certificadas en Production.
 El procedimiento de publicacion esta en [rollout](launch-corrections-rollout-20261013.md).
 
@@ -13,8 +13,8 @@ El procedimiento de publicacion esta en [rollout](launch-corrections-rollout-202
 | Auditoria | Evidencia actual | Condicion para cerrar |
 |---|---|---|
 | A08 plan Vercel | Navegador autenticado el 13-oct confirma equipo Hobby. API de plan no disponible. | Resolver autorizacion comercial y alertas de coste con el titular; no comprar automaticamente. |
-| A09 aislamiento | Solo hay un proyecto Supabase disponible: Production. API env da 403 y CLI sin sesion. Navegador confirma service-role/cron/admin/keys legacy compartidas Production/Preview y override service-role en joy/wompi-migration. | Retirar acceso Production de Preview/Development y usar base aislada y Wompi test; revisar deployments antiguos. |
-| A10 GitHub | Main protected=true tras aplicar politica: validate/database/detect-impact strict, admins, PR, sin force-push/borrado. PR #183 primer CI DB/impact PASS; validate ajustado tras fallo de tests Auth. Secrets Actions: 0. | Tres checks PASS del HEAD final y smoke autenticado aislado. |
+| A09 aislamiento | Solo hay un proyecto Supabase disponible: Production. API env da 403 y CLI sin sesion. Navegador confirma diez variables restringidas a Production; cinco registros legacy nonprod pendientes. | Retirar registros legacy y copias en deployments antiguos; usar base aislada y Wompi test. |
+| A10 GitHub | Main protected=true: validate/database/detect-impact strict, admins, PR, sin force-push/borrado. PR #183 tres checks PASS de aa5acf2 y Preview READY del mismo SHA. Secrets Actions: 0. | Revalidar HEAD tras cierre documental, CI postmerge y smoke autenticado aislado. |
 | A11 recuperacion/operacion | No se ejecuto restauracion de datos/objetos, prueba de alertas ni smoke completo con usuarios aislados. | Ensayo de recuperacion, alertas recibidas, aforo/responsables del piloto y aprobacion legal/contable documentados. |
 | A13 Auth | Email Auth y signup activos; email autoconfirm=true; anonymous signin=false. Advisor marca leaked-password protection desactivada. 0 factores MFA, 0 verificados. | Confirmacion/recuperacion SMTP probadas; privilegios admin por UUID del titular; plan de MFA con enforcement y proteccion de contrasenas. |
 | A13 Storage | Ambos buckets privados sin limites especificos en Production. Objetos existentes agregados: JPEG/PNG/WebP; mayor 2.046.594 bytes. | Aplicar migracion de 5 MiB y 3 MIME; verificar HTTP privado, bytes de imagen, retencion/borrado/restauracion. |
@@ -30,7 +30,7 @@ No se imprimieron valores de secretos ni identidades/correos de usuarios.
 El titular indico su cuenta admin durante la sesion. La consulta protegida por
 correo encontro exactamente una cuenta existente, confirmada y no bloqueada.
 Su UUID se conserva fuera del repo para preparar `ADMIN_USER_IDS`; la variable
-existe como Secret en Production/Preview y su valor no puede revelarse. Falta
+existe como Secret, ahora solo Production, y su valor no puede revelarse. Falta
 comprobar/escribir la allowlist efectiva en Vercel y probar acceso autenticado.
 Autoconfirm sigue sin demostrar propiedad de correo por si sola.
 
@@ -43,6 +43,21 @@ La consulta de variables con decrypt=false recibio 403. El fallback CLI
 autenticar ni repetir la misma consulta rechazada. No se descargaron envs.
 El fallback posterior a Chrome tiene sesion propia: confirma Hobby y metadata
 de variables/overrides, con valores ocultos; no se exportaron secretos.
+
+Desde esa UI se restringieron a **Production exclusivamente**, sin cambiar
+values: `SUPABASE_SERVICE_ROLE_KEY` general (Secret), `INTERNAL_CRON_SECRET`,
+`CRON_SECRET`, `ADMIN_USER_IDS` (Secret), `ADMIN_EMAILS` (Secret),
+`WOMPI_EVENTS_KEY`, `WOMPI_INTEGRITY_KEY`, `WOMPI_PRIVATE_KEY`,
+`NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+Las dos variables publicas tambien perdieron su scope Development.
+Esto afecta deployments futuros; no elimina credenciales de deployments
+existentes. No se redeployo Production ni se sobrescribio la allowlist admin.
+
+Persisten cinco registros Config no productivos: service-role Preview override
+`joy/wompi-migration`, Wompi public/sandbox override de esa misma rama,
+service-role Development y ADMIN_USER_IDS Development. El
+[lote de finalizacion](vercel-configuration-finalization-20261013.md) identifica
+exactamente su borrado y el cambio admin pendiente de confirmacion.
 
 El titular debe resolver Billing del equipo. Se confirma Hobby; resolver el
 uso comercial antes de operar cobros: [condiciones Hobby](https://vercel.com/docs/plans/hobby).
@@ -69,7 +84,8 @@ por ID y vuelve a comprobar scopes. Conserva Production/Development y el valor:
 node tools/ops/vercel-preview-scope.mjs --plan "$env:TEMP/intra-preview-scopes.json" --apply
 ```
 
-**No se ejecuto `--apply`.** El script no borra registros, no crea base ni
+**No se ejecuto `--apply`; los diez cambios anteriores se hicieron por UI.**
+El script no borra registros, no crea base ni
 reemplaza secretos. Rechaza metadata diferente desde la revision y deja
 registros Preview-only, Development y custom environments para inspeccion
 manual. No usar `env rm` sobre registros compartidos sin comprobar todas
@@ -98,12 +114,12 @@ Para cerrar A09, completar tambien:
 0 aprobaciones para el titular unico, strict checks `validate`, `database` y
 `detect-impact`, enforcement para admins, resolucion de conversaciones y
 bloqueo de force-push/borrado. No establece bypass ni restricciones de actores.
-`database` es el job nuevo y paso en el primer CI del PR #183. Los dos nombres
-antiguos se verificaron por API. La politica ya se aplico y verifico por GET:
+`database` es el job nuevo y paso en CI del PR #183. Los tres checks pasaron
+en `aa5acf2` (CI 38469809063 e impacto 38469808885). La politica ya se aplico y verifico por GET:
 main protected=true, strict=true, enforce_admins=true, tres contextos exactos,
 force-push/borrado=false y resolucion de conversaciones=true; main no cambio SHA.
 
-El titular/orquestador puede aplicar el cuerpo revisado al endpoint
+El cuerpo revisado se aplico al endpoint
 `PUT /repos/Apus92Inmortal/INTRA/branches/main/protection` y verificar por GET.
 La mutacion fue realizada por el agente principal como correccion de A10.
 El repo es publico y la proteccion esta disponible segun
@@ -200,8 +216,9 @@ No prueban recuperacion de datos/objetos. Antes de abrir el piloto:
 
 ## Limites y postflight
 
-El cierre requiere evidencia nueva del entorno publicado. No se certificaron
-env values efectivos, plan Vercel actual, SMTP, entrega de correo, DKIM real,
+El cierre requiere evidencia nueva del entorno publicado. Hobby y los diez
+scopes se comprobaron por UI; no se certificaron env values efectivos,
+aptitud comercial resuelta, SMTP, entrega de correo, DKIM real,
 allowlist del titular, MFA enforced, restore, alertas, dinero ni aprobacion
 legal. Storage y permisos SQL tienen migraciones/test locales revisables;
 cabeceras, SEO y guard de previews tienen cambios de codigo en la rama.

@@ -13,10 +13,13 @@ no certifican el nuevo paquete ni reemplazan sus gates.
   TypeScript PASS, build webpack PASS, audit Production 0.
 - [x] E2E publico/seguridad 8/8 PASS tras ajuste de URL vacia.
 - [x] Memoria, matriz A01-A15, revision financiera y rollout preparados.
-- [ ] PR y checks `validate`, `database`, `detect-impact` del SHA final PASS.
+- [x] PR #183 y checks `validate`, `database`, `detect-impact` de `aa5acf2` PASS.
+- [ ] Revalidar HEAD tras cierre documental y CI postmerge antes de publicar.
 - [x] Proteccion main efectiva verificada por API: tres checks strict,
   enforcement admins, PR obligatorio, sin force-push/borrado.
 - [ ] ADMIN_USER_IDS efectivo y acceso del titular comprobados.
+- [x] Diez variables Vercel restringidas a Production sin cambiar valores.
+- [ ] Cinco registros legacy nonprod retirados segun el plan revisable.
 - [ ] Preview/Development aislados y credenciales/overrides antiguos retirados.
 - [ ] Plan Vercel/configuracion comercial del proveedor verificados.
 - [ ] SMTP/confirm/reset, MFA con enforcement y DNS verificados.
@@ -28,7 +31,7 @@ no certifican el nuevo paquete ni reemplazan sus gates.
 - [ ] Aprobacion final de migraciones, merge y deployment Production.
 - [ ] Aplicacion/postflight, CI postmerge y deployment READY del SHA aprobado.
 
-Estado: correcciones locales preparadas; piloto con dinero permanece bloqueado.
+Estado: correcciones en PR con CI PASS; piloto con dinero permanece bloqueado.
 Detalle en [matriz](../audits/2026-10-13-launch-corrections-status.md) y
 [gates externos](../ops/launch-external-gates-20261013.md).
 

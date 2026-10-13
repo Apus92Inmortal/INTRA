@@ -5,7 +5,8 @@
 Objetivo autorizado: corregir la auditoria A01-A15 y preparar un piloto
 controlado con usuarios conocidos. Rama `codex/launch-corrections`, desde
 `main` `5574036` (PR #182). PR de correcciones [#183](https://github.com/Apus92Inmortal/INTRA/pull/183),
-commit de producto `8c01a2e`; las correcciones nuevas no estan en Production.
+commit de producto `8c01a2e` y ajustes de pruebas `aa5acf2`; las correcciones
+nuevas no estan en Production. CI remoto completo de `aa5acf2` PASS.
 El cierre previo A01/A02 si esta publicado; permisos remotos A02 14/14 PASS.
 
 ## Cambios preparados
@@ -58,10 +59,12 @@ tests y memoria. El diff de la rama es la lista exacta.
 - Cuenta admin seleccionada por el titular localizada (una coincidencia,
   confirmada/no bloqueada); email/UUID privados. Falta ADMIN_USER_IDS efectivo
   y prueba de acceso. Env metadata API Vercel 403; CLI sin sesion propia.
-  Fallback navegador autentico confirma Hobby y scopes compartidos.
-  Service-role general retirado de Preview sin cambiar valor Production;
-  quedan otros secretos/override legacy y deployments antiguos por resolver.
-- Aislar credenciales/overrides/deployments antiguos, verificar plan Vercel,
+  Fallback navegador autentico confirma Hobby. Diez variables restringidas
+  a Production sin cambiar valores, incluidas URL/anon Supabase y secretos
+  generales de service-role, cron, admin y Wompi legacy. Persisten cinco
+  registros legacy Preview/Development y las copias de deployments antiguos.
+- Retirar registros legacy con confirmacion, aislar entornos/deployments,
+  resolver aptitud comercial del plan Hobby,
   SMTP/confirm/reset, MFA con enforcement y proteccion de password; revisar DNS.
 - A05/TASK-047: titular no recuerda referencia. Seis payments pendientes
   antiguos requieren consulta del proveedor; no asumir cobro ni crear otro.
@@ -72,12 +75,18 @@ tests y memoria. El diff de la rama es la lista exacta.
 
 ## Siguiente paso y lecturas
 
-PR #183 abierto; database/detect-impact remotos PASS del primer commit.
-Validate fallo por tests Auth dependientes del entorno; correccion local PASS,
-pendiente push/verificacion del nuevo HEAD. Main ya protegido por API:
+PR #183 abierto; validate/database/detect-impact remotos PASS de `aa5acf2`
+(CI 38469809063, impacto 38469808885). El fallo inicial de tests Auth por
+SITE_URL se corrigio y verifico remotamente. Preview `dpl_2CtPpU8j9DzNdvbMxY4NaTNHDE3k`
+READY del mismo SHA, anterior a retirar URL/anon de Preview; no certifica
+aislamiento ni smoke autenticado. Revalidar el HEAD tras cierre documental.
+Main ya protegido por API:
 strict validate/database/detect-impact, admins, sin force-push/borrado y PR.
-Resolver env admin, scopes restantes y gates
-externos antes de solicitar/publicar la ventana Production. No abrir cobros.
+Siguiente lote revisable: fijar ADMIN_USER_IDS al UUID privado de la cuenta
+elegida y borrar exclusivamente los cinco registros legacy del
+[plan de configuracion](../ops/vercel-configuration-finalization-20261013.md).
+Requiere confirmacion por borrado irreversible y autorizacion admin por UI.
+Completar los otros gates antes de solicitar la ventana Production. No abrir cobros.
 
 Leer AGENTS/START_HERE, esta memoria, TASKS/DB_NOTES/DECISIONS/KNOWN_ISSUES,
 [matriz A01-A15](../audits/2026-10-13-launch-corrections-status.md),

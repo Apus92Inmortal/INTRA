@@ -17,8 +17,8 @@ sus IDs y no declara cerrado un cambio remoto por una prueba local.
 | A06 | Comparacion DDL remoto; policies contextuales, chat sender/estado, RPCs privados y race request_match corregidos | Aplicar/postflight; repair completo de historial separado, sin replay antiguo |
 | A07 | Next 16.3.8 y transitivas actualizadas; audit produccion 0 | Publicar; advisory sin parche en braces de herramientas dev permanece (5 high derivados) |
 | A08 | Navegador autenticado confirma equipo Hobby; condiciones documentadas | Resolver aptitud comercial/costes con el titular sin compra automatica |
-| A09 | Browser/SSR/proxy/admin bloquean DB Production en Preview; Wompi hosted nonprod exige test; herramienta de scopes revisable | Retirar credenciales/overrides remotos y crear entorno aislado; guard no revoca secretos antiguos |
-| A10 | CI Node24, audit prod, E2E y PostgreSQL17; PR #183, DB/impact primer CI PASS; main protegido con tres checks strict y admins | Validate del nuevo HEAD tras aislar tests Auth; smoke Auth aislado |
+| A09 | Browser/SSR/proxy/admin bloquean DB Production en Preview; Wompi hosted nonprod exige test; diez variables Vercel limitadas a Production sin cambiar valores | Retirar cinco registros legacy nonprod y copias de deployments antiguos; crear entorno aislado; guard no revoca secretos antiguos |
+| A10 | CI Node24, audit prod, E2E y PostgreSQL17; PR #183, validate/database/detect-impact PASS de aa5acf2; main protegido con tres checks strict y admins | Revalidar HEAD tras cierre documental, CI postmerge y smoke Auth aislado |
 | A11 | Monitoreo agregado y rollout/rollback/reconciliacion operativos preparados | Restore DB+Storage real aislado, prueba de alertas recibidas, limites/responsables y legal/contable |
 | A12 | npm ci, lock e instalacion alineados; instrucciones locales actualizadas | Mantener Node24/npm11 en CI/Vercel |
 | A13 | Headers, limites/MIME privados, validacion cliente; admin por UUID exclusivamente, evita suplantacion por email autoconfirm | Aplicar/publicar; SMTP/confirm/reset, MFA, leaked-password, SPF/DMARC/DKIM, validacion bytes/retencion y restore |
@@ -30,9 +30,11 @@ sus IDs y no declara cerrado un cambio remoto por una prueba local.
 Lint PASS (una advertencia de redirect existente), unit 115/115 PASS,
 TypeScript/build webpack PASS y audit Production 0. E2E publico/seguridad
 8/8 PASS; URL vacia normalizada. SQL: A03 18 checks, A04 15 y A06
-permisos/roles/guards/concurrencia PASS. PR #183 abierto; primer CI DB/impact
-PASS. Validate fallo por SITE_URL heredado en tests; correccion local PASS,
-validacion remota del nuevo HEAD pendiente. No es un fallo del callback runtime.
+permisos/roles/guards/concurrencia PASS. PR #183 abierto: los tres checks
+validate/database/detect-impact PASS de `aa5acf2` (CI 38469809063 e impacto
+38469808885). El fallo inicial por SITE_URL heredado en tests se corrigio
+y verifico remotamente. Preview del mismo SHA READY; el cierre documental
+requiere verificar su nuevo HEAD. No es un fallo del callback runtime.
 
 Las suites SQL crean y eliminan bases desechables sobre PostgreSQL17 en
 loopback. El fixture contiene solo DDL remoto inspeccionado: 22 tablas,
@@ -45,13 +47,14 @@ de usuarios/evidencias reales.
 La cuenta admin elegida por el titular se encontro (una coincidencia,
 confirmada, no bloqueada), sin versionar email/UUID. Falta Vercel
 `ADMIN_USER_IDS` efectivo. El navegador confirma que la variable existe como
-Secret (valor no revelable) en Production/Preview; no se presume que contiene
+Secret (valor no revelable), ahora solo Production; no se presume que contiene
 el UUID seleccionado. La lectura actual encontro seis payments pendientes
 antiguos; no se atribuyen a un cobro efectivo sin consultar el proveedor.
 
 Referencias: [revision financiera](2026-10-13-financial-corrections-review.md),
 [comparacion DDL](../../supabase/tests/a06-ddl-comparison-20261013.md),
 [gates externos](../ops/launch-external-gates-20261013.md),
+[lote de configuracion Vercel](../ops/vercel-configuration-finalization-20261013.md),
 [secuencia de publicacion](../ops/launch-corrections-rollout-20261013.md).
 
 La publicacion de este paquete requiere aprobacion explicita para migraciones,

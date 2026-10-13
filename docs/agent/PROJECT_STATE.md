@@ -14,8 +14,16 @@ y CURRENT_SESSION para resultados reales. No marcar el piloto listo por tests
 sinteticos ni deployment READY. La cuenta admin seleccionada se localizo sin
 versionar identidad; Vercel allowlist efectiva sigue por validar.
 
-Persisten A05, aislamiento/plan Vercel, SMTP/MFA/DNS, recuperacion DB+Storage,
-alertas, smoke autenticado, limites operativos y aprobacion legal/contable.
+PR [#183](https://github.com/Apus92Inmortal/INTRA/pull/183) abierto: CI completo
+validate/database/detect-impact PASS y Preview READY de `aa5acf2`.
+Main protegido por API con esos checks strict y enforcement de admins.
+Navegador Vercel confirma Hobby y diez variables limitadas a Production,
+sin cambiar valores. Queda retirar cinco registros legacy nonprod y copias
+de deployments antiguos; falta un entorno Supabase aislado. A09 no esta cerrado.
+
+Persisten A05, aislamiento/aptitud comercial del plan Hobby, SMTP/MFA/DNS,
+recuperacion DB+Storage, alertas, smoke autenticado, limites operativos y
+aprobacion legal/contable.
 Los registros antiguos inferiores son historicos, incluido el estado de tareas
 de UI v2.2; el manual vigente es v3.0. No iniciar nuevos cobros.
 

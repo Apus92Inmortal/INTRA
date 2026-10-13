@@ -7,17 +7,20 @@
   preparadas y probadas localmente. Ver [matriz A01-A15](../audits/2026-10-13-launch-corrections-status.md).
 - TASK-050/051: implementacion en revision; no cerradas en Production.
 - TASK-052: dependencias/lock corregidos; plan/aislamiento remoto pendientes.
-- TASK-053: CI/SQL/E2E/accesibilidad/SEO preparados; proteccion remota, Auth,
+- TASK-053: CI/SQL/E2E/accesibilidad/SEO preparados y main protegido; Auth,
   recovery/alertas y operacion final pendientes.
 - TASK-047/A05: pago antiguo sin localizar, sin cobro nuevo. Aldo no recuerda
   la referencia. Conciliar los pagos existentes desde el proveedor cuando haya
   acceso y no interpretar pending como dinero recibido.
 - Cuenta admin elegida y localizada; confirmar ADMIN_USER_IDS en Vercel.
-- PR #183 abierto (producto `8c01a2e`); main protegido por API con checks
-  strict validate/database/detect-impact. Primer CI: DB/impact PASS; tests
-  Auth aislados tras fallo de SITE_URL, 115 unit PASS local; nuevo CI pendiente.
-- Navegador confirma Vercel Hobby y scopes; service-role general retirado
-  de Preview manteniendo Production. Override/secretos restantes pendientes.
+- PR #183 abierto (producto `8c01a2e`, pruebas `aa5acf2`); main protegido
+  por API con checks strict validate/database/detect-impact. Los tres checks
+  PASS remotos de `aa5acf2` y Preview del mismo SHA READY; cierre documental
+  requiere verificar su nuevo HEAD. Unit 115 PASS local/remoto.
+- Navegador confirma Vercel Hobby. Diez variables limitadas a Production
+  sin cambiar valores; cinco registros legacy nonprod y deployments antiguos
+  pendientes. Lote admin/limpieza revisable en
+  [plan Vercel](../ops/vercel-configuration-finalization-20261013.md).
 - Las tareas UI REVIEW/TODO y PRs antiguos conservados abajo son historial;
   su presencia no demuestra falta funcional. Manual v3.0 vigente. La evidencia
   inicial/panel/visor/expediente/realtime ya fueron integrados por PR B-H.

@@ -11,8 +11,10 @@ Production mientras no haya rollout y postflight. Ver [matriz actual](../audits/
   Se corrigio tambien metadata stale admin y cancelacion pendiente vs webhook.
   Late approval de shipment cancelado exige conciliacion, no hold/credito nuevo.
 - ISSUE-010: audit prod local 0 y lock alineado. Full audit mantiene 5 high
-  derivados de braces3.0.3 sin parche en herramientas dev. Plan Vercel actual
-  y scopes no verificables (env403/CLI sin sesion), gates operativos abiertos.
+  derivados de braces3.0.3 sin parche en herramientas dev. Navegador Vercel
+  confirma Hobby; diez variables restringidas a Production sin cambiar valores.
+  Cinco registros legacy nonprod y deployments antiguos pendientes; falta
+  entorno aislado. Gates comerciales/operativos abiertos; main ya protegido.
 - ISSUE-011: Auth autoconfirm=true, sin factores MFA. Email allowlist admin
   permitia suplantacion por registro; fix local exige UUID. Cuenta del titular
   localizada; Vercel ADMIN_USER_IDS y smoke admin pendientes antes de publicar.
