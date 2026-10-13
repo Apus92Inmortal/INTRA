@@ -9,12 +9,13 @@ no certifican el nuevo paquete ni reemplazan sus gates.
 - [x] Manual UI/UX v3.0 y decisiones/DB_NOTES revisados.
 - [x] Cinco migraciones nuevas revisadas contra DDL remoto exacto sin filas.
 - [x] SQL aislado PASS: A03 18, A04 15, roles/privacidad/guards/concurrencia A06.
-- [x] Lint PASS (una advertencia de redirect existente), unit 114 PASS,
+- [x] Lint PASS (una advertencia de redirect existente), unit 115 PASS,
   TypeScript PASS, build webpack PASS, audit Production 0.
 - [x] E2E publico/seguridad 8/8 PASS tras ajuste de URL vacia.
 - [x] Memoria, matriz A01-A15, revision financiera y rollout preparados.
 - [ ] PR y checks `validate`, `database`, `detect-impact` del SHA final PASS.
-- [ ] Proteccion main efectiva verificada por API.
+- [x] Proteccion main efectiva verificada por API: tres checks strict,
+  enforcement admins, PR obligatorio, sin force-push/borrado.
 - [ ] ADMIN_USER_IDS efectivo y acceso del titular comprobados.
 - [ ] Preview/Development aislados y credenciales/overrides antiguos retirados.
 - [ ] Plan Vercel/configuracion comercial del proveedor verificados.

@@ -4,7 +4,8 @@
 
 Objetivo autorizado: corregir la auditoria A01-A15 y preparar un piloto
 controlado con usuarios conocidos. Rama `codex/launch-corrections`, desde
-`main` `5574036` (PR #182). Las correcciones nuevas no estan en Production.
+`main` `5574036` (PR #182). PR de correcciones [#183](https://github.com/Apus92Inmortal/INTRA/pull/183),
+commit de producto `8c01a2e`; las correcciones nuevas no estan en Production.
 El cierre previo A01/A02 si esta publicado; permisos remotos A02 14/14 PASS.
 
 ## Cambios preparados
@@ -34,13 +35,17 @@ tests y memoria. El diff de la rama es la lista exacta.
 
 - Lint PASS: una advertencia en redireccion de password existente
   (`window.location.assign`); no error. Se conserva la recarga tras signOut.
-- Unit PASS: 114 pruebas / 24 archivos; TypeScript PASS; build webpack PASS.
+- Unit PASS: 115 pruebas / 24 archivos, tambien con SITE_URL localhost de CI;
+  TypeScript PASS; build webpack PASS. Se aislo el entorno de tests Auth,
+  que originalmente dependian del dominio configurado en la maquina.
 - Audit dependencias Production: 0 vulnerabilidades. Audit completo mantiene
   5 high derivados de un advisory sin parche de braces en herramientas dev;
   no se forzo downgrade de Next.
 - `npm run test:db` PASS sobre PostgreSQL17 loopback: A03 18 checks, A04 15,
   A06 roles/privacidad/concurrencia/guards, 16 postflight y grants A01/A02.
   Las cinco migraciones se aplican al DDL remoto exacto en bases desechables.
+  Limites de conexion/SQL y cleanup concurrente evitan esperas indefinidas
+  ante un fallo; limpieza con bloqueo inyectado verificada en 128 ms.
 - E2E publico/seguridad: 8/8 PASS tras normalizar URL vacia en Windows;
   navegacion, legal, overflow mobile, headers, indexing y teclado de modal.
 - No se probo Auth/Storage HTTP real, restore de datos/objetos ni ciclo de
@@ -53,8 +58,9 @@ tests y memoria. El diff de la rama es la lista exacta.
 - Cuenta admin seleccionada por el titular localizada (una coincidencia,
   confirmada/no bloqueada); email/UUID privados. Falta ADMIN_USER_IDS efectivo
   y prueba de acceso. Env metadata API Vercel 403; CLI sin sesion propia.
-  Fallback navegador autentico confirma Hobby y scopes compartidos
-  Production/Preview, incluido service-role; ajuste aun no aplicado.
+  Fallback navegador autentico confirma Hobby y scopes compartidos.
+  Service-role general retirado de Preview sin cambiar valor Production;
+  quedan otros secretos/override legacy y deployments antiguos por resolver.
 - Aislar credenciales/overrides/deployments antiguos, verificar plan Vercel,
   SMTP/confirm/reset, MFA con enforcement y proteccion de password; revisar DNS.
 - A05/TASK-047: titular no recuerda referencia. Seis payments pendientes
@@ -66,8 +72,11 @@ tests y memoria. El diff de la rama es la lista exacta.
 
 ## Siguiente paso y lecturas
 
-Cerrar PR; verificar `validate`, `database`, `detect-impact` del HEAD;
-aplicar/verificar proteccion de main. Resolver acceso/env admin y gates
+PR #183 abierto; database/detect-impact remotos PASS del primer commit.
+Validate fallo por tests Auth dependientes del entorno; correccion local PASS,
+pendiente push/verificacion del nuevo HEAD. Main ya protegido por API:
+strict validate/database/detect-impact, admins, sin force-push/borrado y PR.
+Resolver env admin, scopes restantes y gates
 externos antes de solicitar/publicar la ventana Production. No abrir cobros.
 
 Leer AGENTS/START_HERE, esta memoria, TASKS/DB_NOTES/DECISIONS/KNOWN_ISSUES,

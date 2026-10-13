@@ -15,7 +15,10 @@ if (!['127.0.0.1', 'localhost', '::1'].includes(host) || !Number.isInteger(port)
 const modulePath = process.env.INTRA_TEST_PG_MODULE
 const pg = await import(modulePath ? pathToFileURL(modulePath).href : 'pg')
 const { Client } = pg.default ?? pg
-const config = { host, port, user: process.env.INTRA_TEST_PG_USER ?? 'postgres', password: process.env.INTRA_TEST_PG_PASSWORD }
+const config = {
+  host, port, user: process.env.INTRA_TEST_PG_USER ?? 'postgres', password: process.env.INTRA_TEST_PG_PASSWORD,
+  connectionTimeoutMillis: 10_000, statement_timeout: 30_000, idle_in_transaction_session_timeout: 30_000,
+}
 const database = `intra_a03_test_${Date.now()}_${randomUUID().slice(0, 8)}`
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const migration = await readFile(path.join(root, 'supabase/migrations/20261013201539_a03_atomic_customer_wallet_refunds.sql'), 'utf8')

@@ -18,7 +18,7 @@ sus IDs y no declara cerrado un cambio remoto por una prueba local.
 | A07 | Next 16.3.8 y transitivas actualizadas; audit produccion 0 | Publicar; advisory sin parche en braces de herramientas dev permanece (5 high derivados) |
 | A08 | Navegador autenticado confirma equipo Hobby; condiciones documentadas | Resolver aptitud comercial/costes con el titular sin compra automatica |
 | A09 | Browser/SSR/proxy/admin bloquean DB Production en Preview; Wompi hosted nonprod exige test; herramienta de scopes revisable | Retirar credenciales/overrides remotos y crear entorno aislado; guard no revoca secretos antiguos |
-| A10 | CI Node24 reproducible, audit prod, E2E y PostgreSQL17 con DDL exacto y fixtures; politica main preparada | PR/checks remotos y aplicar/verificar proteccion; smoke Auth aislado |
+| A10 | CI Node24, audit prod, E2E y PostgreSQL17; PR #183, DB/impact primer CI PASS; main protegido con tres checks strict y admins | Validate del nuevo HEAD tras aislar tests Auth; smoke Auth aislado |
 | A11 | Monitoreo agregado y rollout/rollback/reconciliacion operativos preparados | Restore DB+Storage real aislado, prueba de alertas recibidas, limites/responsables y legal/contable |
 | A12 | npm ci, lock e instalacion alineados; instrucciones locales actualizadas | Mantener Node24/npm11 en CI/Vercel |
 | A13 | Headers, limites/MIME privados, validacion cliente; admin por UUID exclusivamente, evita suplantacion por email autoconfirm | Aplicar/publicar; SMTP/confirm/reset, MFA, leaked-password, SPF/DMARC/DKIM, validacion bytes/retencion y restore |
@@ -27,10 +27,12 @@ sus IDs y no declara cerrado un cambio remoto por una prueba local.
 
 ## Evidencia y limites
 
-Lint PASS (una advertencia de redirect existente), unit 114/114 PASS,
+Lint PASS (una advertencia de redirect existente), unit 115/115 PASS,
 TypeScript/build webpack PASS y audit Production 0. E2E publico/seguridad
 8/8 PASS; URL vacia normalizada. SQL: A03 18 checks, A04 15 y A06
-permisos/roles/guards/concurrencia PASS. CI remoto aun pendiente del PR.
+permisos/roles/guards/concurrencia PASS. PR #183 abierto; primer CI DB/impact
+PASS. Validate fallo por SITE_URL heredado en tests; correccion local PASS,
+validacion remota del nuevo HEAD pendiente. No es un fallo del callback runtime.
 
 Las suites SQL crean y eliminan bases desechables sobre PostgreSQL17 en
 loopback. El fixture contiene solo DDL remoto inspeccionado: 22 tablas,

@@ -2,7 +2,9 @@
 
 Inspeccion de GitHub, Vercel, Supabase Auth/Storage y DNS, incluido fallback
 de navegador autenticado en Vercel para plan y scopes sin revelar valores.
-No se cambiaron variables remotas, planes, DNS, usuarios, correos ni dinero.
+Se protegio main por API y se retiro Preview del service-role general por UI,
+sin cambiar su valor Production. No se cambiaron planes, DNS, usuarios,
+correos ni dinero; scopes restantes se registran por separado.
 Las correcciones de codigo/SQL de esta rama no estan certificadas en Production.
 El procedimiento de publicacion esta en [rollout](launch-corrections-rollout-20261013.md).
 
@@ -12,7 +14,7 @@ El procedimiento de publicacion esta en [rollout](launch-corrections-rollout-202
 |---|---|---|
 | A08 plan Vercel | Navegador autenticado el 13-oct confirma equipo Hobby. API de plan no disponible. | Resolver autorizacion comercial y alertas de coste con el titular; no comprar automaticamente. |
 | A09 aislamiento | Solo hay un proyecto Supabase disponible: Production. API env da 403 y CLI sin sesion. Navegador confirma service-role/cron/admin/keys legacy compartidas Production/Preview y override service-role en joy/wompi-migration. | Retirar acceso Production de Preview/Development y usar base aislada y Wompi test; revisar deployments antiguos. |
-| A10 GitHub | Repo publico; `main` protected=false; protection HTTP 404; rulesets vacios. Check-runs del HEAD: `validate` y `detect-impact` success. Secrets Actions: 0. | Aplicar proteccion revisada, ejecutar nuevos checks del PR y comprobar enforcement. |
+| A10 GitHub | Main protected=true tras aplicar politica: validate/database/detect-impact strict, admins, PR, sin force-push/borrado. PR #183 primer CI DB/impact PASS; validate ajustado tras fallo de tests Auth. Secrets Actions: 0. | Tres checks PASS del HEAD final y smoke autenticado aislado. |
 | A11 recuperacion/operacion | No se ejecuto restauracion de datos/objetos, prueba de alertas ni smoke completo con usuarios aislados. | Ensayo de recuperacion, alertas recibidas, aforo/responsables del piloto y aprobacion legal/contable documentados. |
 | A13 Auth | Email Auth y signup activos; email autoconfirm=true; anonymous signin=false. Advisor marca leaked-password protection desactivada. 0 factores MFA, 0 verificados. | Confirmacion/recuperacion SMTP probadas; privilegios admin por UUID del titular; plan de MFA con enforcement y proteccion de contrasenas. |
 | A13 Storage | Ambos buckets privados sin limites especificos en Production. Objetos existentes agregados: JPEG/PNG/WebP; mayor 2.046.594 bytes. | Aplicar migracion de 5 MiB y 3 MIME; verificar HTTP privado, bytes de imagen, retencion/borrado/restauracion. |
@@ -96,13 +98,15 @@ Para cerrar A09, completar tambien:
 0 aprobaciones para el titular unico, strict checks `validate`, `database` y
 `detect-impact`, enforcement para admins, resolucion de conversaciones y
 bloqueo de force-push/borrado. No establece bypass ni restricciones de actores.
-`database` es el job nuevo de esta correccion; comprobar su check-run PASS
-antes de aplicar la politica. Los dos nombres antiguos se verificaron por API.
+`database` es el job nuevo y paso en el primer CI del PR #183. Los dos nombres
+antiguos se verificaron por API. La politica ya se aplico y verifico por GET:
+main protected=true, strict=true, enforce_admins=true, tres contextos exactos,
+force-push/borrado=false y resolucion de conversaciones=true; main no cambio SHA.
 
 El titular/orquestador puede aplicar el cuerpo revisado al endpoint
 `PUT /repos/Apus92Inmortal/INTRA/branches/main/protection` y verificar por GET.
-Este agente no hizo la mutacion. Una politica local no significa proteccion
-activa. El repo es publico y la proteccion esta disponible segun
+La mutacion fue realizada por el agente principal como correccion de A10.
+El repo es publico y la proteccion esta disponible segun
 [GitHub protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
 Publicar/promover solamente el SHA revisado con los tres checks PASS; no
 interpretar Vercel READY como sustituto de CI o del checklist.

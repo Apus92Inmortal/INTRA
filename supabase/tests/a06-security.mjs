@@ -14,7 +14,10 @@ if (!['127.0.0.1', 'localhost', '::1'].includes(host) || !Number.isInteger(port)
 }
 const pg = await import(process.env.INTRA_TEST_PG_MODULE ? pathToFileURL(process.env.INTRA_TEST_PG_MODULE).href : 'pg')
 const { Client } = pg.default ?? pg
-const config = { host, port, user: process.env.INTRA_TEST_PG_USER ?? 'postgres', password: process.env.INTRA_TEST_PG_PASSWORD }
+const config = {
+  host, port, user: process.env.INTRA_TEST_PG_USER ?? 'postgres', password: process.env.INTRA_TEST_PG_PASSWORD,
+  connectionTimeoutMillis: 10_000, statement_timeout: 30_000, idle_in_transaction_session_timeout: 30_000,
+}
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const database = 'intra_a06_test_' + Date.now() + '_' + randomUUID().slice(0, 8)
 const control = new Client({ ...config, database: 'postgres' })
@@ -98,10 +101,9 @@ try {
   console.log('PASS rolled-back reopening cannot create a match')
   console.log('A06 local isolated permissions/privacy/guards/concurrency PASS; disposable DB removed.')
 } finally {
-  for (const client of clients) {
-    await client.query('rollback').catch(() => {})
-    await client.end().catch(() => {})
-  }
+  // Disconnect rolls back open transactions. Never queue ROLLBACK behind a
+  // blocked query before closing the later-created connection holding its lock.
+  await Promise.allSettled(clients.map(client => client.end()))
   if (created) await control.query('drop database if exists "' + database + '"').catch(() => {})
   await control.end().catch(() => {})
 }

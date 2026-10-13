@@ -11,7 +11,10 @@ const port = Number(process.env.INTRA_TEST_PG_PORT)
 if (!['127.0.0.1', 'localhost', '::1'].includes(host) || !Number.isInteger(port) || port < 1024) throw new Error('Explicit isolated local PostgreSQL port required')
 const imported = await import(process.env.INTRA_TEST_PG_MODULE ? pathToFileURL(process.env.INTRA_TEST_PG_MODULE).href : 'pg')
 const { Client } = imported.default ?? imported
-const config = { host, port, user: process.env.INTRA_TEST_PG_USER ?? 'postgres', password: process.env.INTRA_TEST_PG_PASSWORD }
+const config = {
+  host, port, user: process.env.INTRA_TEST_PG_USER ?? 'postgres', password: process.env.INTRA_TEST_PG_PASSWORD,
+  connectionTimeoutMillis: 10_000, statement_timeout: 30_000, idle_in_transaction_session_timeout: 30_000,
+}
 const database = `intra_a04_test_${Date.now()}_${randomUUID().slice(0, 8)}`
 const snapshot = JSON.parse(await readFile(process.env.INTRA_TEST_PG_SNAPSHOT ?? defaultSnapshotPath, 'utf8'))
 const control = new Client({ ...config, database: 'postgres' })

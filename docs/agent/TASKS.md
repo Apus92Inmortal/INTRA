@@ -13,6 +13,11 @@
   la referencia. Conciliar los pagos existentes desde el proveedor cuando haya
   acceso y no interpretar pending como dinero recibido.
 - Cuenta admin elegida y localizada; confirmar ADMIN_USER_IDS en Vercel.
+- PR #183 abierto (producto `8c01a2e`); main protegido por API con checks
+  strict validate/database/detect-impact. Primer CI: DB/impact PASS; tests
+  Auth aislados tras fallo de SITE_URL, 115 unit PASS local; nuevo CI pendiente.
+- Navegador confirma Vercel Hobby y scopes; service-role general retirado
+  de Preview manteniendo Production. Override/secretos restantes pendientes.
 - Las tareas UI REVIEW/TODO y PRs antiguos conservados abajo son historial;
   su presencia no demuestra falta funcional. Manual v3.0 vigente. La evidencia
   inicial/panel/visor/expediente/realtime ya fueron integrados por PR B-H.
