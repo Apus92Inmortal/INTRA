@@ -14,8 +14,8 @@ operativas explicitas y el backend privilegiado conservan sus funciones.
 
 Impacto:
 
-Publicar RPC, codigo de checkout y cierre de permisos en ese orden. Aldo
-autorizo el despliegue escalonado; la primera migracion ya esta aplicada.
+RPC, codigo de checkout y cierre de permisos se publicaron en ese orden con
+autorizacion de Aldo el 2026-09-14.
 
 ## DEC-001: Roles contextuales
 

@@ -1,26 +1,34 @@
 # INTRA - Database Notes
 
-## 2026-09-14 - A02 en despliegue escalonado
+## 2026-09-14 - A02 aplicado a Production
 
 - Rama: `codex/fix-a02-financial-writes`.
 - `20260914152150_a02_create_payment_retry.sql` crea RPC SECURITY DEFINER para
   reintentar pago de envio propio abierto con evidencia inicial. Bloquea envio
   y pagos previos, rechaza cualquier cobro aprobado/held/refunded, reutiliza
   intento pendiente y calcula importe con `route_prices` y
-  `calculate_payment_amount`. EXECUTE solo para authenticated.
-- `20260914152217_a02_restrict_financial_table_writes.sql` elimina
+  `calculate_payment_amount`. EXECUTE efectivo para authenticated y
+  service_role; anon no tiene acceso.
+- `20260914153000_a02_restrict_financial_table_writes.sql` elimina
   `payments_insert_own`, `payments_update_related_users`, `payouts_insert_own`,
   revoca privilegios de tabla a PUBLIC/anon/authenticated y repone SELECT a
   authenticated. `service_role` conserva sus grants para operaciones admin;
   las RPC de draft y request_payout son SECURITY DEFINER de postgres.
-- Primera migracion aplicada en Supabase Production con version remota
-  `20260914152150`, autorizada por Aldo. Owner `postgres`, SECURITY DEFINER,
-  search_path vacio, EXECUTE authenticated=true y anon=false; llamada sin
-  autenticacion retorno `not_authenticated`. La segunda migracion sigue sin
-  aplicarse. Publicar en orden RPC -> app -> revocacion para no romper retry.
-- Test de metadatos preparado: `supabase/tests/a02_financial_table_access.sql`.
-  Falta ejecutar en DB tras despliegue y complementar con pruebas de roles y
-  flujo legitimamente autenticado. No hubo movimientos de dinero.
+- Ambas migraciones aplicadas con autorizacion de Aldo, versiones remotas
+  `20260914152150` y `20260914153000`, con checkout en Vercel Production
+  deployment READY `dpl_DL1KbLa2eGH58gErV6h7qAvhqXxa` entre ellas. Owner
+  de RPC `postgres`, SECURITY DEFINER, search_path vacio, EXECUTE authenticated
+  true y anon false; llamada sin autenticacion retorno `not_authenticated`.
+- Las 14 comprobaciones de `supabase/tests/a02_financial_table_access.sql`
+  dieron true. INSERT/UPDATE directos como authenticated y anon devolvieron
+  42501; SELECT autenticado, grants service_role, RLS/policies SELECT y
+  `request_payout`/draft permanecen. Prueba transaccional con fixture y
+  rollback: nuevo intento a tarifa DB, segunda llamada reutiliza el mismo,
+  antes y despues de revocacion. Agregados finales: 5 payments, 0 payouts,
+  0 fixtures. No se abrio Wompi ni se movio dinero.
+- Limite: no hay DB aislada ni cuentas de prueba activas para smoke cliente,
+  viajero, tercero y admin reales o concurrencia. A02 directo mitigado; A06 y
+  TASK-051 siguen abiertos y bloquean nuevos cobros.
 - Preflight remoto read-only: route_prices activas tienen 20k/25k/35k COP y
   calculadora remota devuelve esos importes. El historial remoto sigue
   desalineado; no usar `supabase db push`.

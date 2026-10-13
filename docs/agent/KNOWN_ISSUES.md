@@ -6,20 +6,19 @@
 
 ### ISSUE-006: Permisos financieros peligrosos en Supabase Production
 
-Estado: Parcialmente mitigado / P0 por A02 y verificaciones pendientes
+Estado: A01/A02 mitigados; P0 por verificaciones y A06/TASK-051 pendientes
 
 - El 2026-09-14 se revoco EXECUTE directo de release_payment/refund_payment
   para PUBLIC, anon, authenticated y service_role; HTTP anon 401/42501.
   Sus guards NULL internos siguen sin reescribirse y falta smoke con cuentas.
-- payments conserva INSERT/UPDATE por usuarios relacionados; payouts conserva INSERT propio fuera de request_payout.
-- Existe correccion A02 en rama local con RPC y revocacion en dos migraciones;
-  la RPC ya esta aplicada en Production (`20260914152150`), pero app y
-  revocacion aun faltan. El despliegue requiere RPC -> app -> permisos para
-  mantener operativo el reintento de checkout. Faltan pruebas por rol.
+- A02 ya revoco INSERT/UPDATE cliente de payments e INSERT de payouts en
+  Production (`20260914153000`). La app usa RPC para retry. Comprobaciones
+  de grants 14/14 y DML denegado con 42501; falta smoke con cuentas reales y
+  concurrencia. No considerar cerrado todo TASK-050.
 - create_operational_notification tambien perdio EXECUTE directo para esos
   roles; llamadas anonimas denegadas. No hay prueba de evento real por trigger.
-- Evidencia: metadatos/definiciones remotos y migracion `20260914145957`
-  aplicada; no se ejecutaron movimientos financieros.
+- Evidencia: migraciones remotas `20260914145957`, `20260914152150` y
+  `20260914153000`, PR #181, Vercel READY; no movimientos financieros.
 - Seguimiento: TASK-050, hallazgos A01/A02 del informe.
 
 ### ISSUE-007: Devoluciones no atomicas y credito sin unicidad
