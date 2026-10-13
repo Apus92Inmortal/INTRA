@@ -5,8 +5,15 @@
 La migracion A01 `20260914145957` ya esta aplicada en Supabase Production:
 las RPC internas de release/refund y notificaciones no admiten ejecucion
 directa anonima o autenticada. Grants, HTTP anon y cron posterior se verificaron.
-Esto mitiga esa exposicion puntual; A02/A06, TASK-051 y las pruebas de flujos
-financieros reales permanecen abiertos. **No iniciar nuevos cobros.**
+En ese momento, esto mitigaba esa exposicion puntual; A02/A06, TASK-051 y las
+pruebas de flujos financieros reales permanecian abiertos.
+
+Actualizacion posterior del mismo dia: A02 tambien quedo mitigado en
+Production. PR #181 fue mergeada, Vercel publico el checkout nuevo y Supabase
+registro `20260914152150` (RPC retry) y `20260914153000` (revocacion DML).
+Los checks de permisos y prueba de retry con rollback pasaron. A06, TASK-051 y
+el smoke financiero con cuentas reales siguen pendientes. **No iniciar nuevos
+cobros.**
 
 ## Advertencia de estado vigente - 2026-09-04
 

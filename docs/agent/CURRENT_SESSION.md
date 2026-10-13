@@ -1,37 +1,58 @@
 # INTRA - Current Session
 
-## Estado vigente - 2026-09-14 (A02 en despliegue)
+## Reanudacion y cierre - 2026-10-13
+
+- El limite anterior interrumpio el registro final de A02, despues de aplicar
+  ambas migraciones y publicar el checkout. Se retoma el cierre ya autorizado.
+- Verificacion remota actual: PR #181 mergeada, `origin/main` en `66fa012` y
+  Vercel Production `dpl_DL1KbLa2eGH58gErV6h7qAvhqXxa` READY en el mismo SHA.
+  Supabase conserva las versiones A01/A02; checks de permisos A02 14/14 PASS.
+- Alcance de este cierre: seis documentos de memoria y renombrar la migracion
+  de revocacion a `20260914153000`, sin modificar su SQL. No se reaplican
+  migraciones ni se realizan movimientos financieros.
+- No se repiten lint, unit, TypeScript, build ni E2E locales por ser registro
+  documental y rename sin cambio de contenido; las validaciones funcionales
+  previas se conservan como evidencia del 2026-09-14.
+- Siguiente correccion recomendada: A06 dentro de TASK-050. Siguen pendientes
+  guards NULL, smoke con cuentas reales/concurrencia y TASK-051. Nuevos cobros
+  permanecen bloqueados.
+
+---
+
+## Estado vigente - 2026-09-14 (A02 publicado)
 
 Objetivo: corregir A02 sin cortar los reintentos de Wompi durante el despliegue.
 
-- Rama: `codex/fix-a02-financial-writes`, basada en el cierre local A01.
+- PR [#181](https://github.com/Apus92Inmortal/INTRA/pull/181) mergeada a
+  `main` en `66fa012e9ea4878410323bbd2b6ca52e420d6c9c`. Rama de
+  registro posterior: `codex/record-a02-production`.
 - `CheckoutClient.tsx` deja de insertar directamente en `payments` al reintentar
   y llama a `create_payment_retry`. La RPC valida actor, envio abierto propio,
   evidencia inicial, estado de pagos existentes y tarifa activa; calcula el
   importe/referencia en DB y serializa intentos concurrentes.
 - Dos migraciones separadas: `20260914152150_a02_create_payment_retry.sql`
-  crea la RPC; `20260914152217_a02_restrict_financial_table_writes.sql`
+  crea la RPC; `20260914153000_a02_restrict_financial_table_writes.sql`
   elimina policies INSERT/UPDATE legacy y revoca DML cliente sobre `payments`
   y `payouts`, conservando SELECT autenticado y service_role.
-- Orden requerido para Production: aplicar primera migracion, publicar app con
-  checkout nuevo, validar reintento controlado sin cobrar, aplicar segunda
-  migracion y ejecutar `supabase/tests/a02_financial_table_access.sql` y pruebas
-  negativas/positivas por rol. Aplicar la segunda antes del codigo romperia el
-  checkout anterior. No usar `supabase db push` por historial desalineado.
+- Orden completado: RPC en Supabase Production `20260914152150` -> checkout en
+  Vercel Production deployment `dpl_DL1KbLa2eGH58gErV6h7qAvhqXxa` READY con
+  SHA `66fa012` -> revocacion en Supabase Production `20260914153000`.
+  No se uso `supabase db push` por historial anterior desalineado.
 - Validacion local: lint PASS, 60 unitarias PASS, TypeScript PASS, build PASS,
   E2E publico 4/4 PASS (no cubre checkout autenticado).
-  No existe DB aislada ni cuentas de prueba activas para ejecutar el flujo
-  autenticado de reintento o concurrencia. Consulta remota de solo lectura
-  confirmo que los tres precios activos y `calculate_payment_amount` coinciden
-  con los importes mostrados (20k/25k/35k COP).
-- Estado: Aldo autorizo la publicacion escalonada. Primera migracion A02
-  aplicada en Supabase Production como `20260914152150`; firma/owner/grants
-  verificados y llamada sin autenticacion devolvio `not_authenticated`.
-  La revocacion aun no esta aplicada; checkout nuevo aun no publicado. Sin
-  movimiento financiero. A02 permanece abierto y nuevos cobros bloqueados.
-- Siguiente paso: publicar codigo en GitHub/Vercel, verificar deployment;
-  validar permisos cliente/viajero/tercero y ruta legitima en entorno aislado
-  o con cuentas controladas antes de cerrar TASK-050.
+  CI de PR y analisis de impacto PASS. Las 14 comprobaciones de
+  `supabase/tests/a02_financial_table_access.sql` PASS. INSERT/UPDATE directos
+  como authenticated y anon devolvieron 42501. RPC de retry creo un pago con
+  importe DB y reutilizo el intento en prueba transaccional antes y despues
+  de revocar; ambos rollback dejaron 5 pagos y cero fixtures. Draft y payout
+  RPC siguieron accesibles. Rutas publicas `/`, `/login` y checkout HTTP 200;
+  Vercel sin errores runtime reportados en esas rutas en la ventana consultada.
+- No hubo cobros Wompi ni movimiento financiero. No existe DB aislada ni
+  cuentas cliente/viajero/admin de prueba activas; faltan smoke autenticado
+  real y pruebas de concurrencia. A02 directo queda mitigado en Production,
+  pero A06, guards NULL internos y TASK-051 mantienen el bloqueo de cobros.
+- Siguiente paso: A06 (policies amplias de shipments/matches y drift); luego
+  TASK-051. No iniciar nuevos cobros hasta cerrar esos gates y conciliacion.
 
 ---
 

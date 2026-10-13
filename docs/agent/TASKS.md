@@ -36,12 +36,19 @@ Area: Supabase / Seguridad / Pagos
   publicos PASS (estos E2E no cubren checkout autenticado).
   En ese momento faltaban aplicacion/publicacion y pruebas por rol; A02
   **no** estaba corregido en Production.
-- Aldo autorizo la secuencia escalonada; RPC `create_payment_retry` aplicada
-  como migracion remota `20260914152150` y verificada. Checkout y revocacion
-  de permisos siguen pendientes de publicacion; A02 aun abierto.
+- Aldo autorizo la secuencia escalonada; A02 quedo publicado mediante PR #181
+  y Vercel Production `dpl_DL1KbLa2eGH58gErV6h7qAvhqXxa`. RPC remota
+  `20260914152150`, revocacion `20260914153000`. Prueba de permisos 14/14,
+  DML directo denegado 42501, retry RPC positivo e idempotente con rollback.
+  A02 de escritura directa mitigado. Faltan pruebas con cuentas reales,
+  guards NULL y A06; TASK-050 sigue IN_PROGRESS y bloquea cobros.
 - Security Advisor posterior mantiene 22 avisos de otras funciones anon
   SECURITY DEFINER (no todos son vulnerabilidades verificadas); clasificar
   permisos y cuerpos como parte del cierre RPC de TASK-050.
+- 2026-10-13: reanudado cierre documental tras limite de sesion. GitHub/Vercel
+  conservan A02 publicado y los 14 checks remotos de permisos siguen PASS.
+  Se alinea el nombre local de revocacion con version remota `20260914153000`,
+  sin reaplicar SQL. A06 y demas verificaciones de TASK-050 siguen pendientes.
 
 ### TASK-051: Hacer devoluciones atomicas y webhook conciliable
 
