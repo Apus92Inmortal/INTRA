@@ -1,6 +1,21 @@
 # INTRA - Current Session
 
-## Correccion financiera externa en curso - 2026-10-14 (Joy)
+## Aclaracion producto Wallet - 2026-10-14 (Joy)
+
+- Aldo confirmo que cuando un envio pagado no se consolida y se cancela bajo
+  las condiciones permitidas, la restitucion esperada queda en la Wallet del
+  cliente, no vuelve a Wompi. DEC-010/A03 acreditan el neto del pago, sin
+  incluir la comision de pasarela. No hay devolucion real pendiente en este
+  contexto; el primer pago de prueba fue exitoso.
+- La idea de usar ese saldo para pagar un nuevo envio sin otro checkout Wompi
+  es futura. La app actual no ofrece pago de envios desde Wallet: el checkout
+  visible lleva a Wompi. Se consulto si la capacidad entra en el paquete
+  actual o queda para una fase posterior.
+- El diseño de cierre externo del bloque siguiente queda condicionado a un
+  caso excepcional que se decida incluir; no es el flujo normal descrito por
+  Aldo. No se ejecutaron pagos ni cambios remotos en esta aclaracion.
+
+## Correccion financiera externa condicionada - 2026-10-14 (Joy)
 
 - Aldo pidio comenzar por el cierre de una devolucion ejecutada directamente
   en Wompi, sin duplicar el abono Wallet, y reservar una sola prueba integral

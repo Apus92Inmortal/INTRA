@@ -1,6 +1,17 @@
 # INTRA - Active Tasks
 
-## Correccion financiera externa en curso - 2026-10-14
+## Aclaracion Wallet / nuevo envio - 2026-10-14
+
+- La cancelacion temprana de un envio ya pagado sin viajero elegible acredita
+  el neto a Wallet (DEC-010/A03); no implica devolucion desde Wompi.
+- Pagar un nuevo envio con saldo Wallet **no esta implementado**. Aldo lo
+  describio como capacidad futura; definir si entra en el paquete actual
+  antes de ampliar pagos/ledger/checkout.
+- El cierre de una devolucion externa es un caso excepcional condicionado al
+  alcance del piloto, no un pago o refund real pendiente. No bloquear la
+  correccion del flujo Wallet normal por una regla externa sin aprobar.
+
+## Correccion financiera externa condicionada - 2026-10-14
 
 - TASK-051: Admin Wallet y Wompi ahora se diferencian en la UI local; no
   existe aun el cierre externo transaccional. Diseno y casos de prueba en

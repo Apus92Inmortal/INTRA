@@ -1,5 +1,18 @@
 # INTRA - Technical Decisions
 
+## DEC-019: Devolucion Wallet del envio no consolidado y uso futuro del saldo
+
+Fecha: 2026-10-14
+
+Aldo confirmo que para un envio pagado que no se consolida y puede cancelarse
+bajo DEC-010, la restitucion debe quedar en la Wallet del cliente; no se
+ejecuta una devolucion externa en Wompi por esta ruta. Se conserva la regla
+existente: se acredita el neto tras la comision de pasarela, no el bruto.
+Usar ese saldo para pagar un envio posterior sin volver a Wompi es la
+direccion de producto futura, **no una capacidad implementada actualmente**.
+No confundir este caso con excepciones `manual_required` donde el equipo
+podria decidir una devolucion externa y necesitaria su propio control.
+
 ## DEC-018: Limpieza operativa QA sin borrar identidad ni maestros
 
 Fecha: 2026-10-14

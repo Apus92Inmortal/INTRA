@@ -1,4 +1,16 @@
-# Cierre de devoluciones externas — diseño pendiente de regla contable
+# Cierre de devoluciones externas excepcionales — diseño condicionado
+
+**No corresponde a la cancelacion normal de un envio pagado que no consiguio
+viajero.** Esa ruta acredita el neto reembolsable a la Wallet del cliente
+(DEC-010/A03). Aldo confirmo el 2026-10-14 que ese es el comportamiento
+previsto. Utilizar saldo Wallet para pagar un nuevo envio es una capacidad
+futura; no existe en el checkout actual.
+
+Este documento solo aplicaria si el MVP mantiene un caso distinto en el que
+el equipo efectivamente devuelve dinero desde el proveedor. No hay una
+devolucion externa real pendiente identificada ni se debe implementar este
+cierre como si fuera requisito de la cancelacion normal. Confirmar primero
+si esos casos excepcionales forman parte del alcance del piloto.
 
 ## Alcance
 
@@ -7,7 +19,7 @@ ejemplo, en Wompi) sin acreditar también la Wallet del cliente. No se
 automatiza el movimiento externo. La ruta `customer_refund` existente solo
 abona a Wallet y no sirve para este cierre.
 
-## Decisión faltante antes de implementar el cierre
+## Decisiones faltantes antes de implementar un cierre excepcional
 
 Definir el importe permitido para el MVP. Propuesta conservadora: aceptar
 solo devolución externa del importe total efectivamente cobrado en COP y
