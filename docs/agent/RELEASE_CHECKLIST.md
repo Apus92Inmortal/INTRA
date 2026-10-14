@@ -1,5 +1,14 @@
 # INTRA - Release Checklist
 
+## Gate adicional 2026-10-14: refund externo y A05
+
+- [x] Preflight agregado y read-only para los 7 pagos antiguos, sin PII.
+- [x] SOP local corregido: prohibido usar `customer_refund` tras devolver
+  externamente; no forzar estados ni ledger por SQL.
+- [ ] Cotejar las 7 referencias con transacciones Wompi Production.
+- [ ] Definir y probar ruta de cierre interno de refund externo sin credito
+  Wallet duplicado; no iniciar nuevos cobros del piloto antes.
+
 ## Avance local 2026-10-14
 
 - [x] A03 rechaza refund Wallet parcial sin mutaciones; A03 18 checks aislados.

@@ -106,6 +106,12 @@ evidencia. No forzar `held`, insertar ledger ni acreditar Wallet ademas de una
 devolucion externa: eso duplicaria la restitucion. Este procedimiento externo
 y su registro deben estar definidos/probados antes de abrir dinero real.
 
+El SOP de [refunds externos](manual-refunds-payouts-mvp.md) ya no indica
+ejecutar `customer_refund` despues de devolver por el proveedor: esa accion
+acredita Wallet. Falta una ruta interna validada para registrar el cierre
+externo sin duplicar el credito; no interpretar un comprobante externo como
+`refund_status=refunded` hasta implementarla y probarla.
+
 ## Rollback y parada
 
 - Si falla preflight o migracion: conservar transaccion revertida, detener

@@ -1,5 +1,17 @@
 # INTRA - Active Tasks
 
+## Continuacion 2026-10-14 - conciliacion y devolucion externa
+
+- TASK-047/A05: 7 pagos antiguos pendientes siguen sin cotejo de Wompi
+  Production. Preflight read-only: 7 referencias internas presentes,
+  0 IDs de transaccion, 0 eventos webhook, 0 asientos ledger y 0 duplicados.
+  Obtener evidencia de transacciones del proveedor para esas referencias
+  mediante acceso autorizado; no concluir "no cobrado" por ausencia interna.
+- TASK-051/053: cerrar una devolucion externa sin credito Wallet duplicado
+  carece de ruta verificada en Admin. SOP corregido para detenerse y escalar;
+  definir/implementar/probar ese registro contable antes de nuevos cobros.
+  La correccion del PR #183 permanece solo local.
+
 ## Avance local 2026-10-14 - bloqueos PR #183
 
 - A03/TASK-051: la rama local rechaza devoluciones Wallet parciales antes

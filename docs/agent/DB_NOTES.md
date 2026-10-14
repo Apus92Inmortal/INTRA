@@ -1,5 +1,14 @@
 # INTRA - Database Notes
 
+## 2026-10-14 - A05 Production, preflight agregado de solo lectura
+
+Consulta repetible en `supabase/tests/a05_payment_reconciliation_readonly.sql`.
+Los 7 payments Wompi pending/processing de mas de 30 minutos tienen
+referencia externa no vacia; 0 tienen gateway_transaction_id, gateway_status
+approved, ledger relacionado, evento webhook relacionado o referencia
+duplicada. No se leyeron filas de usuarios ni se escribio en Production.
+Falta cotejo con el proveedor; el estado interno no prueba ausencia de cobro.
+
 ## 2026-10-14 - A03 local: no admitir refund Wallet parcial
 
 La migracion A03 aun no aplicada valida `v_amount = v_net` antes de mutar

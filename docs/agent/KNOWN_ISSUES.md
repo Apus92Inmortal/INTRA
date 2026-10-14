@@ -1,5 +1,15 @@
 # INTRA - Known Issues
 
+## Gate financiero adicional 2026-10-14
+
+- A05: las 7 referencias pendientes no tienen ID de transaccion, webhook
+  ni ledger internos; falta consultar Wompi Production. Estos vacios no
+  prueban ausencia de cobro externo.
+- El SOP anterior proponia resolver `customer_refund` despues de devolver
+  externamente, aunque esa accion acredita Wallet. Texto corregido localmente;
+  aun no existe ruta validada para registrar/cerrar el refund externo sin
+  doble restitucion. Mantener bloqueados nuevos cobros hasta resolverlo.
+
 ## Mitigaciones locales 2026-10-14 (no publicadas)
 
 - A03: la nueva validacion local impide refund Wallet parcial sin asignacion

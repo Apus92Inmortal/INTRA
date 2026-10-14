@@ -1,5 +1,11 @@
 # Gates externos para el piloto INTRA — 2026-10-13
 
+Actualizacion read-only 2026-10-14: el preflight A05 ahora cuenta **7** pagos
+Wompi antiguos pending/processing, no 6. Los 7 tienen referencia interna,
+pero ninguno tiene ID de transaccion, webhook o asiento ledger relacionado.
+Esto no descarta cobros en el proveedor; falta cotejo Wompi Production.
+Ver [consulta reproducible](../../supabase/tests/a05_payment_reconciliation_readonly.sql).
+
 Inspeccion de GitHub, Vercel, Supabase Auth/Storage y DNS, incluido fallback
 de navegador autenticado en Vercel para plan y scopes sin revelar valores.
 Se protegio main por API y se limitaron diez variables a Production por UI,

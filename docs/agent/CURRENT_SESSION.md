@@ -1,5 +1,22 @@
 # INTRA - Current Session
 
+## Continuacion local A05 y SOP financiero - 2026-10-14 (Joy)
+
+- Preflight Production de solo lectura (agregados, sin referencias/PII):
+  7 payments Wompi pendientes de mas de 30 minutos; los 7 tienen referencia,
+  0 ID de transaccion, 0 gateway aprobado internamente, 0 ledger, 0 webhook
+  relacionado y 0 referencia duplicada. No demuestra que el proveedor no
+  haya cobrado. La credencial Wompi disponible aqui es de pruebas, no apta
+  para cotejo de Production. A05/TASK-047 sigue bloqueada por evidencia del
+  proveedor; no se creo un cobro nuevo ni se modifico estado alguno.
+- Se agrego consulta repetible `a05_payment_reconciliation_readonly.sql`.
+  El SOP de refunds externos tenia una instruccion contradictoria: despues
+  del movimiento externo sugeria resolver `customer_refund`, que acredita
+  tambien Wallet. Se corrigio el texto para prohibir doble restitucion y
+  dejar abierto el cierre interno hasta una ruta tecnica/contable validada.
+- No se exportaron referencias, datos personales, tokens o bytes de Storage.
+  No hubo SQL de escritura, push, migraciones, merge ni deployment.
+
 ## Correccion local de bloqueos PR #183 - 2026-10-14 (Joy)
 
 - Rama `codex/launch-corrections`, sin push. Se adopto bloqueo temporal de
