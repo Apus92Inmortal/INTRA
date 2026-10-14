@@ -1,5 +1,16 @@
 # INTRA - Release Checklist
 
+## Gate local actualizado 2026-10-14
+
+- [x] Cinco migraciones aplicadas en orden en PostgreSQL 17 desechable;
+  A03 18, A04 15 y A06 permisos/privacidad/concurrencia PASS.
+- [x] 168 unitarias, lint 0 errores/1 aviso previo, TypeScript, build webpack
+  y audit de dependencias Production 0 vulnerabilidades PASS.
+- [ ] CI y Preview del ultimo SHA: la rama sigue local, sin push. Los checks
+  verdes actuales del PR #183 corresponden a un SHA anterior.
+- [ ] Prueba integral final con cuentas controladas y Wompi sandbox, despues
+  de cerrar cambios y gates operativos. El pago historico exitoso no se repite.
+
 ## Actualizacion 2026-10-14: limpieza QA en Production
 
 - [x] Aldo identifico los 7 intentos pendientes como QA sin pago y autorizo

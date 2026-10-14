@@ -1,5 +1,17 @@
 # INTRA - Active Tasks
 
+## Gate local del paquete corregido - 2026-10-14
+
+- Cinco migraciones aplicadas **solo** en PostgreSQL 17 desechable en orden;
+  A03 18, A04 15 y A06 permisos/privacidad/concurrencia PASS.
+- 168 unitarias, lint 0 errores/1 aviso previo, TypeScript, build y audit
+  de dependencias Production (0 vulnerabilidades) PASS del HEAD local.
+- Falta checkpoint remoto autorizado para actualizar PR #183, Preview y CI
+  del SHA nuevo. No confundir CI verde anterior con estos commits locales.
+- La prueba financiera integral se reserva para el final. Restauracion,
+  correo, MFA real, alertas/operacion y alcance de excepciones externas
+  siguen pendientes; no hay 7 pagos QA pendientes actualmente.
+
 ## Aclaracion Wallet / nuevo envio - 2026-10-14
 
 - La cancelacion temprana de un envio ya pagado sin viajero elegible acredita
@@ -36,7 +48,7 @@
 - Continuar con validacion del paquete local PR #183 y gates de restauracion,
   MFA, correo, devolucion externa y piloto; no inferir permiso de push/release.
 
-## Continuacion 2026-10-14 - conciliacion y devolucion externa
+## Registro historico previo a limpieza 2026-10-14 - conciliacion y devolucion externa
 
 - TASK-047/A05: 7 pagos antiguos pendientes siguen sin cotejo de Wompi
   Production. Preflight read-only: 7 referencias internas presentes,

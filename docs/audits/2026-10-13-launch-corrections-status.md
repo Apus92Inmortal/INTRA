@@ -1,5 +1,15 @@
 # Correcciones de lanzamiento INTRA — 2026-10-13
 
+**Gate local repetido 2026-10-14, despues de las correcciones:** cinco
+migraciones aplicadas en orden en PostgreSQL 17 desechable; A03 18, A04 15,
+A06 permisos/privacidad/concurrencia PASS. Unit 168/168, lint 0 errores/1
+aviso previo, TypeScript, build webpack y audit de dependencias Production
+0 vulnerabilidades PASS. Primer intento DB bloqueo por red Docker antes de
+ejecutar SQL; segundo intento aislado en loopback paso. El SHA local aun no
+tiene CI/Preview remotos nuevos; no se hizo push, cobro, migracion Production,
+merge ni despliegue. La devolucion normal por cancelacion elegible acredita
+Wallet por el neto tras comision; pagar otro envio con Wallet es futuro.
+
 **Actualizacion Production 2026-10-14:** Aldo identifico los 7 payments
 `pending/created` como intentos QA no pagados y autorizo vaciar las tablas
 operativas. Postflight: 14/14 tablas objetivo en 0; identidad aprobada,

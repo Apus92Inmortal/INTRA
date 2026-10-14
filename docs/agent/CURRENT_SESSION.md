@@ -1,5 +1,23 @@
 # INTRA - Current Session
 
+## Gate local del paquete corregido - 2026-10-14 (Joy)
+
+- Aldo reafirmo que la cancelacion elegible acredita Wallet por el neto,
+  excluyendo la comision de pasarela; no se amplio el alcance al pago de un
+  nuevo envio desde Wallet, descrito como capacidad futura.
+- Rama `codex/launch-corrections` en `a3e1b43` antes de esta nota, 8 commits
+  por delante del PR remoto. Cinco migraciones revisadas/aplicadas solo en
+  PostgreSQL 17 desechable: A03 18 checks, A04 15 y A06 permisos/privacidad/
+  concurrencia PASS. Se elimino la base desechable y detuvo el contenedor.
+- Gate local: 168/168 unitarias, lint 0 errores/1 aviso preexistente,
+  TypeScript, build webpack y `npm audit --omit=dev --audit-level=high`
+  (0 vulnerabilidades) PASS. El primer intento DB fallo por conectividad
+  entre redes Docker, antes de correr SQL; se repitio en loopback aislado y
+  paso completo. No se uso Wompi ni se hicieron cobros o cambios Production.
+- CI/Preview remotos del PR #183 certifican un SHA anterior, no este paquete
+  local. Sin push, PR Ready, migraciones remotas, merge ni despliegue. La
+  prueba integral autenticada y los gates operativos siguen para el final.
+
 ## Aclaracion producto Wallet - 2026-10-14 (Joy)
 
 - Aldo confirmo que cuando un envio pagado no se consolida y se cancela bajo
