@@ -1,5 +1,13 @@
 # Correcciones de lanzamiento INTRA — 2026-10-13
 
+**Revision final Joy del PR #183 (`48bbf13`): NO APTO para publicar aun.**
+CI/Preview y gate local pasan, pero A03 permite refund parcial revirtiendo
+todo el saldo del viajero, sin asignacion del remanente; A13 puede bloquear el
+alta MFA Admin tras factores no verificados abandonados. Preflight remoto
+read-only: las cinco migraciones no aplicadas, 0 creditos refund duplicados,
+0 referencias ambiguas y 7 pagos Wompi pending/created >30m (eran 6 en la
+nota anterior). No se aplicaron migraciones ni se hicieron cobros o deploy.
+
 Destino solicitado: piloto controlado con usuarios conocidos. Rama preparada:
 `codex/launch-corrections`, desde `main`/Production `5574036` (PR #182).
 Este informe reemplaza el estado operativo del informe de septiembre; conserva

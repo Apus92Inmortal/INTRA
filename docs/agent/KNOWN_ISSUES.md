@@ -1,5 +1,22 @@
 # INTRA - Known Issues
 
+## Hallazgos de revision PR #183 - 2026-10-13
+
+- **A03/P1, bloquea publicacion:** refund admin parcial `p_amount < neto`
+  revierte todo `payment_hold` o `release_available_credit` del viajero,
+  acredita solo `p_amount` al cliente y marca payment `refunded`. Falta
+  asignacion y asiento verificable del remanente neto; resolver regla financiera
+  o impedir parciales antes de aplicar la migracion. Ver A03 lineas 121-125,
+  215-250 y test de parcial en `supabase/tests/a03-refunds.mjs`.
+- **A13/P2, bloquea alta Admin hasta recuperacion probada:** la pantalla MFA
+  omite factores TOTP no verificados al recargar y permite crear otros; varios
+  intentos abandonados pueden agotar el limite de factores sin ruta UI para
+  reanudar/limpiar. Ver `app/app/profile/security/SecurityClient.tsx`.
+- Preflight remoto read-only: siete pagos Wompi pending/created de mas de 30
+  minutos frente a seis documentados antes. No implica siete cobros efectivos.
+  Cinco migraciones nuevas no aplicadas; sin duplicados refund ni referencias
+  ambiguas en la consulta actual. No se modifico Production.
+
 ## Estado vigente 2026-10-13
 
 - Recuperacion A11: Management API lista 0 backups gestionados y PITR

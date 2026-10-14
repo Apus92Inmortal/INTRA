@@ -1,5 +1,20 @@
 # INTRA - Active Tasks
 
+## Revision PR #183 - 2026-10-13
+
+- Veredicto local: **NO APTO para publicar**. SHA remoto `48bbf13` con CI,
+  Preview, 165 unitarias, TS/build y audit Production PASS, pero A03 admite
+  refund parcial y revierte todo el saldo viajero sin asignar el neto restante.
+  TASK-051: definir regla financiera/contable y corregir con prueba de ledger.
+- TASK-053/A13: resolver o probar recuperacion de factores TOTP no verificados
+  abandonados antes de activar MFA para el unico Admin.
+- TASK-047: preflight remoto de lectura cuenta 7 payments Wompi pending/created
+  con mas de 30 minutos (cifra previa: 6). Conciliar las 7 referencias; no
+  crear un nuevo cobro para reemplazarlas ni asumir cobro efectivo.
+- Cinco migraciones aun no aplicadas; 0 creditos refund duplicados/inconsistentes,
+  0 referencias ambiguas y 0 webhooks pendientes. Restore DB+Storage, SMTP,
+  Auth/MFA real, ambiente no productivo y gates operativos siguen abiertos.
+
 ## Actualizacion operativa 2026-10-13
 
 - Reanudacion Joy: se verifico que el unico proyecto Supabase INTRA existente

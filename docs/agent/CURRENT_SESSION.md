@@ -1,5 +1,30 @@
 # INTRA - Current Session
 
+## Revision final PR #183 - 2026-10-13 (Joy, solo lectura remota)
+
+- SHA remoto revisado `48bbf1376c457058c4e103ce446b00d0e6696af8` contra
+  `main` `5574036`: PR abierto, mergeable, checks validate/database/
+  detect-impact y Preview PASS. Esta nota local no cambia el PR remoto.
+- Verificacion fresca en worktree separado: 165/165 unitarias (26 archivos),
+  lint sin errores (un aviso), TypeScript, build y audit Production (0) PASS.
+  Se revisaron cinco migraciones, rutas financieras, Auth/Admin y rollout.
+- Preflight Production de solo lectura: ninguna de las cinco versiones nuevas
+  aplicada; 0 grupos de creditos refund duplicados, 0 creditos de refund
+  inconsistentes, 0 referencias de payment duplicadas, 0 eventos Wompi sin
+  procesar. Hay **7** payments Wompi pending/created con mas de 30 minutos,
+  no 6 como constaba en la auditoria; no se infiere que sean cobros efectivos.
+  API de backups: 0 copias gestionadas y PITR desactivado; restore no probado.
+- **NO APTO para publicar aun:** A03 admite refund parcial `p_amount < neto`,
+  pero revierte toda la retencion/liberacion del viajero y marca payment
+  `refunded`, sin asignacion/ledger del neto restante. Definir regla contable
+  y probarla; alternativa segura: rechazar parciales hasta definirla.
+- MFA: al recargar se descartan factores TOTP no verificados y un nuevo CTA
+  crea otro factor. Reintentos abandonados pueden agotar el limite y bloquear
+  el alta del unico Admin; probar recuperacion real y corregir/reanudar el
+  factor pendiente antes de publicar. No se detecto bypass de autenticacion.
+- No se aplicaron migraciones, cobros, push, merge ni deploy; Production sigue
+  con A01/A02 y sin el paquete del PR #183. No se creo otro proyecto.
+
 ## Continuidad 2026-10-13 - aislamiento y recuperacion (Joy)
 
 - La rama del PR #183 se reviso en un worktree separado; el `main` local y sus
