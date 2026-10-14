@@ -2,6 +2,11 @@
 
 ## Estado vigente 2026-10-13
 
+- Recuperacion A11: Management API lista 0 backups gestionados y PITR
+  desactivado en Production. No existe proyecto aislado disponible; la
+  creacion con la credencial operativa devolvio 403. Ningun respaldo DB+Storage
+  ni restore se ha probado. Bloquea acreditar recuperacion para el piloto.
+
 El paquete de correcciones esta preparado en `codex/launch-corrections`; aun
 no se aplico/publico. Los riesgos financieros/privacy inferiores describen
 Production mientras no haya rollout y postflight. Ver [matriz actual](../audits/2026-10-13-launch-corrections-status.md).

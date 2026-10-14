@@ -2,6 +2,14 @@
 
 ## Actualizacion operativa 2026-10-13
 
+- Reanudacion Joy: se verifico que el unico proyecto Supabase INTRA existente
+  es Production y ya esta configurado. El segundo era solo un destino propuesto
+  para ensayo de restauracion y pruebas aisladas. Crearlo por Management API
+  devolvio 403 (permiso insuficiente); no se creo. Backups Production: 0
+  accesibles por API y PITR desactivado. Sin export/restore ni datos copiados.
+  TASK-052/053 siguen abiertos; esperar proyecto aislado/acceso privado y
+  ejecutar respaldo DB+Storage y restauracion verificada por separado.
+
 - Alcance: todas las correcciones de auditoria para piloto con conocidos.
 - Rama `codex/launch-corrections` desde `5574036`; cinco migraciones nuevas
   preparadas y probadas localmente. Ver [matriz A01-A15](../audits/2026-10-13-launch-corrections-status.md).
@@ -157,22 +165,31 @@ Area: Release / Seguridad / Operacion
 
 ### TASK-052: Preparar dependencias, Vercel comercial y ambientes aislados
 
-Estado: IN_PROGRESS / codigo en revision; gates remotos abiertos
+Estado: IN_PROGRESS / entorno aislado bloqueado por permiso de creacion
 Prioridad: Alta / antes de operacion comercial
 
 - A07-A09/A12 del informe: actualizar dependencias vulnerables, instalar desde lockfile y repetir checks.
 - Plan Vercel apto para uso comercial; separar Supabase/secretos/Wompi de Preview y Development.
 - Verificar valores efectivos Production, allowlist admin, webhook Wompi y cron sin exponer secretos.
+- 2026-10-13: la organizacion esta en Free y solo tiene un proyecto visible;
+  la elegibilidad exacta del segundo no quedo confirmada porque el token
+  operativo obtuvo HTTP 403 al intentar crearlo. Solicitud al titular: crearlo desde
+  cuenta autorizada o habilitar `organization_projects_create`. No conectar
+  Preview/Development a Production mientras tanto.
 
 ### TASK-053: Gates de release, recuperacion y QA operativo
 
-Estado: IN_PROGRESS / CI y codigo preparados; operacion pendiente
+Estado: IN_PROGRESS / CI y codigo preparados; restore real pendiente
 Prioridad: Alta
 
 - A10-A15 del informe: proteger main/checks, E2E en CI, smoke autenticado reciente, rollback y restauracion DB/Storage probados, alertas y correo/soporte.
 - Cerrar TASK-047 tras seguridad; primer envio controlado con bitacora y evidencia financiera completa.
 - Para apertura, mantener TASK-048 legal final y validar capacidad, privacidad, accesibilidad y soporte.
 - Mejoras P2 concretas en informe: foco en modales, SPF/DMARC, Storage, headers, SEO y estados documentales antiguos.
+- API de backups Production 2026-10-13: ninguna copia gestionada listada;
+  PITR desactivado. Preparar dump manual y export separado de objetos con
+  checksums; restaurar ambos en destino aislado y probar RLS/ledger/evidencias.
+  Sin destino ni acceso de backup, no declarar recuperacion probada.
 
 ### TASK-046: Runbook Operativo INTRA
 

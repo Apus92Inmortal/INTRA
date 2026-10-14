@@ -1,5 +1,20 @@
 # INTRA - Database Notes
 
+## 2026-10-13 - preflight de recuperacion, sin cambios remotos (Joy)
+
+- Un solo proyecto visible en la organizacion INTRA Free: Production.
+  Creacion del segundo proyecto aislado por Management API: HTTP 403 por
+  permiso insuficiente; no se creo ni altero ninguna base.
+- Inventario de backups Production por Management API: HTTP 200,
+  `backups=[]`, `pitr_enabled=false`. No hay copia gestionada recuperable
+  observada en este momento. El plan Free exige plan de export manual.
+- Ningun dump, fila, objeto Storage o secreto Production fue descargado.
+  La DB y los bytes de Storage requieren respaldos y restauraciones separados.
+- Pendiente: proyecto aislado y acceso privado, RPO/RTO, export DB+objetos
+  con checksums, restauracion y verificaciones de conteos, relaciones, RLS,
+  ledger, acceso privado de evidencias y tiempos reales. No usar `db push`
+  sobre historial antiguo desalineado.
+
 ## 2026-10-13 — correcciones nuevas locales, sin aplicar a Production
 
 Cinco migraciones generadas por CLI en `codex/launch-corrections`:

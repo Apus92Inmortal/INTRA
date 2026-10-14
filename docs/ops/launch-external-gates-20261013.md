@@ -224,6 +224,17 @@ buzon controlado, vigilar reportes antes de endurecer rechazo. Comprobar
 
 ## Recuperacion, alertas y piloto
 
+Preflight adicional del 2026-10-13: el unico proyecto Supabase INTRA visible
+es Production y ya esta configurado. El segundo seria solo un destino temporal
+para ensayo de restauracion, no una correccion de Production. La credencial
+operativa puede inventariar pero
+no crear el segundo proyecto (HTTP 403); no se creo entorno aislado. La API de
+backups devuelve `backups=[]` y `pitr_enabled=false` (HTTP 200). No hay
+evidencia de backup recuperable ni restore probado. Segun la
+[documentacion de Supabase](https://supabase.com/docs/guides/platform/backups),
+Free requiere exportacion manual; un respaldo de DB no incluye los bytes de
+Storage. No se descargaron datos ni objetos durante este preflight.
+
 Los tests locales usan DDL real y datos sinteticos, sin filas de Production.
 No prueban recuperacion de datos/objetos. Antes de abrir el piloto:
 

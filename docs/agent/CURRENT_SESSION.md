@@ -1,5 +1,31 @@
 # INTRA - Current Session
 
+## Continuidad 2026-10-13 - aislamiento y recuperacion (Joy)
+
+- La rama del PR #183 se reviso en un worktree separado; el `main` local y sus
+  cinco cambios documentales sin commit se conservaron intactos.
+- Management API: el unico proyecto INTRA existente (`Intra-app`, Production)
+  ya esta configurado; no se detecto un problema nuevo de configuracion alli.
+  El segundo proyecto se considero exclusivamente para ensayar restauracion y
+  pruebas sin tocar Production, como indica el handoff. Intento de crear
+  `INTRA Pilot Isolated`: HTTP 403
+  por falta de privilegio `organization_projects_create`; **no se creo**.
+  El navegador administrado solicita login y la sesion de usuario no esta
+  disponible. Se solicito al titular crear el segundo proyecto gratuito o
+  habilitar el permiso operativo; no se pidieron credenciales por chat.
+- API de backups del proyecto Production: HTTP 200, `backups=[]` y
+  `pitr_enabled=false`. Esto no acredita un respaldo recuperable. En Free,
+  Supabase recomienda `db dump` manual; el dump de DB no incluye bytes de
+  Storage. No se exportaron datos ni objetos, ni se hizo restore.
+- Proxima accion: disponer de proyecto aislado y acceso privado de backup,
+  definir RPO/RTO, hacer inventario DB+Storage, exportar con checksums y
+  restaurar/verificar en el destino separado. No conectar Preview a Production.
+- No se aplicaron migraciones, no hubo cobros, push, merge ni deploy. Las
+  cinco migraciones del PR siguen pendientes de autorizacion de publicacion.
+
+Ver [gates externos](../ops/launch-external-gates-20261013.md#recuperacion-alertas-y-piloto)
+y TASK-052/053. Esta nota no reemplaza las verificaciones autenticas.
+
 ## Estado vigente - 2026-10-13
 
 Objetivo autorizado: corregir la auditoria A01-A15 y preparar un piloto
