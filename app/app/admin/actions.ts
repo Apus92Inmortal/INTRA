@@ -502,7 +502,7 @@ export async function reviewDisputeAction(formData: FormData): Promise<ActionRes
         return { success: false, error: "No pudimos aplicar la devolución. Revisa el monto y el estado de la disputa." }
       }
       revalidateAdminDisputePaths(typeof data.match_id === "string" ? data.match_id : matchIdInput)
-      return { success: true, message: "Disputa resuelta a favor del cliente." }
+      return { success: true, message: "Abono a Wallet registrado y disputa resuelta." }
     }
     if (action === "reviewing" || action === "rejected") {
       const { data, error } = await admin.rpc("admin_review_dispute", {

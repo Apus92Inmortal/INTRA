@@ -1,5 +1,14 @@
 # INTRA - Active Tasks
 
+## Correccion financiera externa en curso - 2026-10-14
+
+- TASK-051: Admin Wallet y Wompi ahora se diferencian en la UI local; no
+  existe aun el cierre externo transaccional. Diseno y casos de prueba en
+  `docs/ops/external-refund-closure-design-20261014.md`.
+- Decision pendiente del PM: importe externo permitido, parciales/remanente y
+  tratamiento de comision. No implementar el asiento/estado `refunded` sin
+  esa regla; despues completar RPC, interfaz y pruebas aisladas.
+
 ## Limpieza QA autorizada 2026-10-14
 
 - TASK-047/A05: Aldo identifico los siete `pending/created` como intentos de

@@ -1,5 +1,20 @@
 # INTRA - Current Session
 
+## Correccion financiera externa en curso - 2026-10-14 (Joy)
+
+- Aldo pidio comenzar por el cierre de una devolucion ejecutada directamente
+  en Wompi, sin duplicar el abono Wallet, y reservar una sola prueba integral
+  para el final. La ruta existente `customer_refund` sigue siendo solo Wallet.
+- Ajuste local Admin: accion, monto, dialogo y confirmacion de resultado ahora
+  explicitan el abono Wallet y advierten que no registra una devolucion Wompi.
+- Diseno tecnico revisable en
+  `docs/ops/external-refund-closure-design-20261014.md`: referencia/evidencia,
+  RPC transaccional, ausencia de doble credito, reverso viajero, auditoria,
+  idempotencia y casos de carrera. No hay migracion ni cierre externo aun.
+- Falta definir importe/politica contable de la devolucion externa (completa
+  o parcial, remanente y comision). Se consulto al PM antes de codificar una
+  regla financiera no aprobada. Sin push, migraciones remotas ni dinero movido.
+
 ## Aclaracion primer pago real - 2026-10-14 (Joy)
 
 - Aldo recuerda que hizo un pago de prueba real y que llego a Wompi sin
