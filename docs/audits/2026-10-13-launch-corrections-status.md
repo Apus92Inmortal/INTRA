@@ -1,5 +1,12 @@
 # Correcciones de lanzamiento INTRA — 2026-10-13
 
+**Actualizacion Production 2026-10-14:** Aldo identifico los 7 payments
+`pending/created` como intentos QA no pagados y autorizo vaciar las tablas
+operativas. Postflight: 14/14 tablas objetivo en 0; identidad aprobada,
+usuarios y maestros intactos. Storage no se limpio. El conteo de siete filas
+abajo corresponde al preflight historico, no al estado actual. A05 (pago
+historico y ciclo financiero real) permanece abierto; el PR #183 no cambio.
+
 **Actualizacion local 2026-10-14 (sin push):** A03 rechaza refunds Wallet
 parciales antes de mover saldo; A13 detecta y permite descartar solo factores
 TOTP no verificados abandonados. Suites locales A03/A04/A06 y 168 unitarias

@@ -1,5 +1,32 @@
 # INTRA - Database Notes
 
+## 2026-10-14 - limpieza QA operativa en Production, autorizada por Aldo
+
+El titular identifico como pruebas no pagadas los 7 payments Wompi
+`pending/created` asociados a 6 shipments `cancelled`. Preflight comprobó
+0 IDs de transaccion, pagos no pendientes, ledger, payouts o webhooks.
+El SQL historico de limpieza incluia `user_verifications` y `CASCADE`, por lo
+que **no** se ejecuto literalmente: habia 1 registro aprobado
+`verified/payout_verified` con medios de identidad que debia conservarse.
+
+Se guardo archivo local privado de las filas de 14 tablas operativas (22.979
+bytes, SHA-256 prefijo `063cedfc2ea2e1ee`, permiso 0600). La transaccion
+Production verifico conteos/estados, bloqueo las tablas y uso
+`TRUNCATE ... RESTART IDENTITY RESTRICT` para `shipment_evidence`,
+`shipment_report_events`, `reviews`, `messages`, `notifications`,
+`wallet_ledger`, `payouts`, `payments`, `shipment_declarations`, `matches`,
+`shipments`, `trips`, `traveler_payout_accounts` y `wallets`.
+Postflight exacto: 14/14 tablas objetivo en 0. Permanecen `auth.users` 3,
+`profiles` 3, `route_prices` 132, `user_policy_acceptances` 4 y
+`user_verifications` 1 aprobado. Los 23 objetos Storage (8 identidad,
+15 evidencia) quedaron intactos. No se modifico DDL, Auth, master data,
+archivos ni estados Wompi externos. El archivo de filas no reemplaza un
+respaldo completo DB+Storage ni una restauracion probada.
+
+El pago historico A05 sigue sin localizarse; el borrado de intentos de QA no
+demuestra que no exista una transaccion externa. El preflight de 7 filas
+documentado abajo es **historico**, no el conteo actual.
+
 ## 2026-10-14 - A05 Production, preflight agregado de solo lectura
 
 Consulta repetible en `supabase/tests/a05_payment_reconciliation_readonly.sql`.

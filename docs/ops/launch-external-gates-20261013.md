@@ -1,5 +1,13 @@
 # Gates externos para el piloto INTRA — 2026-10-13
 
+Actualizacion 2026-10-14 posterior: Aldo identifico los 7 pagos pendientes
+como intentos de QA sin pago y autorizo limpieza operativa. En Production
+quedaron 0 payments y 0 shipments, con 14/14 tablas objetivo en cero;
+usuarios, maestros y verificacion de identidad aprobada se preservaron.
+El preflight de 7 filas descrito abajo es evidencia historica. No se tocaron
+23 objetos Storage ni se demostro respaldo/restauracion; el pago historico
+reportado y el smoke financiero A05 siguen abiertos.
+
 Actualizacion read-only 2026-10-14: el preflight A05 ahora cuenta **7** pagos
 Wompi antiguos pending/processing, no 6. Los 7 tienen referencia interna,
 pero ninguno tiene ID de transaccion, webhook o asiento ledger relacionado.

@@ -1,5 +1,23 @@
 # INTRA - Current Session
 
+## Limpieza operativa QA Production - 2026-10-14 (Joy)
+
+- Aldo confirmo que los siete intentos `pending/created` eran pruebas de
+  creacion de envio que no pago y autorizo vaciar tablas operativas, no maestras.
+- Preflight: 7 payments sin ID de transaccion, 6 shipments `cancelled`,
+  6 evidencias, 6 declaraciones; 0 ledger, payouts, webhooks o pagos aprobados.
+  Existia 1 verificacion `verified/payout_verified` con documentos: se excluyo.
+- Se archivo localmente una copia privada de las filas operativas (modo 0600)
+  y se ejecuto en Production una transaccion con conteos/estados guardados,
+  bloqueo de tablas y `TRUNCATE ... RESTART IDENTITY RESTRICT` sobre 14 tablas.
+  No se uso `CASCADE` ni se borro `user_verifications`.
+- Postflight: 14/14 tablas objetivo en 0; `auth.users` 3, `profiles` 3,
+  `route_prices` 132, `user_policy_acceptances` 4 y verificacion aprobada 1,
+  sin cambios. Storage conserva 23 objetos; no se tocaron archivos ni Auth.
+- Esta limpieza no es un backup/restore completo ni prueba por si misma el
+  estado externo de Wompi. A05 historico y el smoke financiero siguen abiertos.
+  PR #183, `main`, DDL y app Production no cambiaron; si hubo DML de limpieza.
+
 ## Continuacion local A05 y SOP financiero - 2026-10-14 (Joy)
 
 - Preflight Production de solo lectura (agregados, sin referencias/PII):

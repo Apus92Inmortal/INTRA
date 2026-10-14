@@ -1,5 +1,19 @@
 # INTRA - Active Tasks
 
+## Limpieza QA autorizada 2026-10-14
+
+- TASK-047/A05: Aldo identifico los siete `pending/created` como intentos de
+  prueba sin pago. Se archivaron privadamente y se vaciaron las 14 tablas
+  operativas seleccionadas: pagos y envios ahora 0. La verificacion de
+  identidad aprobada y las tablas maestras se preservaron. No tratar el
+  preflight de 7 filas anterior como estado actual.
+- A05 no queda cerrado: el pago historico reportado aun no se localiza en el
+  proveedor ni hay smoke financiero completo. El SQL no prueba ausencia de
+  movimientos externos. Quedan 23 objetos Storage sin tocar; revisar su
+  retencion/relacion por separado antes de cualquier borrado de archivos.
+- Continuar con validacion del paquete local PR #183 y gates de restauracion,
+  MFA, correo, devolucion externa y piloto; no inferir permiso de push/release.
+
 ## Continuacion 2026-10-14 - conciliacion y devolucion externa
 
 - TASK-047/A05: 7 pagos antiguos pendientes siguen sin cotejo de Wompi

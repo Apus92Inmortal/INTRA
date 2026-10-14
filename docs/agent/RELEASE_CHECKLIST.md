@@ -1,5 +1,16 @@
 # INTRA - Release Checklist
 
+## Actualizacion 2026-10-14: limpieza QA en Production
+
+- [x] Aldo identifico los 7 intentos pendientes como QA sin pago y autorizo
+  limpieza operativa. Postflight: 14/14 tablas seleccionadas en 0; usuarios,
+  perfiles, precios, aceptaciones y verificacion aprobada preservados.
+- [ ] A05 historico: localizar/cotejar el pago reportado y probar ciclo
+  financiero real; borrar filas QA no acredita ausencia de cobro externo.
+- [ ] Revisar los 23 objetos Storage conservados y su retencion sin borrado
+  indiscriminado; respaldo/restauracion DB+Storage sigue sin verificar.
+- [ ] Resolver cierre de refund externo sin duplicar credito Wallet.
+
 ## Gate adicional 2026-10-14: refund externo y A05
 
 - [x] Preflight agregado y read-only para los 7 pagos antiguos, sin PII.

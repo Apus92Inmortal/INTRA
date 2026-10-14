@@ -1,5 +1,16 @@
 # INTRA - Known Issues
 
+## Estado despues de limpieza QA 2026-10-14
+
+- Los 7 payments pendientes de prueba y sus 6 envios cancelados ya no estan
+  en Production; las 14 tablas operativas seleccionadas quedaron en cero.
+  Aldo los identifico como intentos no pagados. El preflight de siete filas
+  consignado abajo es historico. El pago historico no localizado y la prueba
+  financiera real A05 siguen pendientes.
+- La limpieza preservo la verificacion de identidad aprobada y 23 objetos
+  Storage. Revisar retencion/archivos huérfanos por separado; no ejecutar el
+  `TRUNCATE ... CASCADE` antiguo ni borrar identidad por asociacion.
+
 ## Gate financiero adicional 2026-10-14
 
 - A05: las 7 referencias pendientes no tienen ID de transaccion, webhook

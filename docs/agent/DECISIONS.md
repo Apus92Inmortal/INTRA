@@ -1,5 +1,18 @@
 # INTRA - Technical Decisions
 
+## DEC-018: Limpieza operativa QA sin borrar identidad ni maestros
+
+Fecha: 2026-10-14
+
+Aldo autorizo vaciar tablas operativas de prueba para continuar correcciones,
+no tablas maestras. El SQL historico no se replica literalmente porque
+incluia `user_verifications` (1 registro aprobado) y `CASCADE`. La limpieza
+usa transaccion, guardas de estado/conteo, archivo local privado de filas y
+`TRUNCATE ... RESTRICT` de las otras 14 tablas operativas. Se preservan
+usuarios, perfiles, precios, aceptaciones, verificacion aprobada y archivos
+Storage. Su retencion/limpieza se decide aparte. No confundir esta limpieza
+con conciliacion Wompi, respaldo completo ni autorizacion de release.
+
 ## DEC-017: Bloqueo temporal de devoluciones parciales Wallet
 
 Fecha: 2026-10-14
