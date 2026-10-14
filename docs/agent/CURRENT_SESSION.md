@@ -1,5 +1,19 @@
 # INTRA - Current Session
 
+## Aclaracion primer pago real - 2026-10-14 (Joy)
+
+- Aldo recuerda que hizo un pago de prueba real y que llego a Wompi sin
+  novedad. La memoria del 2026-06-27 registra ademas su confirmacion del
+  pago y la conciliacion interna Wallet/Ledger como PASS operativo de
+  TASK-047. Fue incorrecto describirlo como "pago historico sin resolver".
+- Los siete intentos `pending/created` posteriores eran pruebas **sin pago**;
+  quedaron archivados privadamente y se limpiaron con autorizacion. No eran
+  siete cobros ni invalidan el pago historico exitoso.
+- No pedir repetir un pago para demostrar lo ya probado. Sigue pendiente
+  validar con la version corregida y usuarios de prueba el ciclo completo
+  de checkout, webhook, retencion, entrega, disputa/refund y retiro antes del
+  piloto; eso es un gate nuevo, distinto del primer pago historico.
+
 ## Limpieza operativa QA Production - 2026-10-14 (Joy)
 
 - Aldo confirmo que los siete intentos `pending/created` eran pruebas de
@@ -15,7 +29,8 @@
   `route_prices` 132, `user_policy_acceptances` 4 y verificacion aprobada 1,
   sin cambios. Storage conserva 23 objetos; no se tocaron archivos ni Auth.
 - Esta limpieza no es un backup/restore completo ni prueba por si misma el
-  estado externo de Wompi. A05 historico y el smoke financiero siguen abiertos.
+  estado externo de Wompi. El primer pago historico ya fue reportado PASS por
+  Aldo; el smoke financiero de la version corregida sigue abierto.
   PR #183, `main`, DDL y app Production no cambiaron; si hubo DML de limpieza.
 
 ## Continuacion local A05 y SOP financiero - 2026-10-14 (Joy)

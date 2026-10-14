@@ -5,8 +5,11 @@
 - [x] Aldo identifico los 7 intentos pendientes como QA sin pago y autorizo
   limpieza operativa. Postflight: 14/14 tablas seleccionadas en 0; usuarios,
   perfiles, precios, aceptaciones y verificacion aprobada preservados.
-- [ ] A05 historico: localizar/cotejar el pago reportado y probar ciclo
-  financiero real; borrar filas QA no acredita ausencia de cobro externo.
+- [x] Primer pago real Wompi + Wallet/Ledger confirmado como PASS operativo
+  por Aldo el 2026-06-27 y reiterado el 2026-10-14. No repetirlo por los
+  siete intentos QA ya limpiados.
+- [ ] Probar ciclo financiero integral de la version corregida, incluido
+  webhook, retencion, entrega, disputa/refund y retiro, antes del piloto.
 - [ ] Revisar los 23 objetos Storage conservados y su retencion sin borrado
   indiscriminado; respaldo/restauracion DB+Storage sigue sin verificar.
 - [ ] Resolver cierre de refund externo sin duplicar credito Wallet.
@@ -64,8 +67,10 @@ arriba. Los checks antiguos no certifican el nuevo SHA ni reemplazan sus gates.
 - [ ] Enrollment/challenge real MFA admin y recuperacion por consola probados.
 - [ ] Restore DB+Storage aislado y alertas recibidas demostrados.
 - [ ] Smoke Auth por roles y ciclo Wompi sandbox sin datos Production.
-- [ ] A05/pagos antiguos conciliados; caso de aprobacion tardia resuelto
-  por procedimiento externo sin duplicar creditos Wallet.
+- [x] TASK-047 primer pago real + Wallet/Ledger reportado PASS por Aldo;
+  intentos QA pendientes posteriores limpiados con autorizacion.
+- [ ] Ciclo financiero integral actual, incluido caso de aprobacion tardia,
+  resuelto por procedimiento externo sin duplicar creditos Wallet.
 - [ ] Limites/participantes/soporte y revision legal/contable fijados.
 - [ ] Aprobacion final de migraciones, merge y deployment Production.
 - [ ] Aplicacion/postflight, CI postmerge y deployment READY del SHA aprobado.

@@ -7,10 +7,12 @@
   operativas seleccionadas: pagos y envios ahora 0. La verificacion de
   identidad aprobada y las tablas maestras se preservaron. No tratar el
   preflight de 7 filas anterior como estado actual.
-- A05 no queda cerrado: el pago historico reportado aun no se localiza en el
-  proveedor ni hay smoke financiero completo. El SQL no prueba ausencia de
-  movimientos externos. Quedan 23 objetos Storage sin tocar; revisar su
-  retencion/relacion por separado antes de cualquier borrado de archivos.
+- TASK-047 primer pago real Wompi + Wallet/Ledger: PASS operativo confirmado
+  por Aldo el 2026-06-27 y reiterado el 2026-10-14. La ausencia actual de
+  filas, tras limpiezas QA, no refuta esa prueba ni obliga a cobrar otra vez.
+  Sigue pendiente un smoke del ciclo integral en la version corregida.
+  Quedan 23 objetos Storage sin tocar; revisar su retencion/relacion por
+  separado antes de cualquier borrado de archivos.
 - Continuar con validacion del paquete local PR #183 y gates de restauracion,
   MFA, correo, devolucion externa y piloto; no inferir permiso de push/release.
 
@@ -169,38 +171,24 @@ Area: Wallet / Ledger / Wompi
 
 ### TASK-047: Primer pago real Wompi + Wallet
 
-Estado: BLOCKED / pago real PASS reportado historicamente; conciliacion pendiente y bloqueos de seguridad 2026-09-04
+Estado: DONE historico por confirmacion de Aldo / nuevo smoke integral pendiente en TASK-053
 Prioridad: Critica
 Area: Produccion controlada / Pagos / Wallet / Operacion
 
 Resumen:
 - Primer pago real Wompi ejecutado por Aldo y reportado como PASS operativo.
-- La prueba confirma cobro exitoso en Wompi.
-- Falta confirmar en memoria/revision operativa la conciliacion interna wallet/ledger.
-- El gate completo no queda cerrado hasta validar Wompi production, webhook production, ledger, saldo retenido, liberacion y retiro/payout manual.
+- La memoria del 2026-06-27 registra su confirmacion de Wompi y conciliacion
+  Wallet/Ledger sin novedad; Aldo reitero el pago exitoso el 2026-10-14.
+- No se conserva en estas notas la referencia/ID de la transaccion y la base
+  operativa fue limpiada posteriormente. Eso limita auditoria retrospectiva,
+  pero no convierte el pago historico en fallido ni autoriza repetirlo.
 
-Precondiciones:
-- Cerrar TASK-050 y TASK-051 y gates de infraestructura antes de iniciar nuevos cobros. Auditoria remota 2026-09-04: 5 payments pending/created, 0 eventos Wompi/wallets/ledger/payouts en el proyecto usado por Production; ubicar y conciliar referencia historica sin negar el cobro reportado.
-- Production env critico se considera corregido segun memoria reciente; revalidar antes de continuar operacion con dinero real.
-- Confirmar que Wompi production sigue configurado.
-- Confirmar que el webhook Wompi production sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
-- Ejecutar smoke minimo publico/login/admin/checkout si aplica antes de mover dinero real.
-
-Validado:
-- Pago real aprobado en Wompi segun prueba operativa de Aldo.
-
-Validacion pendiente:
-- Webhook production recibido y procesado.
-- Payment/ledger reflejado correctamente en INTRA.
-- Saldo retenido visible y consistente.
-- Liberacion de pago ejecutada segun regla operativa.
-- Wallet del viajero refleja saldo disponible correcto.
-- Solicitud de retiro/payout manual registrada con referencia externa y evidencia.
-- Bitacora operativa completa.
-
-Pendiente:
-- Validar conciliacion interna del pago real.
-- Preparar primer envio controlado con usuario cliente y viajero conocidos despues de confirmar conciliacion.
+Nuevo gate separado antes del piloto con dinero:
+- Publicar las correcciones aprobadas y probar con usuarios controlados
+  checkout/webhook/retencion/entrega/disputa/devolucion/retiro, con evidencia
+  y bitacora actuales. Cerrar TASK-050/051/052/053 segun sus propios gates.
+- No usar los siete `pending/created` QA (ya limpiados) como evidencia de
+  que el primer pago historico no funciono.
 
 ---
 
@@ -239,7 +227,8 @@ Estado: IN_PROGRESS / CI y codigo preparados; restore real pendiente
 Prioridad: Alta
 
 - A10-A15 del informe: proteger main/checks, E2E en CI, smoke autenticado reciente, rollback y restauracion DB/Storage probados, alertas y correo/soporte.
-- Cerrar TASK-047 tras seguridad; primer envio controlado con bitacora y evidencia financiera completa.
+- TASK-047 historico quedo confirmado por Aldo; hacer nuevo smoke integral
+  de la version corregida con bitacora y evidencia financiera completa.
 - Para apertura, mantener TASK-048 legal final y validar capacidad, privacidad, accesibilidad y soporte.
 - Mejoras P2 concretas en informe: foco en modales, SPF/DMARC, Storage, headers, SEO y estados documentales antiguos.
 - API de backups Production 2026-10-13: ninguna copia gestionada listada;

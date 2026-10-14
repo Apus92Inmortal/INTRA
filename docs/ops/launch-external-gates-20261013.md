@@ -5,8 +5,10 @@ como intentos de QA sin pago y autorizo limpieza operativa. En Production
 quedaron 0 payments y 0 shipments, con 14/14 tablas objetivo en cero;
 usuarios, maestros y verificacion de identidad aprobada se preservaron.
 El preflight de 7 filas descrito abajo es evidencia historica. No se tocaron
-23 objetos Storage ni se demostro respaldo/restauracion; el pago historico
-reportado y el smoke financiero A05 siguen abiertos.
+23 objetos Storage ni se demostro respaldo/restauracion. El primer pago real
+Wompi + Wallet/Ledger fue confirmado PASS operativo por Aldo el 2026-06-27
+y reiterado el 2026-10-14; no debe repetirse por falta de filas actuales.
+El smoke financiero integral de la version corregida sigue pendiente.
 
 Actualizacion read-only 2026-10-14: el preflight A05 ahora cuenta **7** pagos
 Wompi antiguos pending/processing, no 6. Los 7 tienen referencia interna,
@@ -282,8 +284,9 @@ No prueban recuperacion de datos/objetos. Antes de abrir el piloto:
    no ese ciclo financiero.
 7. Fijar participantes conocidos, rutas, cupo simultaneo, importes maximos,
    horario y responsable de soporte, y criterio de suspension. Llevar bitacora
-   diaria de pendientes y conciliacion. La prueba antigua A05/TASK-047 sigue
-   pendiente; no fue sustituida por una prueba nueva ni se hizo un pago real.
+   diaria de pendientes y conciliacion. TASK-047 primer pago real +
+   Wallet/Ledger fue confirmado PASS operativo por Aldo; falta una prueba
+   nueva del ciclo integral sobre la version corregida antes del piloto.
 8. Obtener revision/aprobacion legal y contable competente de textos, datos,
    responsabilidades y operacion financiera, con evidencia privada del titular.
    Esta auditoria tecnica no emite un dictamen juridico ni acredita ese cierre.

@@ -5,8 +5,10 @@
 - Los 7 payments pendientes de prueba y sus 6 envios cancelados ya no estan
   en Production; las 14 tablas operativas seleccionadas quedaron en cero.
   Aldo los identifico como intentos no pagados. El preflight de siete filas
-  consignado abajo es historico. El pago historico no localizado y la prueba
-  financiera real A05 siguen pendientes.
+  consignado abajo es historico. Aldo confirmo el primer pago real Wompi y
+  la conciliacion Wallet/Ledger como PASS operativo en junio, reiterando el
+  pago en octubre; no tratarlo como fallido. Queda pendiente el ciclo
+  financiero integral de la version corregida, no repetir aquel primer pago.
 - La limpieza preservo la verificacion de identidad aprobada y 23 objetos
   Storage. Revisar retencion/archivos huérfanos por separado; no ejecutar el
   `TRUNCATE ... CASCADE` antiguo ni borrar identidad por asociacion.

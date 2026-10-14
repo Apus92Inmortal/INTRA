@@ -4,8 +4,10 @@
 `pending/created` como intentos QA no pagados y autorizo vaciar las tablas
 operativas. Postflight: 14/14 tablas objetivo en 0; identidad aprobada,
 usuarios y maestros intactos. Storage no se limpio. El conteo de siete filas
-abajo corresponde al preflight historico, no al estado actual. A05 (pago
-historico y ciclo financiero real) permanece abierto; el PR #183 no cambio.
+abajo corresponde al preflight historico, no al estado actual. El primer pago
+real Wompi + Wallet/Ledger fue confirmado PASS por Aldo el 2026-06-27 y
+reiterado el 2026-10-14; no se debe repetir. El ciclo financiero integral de
+la version corregida permanece pendiente; el PR #183 no cambio.
 
 **Actualizacion local 2026-10-14 (sin push):** A03 rechaza refunds Wallet
 parciales antes de mover saldo; A13 detecta y permite descartar solo factores
@@ -35,7 +37,7 @@ sus IDs y no declara cerrado un cambio remoto por una prueba local.
 | A02 | ACL Production 14/14 PASS; suite aislada comprueba que no regresa con las nuevas migraciones | Smoke de retry/payout con sesiones reales |
 | A03 | Refund Wallet y revisiones admin atomicas, credito unico, audit, locks e idempotencia; cancelacion pendiente atomica y orden de resoluciones coherente | Aplicar migracion y smoke de flujos; estados parciales historicos requieren conciliacion |
 | A04 | Ingesta atomica, fallos sin processed, eventos persistidos antes de lookup, cotejo con Wompi, monotonicidad y retry admin auditado | Aplicar/publicar; probar entrega real de webhook sandbox y cola de conciliacion |
-| A05 | Pago antiguo no localizado; no se hizo otro cobro | Conciliar historial del proveedor, payment, ledger y ciclo completo antes de dinero real |
+| A05 | Primer pago Wompi + Wallet/Ledger confirmado PASS operativo por Aldo el 27-jun; siete intentos QA sin pago limpiados el 14-oct | Probar ciclo financiero integral de la version corregida antes del piloto; no repetir el primer pago por ausencia de filas historicas |
 | A06 | Comparacion DDL remoto; policies contextuales, chat sender/estado, RPCs privados y race request_match corregidos | Aplicar/postflight; repair completo de historial separado, sin replay antiguo |
 | A07 | Next 16.3.8 y transitivas actualizadas; audit produccion 0 | Publicar; advisory sin parche en braces de herramientas dev permanece (5 high derivados) |
 | A08 | Navegador autenticado confirma equipo Hobby; condiciones documentadas | Resolver aptitud comercial/costes con el titular sin compra automatica |

@@ -23,9 +23,11 @@ Postflight exacto: 14/14 tablas objetivo en 0. Permanecen `auth.users` 3,
 archivos ni estados Wompi externos. El archivo de filas no reemplaza un
 respaldo completo DB+Storage ni una restauracion probada.
 
-El pago historico A05 sigue sin localizarse; el borrado de intentos de QA no
-demuestra que no exista una transaccion externa. El preflight de 7 filas
-documentado abajo es **historico**, no el conteo actual.
+El primer pago real Wompi + Wallet/Ledger fue confirmado como PASS operativo
+por Aldo el 2026-06-27 y reiterado el 2026-10-14. La ausencia actual de filas
+no refuta esa prueba historica ni identifica su referencia/ID; no pedir otro
+cobro para repetirla. El preflight de 7 filas documentado abajo es
+**historico**, no el conteo actual ni evidencia de siete cobros.
 
 ## 2026-10-14 - A05 Production, preflight agregado de solo lectura
 

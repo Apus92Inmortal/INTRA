@@ -7,8 +7,11 @@ Por autorizacion de Aldo, los 7 payments `pending/created` de prueba y
 operativas mediante `TRUNCATE ... RESTRICT` con guardas. Postflight: 14/14 en
 0; usuarios, perfiles, tablas maestras y 1 verificacion aprobada intactos.
 Storage conserva 23 objetos; no hubo cambio de codigo/DDL publicado.
-El pago historico A05 aun requiere cotejo, y la restauracion completa y los
-gates de dinero real siguen abiertos. Ver DB_NOTES y CURRENT_SESSION.
+El primer pago real Wompi + conciliacion Wallet/Ledger fue confirmado por Aldo
+el 2026-06-27 y reiterado el 2026-10-14; no debe presentarse como un cobro
+fallido o un pago que hay que repetir. La prueba historica no sustituye el
+smoke integral de la version corregida ni los gates de recuperacion/dinero real.
+Ver DB_NOTES y CURRENT_SESSION.
 
 ## Actualizacion 2026-10-13 — paquete para piloto en revision
 

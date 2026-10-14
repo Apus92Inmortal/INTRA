@@ -130,8 +130,11 @@ externo sin duplicar el credito; no interpretar un comprobante externo como
 Completar primero smoke Auth cliente/viajero/tercero/admin, confirmacion y
 recuperacion de correo con SMTP efectivo, MFA real del titular,
 carga/descarga privada de evidencia, y ciclo Wompi
-sandbox entrega/disputa/devolucion/payout en ambiente aislado. El pago antiguo
-no fue localizado; sigue pendiente A05/TASK-047 sin ejecutar un cobro nuevo.
+sandbox entrega/disputa/devolucion/payout en ambiente aislado. El primer pago
+real Wompi + Wallet/Ledger fue confirmado PASS operativo por Aldo el
+2026-06-27 y reiterado el 2026-10-14. La falta de referencia en estas notas
+no lo invalida ni exige otro cobro. El smoke integral de la version corregida
+sigue pendiente antes del piloto.
 
 Propuesta operativa pendiente de fijar por el titular: lista de participantes,
 rutas, maximo de envios simultaneos e importes, horario y responsable de soporte,
