@@ -5,12 +5,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import SecurityClient from "@/app/app/profile/security/SecurityClient"
 
 const auth = vi.hoisted(() => ({
-  listFactors: vi.fn(), enroll: vi.fn(), challengeAndVerify: vi.fn(), getClaims: vi.fn(),
+  listFactors: vi.fn(), enroll: vi.fn(), unenroll: vi.fn(), challengeAndVerify: vi.fn(), getClaims: vi.fn(),
   replace: vi.fn(), refresh: vi.fn(), onAuthStateChange: vi.fn(),
 }))
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: auth.replace, refresh: auth.refresh }) }))
 vi.mock("@/lib/supabase/client", () => ({ createClient: () => ({ auth: {
-  mfa: { listFactors: auth.listFactors, enroll: auth.enroll, challengeAndVerify: auth.challengeAndVerify },
+  mfa: { listFactors: auth.listFactors, enroll: auth.enroll, unenroll: auth.unenroll, challengeAndVerify: auth.challengeAndVerify },
   getClaims: auth.getClaims,
   onAuthStateChange: auth.onAuthStateChange,
 } }) }))
@@ -21,6 +21,7 @@ vi.mock("next/image", () => ({ default: (props: { src: string; alt: string }) =>
 ) }))
 
 const factor = { id: "synthetic-factor", factor_type: "totp", status: "verified" }
+const pendingFactor = { id: "synthetic-pending", factor_type: "totp", status: "unverified" }
 const emptyFactors = { data: { all: [], totp: [], phone: [], webauthn: [] }, error: null }
 const verifiedFactors = { data: { all: [factor], totp: [factor], phone: [], webauthn: [] }, error: null }
 const claims = (aal: string) => ({ data: { claims: { sub: "synthetic-admin", aal } }, error: null })
@@ -37,6 +38,37 @@ describe("admin MFA enrollment and challenge", () => {
         secret: "unused-synthetic-secret", uri: "synthetic-unused-uri",
       },
     }, error: null })
+    auth.unenroll.mockResolvedValue({ data: { id: pendingFactor.id }, error: null })
+  })
+
+  it("does not create another factor when a prior TOTP setup was abandoned", async () => {
+    auth.listFactors.mockResolvedValue({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
+    render(<SecurityClient userId="synthetic-admin" />)
+    expect(await screen.findByRole("button", { name: "Descartar activación pendiente" })).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Activar verificación" })).not.toBeInTheDocument()
+    expect(auth.enroll).not.toHaveBeenCalled()
+  })
+
+  it("discards only the selected unverified factor after checking identity and reloads factors", async () => {
+    const user = userEvent.setup()
+    auth.listFactors.mockResolvedValueOnce({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
+      .mockResolvedValueOnce({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
+      .mockResolvedValueOnce(emptyFactors)
+    render(<SecurityClient userId="synthetic-admin" />)
+    await user.click(await screen.findByRole("button", { name: "Descartar activación pendiente" }))
+    expect(auth.unenroll).toHaveBeenCalledWith({ factorId: pendingFactor.id })
+    expect(await screen.findByRole("button", { name: "Activar verificación" })).toBeInTheDocument()
+    expect(auth.enroll).not.toHaveBeenCalled()
+  })
+
+  it("refuses cleanup if the pending factor became verified before deletion", async () => {
+    const user = userEvent.setup()
+    auth.listFactors.mockResolvedValueOnce({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
+      .mockResolvedValueOnce(verifiedFactors)
+    render(<SecurityClient userId="synthetic-admin" />)
+    await user.click(await screen.findByRole("button", { name: "Descartar activación pendiente" }))
+    expect(auth.unenroll).not.toHaveBeenCalled()
+    expect(await screen.findByRole("alert")).toHaveTextContent("Recarga la página")
   })
 
   it("does not enroll on render/prefetch/StrictMode and shows a private QR only after the explicit CTA", async () => {

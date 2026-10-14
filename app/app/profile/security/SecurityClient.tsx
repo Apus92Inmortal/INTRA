@@ -29,6 +29,7 @@ export default function SecurityClient({ userId }: { userId: string }) {
   const router = useRouter()
   const [supabase] = useState(() => createClient())
   const [factors, setFactors] = useState<Factor[]>([])
+  const [pendingFactors, setPendingFactors] = useState<Factor[]>([])
   const [factorId, setFactorId] = useState("")
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null)
   const [code, setCode] = useState("")
@@ -46,6 +47,7 @@ export default function SecurityClient({ userId }: { userId: string }) {
     setEnrollment(null)
     setCode("")
     setFactors([])
+    setPendingFactors([])
     setFactorId("")
     setLoaded(false)
     setVerified(false)
@@ -96,7 +98,9 @@ export default function SecurityClient({ userId }: { userId: string }) {
           return
         }
         const totp: AuthFactor[] = listed.data.totp.filter((f: AuthFactor) => f.status === "verified")
+        const pending = listed.data.all.filter((f: AuthFactor) => f.factor_type === "totp" && f.status === "unverified")
         setFactors(totp.map(f => ({ id: f.id })))
+        setPendingFactors(pending.map((f: AuthFactor) => ({ id: f.id })))
         setFactorId(totp[0]?.id ?? "")
         setVerified(claims.data.claims.aal === "aal2")
         setLoaded(true)
@@ -122,6 +126,20 @@ export default function SecurityClient({ userId }: { userId: string }) {
     const epoch = sessionEpoch.current
     try {
       if (!await hasSameIdentity(epoch)) return
+      // A second tab or a reload may already have left a factor unfinished.
+      // Never consume another factor slot before checking the current list.
+      const listed = await supabase.auth.mfa.listFactors()
+      if (!sessionIsCurrent(epoch)) return
+      if (listed.error || !listed.data) {
+        setError("No pudimos cargar la verificación. Recarga la página e intenta nuevamente.")
+        return
+      }
+      const pending = listed.data.all.filter((f: AuthFactor) => f.factor_type === "totp" && f.status === "unverified")
+      if (pending.length > 0) {
+        setPendingFactors(pending.map((f: AuthFactor) => ({ id: f.id })))
+        setError("Hay una activación pendiente. Descártala antes de iniciar otra.")
+        return
+      }
       const { data, error: enrollError } = await supabase.auth.mfa.enroll({
         factorType: "totp", issuer: "INTRA",
       })
@@ -133,6 +151,7 @@ export default function SecurityClient({ userId }: { userId: string }) {
         return
       }
       const qr = privateQrSource(data.totp.qr_code)
+      setPendingFactors([{ id: data.id }])
       if (!qr) {
         setError("No pudimos mostrar el código QR. Recarga la página y solicita ayuda si el problema continúa.")
         return
@@ -143,6 +162,49 @@ export default function SecurityClient({ userId }: { userId: string }) {
       setFactorId(data.id)
     } catch {
       if (sessionIsCurrent(epoch)) setError("No pudimos activar la verificación. Revisa tu conexión e intenta nuevamente.")
+    } finally {
+      operation.current = false
+      if (sessionIsCurrent(epoch)) setBusy(false)
+    }
+  }
+
+  async function discardPendingFactor() {
+    const pendingId = pendingFactors[0]?.id
+    if (operation.current || !loaded || !pendingId) return
+    operation.current = true
+    setBusy(true)
+    setError(null)
+    const epoch = sessionEpoch.current
+    try {
+      if (!await hasSameIdentity(epoch)) return
+      const listed = await supabase.auth.mfa.listFactors()
+      if (!sessionIsCurrent(epoch)) return
+      if (listed.error || !listed.data || !listed.data.all.some((f: AuthFactor) =>
+        f.id === pendingId && f.factor_type === "totp" && f.status === "unverified")) {
+        setError("La activación cambió. Recarga la página antes de continuar.")
+        return
+      }
+      const { error: unenrollError } = await supabase.auth.mfa.unenroll({ factorId: pendingId })
+      if (!sessionIsCurrent(epoch)) return
+      if (unenrollError) {
+        setError("No pudimos descartar la activación pendiente. Intenta nuevamente o solicita ayuda.")
+        return
+      }
+      const refreshed = await supabase.auth.mfa.listFactors()
+      if (!sessionIsCurrent(epoch)) return
+      if (refreshed.error || !refreshed.data) {
+        setLoaded(false)
+        setError("No pudimos confirmar el cambio. Recarga la página antes de continuar.")
+        return
+      }
+      setPendingFactors(refreshed.data.all.filter((f: AuthFactor) =>
+        f.factor_type === "totp" && f.status === "unverified").map((f: AuthFactor) => ({ id: f.id })))
+      const verifiedFactors = refreshed.data.totp.filter((f: AuthFactor) => f.status === "verified")
+      setFactors(verifiedFactors.map((f: AuthFactor) => ({ id: f.id })))
+      setFactorId(verifiedFactors[0]?.id ?? "")
+      setEnrollment(null)
+    } catch {
+      if (sessionIsCurrent(epoch)) setError("No pudimos descartar la activación pendiente. Revisa tu conexión e intenta nuevamente.")
     } finally {
       operation.current = false
       if (sessionIsCurrent(epoch)) setBusy(false)
@@ -172,6 +234,7 @@ export default function SecurityClient({ userId }: { userId: string }) {
       // Verification saves the upgraded session/cookies in the SDK. Remove
       // the setup QR immediately, then independently check the current JWT.
       setEnrollment(null)
+      setPendingFactors(current => current.filter(f => f.id !== factorId))
       setFactors(current => [{ id: factorId }, ...current.filter(f => f.id !== factorId)])
       const [claims, listed] = await Promise.all([
         supabase.auth.getClaims(), supabase.auth.mfa.listFactors(),
@@ -196,7 +259,8 @@ export default function SecurityClient({ userId }: { userId: string }) {
     }
   }
 
-  const needsEnrollment = factors.length === 0 && !enrollment
+  const needsEnrollment = factors.length === 0 && pendingFactors.length === 0 && !enrollment
+  const needsCleanup = factors.length === 0 && pendingFactors.length > 0 && !enrollment
 
   return (
     <IntraCard className="space-y-5 p-5 sm:p-6">
@@ -213,6 +277,13 @@ export default function SecurityClient({ userId }: { userId: string }) {
 
       {loaded && verified ? (
         <Link href="/app/admin" className="intra-btn intra-btn-primary w-full">Entrar a Admin</Link>
+      ) : loaded && needsCleanup ? (
+        <div className="space-y-3">
+          <p className="intra-body">Hay {pendingFactors.length === 1 ? "una activación" : `${pendingFactors.length} activaciones`} sin terminar. Por seguridad, el código QR anterior no se puede recuperar. Descarta una activación pendiente para comenzar de nuevo.</p>
+          <IntraPrimaryButton className="w-full" isLoading={busy} onClick={discardPendingFactor}>
+            {busy ? "Descartando..." : "Descartar activación pendiente"}
+          </IntraPrimaryButton>
+        </div>
       ) : loaded && needsEnrollment ? (
         <div className="space-y-3">
           <p className="intra-body">Actívala con una aplicación de autenticación en tu dispositivo.</p>
@@ -254,7 +325,7 @@ export default function SecurityClient({ userId }: { userId: string }) {
         </form>
       ) : null}
 
-      {error && (!loaded || needsEnrollment || verified) ? <IntraFieldMessage role="alert">{error}</IntraFieldMessage> : null}
+      {error && (!loaded || needsEnrollment || needsCleanup || verified) ? <IntraFieldMessage role="alert">{error}</IntraFieldMessage> : null}
       <p className="intra-caption">
         Si perdiste tu dispositivo, solicita ayuda al responsable de INTRA para recuperar el acceso.
       </p>

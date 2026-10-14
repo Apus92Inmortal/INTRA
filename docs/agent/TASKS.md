@@ -1,5 +1,20 @@
 # INTRA - Active Tasks
 
+## Avance local 2026-10-14 - bloqueos PR #183
+
+- A03/TASK-051: la rama local rechaza devoluciones Wallet parciales antes
+  de cualquier movimiento; prueba de saldo/ledger/estado y suite DB aislada
+  PASS. La regla contable parcial definitiva sigue sin definirse. Falta
+  publicar y verificar la migracion aprobada; no cerrar TASK-051 en Production.
+- A13/TASK-053: la pantalla local detecta factores TOTP no verificados,
+  impide otra activacion y permite descartar explicitamente solo el factor
+  pendiente tras revalidar identidad/estado. Pruebas focales PASS. Falta
+  probar enrollment/challenge/recuperacion con el titular real y publicar.
+- Verificacion local: 168 unitarias, A03 18/A04 15/A06 DB PASS, lint sin
+  errores (1 advertencia previa), TypeScript y build webpack PASS.
+  PR remoto, main y Production no cambiaron. Siguen pendientes los 7 pagos,
+  backup/restore DB+Storage, SMTP y gates operativos del piloto.
+
 ## Revision PR #183 - 2026-10-13
 
 - Veredicto local: **NO APTO para publicar**. SHA remoto `48bbf13` con CI,

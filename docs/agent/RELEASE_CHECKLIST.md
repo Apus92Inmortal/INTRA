@@ -1,9 +1,21 @@
 # INTRA - Release Checklist
 
+## Avance local 2026-10-14
+
+- [x] A03 rechaza refund Wallet parcial sin mutaciones; A03 18 checks aislados.
+- [x] MFA local detecta/descarta solo factores TOTP no verificados; 12
+  pruebas focales, sin enrollment/challenge remoto.
+- [x] Unit 168/168, DB A03/A04/A06, lint (0 errores/1 aviso previo),
+  TypeScript y build webpack PASS.
+- [ ] Publicar nuevo SHA mediante checkpoint autorizado, repetir CI y
+  preflight; no usar los checks verdes del SHA remoto anterior.
+- [ ] Probar Auth MFA real y recuperacion, backup/restore, conciliacion de
+  pagos y gates del piloto. Nada de esto se acredita con el cambio local.
+
 ## Paquete de correcciones para piloto - 2026-10-13
 
-Este bloque es el estado actual. Los checks fechados antiguos son historial,
-no certifican el nuevo paquete ni reemplazan sus gates.
+Este bloque registra el estado del 13-oct; la actualizacion del 14-oct esta
+arriba. Los checks antiguos no certifican el nuevo SHA ni reemplazan sus gates.
 
 - [x] Rama `codex/launch-corrections` desde `5574036`; A01/A02 previo publicado.
 - [x] Manual UI/UX v3.0 y decisiones/DB_NOTES revisados.

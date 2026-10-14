@@ -119,7 +119,10 @@ begin
   v_fee := coalesce(v_payment.gateway_fee_actual, v_payment.gateway_fee_estimated, 0);
   v_net := v_payment.amount - v_fee;
   v_amount := case when v_source = 'dashboard_waiting_traveler_cancel' then v_net else p_amount end;
-  if v_fee < 0 or v_net <= 0 or v_amount is null or v_amount <= 0 or v_amount > v_net
+  -- A partial amount would reverse the entire traveler hold/release while
+  -- crediting only part of the net to the customer, leaving an unassigned
+  -- remainder. Until a partial-refund ledger policy exists, require full net.
+  if v_fee < 0 or v_net <= 0 or v_amount is null or v_amount <> v_net
     or v_amount::text in ('NaN', 'Infinity', '-Infinity') or v_net::text in ('NaN', 'Infinity', '-Infinity')
     or v_amount <> round(v_amount, 2) then
     return jsonb_build_object('success', false, 'error', 'invalid_refund_amount');

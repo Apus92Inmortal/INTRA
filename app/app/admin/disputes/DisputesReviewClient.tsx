@@ -37,6 +37,7 @@ type AdminDispute = {
   resolutionAction: string | null
   resolutionNotes: string | null
   suggestedAmount: number
+  refundNetAmount: number
   travelerAmount: number
   caseFile: AdminCaseFile
 }
@@ -277,14 +278,15 @@ function DisputeCard({
         {!isResolved ? (
           <label className="block space-y-2">
             <span className="intra-body-strong text-intra-blue">
-              Monto devolución manual
+              Monto neto completo de la devolución
             </span>
             <input
               value={refundAmount}
               onChange={(event) => onRefundAmountChange(event.target.value)}
               className="intra-input min-h-11 w-full px-4 py-3 intra-body"
-              placeholder={Math.max(dispute.suggestedAmount, 0).toLocaleString("es-CO")}
+              placeholder={String(dispute.refundNetAmount)}
             />
+            <span className="intra-caption">Ingresa {dispute.refundNetAmount} COP sin separadores (pago menos comisión). Por ahora no se admiten devoluciones parciales.</span>
           </label>
         ) : null}
 

@@ -1,5 +1,22 @@
 # INTRA - Current Session
 
+## Correccion local de bloqueos PR #183 - 2026-10-14 (Joy)
+
+- Rama `codex/launch-corrections`, sin push. Se adopto bloqueo temporal de
+  refunds Wallet parciales: A03 exige neto completo antes de mutar; la vista
+  Admin explica el importe neto y la ausencia de parciales.
+- MFA Admin: `listFactors().all` identifica TOTP no verificados; no crea
+  otro factor con activacion pendiente. El titular puede descartar de forma
+  explicita uno no verificado, previa comprobacion de identidad y estado,
+  para iniciar de nuevo. No se borra un factor verificado; no hay bypass aal2.
+- TDD observado: A03 y tres casos MFA fallaron antes del fix y pasaron tras
+  el cambio. PG17 desechable: A03 18, A04 15 y A06 PASS; unit 168/168,
+  lint 0 errores/1 advertencia previa, TypeScript y build webpack PASS.
+  No hubo Auth real, cobros, migraciones remotas, push, merge ni deploy.
+- Siguiente: solicitar checkpoint remoto cuando se quiera probar el nuevo
+  SHA en Preview y CI. Antes de dinero real:
+  conciliar 7 pagos, restore DB+Storage, SMTP/MFA real y gates operativos.
+
 ## Revision final PR #183 - 2026-10-13 (Joy, solo lectura remota)
 
 - SHA remoto revisado `48bbf1376c457058c4e103ce446b00d0e6696af8` contra

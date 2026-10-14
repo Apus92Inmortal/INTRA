@@ -212,7 +212,7 @@ try {
   await race(ad, admin)
   assert.equal((await state(ad)).match_status, 'resolved')
   assert.equal((await db.query('select pending_balance from wallets where user_id=$1', [ad.traveler])).rows[0].pending_balance, '0')
-  assert.equal((await admin(db, ad, 10000)).error, 'refund_reconciliation_required')
+  assert.equal((await admin(db, ad, 10000)).error, 'invalid_refund_amount')
   check('concurrent admin refund reverses real hold once, closes dispute, caps net and rejects changed retry')
 
   for (const action of ['reviewing', 'rejected']) {
@@ -287,9 +287,13 @@ try {
   }
 
   const partial = await fixture({ match: true, hold: true, dispute: true })
-  assert.equal((await admin(db, partial, 10000)).success, true)
-  assert.equal((await db.query('select available_balance from wallets where user_id=$1', [partial.customer])).rows[0].available_balance, '10000')
-  check('explicit partial customer amount remains supported')
+  assert.equal((await admin(db, partial, 10000)).error, 'invalid_refund_amount')
+  assert.equal((await state(partial)).status, 'held')
+  assert.equal((await state(partial)).dispute_status, 'open')
+  assert.equal((await db.query('select pending_balance from wallets where user_id=$1', [partial.traveler])).rows[0].pending_balance, '16000')
+  assert.equal(await creditCount(partial), 0)
+  assert.equal((await state(partial)).audits, 0)
+  check('partial customer refund is rejected without moving traveler or customer funds')
 
   const released = await fixture({ match: true, hold: true, release: true, dispute: true })
   assert.equal((await admin(db, released)).success, true)

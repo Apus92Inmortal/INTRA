@@ -1,5 +1,17 @@
 # INTRA - Technical Decisions
 
+## DEC-017: Bloqueo temporal de devoluciones parciales Wallet
+
+Fecha: 2026-10-14
+
+Hasta que exista una regla contable para el remanente, A03 solo admite la
+devolucion del neto completo del pago (importe menos comision de pasarela).
+La validacion ocurre en la RPC antes de modificar Wallet, ledger o estados;
+la pantalla Admin informa el neto esperado. No se interpreta como una regla
+permanente para refunds parciales ni se aplica a devoluciones externas del
+proveedor. Cualquier soporte parcial futuro exige decision, asientos para el
+remanente y pruebas de retencion, liberacion, idempotencia y conciliacion.
+
 ## DEC-013: Transacciones para devolucion y conciliacion Wompi
 
 Fecha: 2026-10-13

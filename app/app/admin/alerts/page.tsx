@@ -28,6 +28,8 @@ type PaymentRow = {
   dispute_opened_at: string | null
   dispute_resolved_at: string | null
   amount: number | null
+  gateway_fee_actual: number | null
+  gateway_fee_estimated: number | null
   traveler_amount: number | null
   metadata: JsonObject | null
 }
@@ -160,6 +162,7 @@ export default async function AdminAlertsPage() {
     resolutionAction: string | null
     resolutionNotes: string | null
     suggestedAmount: number
+    refundNetAmount: number
     travelerAmount: number
     caseFile: AdminCaseFile
   }> = []
@@ -194,7 +197,7 @@ export default async function AdminAlertsPage() {
       admin
         .from("payments")
         .select(
-          "id, match_id, shipment_id, status, dispute_status, dispute_reason, dispute_opened_at, dispute_resolved_at, amount, traveler_amount, metadata",
+          "id, match_id, shipment_id, status, dispute_status, dispute_reason, dispute_opened_at, dispute_resolved_at, amount, gateway_fee_actual, gateway_fee_estimated, traveler_amount, metadata",
         )
         .in("dispute_status", ["open", "resolved"])
         .order("dispute_opened_at", { ascending: false, nullsFirst: false }),
@@ -301,7 +304,7 @@ export default async function AdminAlertsPage() {
               ? admin
                   .from("payments")
                   .select(
-                    "id, match_id, shipment_id, status, dispute_status, dispute_reason, dispute_opened_at, dispute_resolved_at, amount, traveler_amount, metadata",
+                    "id, match_id, shipment_id, status, dispute_status, dispute_reason, dispute_opened_at, dispute_resolved_at, amount, gateway_fee_actual, gateway_fee_estimated, traveler_amount, metadata",
                   )
                   .in("shipment_id", shipmentIds)
                   .order("created_at", { ascending: false })
@@ -558,6 +561,8 @@ export default async function AdminAlertsPage() {
                     ? metadata.admin_dispute_notes
                     : (match?.resolution_notes ?? null),
                 suggestedAmount: Number(payment.amount ?? 0),
+                refundNetAmount: Math.max(0, Number(payment.amount ?? 0) -
+                  Number(payment.gateway_fee_actual ?? payment.gateway_fee_estimated ?? 0)),
                 travelerAmount: Number(
                   payment.traveler_amount ?? payment.amount ?? 0,
                 ),

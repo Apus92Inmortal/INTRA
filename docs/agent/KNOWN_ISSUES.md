@@ -1,5 +1,15 @@
 # INTRA - Known Issues
 
+## Mitigaciones locales 2026-10-14 (no publicadas)
+
+- A03: la nueva validacion local impide refund Wallet parcial sin asignacion
+  del remanente; la politica contable parcial continua abierta. Production
+  no tiene A03 aplicado. Mantener bloqueo de release hasta gate final.
+- A13: la UI local ofrece descarte explicito de factores TOTP *unverified*
+  y reconsulta antes de borrar; nunca elimina un factor *verified* desde
+  ese flujo. No se ha probado con Auth real ni recuperacion del unico Admin.
+- A05, restauracion, correo y aislamiento siguen abiertos sin cambios.
+
 ## Hallazgos de revision PR #183 - 2026-10-13
 
 - **A03/P1, bloquea publicacion:** refund admin parcial `p_amount < neto`

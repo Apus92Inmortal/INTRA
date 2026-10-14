@@ -1,5 +1,11 @@
 # Publicacion de correcciones para piloto — 2026-10-13
 
+Actualizacion local 2026-10-14: A03 rechaza refunds Wallet parciales hasta
+definir su contabilidad; la vista Admin muestra el neto completo esperado.
+MFA permite descartar explicitamente factores TOTP pendientes no verificados
+antes de reactivar. Estas correcciones aun no estan en el PR remoto ni en
+Production; requieren nuevo SHA, CI y prueba Auth real del titular.
+
 Alcance elegido por Aldo: piloto controlado con usuarios conocidos.
 Este documento prepara la publicacion; no autoriza cobros ni certifica el piloto.
 

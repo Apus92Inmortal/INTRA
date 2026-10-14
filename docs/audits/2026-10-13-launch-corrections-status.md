@@ -1,5 +1,12 @@
 # Correcciones de lanzamiento INTRA — 2026-10-13
 
+**Actualizacion local 2026-10-14 (sin push):** A03 rechaza refunds Wallet
+parciales antes de mover saldo; A13 detecta y permite descartar solo factores
+TOTP no verificados abandonados. Suites locales A03/A04/A06 y 168 unitarias
+PASS. El veredicto del PR remoto no cambia hasta publicar el nuevo SHA,
+obtener CI y verificar los gates externos. La politica parcial definitiva,
+Auth real y Production siguen pendientes.
+
 **Revision final Joy del PR #183 (`48bbf13`): NO APTO para publicar aun.**
 CI/Preview y gate local pasan, pero A03 permite refund parcial revirtiendo
 todo el saldo del viajero, sin asignacion del remanente; A13 puede bloquear el

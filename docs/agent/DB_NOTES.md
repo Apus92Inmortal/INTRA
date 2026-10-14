@@ -1,5 +1,14 @@
 # INTRA - Database Notes
 
+## 2026-10-14 - A03 local: no admitir refund Wallet parcial
+
+La migracion A03 aun no aplicada valida `v_amount = v_net` antes de mutar
+balances, ledger y estados. Una solicitud admin parcial devuelve
+`invalid_refund_amount`; prueba aislada confirma payment/disputa abiertos,
+retencion intacta, sin credito ni audit. El flujo completo neto y las
+regresiones A03/A04/A06 pasan en PostgreSQL 17 desechable. No se modifico
+Production ni se aplico ninguna de las cinco migraciones.
+
 ## 2026-10-13 - preflight de recuperacion, sin cambios remotos (Joy)
 
 - Un solo proyecto visible en la organizacion INTRA Free: Production.
