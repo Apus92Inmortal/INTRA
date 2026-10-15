@@ -9,25 +9,43 @@ on:
       - 'fix/**'
       - 'chore/**'
       - 'joy/**'
+      - 'codex/**'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ''
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ''
+      NEXT_PUBLIC_SITE_URL: 'http://127.0.0.1:3000'
+      NEXT_PUBLIC_WOMPI_SANDBOX: 'true'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Lint
         run: npm run lint
@@ -40,3 +58,46 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Public E2E on localhost
+        run: npm run test:e2e -- tests/e2e/home.spec.ts tests/e2e/launch-security.spec.ts --workers=1
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local_ci_tests_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      INTRA_TEST_PG_HOST: '127.0.0.1'
+      INTRA_TEST_PG_PORT: '5432'
+      INTRA_TEST_PG_USER: postgres
+      INTRA_TEST_PG_PASSWORD: local_ci_tests_only
+      INTRA_TEST_PG_SNAPSHOT: supabase/tests/fixtures/pre-corrections-schema-20261013.json
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Database regressions on disposable PostgreSQL
+        run: npm run test:db

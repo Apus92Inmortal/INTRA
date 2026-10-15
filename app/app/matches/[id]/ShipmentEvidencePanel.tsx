@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Camera, ImageIcon, ShieldAlert, X, ZoomIn } from "lucide-react";
 import EvidenceUploader from "./EvidenceUploader";
+import { useModalFocus } from "@/lib/ui/use-modal-focus";
 
 export type ShipmentEvidenceType =
   | "customer_initial_photo"
@@ -86,6 +88,7 @@ function EvidenceThumbnail({
   compact?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const panelRef = useModalFocus({ open: isOpen && Boolean(evidence.signedUrl), onDismiss: () => setIsOpen(false) });
   const meta = EVIDENCE_META[evidence.evidenceType];
   const imageClassName = compact
     ? "h-14 w-14 rounded-xl"
@@ -124,14 +127,12 @@ function EvidenceThumbnail({
         </span>
       </button>
 
-      {isOpen ? (
+      {isOpen ? createPortal(
         <div
           className="intra-modal-backdrop p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label={meta.title}
+          role="presentation"
         >
-          <div className="intra-modal-panel relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
+          <div ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={meta.title} className="intra-modal-panel relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden">
             <div className="flex items-start justify-between gap-3 border-b border-intra-border px-4 py-3">
               <div className="min-w-0">
                 <p className="intra-h3 text-intra-blue">{meta.title}</p>
@@ -160,7 +161,8 @@ function EvidenceThumbnail({
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </>
   );

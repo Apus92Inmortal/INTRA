@@ -1,5 +1,21 @@
+export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+export function validateUploadImage(file: File) {
+  if (!allowedImageTypes.has(file.type)) {
+    throw new Error("Usa una imagen JPG, PNG o WebP.");
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    throw new Error("La imagen debe pesar como máximo 5 MB.");
+  }
+}
+
 export async function compressImageFile(file: File, maxBytes = 2 * 1024 * 1024): Promise<File> {
-  if (!file.type.startsWith("image/") || file.size <= maxBytes) {
+  if (!allowedImageTypes.has(file.type)) {
+    throw new Error("Usa una imagen JPG, PNG o WebP.");
+  }
+  if (file.size <= maxBytes) {
+    validateUploadImage(file);
     return file;
   }
 
@@ -43,6 +59,9 @@ export async function compressImageFile(file: File, maxBytes = 2 * 1024 * 1024):
 
     if (!blob) {
       throw new Error("No se pudo comprimir la imagen.");
+    }
+    if (blob.size > MAX_UPLOAD_BYTES) {
+      throw new Error("La imagen debe pesar como máximo 5 MB después de comprimirla.");
     }
 
     return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", {

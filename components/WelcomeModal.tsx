@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useModalFocus } from "@/lib/ui/use-modal-focus";
 
 type Props = {
   userId: string;
@@ -12,6 +14,8 @@ type Props = {
 export default function WelcomeModal({ userId, initialOpen }: Props) {
   const [open, setOpen] = useState(initialOpen);
   const [loading, setLoading] = useState(false);
+  const titleId = useId();
+  const descriptionId = useId();
 
   const supabase = createClient();
   const router = useRouter();
@@ -55,16 +59,18 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
     setLoading(false);
   };
 
-  if (!open) return null;
+  const panelRef = useModalFocus({ open, onDismiss: loading ? undefined : handleClose });
 
-  return (
+  if (!open || typeof document === "undefined") return null;
+
+  return createPortal(
     <div className="intra-modal-backdrop p-4">
-      <div className="intra-modal-panel w-full max-w-md p-6">
-        <h2 className="intra-h2 text-intra-blue">
+      <div ref={panelRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId} className="intra-modal-panel w-full max-w-md p-6">
+        <h2 id={titleId} className="intra-h2 text-intra-blue">
           Bienvenido a INTRA
         </h2>
 
-        <p className="mt-3 intra-body text-intra-text-subtle">
+        <p id={descriptionId} className="mt-3 intra-body text-intra-text-subtle">
           Estás a un paso de empezar en INTRA. Completa tu perfil para publicar envíos,
           ofrecer espacio en tus viajes y conectar con otros usuarios.
         </p>
@@ -91,6 +97,7 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

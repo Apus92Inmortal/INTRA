@@ -1,5 +1,16 @@
 # Operacion manual de refunds y payouts - MVP INTRA
 
+## Alerta vigente 2026-10-14: no duplicar restitucion
+
+La accion Admin `customer_refund` acredita Wallet; **no** registra una
+devolucion externa ya ejecutada. El flujo actual no tiene una ruta verificada
+para cerrar una devolucion externa como `refunded` sin acreditar Wallet.
+Si se devolvio dinero en el proveedor, conservar comprobante y referencia en
+la bitacora privada, suspender acciones financieras de ese caso y escalar su
+conciliacion tecnica/contable. No usar `customer_refund` ni editar estados o
+ledger por SQL para aparentar cierre. Este gate debe resolverse y probarse
+antes de operar nuevos cobros del piloto.
+
 ## Principios
 
 - INTRA no automatiza todavia reembolsos ni retiros bancarios.
@@ -22,12 +33,27 @@
 
 ## Refunds manuales
 
+### Aclaracion vigente del credito Wallet
+
+La cancelacion Dashboard sin viajero (DEC-010) y la resolucion admin
+`customer_refund` acreditan Wallet en INTRA; no llaman a Wompi para devolver
+dinero externamente. El codigo excluye costo de pasarela del neto. A03 conserva
+esta conducta y la hace atomica, con credito unico y auditoria.
+
+Los pasos de refund **externo** siguientes aplican a casos gestionados fuera
+de ese credito Wallet. No transferir/refundear externamente y despues ejecutar
+`customer_refund`: acreditaria tambien Wallet. Ante un movimiento externo ya
+hecho, suspender la resolucion y conciliar el caso antes de registrar estados.
+
 ### Cuando aplica
 
-- Disputa resuelta a favor del cliente.
+- Pago con `refund_status = manual_required` u otro estado de refund externo
+  pendiente, tras confirmar que no recibio credito Wallet por el mismo caso.
 - Match cancelado antes de recogida con pago retenido.
 - Alerta administrativa que requiere rechazar envio o cancelar match con pago retenido.
-- Cualquier caso donde `refund_status` quede en `manual_required`, `pending`, `processing` o `failed`.
+- Otros casos `pending`, `processing` o `failed` que el operador concilie con
+  el proveedor. Una disputa `customer_refund` por si sola es ruta Wallet,
+  no una orden de devolucion externa.
 
 ### Quien puede iniciarlo
 
@@ -46,14 +72,17 @@
 
 ### Pasos admin
 
-1. Abrir `/app/admin/disputes`.
+1. Abrir el expediente en `/app/admin/disputes` o `/app/admin/alerts`.
 2. Revisar expediente, evidencias, payment, match, shipment y alerta relacionada.
-3. Confirmar que el pago no este `released` y que no exista reembolso previo.
-4. Ejecutar el reembolso externo antes de cerrar como reembolsado.
-5. Registrar nota operativa con referencia/comprobante externo.
-6. Resolver a favor del cliente solo despues de completar el movimiento externo.
-7. Confirmar que `payment.status` y `refund_status` quedan en `refunded`.
-8. Confirmar que ledger reversa retencion/saldo del viajero si corresponde.
+3. Confirmar en proveedor e INTRA si hubo cobro, credito Wallet o devolucion
+   previa; elegir una sola ruta de restitucion y registrar la decision.
+4. Si corresponde devolver externamente, ejecutar el movimiento solo bajo el
+   procedimiento humano aprobado y guardar su referencia/comprobante privado.
+5. No pulsar `customer_refund` tras el movimiento externo: esa accion acredita
+   Wallet y podria duplicar la restitucion.
+6. Mantener el expediente abierto para conciliacion; el cierre interno externo
+   requiere una ruta tecnica/contable especifica aun no validada. No forzar
+   `payment.status`, `refund_status` ni ledger mediante SQL.
 
 ### Que revisar antes de reembolsar
 
@@ -69,20 +98,27 @@
 ### Que hacer despues de reembolsar
 
 - Guardar comprobante o referencia externa.
-- Verificar que el caso admin queda resuelto.
-- Verificar que el viajero no conserva saldo liberable por ese payment.
-- Verificar que cliente y viajero recibieron estado/notificacion cuando aplique.
+- Verificar contra el proveedor que el movimiento externo realmente se completo.
+- Comprobar que no se acredito Wallet al cliente por el mismo caso y que el
+  viajero no conserva saldo liberable por ese payment.
+- Escalar el cierre interno pendiente; no presentarlo al cliente como
+  conciliado solo por disponer del comprobante externo.
 
 ### Que no hacer
 
 - No marcar `refunded` antes del movimiento externo.
+- No ejecutar `customer_refund` despues de una devolucion externa.
+- No modificar payment/ledger por SQL para cerrar el caso sin flujo aprobado.
 - No liberar pago si existe disputa abierta, `refund_status` distinto de `none` o `manual_refund_required = true`.
 - No resolver dos veces el mismo payment.
-- No procesar fuera del admin sin registrar resultado.
+- No procesar fuera del procedimiento humano aprobado ni omitir la bitacora
+  privada y la conciliacion posterior.
 
 ### Riesgos
 
 - El refund externo sigue siendo manual y depende de disciplina operativa.
+- Aun falta una ruta validada para registrar su cierre interno sin credito
+  Wallet; bloquear nuevos cobros del piloto hasta resolver este gate.
 - Si el movimiento externo falla, no se debe cerrar el caso como `refunded`.
 - Si hay inconsistencia entre payment y ledger, congelar el caso y revisar manualmente.
 
@@ -165,7 +201,8 @@
 - No liberar si hay disputa abierta, refund pendiente o `manual_refund_required`.
 - No pagar payout si ya esta `paid`.
 - No aprobar payout sin cuenta verificada.
-- No procesar fuera del admin sin registrar resultado.
+- No procesar fuera del procedimiento aprobado ni omitir la bitacora y
+  conciliacion del movimiento externo.
 - No editar saldos manualmente sin reconciliacion.
 
 ## Evidencias minimas

@@ -53,6 +53,22 @@ function getRequiredEnv(name: string) {
     throw new Error(`Falta la variable de entorno ${name}.`)
   }
 
+  const environment = process.env.VERCEL_ENV ?? process.env.NEXT_PUBLIC_INTRA_DEPLOYMENT_ENV
+  if (environment === "preview" || environment === "development") {
+    if (process.env.NEXT_PUBLIC_WOMPI_SANDBOX !== "true") {
+      throw new Error("Wompi Sandbox es obligatorio en entornos de prueba alojados.")
+    }
+    const sandboxPrefixes: Record<string, string> = {
+      NEXT_PUBLIC_WOMPI_PUBLIC_KEY: "pub_test_",
+      INTRA_WOMPI_PRIVATE_KEY: "prv_test_",
+      INTRA_WOMPI_EVENTS_KEY: "test_events_",
+      INTRA_WOMPI_INTEGRITY_KEY: "test_integrity_",
+    }
+    if (!value.startsWith(sandboxPrefixes[name] ?? "")) {
+      throw new Error(`La variable ${name} debe pertenecer a Wompi Sandbox.`)
+    }
+  }
+
   return value
 }
 
@@ -172,13 +188,24 @@ function getNestedValue(input: unknown, path: string) {
 }
 
 export function verifyWompiEventSignature(
-  payload: WompiEventPayload,
+  input: unknown,
   eventsKey = getWompiEventsKey()
 ) {
+  if (!input || typeof input !== "object") return false
+  const payload = input as WompiEventPayload
   const signature = payload.signature
 
-  if (!signature?.checksum || !Array.isArray(signature.properties) || signature.properties.length === 0) {
+  if (typeof signature?.checksum !== "string" || !/^[a-fA-F0-9]{64}$/.test(signature.checksum) ||
+    !Array.isArray(signature.properties) || signature.properties.length === 0 ||
+    signature.properties.some(property => typeof property !== "string" || !property.trim())) {
     return false
+  }
+
+  if (payload.event === "transaction.updated") {
+    const signedProperties = new Set(signature.properties.map(property => property.replace(/^data\./, "")))
+    if (!["transaction.id", "transaction.status", "transaction.amount_in_cents"].every(property => signedProperties.has(property))) {
+      return false
+    }
   }
 
   const timestamp = String(signature.timestamp ?? payload.timestamp ?? "")
@@ -194,7 +221,7 @@ export function verifyWompiEventSignature(
   const raw = `${joinedValues}${timestamp}${eventsKey}`
   const expected = crypto.createHash("sha256").update(raw).digest("hex").toUpperCase()
 
-  return expected === signature.checksum.toUpperCase()
+  return crypto.timingSafeEqual(Buffer.from(expected, "hex"), Buffer.from(signature.checksum, "hex"))
 }
 
 export function isWompiApprovedStatus(status: string | null | undefined) {
@@ -209,6 +236,7 @@ export async function getWompiTransaction(transactionId: string) {
         Authorization: `Bearer ${getWompiPublicKey()}`,
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(15_000),
     }
   )
 

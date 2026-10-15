@@ -1,5 +1,6 @@
 import { cookies } from "next/headers"
 import { createServerClient } from "@supabase/ssr"
+import { hasSafeSupabaseEnv } from "@/lib/supabase/environment"
 
 type ServerSupabaseClient = ReturnType<typeof createServerClient>
 
@@ -55,10 +56,7 @@ const customFetch: typeof fetch = async (input, init) => {
 }
 
 function hasSupabaseEnv() {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  )
+  return hasSafeSupabaseEnv()
 }
 
 function createMissingEnvQueryBuilder() {

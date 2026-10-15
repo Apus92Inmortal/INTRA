@@ -1,5 +1,57 @@
 # INTRA - Project State
 
+## Actualizacion 2026-10-14 — limpieza QA operativa
+
+Por autorizacion de Aldo, los 7 payments `pending/created` de prueba y
+6 shipments `cancelled` se archivaron privadamente y se borraron de 14 tablas
+operativas mediante `TRUNCATE ... RESTRICT` con guardas. Postflight: 14/14 en
+0; usuarios, perfiles, tablas maestras y 1 verificacion aprobada intactos.
+Storage conserva 23 objetos; no hubo cambio de codigo/DDL publicado.
+El primer pago real Wompi + conciliacion Wallet/Ledger fue confirmado por Aldo
+el 2026-06-27 y reiterado el 2026-10-14; no debe presentarse como un cobro
+fallido o un pago que hay que repetir. La prueba historica no sustituye el
+smoke integral de la version corregida ni los gates de recuperacion/dinero real.
+Ver DB_NOTES y CURRENT_SESSION.
+
+## Actualizacion 2026-10-13 — paquete para piloto en revision
+
+Aldo autorizo todas las correcciones de la auditoria y eligio piloto controlado
+con usuarios conocidos. Se prepara `codex/launch-corrections` desde `main`
+`5574036` (PR #182). Production conserva A01/A02 y ese SHA; las cinco
+migraciones nuevas y el codigo de esta rama aun no estan publicados.
+
+A03/A04/A06, guards NULL, privacidad, dependencias, aislamiento defensivo,
+acceso admin por UUID y JWT `aal2` verificado, callback Auth aislado con cookies
+del SDK, Storage, cabeceras, accesibilidad, SEO y CI PostgreSQL
+estan implementados para revision. Ver [matriz actual](../audits/2026-10-13-launch-corrections-status.md)
+y CURRENT_SESSION para resultados reales. No marcar el piloto listo por tests
+sinteticos ni deployment READY. La cuenta admin seleccionada se localizo sin
+versionar identidad; Vercel allowlist efectiva sigue por validar.
+
+PR [#183](https://github.com/Apus92Inmortal/INTRA/pull/183) abierto: CI completo
+validate/database/detect-impact PASS y Preview READY del producto `d7ded3d`.
+Main protegido por API con esos checks strict y enforcement de admins.
+Navegador Vercel confirma Hobby y diez variables limitadas a Production,
+inicialmente sin cambiar valores. Lote posterior autorizado: unico UUID admin
+guardado en Secret Production y cinco registros legacy nonprod borrados;
+16 variables del proyecto solo Production. Falta efecto del admin tras redeploy
+aprobado/smoke, retiro/rotacion de copias antiguas y base aislada. A09 sigue abierto.
+
+Persisten A05, aislamiento/aptitud comercial del plan Hobby, SMTP/MFA/DNS,
+recuperacion DB+Storage, alertas, smoke autenticado, limites operativos y
+aprobacion legal/contable.
+MFA codigo preparado (`88819c8`), aun sin enrollment/challenge remoto del
+titular. Local: 165 unit/26 archivos, lint/TS/build PASS y E2E publico 8/8 PASS;
+Comprobar SHA y checks del HEAD documental en el PR antes de publicar.
+El retorno Auth rechaza destinos externos ocultos con controles y comprueba
+origen/fallback; regresiones helper/callback agregadas tras revision independiente.
+Correo Google elegido con cuenta publica `soporte@intra.com.co`: formulario
+SMTP borrador no guardado, sin password.
+Titular confirma 2-step Google desactivada y SIM no disponible varios dias.
+No se cambio proveedor, reactivo/pago Workspace ni envio correo de prueba.
+Los registros antiguos inferiores son historicos, incluido el estado de tareas
+de UI v2.2; el manual vigente es v3.0. No iniciar nuevos cobros.
+
 ## Actualizacion 2026-09-14
 
 La migracion A01 `20260914145957` ya esta aplicada en Supabase Production:

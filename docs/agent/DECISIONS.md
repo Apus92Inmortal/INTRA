@@ -1,5 +1,136 @@
 # INTRA - Technical Decisions
 
+## DEC-021: Recuperacion MFA pendiente sin borrado desde la pantalla
+
+Fecha: 2026-10-15
+
+La revision final demuestra que listFactors seguido de unenroll no garantiza
+que un factor siga unverified al borrarse. Otra pestana puede verificarlo y
+elevar la misma sesion; el endpoint no expone un DELETE condicional por estado.
+Se retira el descarte desde SecurityClient. Mantener deteccion de pendientes
+y guard previo a enroll, con instruccion de recuperacion operacional, sin
+duplicar intencionalmente factores ni borrar uno verified desde esta ruta.
+Una intervencion del responsable exige identidad verificada, coordinacion
+sin enrollment/challenge concurrente y aprobacion explicita del reset. No
+implementar SQL directo sobre Auth ni afirmar atomicidad de ese procedimiento.
+La recuperacion real y MFA del titular permanecen pendientes de demostracion.
+Esta decision tecnica supera el descarte UI descrito en las notas del 14-oct.
+
+## DEC-020: Sin entorno remoto adicional obligatorio antes del piloto
+
+Fecha: 2026-10-15
+
+Aldo indica que la instalacion desplegada aun no opera con usuarios externos
+y descarta crear un entorno de pruebas adicional como requisito para avanzar.
+Se elimina esa dependencia del plan actual; no insistir en crear un segundo
+proyecto ni contratar infraestructura para desbloquear las correcciones.
+Se mantienen pruebas automaticas y bases temporales locales. Preparar una
+sola prueba integral final controlada sobre la instalacion actual; los cambios
+necesarios se coordinan y autorizan antes de aplicarlos, sin inferir permiso
+de push, migraciones, merge, deployment, borrado ni movimientos de dinero.
+La decision no acredita restauracion completa, correo o MFA ni permite
+reutilizar secretos Production en previews antiguos. Las menciones anteriores
+a un segundo entorno obligatorio quedan superadas para esta etapa.
+
+## DEC-019: Devolucion Wallet del envio no consolidado y uso futuro del saldo
+
+Fecha: 2026-10-14
+
+Aldo confirmo que para un envio pagado que no se consolida y puede cancelarse
+bajo DEC-010, la restitucion debe quedar en la Wallet del cliente; no se
+ejecuta una devolucion externa en Wompi por esta ruta. Se conserva la regla
+existente: se acredita el neto tras la comision de pasarela, no el bruto.
+Usar ese saldo para pagar un envio posterior sin volver a Wompi es la
+direccion de producto futura, **no una capacidad implementada actualmente**.
+No confundir este caso con excepciones `manual_required` donde el equipo
+podria decidir una devolucion externa y necesitaria su propio control.
+
+## DEC-018: Limpieza operativa QA sin borrar identidad ni maestros
+
+Fecha: 2026-10-14
+
+Aldo autorizo vaciar tablas operativas de prueba para continuar correcciones,
+no tablas maestras. El SQL historico no se replica literalmente porque
+incluia `user_verifications` (1 registro aprobado) y `CASCADE`. La limpieza
+usa transaccion, guardas de estado/conteo, archivo local privado de filas y
+`TRUNCATE ... RESTRICT` de las otras 14 tablas operativas. Se preservan
+usuarios, perfiles, precios, aceptaciones, verificacion aprobada y archivos
+Storage. Su retencion/limpieza se decide aparte. No confundir esta limpieza
+con conciliacion Wompi, respaldo completo ni autorizacion de release.
+
+## DEC-017: Bloqueo temporal de devoluciones parciales Wallet
+
+Fecha: 2026-10-14
+
+Hasta que exista una regla contable para el remanente, A03 solo admite la
+devolucion del neto completo del pago (importe menos comision de pasarela).
+La validacion ocurre en la RPC antes de modificar Wallet, ledger o estados;
+la pantalla Admin informa el neto esperado. No se interpreta como una regla
+permanente para refunds parciales ni se aplica a devoluciones externas del
+proveedor. Cualquier soporte parcial futuro exige decision, asientos para el
+remanente y pruebas de retencion, liberacion, idempotencia y conciliacion.
+
+## DEC-013: Transacciones para devolucion y conciliacion Wompi
+
+Fecha: 2026-10-13
+
+Las acciones server verifican sesion/allowlist antes de RPCs service-role.
+Cancelacion, devolucion Wallet neta y revision admin se ejecutan con locks,
+credito unico por payment y audit dentro de la transaccion. No se cambia el
+contrato de DEC-010 ni se llama a Wompi para refund externo automatico.
+No borrar creditos historicos para instalar la unicidad.
+
+El webhook conserva el delivery firmado antes de consulta, coteja el estado
+actual de la transaccion con Wompi y procesa payment+evento atomicamente.
+`success:false` permanece pendiente para retry. Aprobacion posterior a
+cancelacion queda en conciliacion, sin hold sobre shipment cancelado ni credito
+automatico nuevo. No resucitar estados finales ni forzar JSON por SQL.
+
+## DEC-014: Identidad admin y aislamiento de entornos
+
+Fecha: 2026-10-13
+
+Solo `ADMIN_USER_IDS` concede acceso admin. `ADMIN_EMAILS` deja de autorizar:
+un correo autoconfirmado no demuestra titularidad. La seleccion humana de la
+cuenta se verifico contra Auth y su UUID se conserva fuera del repo. El titular
+confirmo designar esa cuenta como unico admin; se guardo el ID en el Secret
+Production de Vercel. Probar acceso tras deployment aprobado antes de operar.
+
+Operaciones admin exigen ademas claims JWT verificados por el SDK, identidad
+`sub` coincidente y `aal2`; metadata o sesion `aal1` no conceden privilegios.
+El bootstrap TOTP vive fuera del layout admin, en `/app/profile/security`,
+accesible solo al usuario configurado. Activacion explicita, QR/codigo en
+memoria y limpieza ante signOut/cambio de cuenta; sin bypass ni desactivacion
+de factores. Titular debe probar enrollment/challenge y recuperacion por consola
+antes del rollout operativo. No se crearon factores remotos en esta sesion.
+
+Hosted Preview/Development bloquean la DB conocida de Production en clientes,
+SSR, proxy y admin; Wompi requiere Sandbox y llaves test. Es defensa adicional:
+separar/quitar credenciales remotas sigue siendo obligatorio, incluidos
+deployments/overrides antiguos. No usar secretos de produccion en CI SQL/E2E.
+
+## DEC-015: Primer destino de lanzamiento
+
+Fecha: 2026-10-13
+
+Aldo eligio piloto controlado con usuarios conocidos. No equivale a autorizar
+nuevos cobros, contratar planes, mergear main ni desplegar Production. Preparar
+el paquete revisable y cerrar gates de dinero, infraestructura, correo,
+recuperacion, soporte y limites antes de operar. La apertura publica requiere
+validacion legal/contable y capacidad adicionales.
+
+## DEC-016: Correo de Auth con Google Workspace
+
+Fecha: 2026-10-13
+
+Titular eligio conservar Google Workspace y usar `soporte@intra.com.co` como
+cuenta SMTP y remitente publico INTRA. Formulario Supabase preparado como
+borrador, sin credencial ni guardado. Verificacion en dos pasos de Google
+desactivada y SIM temporalmente no disponible; la credencial y su submission
+son paso humano. No sustituir proveedor, cambiar MX, reactivar suscripcion
+ni atribuir funcionamiento al acceso a buzones. Probar envio/recepcion y
+confirmacion/reset antes de cerrar el gate; no enviar a terceros sin permiso.
+
 ## DEC-007: Los reintentos de pago se crean en la base
 
 Fecha: 2026-09-14

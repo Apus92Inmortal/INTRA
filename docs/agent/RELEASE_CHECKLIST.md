@@ -1,5 +1,133 @@
 # INTRA - Release Checklist
 
+## Preparacion para aprobacion de release - 2026-10-15
+
+- [x] Revisar delta local y re-revisar fix MFA sin handler/boton unenroll.
+- [x] Regresiones MFA 12/12 tras RED; recuperacion operacional explicita,
+  sin afirmar borrado condicional ni resolver MFA real (DEC-021).
+- [x] Preflight remoto read-only: candidato 0/5 aplicado; pagos/ledger/MFA 0.
+- [x] Gate final local: lint, 168 unitarias, TS/build, E2E 8/8, DB A03/A04/A06,
+  audit Production 0 y revision de diff/credenciales.
+- [ ] CI del SHA actualizado del PR #183; evidencia final en su cuerpo/checks.
+- [ ] Aprobacion explicita del PM para cinco migraciones, merge y deployment.
+- [ ] Aplicacion/postflight, deployment sano y smoke minimo del paquete.
+- [ ] Limpiar ramas solo integradas y abrir rama siguiente desde main actualizado.
+- Correo/MFA/restore/alertas/ciclo integral siguen pendientes operativos;
+  no habilitar piloto con dinero por el solo merge. DEC-020 vigente.
+
+## Plan vigente sin segundo entorno obligatorio - 2026-10-15
+
+- DEC-020 de Aldo supera las menciones anteriores a crear un proyecto de
+  pruebas adicional. No es requisito ni bloqueo del paquete actual.
+- Conservar pruebas automaticas y bases desechables locales; preparar una
+  prueba integral final controlada sobre la instalacion existente. Cambios
+  remotos, migraciones, publicacion y dinero mantienen su autorizacion propia.
+- Correo pausado por indisponibilidad del telefono del titular; no marca
+  como cerrados MFA, restauracion completa, alertas ni los otros pendientes.
+
+## Recuperacion parcial / correo / MFA - 2026-10-15
+
+- [x] Copia privada cifrada de filas/esquema y 23 objetos; GCM/SHA verificados.
+- [x] Ensayo aislado: 22 tablas publicas/147 filas con hashes coincidentes,
+  48 FK y 23 archivos recuperados; contenedor/temporales retirados.
+- [ ] Backup nativo completo y restore real de Auth/Storage/API/roles,
+  copia externa, custodia separada y RPO/RTO. No cerrar A11 por este ensayo.
+- [ ] SMTP con credencial privada valida, DNS/selector DKIM real y entrega
+  autorizada de confirmacion/reset/soporte; configuracion actual vacia.
+- [ ] Enrollment/challenge/recuperacion MFA con titular y version corregida.
+  Factores actuales: 0; no se crearon por el agente.
+- Evidencia: `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
+
+## Gate local actualizado 2026-10-14
+
+- [x] Cinco migraciones aplicadas en orden en PostgreSQL 17 desechable;
+  A03 18, A04 15 y A06 permisos/privacidad/concurrencia PASS.
+- [x] 168 unitarias, lint 0 errores/1 aviso previo, TypeScript, build webpack
+  y audit de dependencias Production 0 vulnerabilidades PASS.
+- [ ] CI y Preview del ultimo SHA: la rama sigue local, sin push. Los checks
+  verdes actuales del PR #183 corresponden a un SHA anterior.
+- [ ] Prueba integral final con cuentas controladas y Wompi sandbox, despues
+  de cerrar cambios y gates operativos. El pago historico exitoso no se repite.
+
+## Actualizacion 2026-10-14: limpieza QA en Production
+
+- [x] Aldo identifico los 7 intentos pendientes como QA sin pago y autorizo
+  limpieza operativa. Postflight: 14/14 tablas seleccionadas en 0; usuarios,
+  perfiles, precios, aceptaciones y verificacion aprobada preservados.
+- [x] Primer pago real Wompi + Wallet/Ledger confirmado como PASS operativo
+  por Aldo el 2026-06-27 y reiterado el 2026-10-14. No repetirlo por los
+  siete intentos QA ya limpiados.
+- [ ] Probar ciclo financiero integral de la version corregida, incluido
+  webhook, retencion, entrega, disputa/refund y retiro, antes del piloto.
+- [ ] Revisar los 23 objetos Storage conservados y su retencion sin borrado
+  indiscriminado; respaldo/restauracion DB+Storage sigue sin verificar.
+- [ ] Resolver cierre de refund externo sin duplicar credito Wallet.
+
+## Gate adicional 2026-10-14: refund externo y A05
+
+- [x] Preflight agregado y read-only para los 7 pagos antiguos, sin PII.
+- [x] SOP local corregido: prohibido usar `customer_refund` tras devolver
+  externamente; no forzar estados ni ledger por SQL.
+- [ ] Cotejar las 7 referencias con transacciones Wompi Production.
+- [ ] Definir y probar ruta de cierre interno de refund externo sin credito
+  Wallet duplicado; no iniciar nuevos cobros del piloto antes.
+
+## Avance local 2026-10-14
+
+- [x] A03 rechaza refund Wallet parcial sin mutaciones; A03 18 checks aislados.
+- [x] MFA local detecta/descarta solo factores TOTP no verificados; 12
+  pruebas focales, sin enrollment/challenge remoto.
+- [x] Unit 168/168, DB A03/A04/A06, lint (0 errores/1 aviso previo),
+  TypeScript y build webpack PASS.
+- [ ] Publicar nuevo SHA mediante checkpoint autorizado, repetir CI y
+  preflight; no usar los checks verdes del SHA remoto anterior.
+- [ ] Probar Auth MFA real y recuperacion, backup/restore, conciliacion de
+  pagos y gates del piloto. Nada de esto se acredita con el cambio local.
+
+## Paquete de correcciones para piloto - 2026-10-13
+
+Este bloque registra el estado del 13-oct; la actualizacion del 14-oct esta
+arriba. Los checks antiguos no certifican el nuevo SHA ni reemplazan sus gates.
+
+- [x] Rama `codex/launch-corrections` desde `5574036`; A01/A02 previo publicado.
+- [x] Manual UI/UX v3.0 y decisiones/DB_NOTES revisados.
+- [x] Cinco migraciones nuevas revisadas contra DDL remoto exacto sin filas.
+- [x] SQL aislado PASS: A03 18, A04 15, roles/privacidad/guards/concurrencia A06.
+- [x] Lint PASS (una advertencia de redirect existente), unit 165/26 PASS,
+  TypeScript PASS, build webpack PASS, audit Production 0.
+- [x] E2E publico/seguridad 8/8 PASS tras ajuste de URL vacia.
+- [x] Callback guard/cookies y MFA JWT verificado `sub`/`aal2` probados localmente.
+- [x] Retorno Auth bloquea controles/destinos externos y mantiene query/hash interno.
+- [x] Pantalla MFA sintetica revisada en mobile/PC con CSS/fuentes reales.
+- [x] Memoria, matriz A01-A15, revision financiera y rollout preparados.
+- [x] PR #183 y checks `validate`, `database`, `detect-impact` del producto `d7ded3d` PASS.
+- [ ] CI postmerge del SHA aprobado antes de publicar; consultar HEAD/checks en PR #183.
+- [x] Proteccion main efectiva verificada por API: tres checks strict,
+  enforcement admins, PR obligatorio, sin force-push/borrado.
+- [ ] ADMIN_USER_IDS efectivo y acceso del titular comprobados.
+- [x] ADMIN_USER_IDS Secret Production guardado al unico UUID autorizado.
+- [x] Diez variables Vercel restringidas a Production sin cambiar valores.
+- [x] Cinco registros legacy nonprod retirados segun el lote autorizado.
+- [ ] Preview/Development aislados y credenciales/overrides antiguos retirados.
+- [ ] Plan Vercel/configuracion comercial del proveedor verificados.
+- [ ] SMTP/confirm/reset, MFA con enforcement y DNS verificados.
+- [x] Google Workspace/cuenta remitente elegidos y formulario SMTP preparado.
+- [ ] 2-step Google/App Password por titular y guardado SMTP; borrador sin guardar.
+- [ ] Enrollment/challenge real MFA admin y recuperacion por consola probados.
+- [ ] Restore DB+Storage aislado y alertas recibidas demostrados.
+- [ ] Smoke Auth por roles y ciclo Wompi sandbox sin datos Production.
+- [x] TASK-047 primer pago real + Wallet/Ledger reportado PASS por Aldo;
+  intentos QA pendientes posteriores limpiados con autorizacion.
+- [ ] Ciclo financiero integral actual, incluido caso de aprobacion tardia,
+  resuelto por procedimiento externo sin duplicar creditos Wallet.
+- [ ] Limites/participantes/soporte y revision legal/contable fijados.
+- [ ] Aprobacion final de migraciones, merge y deployment Production.
+- [ ] Aplicacion/postflight, CI postmerge y deployment READY del SHA aprobado.
+
+Estado: correcciones en PR con CI PASS; piloto con dinero permanece bloqueado.
+Detalle en [matriz](../audits/2026-10-13-launch-corrections-status.md) y
+[gates externos](../ops/launch-external-gates-20261013.md).
+
 ## Smoke autenticado minimo - 2026-06-07
 
 - [x] PR #124 creado para harness `Authenticated Smoke`.

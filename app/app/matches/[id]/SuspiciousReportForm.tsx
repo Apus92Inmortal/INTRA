@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Camera, ShieldAlert, X } from "lucide-react";
 import { compressImageFile } from "@/lib/uploads";
+import { useModalFocus } from "@/lib/ui/use-modal-focus";
 import { notifyAdminSuspiciousReportAction } from "./actions";
 
 type SuspiciousReportFormProps = {
@@ -59,6 +61,8 @@ export default function SuspiciousReportForm({
     setMessage(null);
     setMessageType(null);
   };
+
+  const panelRef = useModalFocus<HTMLFormElement>({ open: isOpen, onDismiss: loading ? undefined : closeModal });
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -237,14 +241,17 @@ export default function SuspiciousReportForm({
         ) : null}
       </div>
 
-      {isOpen ? (
+      {isOpen ? createPortal(
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-intra-blue/75 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Reportar Novedad"
+          role="presentation"
         >
           <form
+            ref={panelRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Reportar Novedad"
             onSubmit={onSubmit}
             className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-2xl border border-intra-warning-border bg-intra-card shadow-sm"
           >
@@ -329,7 +336,8 @@ export default function SuspiciousReportForm({
               </button>
             </div>
           </form>
-        </div>
+        </div>,
+        document.body
       ) : null}
     </>
   );

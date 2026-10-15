@@ -1,5 +1,183 @@
 # INTRA - Active Tasks
 
+## Candidato para aprobacion del PM - 2026-10-15
+
+- Preparar y actualizar PR #183, verificar checks del SHA nuevo y avisar a
+  Aldo para aprobar migraciones/merge/publicacion. No ejecutar ese release
+  por la autorizacion de preparar el candidato. Limpiar ramas merged despues.
+- A13: se retira descarte UI de factores por carrera listFactors/DELETE;
+  pending se detecta y deriva a revision operacional sin crear otro al
+  encontrarlo. Regresion MFA 12/12 y re-revision PASS. Recuperacion manual
+  coordinada con identidad verificada y MFA real siguen pendientes.
+- A03 parcial rechazado; DB A03/A04/A06 y cinco migraciones PASS. Preflight
+  remoto de lectura confirma 0/5 aplicadas, 0 payments/ledger/factores.
+- Gate final tras fix UI: 168 unitarias, TS/build, E2E publico/seguridad 8/8,
+  lint 0 errores/1 aviso previo, audit Production 0 y revision de diff PASS.
+  Evidencia CI del SHA que se publique se mantiene en PR #183/checks.
+- No cerrar pendientes del piloto (correo/MFA/restore/alertas/prueba integral)
+  por preparar o publicar codigo. DEC-020 elimina segundo entorno obligatorio.
+
+## Plan ajustado por Aldo - 2026-10-15
+
+- DEC-020: no crear entorno remoto adicional como requisito; mantener
+  validacion local automatica/bases desechables. La creacion de segundo
+  proyecto deja de bloquear TASK-052. No volver a solicitarla para avanzar.
+- Preparar una unica prueba integral final controlada sobre la instalacion
+  actual, aun sin operacion externa segun el PM. Publicar/aplicar cambios
+  solo con las autorizaciones correspondientes; este ajuste no las concede.
+- Correo en pausa hasta que el titular recupere telefono/acceso de su cuenta.
+  Seguir preparando alertas/monitoreo y pendientes tecnicos independientes.
+
+## Recuperacion / correo / MFA - 2026-10-15
+
+- TASK-053/A11: copia cifrada privada de filas/esquema y 23 archivos creada;
+  ensayo local recupera 22 tablas publicas/147 filas con hash coincidente,
+  comprueba 48 FK y 23 archivos. **Parcial, no DONE**: faltan backup nativo,
+  Auth/Storage reales, destino externo/custodia separada y RPO/RTO.
+- A13: SMTP sigue sin configurar y 0 factores MFA. Pendientes credencial de
+  correo por via privada y prueba del titular en la version corregida, bajo
+  el plan controlado de DEC-020, sin exigir otro proyecto remoto.
+  No se cambiaron usuarios, DNS, Auth ni correo; no se envio ningun mensaje.
+- Procedimiento/evidencia y siguientes pasos:
+  `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
+- Sin cambios de producto/remotos. Prueba integral se conserva para el final;
+  el pago historico confirmado no se repite.
+
+## Gate local del paquete corregido - 2026-10-14
+
+- Cinco migraciones aplicadas **solo** en PostgreSQL 17 desechable en orden;
+  A03 18, A04 15 y A06 permisos/privacidad/concurrencia PASS.
+- 168 unitarias, lint 0 errores/1 aviso previo, TypeScript, build y audit
+  de dependencias Production (0 vulnerabilidades) PASS del HEAD local.
+- Falta checkpoint remoto autorizado para actualizar PR #183, Preview y CI
+  del SHA nuevo. No confundir CI verde anterior con estos commits locales.
+- La prueba financiera integral se reserva para el final. Restauracion,
+  correo, MFA real, alertas/operacion y alcance de excepciones externas
+  siguen pendientes; no hay 7 pagos QA pendientes actualmente.
+
+## Aclaracion Wallet / nuevo envio - 2026-10-14
+
+- La cancelacion temprana de un envio ya pagado sin viajero elegible acredita
+  el neto a Wallet (DEC-010/A03); no implica devolucion desde Wompi.
+- Pagar un nuevo envio con saldo Wallet **no esta implementado**. Aldo lo
+  describio como capacidad futura; definir si entra en el paquete actual
+  antes de ampliar pagos/ledger/checkout.
+- El cierre de una devolucion externa es un caso excepcional condicionado al
+  alcance del piloto, no un pago o refund real pendiente. No bloquear la
+  correccion del flujo Wallet normal por una regla externa sin aprobar.
+
+## Correccion financiera externa condicionada - 2026-10-14
+
+- TASK-051: Admin Wallet y Wompi ahora se diferencian en la UI local; no
+  existe aun el cierre externo transaccional. Diseno y casos de prueba en
+  `docs/ops/external-refund-closure-design-20261014.md`.
+- Decision pendiente del PM: importe externo permitido, parciales/remanente y
+  tratamiento de comision. No implementar el asiento/estado `refunded` sin
+  esa regla; despues completar RPC, interfaz y pruebas aisladas.
+
+## Limpieza QA autorizada 2026-10-14
+
+- TASK-047/A05: Aldo identifico los siete `pending/created` como intentos de
+  prueba sin pago. Se archivaron privadamente y se vaciaron las 14 tablas
+  operativas seleccionadas: pagos y envios ahora 0. La verificacion de
+  identidad aprobada y las tablas maestras se preservaron. No tratar el
+  preflight de 7 filas anterior como estado actual.
+- TASK-047 primer pago real Wompi + Wallet/Ledger: PASS operativo confirmado
+  por Aldo el 2026-06-27 y reiterado el 2026-10-14. La ausencia actual de
+  filas, tras limpiezas QA, no refuta esa prueba ni obliga a cobrar otra vez.
+  Sigue pendiente un smoke del ciclo integral en la version corregida.
+  Quedan 23 objetos Storage sin tocar; revisar su retencion/relacion por
+  separado antes de cualquier borrado de archivos.
+- Continuar con validacion del paquete local PR #183 y gates de restauracion,
+  MFA, correo, devolucion externa y piloto; no inferir permiso de push/release.
+
+## Registro historico previo a limpieza 2026-10-14 - conciliacion y devolucion externa
+
+- TASK-047/A05: 7 pagos antiguos pendientes siguen sin cotejo de Wompi
+  Production. Preflight read-only: 7 referencias internas presentes,
+  0 IDs de transaccion, 0 eventos webhook, 0 asientos ledger y 0 duplicados.
+  Obtener evidencia de transacciones del proveedor para esas referencias
+  mediante acceso autorizado; no concluir "no cobrado" por ausencia interna.
+- TASK-051/053: cerrar una devolucion externa sin credito Wallet duplicado
+  carece de ruta verificada en Admin. SOP corregido para detenerse y escalar;
+  definir/implementar/probar ese registro contable antes de nuevos cobros.
+  La correccion del PR #183 permanece solo local.
+
+## Avance local 2026-10-14 - bloqueos PR #183
+
+- A03/TASK-051: la rama local rechaza devoluciones Wallet parciales antes
+  de cualquier movimiento; prueba de saldo/ledger/estado y suite DB aislada
+  PASS. La regla contable parcial definitiva sigue sin definirse. Falta
+  publicar y verificar la migracion aprobada; no cerrar TASK-051 en Production.
+- A13/TASK-053: la pantalla local detecta factores TOTP no verificados,
+  impide otra activacion y permite descartar explicitamente solo el factor
+  pendiente tras revalidar identidad/estado. Pruebas focales PASS. Falta
+  probar enrollment/challenge/recuperacion con el titular real y publicar.
+- Verificacion local: 168 unitarias, A03 18/A04 15/A06 DB PASS, lint sin
+  errores (1 advertencia previa), TypeScript y build webpack PASS.
+  PR remoto, main y Production no cambiaron. Siguen pendientes los 7 pagos,
+  backup/restore DB+Storage, SMTP y gates operativos del piloto.
+
+## Revision PR #183 - 2026-10-13
+
+- Veredicto local: **NO APTO para publicar**. SHA remoto `48bbf13` con CI,
+  Preview, 165 unitarias, TS/build y audit Production PASS, pero A03 admite
+  refund parcial y revierte todo el saldo viajero sin asignar el neto restante.
+  TASK-051: definir regla financiera/contable y corregir con prueba de ledger.
+- TASK-053/A13: resolver o probar recuperacion de factores TOTP no verificados
+  abandonados antes de activar MFA para el unico Admin.
+- TASK-047: preflight remoto de lectura cuenta 7 payments Wompi pending/created
+  con mas de 30 minutos (cifra previa: 6). Conciliar las 7 referencias; no
+  crear un nuevo cobro para reemplazarlas ni asumir cobro efectivo.
+- Cinco migraciones aun no aplicadas; 0 creditos refund duplicados/inconsistentes,
+  0 referencias ambiguas y 0 webhooks pendientes. Restore DB+Storage, SMTP,
+  Auth/MFA real, ambiente no productivo y gates operativos siguen abiertos.
+
+## Actualizacion operativa 2026-10-13
+
+- Reanudacion Joy: se verifico que el unico proyecto Supabase INTRA existente
+  es Production y ya esta configurado. El segundo era solo un destino propuesto
+  para ensayo de restauracion y pruebas aisladas. Crearlo por Management API
+  devolvio 403 (permiso insuficiente); no se creo. Backups Production: 0
+  accesibles por API y PITR desactivado. Sin export/restore ni datos copiados.
+  TASK-052/053 siguen abiertos; esperar proyecto aislado/acceso privado y
+  ejecutar respaldo DB+Storage y restauracion verificada por separado.
+
+- Alcance: todas las correcciones de auditoria para piloto con conocidos.
+- Rama `codex/launch-corrections` desde `5574036`; cinco migraciones nuevas
+  preparadas y probadas localmente. Ver [matriz A01-A15](../audits/2026-10-13-launch-corrections-status.md).
+- TASK-050/051: implementacion en revision; no cerradas en Production.
+- TASK-052: dependencias/lock corregidos; plan/aislamiento remoto pendientes.
+- TASK-053: CI/SQL/E2E/accesibilidad/SEO preparados y main protegido; Auth,
+  recovery/alertas y operacion final pendientes. Callback y MFA `aal2` firmado
+  implementados en rama; enrollment/prueba real y recuperacion del titular pendientes.
+- TASK-047/A05: pago antiguo sin localizar, sin cobro nuevo. Aldo no recuerda
+  la referencia. Conciliar los pagos existentes desde el proveedor cuando haya
+  acceso y no interpretar pending como dinero recibido.
+- Cuenta admin elegida y localizada; ADMIN_USER_IDS Secret Production guardado
+  como unico admin con confirmacion. Efecto en deployment/acceso aun pendiente.
+- PR #183 abierto (producto `8c01a2e`, pruebas `aa5acf2`); main protegido
+  por API con checks strict validate/database/detect-impact. Los tres checks
+  PASS remotos del producto `d7ded3d` y Preview del mismo SHA READY, posteriores
+  al lote Vercel completo. Verificar checks del HEAD documental en PR #183
+  y del SHA aprobado antes de publicar; CI postmerge sigue pendiente.
+  Unit 165/26 PASS local, lint/TS/build PASS; E2E publico 8/8 PASS.
+  Safe-next rechaza controles y verifica origen/fallback; callback 20 casos.
+- Navegador confirma Vercel Hobby. Diez variables limitadas a Production
+  inicialmente sin cambiar valores. Lote posterior autorizado: Secret admin
+  reemplazado por unico UUID y cinco Config legacy nonprod borrados; quedan
+  16 variables Production. Copias de deployments antiguos/entorno aislado
+  pendientes. Ver [registro Vercel](../ops/vercel-configuration-finalization-20261013.md).
+- Correo: titular eligio Google Workspace, cuenta publica `soporte@intra.com.co`.
+  Reporta suspension por impago y acceso a buzones; MX Google permanece,
+  NS externos dns-parking. SMTP preparado en Supabase como borrador sin password
+  ni Save changes. Google 2-step desactivada, SIM no disponible varios dias:
+  pendiente paso humano/credencial y prueba autorizada de confirmacion/recovery,
+  recepcion de soporte y DNS. No se contrato, reactivo ni pago nada.
+- Las tareas UI REVIEW/TODO y PRs antiguos conservados abajo son historial;
+  su presencia no demuestra falta funcional. Manual v3.0 vigente. La evidencia
+  inicial/panel/visor/expediente/realtime ya fueron integrados por PR B-H.
+
 ## Convencion de estados
 
 - TODO: pendiente
@@ -52,7 +230,7 @@ Area: Supabase / Seguridad / Pagos
 
 ### TASK-051: Hacer devoluciones atomicas y webhook conciliable
 
-Estado: TODO / antes de nuevos cobros
+Estado: REVIEW / local preparado; antes de nuevos cobros
 Prioridad: Critica
 Area: Wallet / Ledger / Wompi
 
@@ -60,41 +238,32 @@ Area: Wallet / Ledger / Wompi
 - Refund al cliente: transaccion, bloqueo e idempotencia para `refund_available_credit`; cubrir Dashboard y resolucion admin.
 - Webhook: no marcar processed un resultado funcional fallido; definir reintentos, cotejo de importe/moneda y eventos fuera de orden.
 - Cierre exige pruebas concurrentes y de fallo intermedio en DB aislada, sin operar dinero real.
+- 2026-10-13: RPCs refund/revision/cancelacion pendientes atomicas con credito
+  unico, audit e idempotencia. Handler conserva delivery firmado y consulta
+  Wompi antes de ingerir; redirect y retry admin usan la misma transaccion.
+  Fallos de negocio no quedan processed. Pruebas con DDL remoto y cinco
+  migraciones, carreras y rollback. Aplicacion/postflight remoto pendientes.
 
 ### TASK-047: Primer pago real Wompi + Wallet
 
-Estado: BLOCKED / pago real PASS reportado historicamente; conciliacion pendiente y bloqueos de seguridad 2026-09-04
+Estado: DONE historico por confirmacion de Aldo / nuevo smoke integral pendiente en TASK-053
 Prioridad: Critica
 Area: Produccion controlada / Pagos / Wallet / Operacion
 
 Resumen:
 - Primer pago real Wompi ejecutado por Aldo y reportado como PASS operativo.
-- La prueba confirma cobro exitoso en Wompi.
-- Falta confirmar en memoria/revision operativa la conciliacion interna wallet/ledger.
-- El gate completo no queda cerrado hasta validar Wompi production, webhook production, ledger, saldo retenido, liberacion y retiro/payout manual.
+- La memoria del 2026-06-27 registra su confirmacion de Wompi y conciliacion
+  Wallet/Ledger sin novedad; Aldo reitero el pago exitoso el 2026-10-14.
+- No se conserva en estas notas la referencia/ID de la transaccion y la base
+  operativa fue limpiada posteriormente. Eso limita auditoria retrospectiva,
+  pero no convierte el pago historico en fallido ni autoriza repetirlo.
 
-Precondiciones:
-- Cerrar TASK-050 y TASK-051 y gates de infraestructura antes de iniciar nuevos cobros. Auditoria remota 2026-09-04: 5 payments pending/created, 0 eventos Wompi/wallets/ledger/payouts en el proyecto usado por Production; ubicar y conciliar referencia historica sin negar el cobro reportado.
-- Production env critico se considera corregido segun memoria reciente; revalidar antes de continuar operacion con dinero real.
-- Confirmar que Wompi production sigue configurado.
-- Confirmar que el webhook Wompi production sigue apuntando a `https://www.intra.com.co/api/webhooks/wompi`.
-- Ejecutar smoke minimo publico/login/admin/checkout si aplica antes de mover dinero real.
-
-Validado:
-- Pago real aprobado en Wompi segun prueba operativa de Aldo.
-
-Validacion pendiente:
-- Webhook production recibido y procesado.
-- Payment/ledger reflejado correctamente en INTRA.
-- Saldo retenido visible y consistente.
-- Liberacion de pago ejecutada segun regla operativa.
-- Wallet del viajero refleja saldo disponible correcto.
-- Solicitud de retiro/payout manual registrada con referencia externa y evidencia.
-- Bitacora operativa completa.
-
-Pendiente:
-- Validar conciliacion interna del pago real.
-- Preparar primer envio controlado con usuario cliente y viajero conocidos despues de confirmar conciliacion.
+Nuevo gate separado antes del piloto con dinero:
+- Publicar las correcciones aprobadas y probar con usuarios controlados
+  checkout/webhook/retencion/entrega/disputa/devolucion/retiro, con evidencia
+  y bitacora actuales. Cerrar TASK-050/051/052/053 segun sus propios gates.
+- No usar los siete `pending/created` QA (ya limpiados) como evidencia de
+  que el primer pago historico no funciono.
 
 ---
 
@@ -115,22 +284,32 @@ Area: Release / Seguridad / Operacion
 
 ### TASK-052: Preparar dependencias, Vercel comercial y ambientes aislados
 
-Estado: TODO
+Estado: IN_PROGRESS / sin requisito de segundo entorno remoto (DEC-020)
 Prioridad: Alta / antes de operacion comercial
 
 - A07-A09/A12 del informe: actualizar dependencias vulnerables, instalar desde lockfile y repetir checks.
 - Plan Vercel apto para uso comercial; separar Supabase/secretos/Wompi de Preview y Development.
 - Verificar valores efectivos Production, allowlist admin, webhook Wompi y cron sin exponer secretos.
+- 2026-10-13: la organizacion esta en Free y solo tiene un proyecto visible;
+  la elegibilidad exacta del segundo no quedo confirmada porque el token
+  operativo obtuvo HTTP 403 al intentar crearlo. La solicitud de creacion
+  posterior queda superada por DEC-020 del 15-oct: no crear otro proyecto
+  como requisito. Mantener secretos Production fuera de previews/desarrollo.
 
 ### TASK-053: Gates de release, recuperacion y QA operativo
 
-Estado: TODO
+Estado: IN_PROGRESS / CI y codigo preparados; restore real pendiente
 Prioridad: Alta
 
 - A10-A15 del informe: proteger main/checks, E2E en CI, smoke autenticado reciente, rollback y restauracion DB/Storage probados, alertas y correo/soporte.
-- Cerrar TASK-047 tras seguridad; primer envio controlado con bitacora y evidencia financiera completa.
+- TASK-047 historico quedo confirmado por Aldo; hacer nuevo smoke integral
+  de la version corregida con bitacora y evidencia financiera completa.
 - Para apertura, mantener TASK-048 legal final y validar capacidad, privacidad, accesibilidad y soporte.
 - Mejoras P2 concretas en informe: foco en modales, SPF/DMARC, Storage, headers, SEO y estados documentales antiguos.
+- API de backups Production 2026-10-13: ninguna copia gestionada listada;
+  PITR desactivado. Preparar dump manual y export separado de objetos con
+  checksums; restaurar ambos en destino aislado y probar RLS/ledger/evidencias.
+  Sin destino ni acceso de backup, no declarar recuperacion probada.
 
 ### TASK-046: Runbook Operativo INTRA
 

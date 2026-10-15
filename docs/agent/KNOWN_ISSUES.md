@@ -1,5 +1,120 @@
 # INTRA - Known Issues
 
+## Revision del candidato - 2026-10-15
+
+- Carrera MFA listFactors->unenroll confirmada en revision independiente:
+  mismo factor puede verificarse antes del DELETE. Se elimina esa ruta UI,
+  con regresiones y re-revision PASS. Las notas previas de descarte automatico
+  quedan superadas por DEC-021. Recuperacion manual coordinada y MFA real
+  no se han probado ni se consideran resueltas por retirar el boton.
+- PR candidato no equivale a piloto listo; correo pausado, restore completo,
+  alertas y prueba integral mantienen sus pendientes. Segundo entorno remoto
+  no obligatorio por DEC-020. No borrar ramas con commits sin integrar.
+
+## Recuperacion / Auth verificados el 2026-10-15
+
+- A11 tiene ahora copia privada cifrada y ensayo parcial PASS de datos
+  publicos/archivos. Sigue abierto: no hay backup nativo completo ni restore
+  de servicios Auth/Storage, copia externa/custodia separada o RPO/RTO probado.
+  Las interfaces sinteticas del helper no acreditan esos gates.
+- La API sigue sin mostrar backups gestionados/PITR ni SMTP configurado;
+  hay 0 factores MFA. Correo requiere credencial privada del titular; MFA,
+  su participacion y un entorno con la version corregida. No cambiar
+  autoconfirm, DNS o factores verificados para sortear estos pendientes.
+- Detalle: `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
+
+## Estado despues de limpieza QA 2026-10-14
+
+- Los 7 payments pendientes de prueba y sus 6 envios cancelados ya no estan
+  en Production; las 14 tablas operativas seleccionadas quedaron en cero.
+  Aldo los identifico como intentos no pagados. El preflight de siete filas
+  consignado abajo es historico. Aldo confirmo el primer pago real Wompi y
+  la conciliacion Wallet/Ledger como PASS operativo en junio, reiterando el
+  pago en octubre; no tratarlo como fallido. Queda pendiente el ciclo
+  financiero integral de la version corregida, no repetir aquel primer pago.
+- La limpieza preservo la verificacion de identidad aprobada y 23 objetos
+  Storage. Revisar retencion/archivos huérfanos por separado; no ejecutar el
+  `TRUNCATE ... CASCADE` antiguo ni borrar identidad por asociacion.
+
+## Gate financiero adicional 2026-10-14
+
+- A05: las 7 referencias pendientes no tienen ID de transaccion, webhook
+  ni ledger internos; falta consultar Wompi Production. Estos vacios no
+  prueban ausencia de cobro externo.
+- El SOP anterior proponia resolver `customer_refund` despues de devolver
+  externamente, aunque esa accion acredita Wallet. Texto corregido localmente;
+  aun no existe ruta validada para registrar/cerrar el refund externo sin
+  doble restitucion. Mantener bloqueados nuevos cobros hasta resolverlo.
+
+## Mitigaciones locales 2026-10-14 (no publicadas)
+
+- A03: la nueva validacion local impide refund Wallet parcial sin asignacion
+  del remanente; la politica contable parcial continua abierta. Production
+  no tiene A03 aplicado. Mantener bloqueo de release hasta gate final.
+- A13: la UI local ofrece descarte explicito de factores TOTP *unverified*
+  y reconsulta antes de borrar; nunca elimina un factor *verified* desde
+  ese flujo. No se ha probado con Auth real ni recuperacion del unico Admin.
+- A05, restauracion, correo y aislamiento siguen abiertos sin cambios.
+
+## Hallazgos de revision PR #183 - 2026-10-13
+
+- **A03/P1, bloquea publicacion:** refund admin parcial `p_amount < neto`
+  revierte todo `payment_hold` o `release_available_credit` del viajero,
+  acredita solo `p_amount` al cliente y marca payment `refunded`. Falta
+  asignacion y asiento verificable del remanente neto; resolver regla financiera
+  o impedir parciales antes de aplicar la migracion. Ver A03 lineas 121-125,
+  215-250 y test de parcial en `supabase/tests/a03-refunds.mjs`.
+- **A13/P2, bloquea alta Admin hasta recuperacion probada:** la pantalla MFA
+  omite factores TOTP no verificados al recargar y permite crear otros; varios
+  intentos abandonados pueden agotar el limite de factores sin ruta UI para
+  reanudar/limpiar. Ver `app/app/profile/security/SecurityClient.tsx`.
+- Preflight remoto read-only: siete pagos Wompi pending/created de mas de 30
+  minutos frente a seis documentados antes. No implica siete cobros efectivos.
+  Cinco migraciones nuevas no aplicadas; sin duplicados refund ni referencias
+  ambiguas en la consulta actual. No se modifico Production.
+
+## Estado vigente 2026-10-13
+
+- Recuperacion A11: Management API lista 0 backups gestionados y PITR
+  desactivado en Production. No existe proyecto aislado disponible; la
+  creacion con la credencial operativa devolvio 403. Ningun respaldo DB+Storage
+  ni restore se ha probado. Bloquea acreditar recuperacion para el piloto.
+
+El paquete de correcciones esta preparado en `codex/launch-corrections`; aun
+no se aplico/publico. Los riesgos financieros/privacy inferiores describen
+Production mientras no haya rollout y postflight. Ver [matriz actual](../audits/2026-10-13-launch-corrections-status.md).
+
+- ISSUE-006/009: A01/A02 remotos mitigados; guards NULL y A06 probados local.
+- ISSUE-007/008: A03/A04 locales atomicos, con pruebas de carreras/rollback.
+  Se corrigio tambien metadata stale admin y cancelacion pendiente vs webhook.
+  Late approval de shipment cancelado exige conciliacion, no hold/credito nuevo.
+- ISSUE-010: audit prod local 0 y lock alineado. Full audit mantiene 5 high
+  derivados de braces3.0.3 sin parche en herramientas dev. Navegador Vercel
+  confirma Hobby; diez variables restringidas a Production sin cambiar valores.
+  Cinco registros legacy nonprod ya borrados; 16 variables solo Production.
+  Deployments antiguos y entorno aislado pendientes. Gates comerciales/operativos
+  abiertos; main ya protegido. El borrado no revoco claves en su fuente.
+- ISSUE-011: Auth autoconfirm=true, sin factores MFA. Email allowlist admin
+  permitia suplantacion por registro; fix local exige UUID y JWT verificado
+  `sub` coincidente/`aal2`. Bootstrap TOTP preparado fuera de operaciones admin;
+  pendiente enrollment/challenge real del titular y recuperacion por consola.
+  Cuenta del titular
+  localizada; ADMIN_USER_IDS Secret Production guardado con unico UUID autorizado.
+  Efecto tras deployment aprobado y smoke admin pendientes.
+- A05: seis intentos antiguos pendientes, referencia del pago reportado sin
+  identificar; no iniciar otro cobro para sustituir esa conciliacion.
+- SMTP/confirm/reset, leaked-password, SPF/DMARC/DKIM, restore DB+objetos,
+  alertas recibidas, aforo y revision legal/contable requieren evidencia externa.
+- Correo: titular reporta suspension Google Workspace por impago y acceso a
+  buzones; eligio conservarlo con `soporte@intra.com.co`. El borrador SMTP no
+  fue guardado ni tiene credencial. 2-step Google desactivada y SIM no disponible
+  varios dias; pendiente paso humano. No se verificaron envio/recepcion, ni
+  se cambio proveedor/MX, ni se realizo reactivacion o pago.
+
+No declarar lista INTRA hasta aplicar/verificar el paquete y completar esos
+gates. Las notas inferiores se conservan como historial y no sustituyen este
+estado ni autorizan nuevos movimientos financieros.
+
 ## Hallazgos vigentes - auditoria 2026-09-04
 
 **No autorizar nuevos cobros basandose en PASS historicos.** Ver [informe completo](../audits/2026-09-04-launch-readiness.md). Los siguientes hallazgos estan abiertos; no se aplicaron fixes durante la auditoria.

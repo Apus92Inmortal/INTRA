@@ -1,417 +1,367 @@
 # INTRA - Current Session
 
-## Reanudacion y cierre - 2026-10-13
-
-- El limite anterior interrumpio el registro final de A02, despues de aplicar
-  ambas migraciones y publicar el checkout. Se retoma el cierre ya autorizado.
-- Verificacion remota actual: PR #181 mergeada, `origin/main` en `66fa012` y
-  Vercel Production `dpl_DL1KbLa2eGH58gErV6h7qAvhqXxa` READY en el mismo SHA.
-  Supabase conserva las versiones A01/A02; checks de permisos A02 14/14 PASS.
-- Alcance de este cierre: seis documentos de memoria y renombrar la migracion
-  de revocacion a `20260914153000`, sin modificar su SQL. No se reaplican
-  migraciones ni se realizan movimientos financieros.
-- No se repiten lint, unit, TypeScript, build ni E2E locales por ser registro
-  documental y rename sin cambio de contenido; las validaciones funcionales
-  previas se conservan como evidencia del 2026-09-14.
-- Siguiente correccion recomendada: A06 dentro de TASK-050. Siguen pendientes
-  guards NULL, smoke con cuentas reales/concurrencia y TASK-051. Nuevos cobros
-  permanecen bloqueados.
-
----
-
-## Estado vigente - 2026-09-14 (A02 publicado)
-
-Objetivo: corregir A02 sin cortar los reintentos de Wompi durante el despliegue.
-
-- PR [#181](https://github.com/Apus92Inmortal/INTRA/pull/181) mergeada a
-  `main` en `66fa012e9ea4878410323bbd2b6ca52e420d6c9c`. Rama de
-  registro posterior: `codex/record-a02-production`.
-- `CheckoutClient.tsx` deja de insertar directamente en `payments` al reintentar
-  y llama a `create_payment_retry`. La RPC valida actor, envio abierto propio,
-  evidencia inicial, estado de pagos existentes y tarifa activa; calcula el
-  importe/referencia en DB y serializa intentos concurrentes.
-- Dos migraciones separadas: `20260914152150_a02_create_payment_retry.sql`
-  crea la RPC; `20260914153000_a02_restrict_financial_table_writes.sql`
-  elimina policies INSERT/UPDATE legacy y revoca DML cliente sobre `payments`
-  y `payouts`, conservando SELECT autenticado y service_role.
-- Orden completado: RPC en Supabase Production `20260914152150` -> checkout en
-  Vercel Production deployment `dpl_DL1KbLa2eGH58gErV6h7qAvhqXxa` READY con
-  SHA `66fa012` -> revocacion en Supabase Production `20260914153000`.
-  No se uso `supabase db push` por historial anterior desalineado.
-- Validacion local: lint PASS, 60 unitarias PASS, TypeScript PASS, build PASS,
-  E2E publico 4/4 PASS (no cubre checkout autenticado).
-  CI de PR y analisis de impacto PASS. Las 14 comprobaciones de
-  `supabase/tests/a02_financial_table_access.sql` PASS. INSERT/UPDATE directos
-  como authenticated y anon devolvieron 42501. RPC de retry creo un pago con
-  importe DB y reutilizo el intento en prueba transaccional antes y despues
-  de revocar; ambos rollback dejaron 5 pagos y cero fixtures. Draft y payout
-  RPC siguieron accesibles. Rutas publicas `/`, `/login` y checkout HTTP 200;
-  Vercel sin errores runtime reportados en esas rutas en la ventana consultada.
-- No hubo cobros Wompi ni movimiento financiero. No existe DB aislada ni
-  cuentas cliente/viajero/admin de prueba activas; faltan smoke autenticado
-  real y pruebas de concurrencia. A02 directo queda mitigado en Production,
-  pero A06, guards NULL internos y TASK-051 mantienen el bloqueo de cobros.
-- Siguiente paso: A06 (policies amplias de shipments/matches y drift); luego
-  TASK-051. No iniciar nuevos cobros hasta cerrar esos gates y conciliacion.
-
----
-
-## Estado vigente - 2026-09-14
-
-Objetivo: iniciar TASK-050 por A01 y aplicar la migracion autorizada a
-Supabase Production para bloquear ejecucion directa de RPCs internas.
-
-- Rama: `codex/fix-a01-financial-rpc`, creada desde `main` conservando los
-  cambios documentales locales de la auditoria anterior.
-- Archivos: migracion
-  `supabase/migrations/20260914145957_a01_restrict_financial_rpc_execute.sql`
-  (renombrada para coincidir con version remota), consulta
-  `supabase/tests/a01_financial_rpc_grants.sql` y memoria agent actualizada.
-- Se confirmo en Supabase real `okajyhkdyapbsornjeeb` que las tres funciones
-  admiten anon y authenticated. Los callers internos relevantes son SECURITY
-  DEFINER de `postgres`; la app no llama directamente estas tres RPCs.
-- Aldo autorizo prueba reversible y aplicacion a Production. La subtransaccion
-  de prueba paso permisos internos/entry points y revirtio los REVOKE. La
-  migracion quedo aplicada con version remota `20260914145957`.
-- Verificacion posterior: los tres `blocked_*` dieron true; delivery cliente
-  y cron siguieron con EXECUTE. HTTP anon real devolvio 401/42501 permission
-  denied para las tres RPCs. Cron de 15:00 UTC termino `succeeded`. Agregados
-  financieros permanecieron en 5 payments pending, 0 wallets/ledger/payouts.
-- Validacion local previa: lint PASS, 60/60 unitarias PASS, TypeScript PASS,
-  build PASS. No hubo push GitHub ni deploy Vercel. No se hicieron movimientos
-  financieros ni pruebas con cuentas autenticadas/entrega real.
-- Riesgo vigente: la exposicion directa A01 quedo contenida, pero los guards
-  NULL de funciones internas no se reescribieron; A02/A06, TASK-051 y los
-  flujos legitimos con datos reales siguen pendientes. No iniciar cobros.
-- Security Advisor aun enumera 22 funciones SECURITY DEFINER ejecutables por
-  anon (incluye calculadora publica y funciones con guardas); clasificarlas
-  individualmente en la continuacion de TASK-050. Dos funciones conservan
-  search_path mutable. No se infiere explotabilidad solo del aviso.
-- Siguiente paso: cerrar policies financieras/privacy A02/A06 y verificar
-  casos autenticados en ambiente aislado antes de nuevos cobros. No ejecutar
-  `supabase db push` sobre el historial remoto desalineado sin reconciliacion.
-
----
-
-## Estado vigente - 2026-09-04
-
-Objetivo: auditoria de lanzamiento de carpeta local, GitHub, Vercel y Supabase usado por produccion, solicitada por Aldo.
-
-**Resultado: NO LISTA para lanzamiento abierto ni nuevos cobros de piloto.** Las notas de junio conservadas abajo son historicas; sus PASS no sustituyen las verificaciones remotas de esta sesion.
-
-Informe completo: [Auditoria 2026-09-04](../audits/2026-09-04-launch-readiness.md).
-Consultas repetibles sin mutaciones: [SQL de lectura](../audits/2026-09-04-readonly-checks.sql).
-
-Estado verificado:
-
-- Carpeta inicialmente limpia en `main`; local y GitHub en `b220f7d038c849efae76f27b075a82a22bbc2214`.
-- `www.intra.com.co` usa ese mismo SHA en deployment Production READY `dpl_BCxpJYJn1gv9n8LYuMJAFLXWPJub`.
-- El bundle publico de Production apunta a Supabase `okajyhkdyapbsornjeeb`, proyecto auditado.
-- RPC `release_payment` y `refund_payment`: SECURITY DEFINER, EXECUTE anon/authenticated, guarda permite actor NULL. Helpers de notificacion tambien expuestos.
-- Policies remotas permiten escritura directa sobre pagos y creacion propia de payouts fuera de RPC; policy legacy de shipments usa `USING (true)`.
-- Devoluciones a wallet no atomicas; falta unicidad para `refund_available_credit`.
-- Webhook puede marcar processed un resultado RPC `success:false`.
-- 5 payments pending/created; 0 eventos Wompi, wallets, ledger y payouts. Pago real historico reportado no queda conciliado; no se concluye que el cobro no existio.
-- 40 migraciones locales frente a 4 registradas remotamente; existen objetos posteriores, por lo que debe compararse DDL real, no reaplicar todo a ciegas.
-- Vercel Hobby y Preview con acceso a Supabase/credencial administrativa de Production; main sin proteccion GitHub.
-
-Validacion:
-
-- Lint, TypeScript y build local PASS; 60 unit tests PASS.
-- Build local usa Next 16.1.6; lockfile y Production usan 16.2.4. Se encontraron 11 diferencias de paquetes instalados vs lock.
-- E2E publico local: 4 PASS. E2E publico Production: 4 PASS. Chromium faltaba, se instalo con el script del repo y se repitieron las pruebas.
-- Landing/login/registro en 1440, 1366, 390 y 320 px: sin overflow, imagen rota o excepcion JS observada.
-- npm audit produccion: FAIL, 5 paquetes high (next, nanoid, postcss, sharp, ws).
-- Cron SQL activo cada 5 minutos, 2016 ejecuciones succeeded en 7 dias; no demuestra liberacion real.
-- No se ejecuto smoke autenticado con cuentas, pagos reales, restauracion ni carga.
-
-Archivos tocados: informe/SQL en `docs/audits/`, `CURRENT_SESSION.md`, `TASKS.md`, `KNOWN_ISSUES.md`, `DB_NOTES.md` y aviso de estado en `PROJECT_STATE.md`.
-
-Alcance: solo documentacion y herramientas de validacion. Sin cambios de producto, DB, RLS, env, infraestructura, push, merge o deploy. No se revelaron valores secretos. No se reinstalaron dependencias del producto; solo se instalo el navegador de pruebas en cache.
-
-Rama de cierre: `codex/audit-launch-2026-09-04`, cambios documentales locales sin commit ni push.
-
-Siguiente paso: TASK-050, hardening de permisos reales con migracion y pruebas negativas en entorno aislado; despues TASK-051 y gates de infraestructura/operacion. No repetir un cobro real antes de cerrar bloqueos. No se adoptaron decisiones nuevas de producto.
-
-El siguiente agente debe leer AGENTS/START_HERE, este estado vigente, el informe completo, KNOWN_ISSUES, DB_NOTES y DECISIONS antes de modificar permisos o dinero.
-
----
-
-## Contexto historico conservado - junio de 2026
-
-## Fecha
-
-2026-06-20
-
-## Objetivo de la sesion
-
-Auditar el gate `Vercel production env review` antes de produccion controlada, sin exponer valores secretos y sin hacer deploy manual.
-
-## Alcance ejecutado
-
-- Auditoria global de variables `process.env` usadas realmente por el repo.
-- Cruce contra `.env.example`.
-- Revision de `vercel.json`, workflow de smoke autenticado, endpoints criticos de Wompi webhook y cron interno.
-- Revision remota de nombres/ambientes efectivos de Vercel usando archivos temporales eliminados al finalizar.
-- Revision de Supabase Auth por API de gestion, filtrando solo checks de URLs.
-- Revision de GitHub Actions secrets por nombre.
-
-## Resultado historico de la auditoria 2026-06-20
-
-- Gate en ese momento: FAIL de configuracion.
-- No se modifico logica de pagos, wallet, RLS, Supabase ni Wompi.
-- No se hizo deploy.
-- No se imprimieron valores secretos en reportes finales.
-
-## Hallazgos principales
-
-- Production efectivo en Vercel tiene vacias variables criticas: `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_USER_IDS`, `NEXT_PUBLIC_WOMPI_SANDBOX`, `NEXT_PUBLIC_WOMPI_PUBLIC_KEY`, `CRON_SECRET`, `INTERNAL_CRON_SECRET`.
-- `ADMIN_EMAILS` no existe en Vercel.
-- `INTRA_WOMPI_PRIVATE_KEY`, `INTRA_WOMPI_EVENTS_KEY` e `INTRA_WOMPI_INTEGRITY_KEY` existen en Production/Preview, pero clasifican como sandbox-like en el ambiente efectivo.
-- `NEXT_PUBLIC_SITE_URL` existe en Production, pero no coincide exactamente con `https://www.intra.com.co`; falta en Preview/Development.
-- Los nombres legacy `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_KEY`, `WOMPI_INTEGRITY_KEY` existen como registros en Production/Preview pero estan vacios en el ambiente efectivo y no son leidos por la app.
-- Supabase Auth: Site URL y redirects criticos para `www.intra.com.co`, `/auth/callback` y `/login/update-password` pasan.
-- GitHub Actions secrets: lista vacia; el workflow `Authenticated Smoke` no puede ejecutarse hasta reponer sus secrets temporales.
-- Wompi Dashboard webhook endpoint queda pendiente de confirmacion manual externa.
-
-## Archivos tocados
-
-- `docs/agent/CURRENT_SESSION.md`
-- `docs/agent/TASKS.md`
-- `docs/agent/KNOWN_ISSUES.md`
-
-## Validaciones ejecutadas
-
-- `git status --short --branch`: `main...origin/main` antes de cambios documentales.
-- `git grep process.env`: PASS para inventario.
-- `.env.example` cruzado contra variables runtime reales.
-- `vercel env ls`: PASS, sin valores secretos.
-- `vercel env pull` Production/Preview/Development: PASS con archivos temporales eliminados.
-- Supabase Auth config API: PASS para checks de URLs requeridas.
-- `gh secret list`: PASS, sin secrets activos.
-
-## Estado actualizado 2026-06-22
-
-- Production env critico: corregido segun contexto operativo reciente.
-- Wompi production: configurado.
-- Webhook Wompi production: `https://www.intra.com.co/api/webhooks/wompi`.
-- Redeploy production requerido: READY / ejecutado segun contexto operativo reciente.
-- Smoke publico/login/admin/checkout: sin fallos segun contexto operativo reciente.
-- Smoke autenticado cliente/viajero/admin y RLS remoto: ejecutados segun contexto operativo reciente.
-- Gate critico pendiente: primer pago real Wompi + Wallet de punta a punta.
-
-## Actualizacion 2026-06-22 - PR #176 review tweak
-
-- Solicitud de Aldo: reemplazar el titulo textual `INTRA` del footer por el logo sin fondo usado en header y remover CTA/boton de TikTok.
-- Archivos de producto tocados: `app/page.tsx`, `tests/unit/app/home-page.test.tsx`.
-- Validacion: `git diff --check`, `npm run lint`, `npm run test:unit`, `npx tsc --noEmit`, `npm run build`, `npm run test:e2e -- tests/e2e/home.spec.ts`.
-- No se tocaron pagos, wallet, Wompi, Supabase, RLS, migraciones, admin, checkout, env vars ni logica autenticada.
-- No se hizo deploy manual ni produccion.
-
-## Actualizacion 2026-06-22 - PR #176 metadata URL
-
-- Solicitud de Aldo: cambiar la metadata publica OpenGraph de la landing para usar el dominio oficial `https://www.intra.com.co`.
-- Archivo de producto tocado: `app/page.tsx`.
-- Cambio real: `openGraph.url` paso de `https://intra-chi.vercel.app` a `https://www.intra.com.co`.
-- Revision de referencias: las demas apariciones del dominio viejo en `app/page.tsx` son placeholders de CTAs que se reemplazan durante render por rutas internas; no se detecto otra metadata/canonical/social sharing publica con ese dominio.
-- Validacion local: `git diff --check`, `npm run lint`, `npm run test:unit`, `npx tsc --noEmit`, `npm run build`, `npm run test:e2e -- tests/e2e/home.spec.ts`.
-- Validacion remota PR: `validate` PASS, `detect-impact` PASS.
-- Commit en rama del PR: `fe86045` (`update landing opengraph url`).
-- No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
-- No se hizo deploy manual ni produccion.
-
-## Actualizacion 2026-06-22 - PR #176 ajustes visuales menores
-
-- Solicitud de Aldo: revisar ajustes visuales menores antes de merge sin redisenar ni ampliar PR.
-- Archivo de producto tocado: `app/page.tsx`.
-- Cambios reales:
-  - Hero mantiene headline actual.
-  - Hero desktop compactado: `min-height` 600 -> 560, padding vertical menor, h1 52px -> 48px y `letter-spacing` 0.
-  - Subcopy del hero simplificado a `Publica tu envío, acepta un match, coordina por chat y paga dentro de la app.`
-  - Bloque de confianza mobile compactado; en <=360px pasa a una columna para evitar columnas estrechas.
-  - Seccion `Por qué confiar`: titulo `Confianza en cada envío` y subtitulo solicitado por Aldo.
-- Verificacion visual local con Playwright:
-  - 1366x650: sin scroll horizontal, hero h1 48px.
-  - 390x844: bloque de confianza 2x2, sin scroll horizontal.
-  - 320x740: bloque de confianza 1 columna de 248px, sin scroll horizontal.
-- Boton flotante negro: confirmado como Vercel Live Feedback/preview por comentario automatico del PR; no existe como codigo propio en `app/`, `components/`, `lib/`, `public` ni tests.
-- Validacion local: `git diff --check`, `npm run lint`, `npm run test:unit`, `npx tsc --noEmit`, `npm run build`, `npm run test:e2e -- tests/e2e/home.spec.ts`.
-- Validacion remota PR: `validate` PASS, `detect-impact` PASS, `Vercel` PASS, `Vercel Preview Comments` PASS.
-- Commit en rama del PR: `5f6bd77` (`tune landing hero copy`).
-- No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
-- No se hizo deploy manual ni produccion.
-
-## Actualizacion 2026-06-22 - PR #176 iconos precios
-
-- Solicitud de Aldo: reemplazar emojis de la seccion `Precios claros por ruta` por iconos minimalistas inline, sin contenedor ni redisenar la seccion.
-- Archivo de producto tocado: `app/page.tsx`.
-- Cambios reales:
-  - `Corta distancia`, `Media distancia` y `Larga distancia` usan SVGs outline inline de 16px.
-  - `Más popular` quedo solo texto, sin emoji.
-  - Se agrego CSS minimo `.price-badge`/`.price-icon` para alinear icono y texto.
-  - No se cambiaron precios, ejemplos, estructura comercial ni CTAs.
-- Verificacion visual local con Playwright:
-  - 1366x650, 390x844 y 320x740 sin overflow horizontal.
-  - Seccion precios sin emojis.
-  - Iconos medidos en 16x16.
-  - Cards de precios mantienen altura pareja.
-- Validacion local: `git diff --check`, `npm run lint`, `npm run test:unit`, `npx tsc --noEmit`, `npm run build`, `npm run test:e2e -- tests/e2e/home.spec.ts`.
-- Validacion remota PR: `validate` PASS, `detect-impact` PASS, `Vercel` PASS, `Vercel Preview Comments` PASS.
-- Commit en rama del PR: `b5caac5` (`replace pricing emojis with icons`).
-- No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
-- No se hizo deploy manual ni produccion.
-
-## Actualizacion 2026-06-22 - PR #176 remover iconos precios
-
-- Solicitud de Aldo: quitar los iconos minimalistas de `Precios claros por ruta` porque no convencen visualmente y dejar labels solo texto.
-- Archivo de producto tocado: `app/page.tsx`.
-- Cambios reales:
-  - `Corta distancia`, `Media distancia` y `Larga distancia` quedan como texto simple.
-  - `Más popular` queda solo texto.
-  - Se removieron SVGs inline y CSS `.price-icon`.
-  - No se cambiaron precios, ejemplos de rutas, estructura comercial ni CTAs.
-- Verificacion visual local con Playwright:
-  - 1366x650, 390x844 y 320x740 sin overflow horizontal.
-  - Seccion precios sin emojis.
-  - Seccion precios con `svgCount = 0`.
-  - Cards de precios mantienen altura pareja.
-- Validacion local: `git diff --check`, `npm run lint`, `npm run test:unit`, `npx tsc --noEmit`, `npm run build`, `npm run test:e2e -- tests/e2e/home.spec.ts`.
-- Validacion remota PR: `validate` PASS, `detect-impact` PASS, `Vercel` PASS, `Vercel Preview Comments` PASS.
-- Commit en rama del PR: `bc26709` (`remove pricing icons`).
-- No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
-- No se hizo deploy manual ni produccion.
-
-## Actualizacion 2026-06-22 - PR #176 merge y limpieza de rama
-
-- Solicitud de Aldo: merge normal del PR #176 a `main`, sin deploy manual ni produccion manual.
-- PR #176 mergeado con merge commit `cc319c3`.
-- `main` local y `origin/main` verificados en `cc319c3`.
-- Checks post-merge en `main`: `CI / validate` PASS, `Workflows Impact Analysis / detect-impact` PASS.
-- Vercel automatico por merge a `main`: PASS.
-- Solicitud posterior de Aldo: borrar la rama ya no usada y guardar regla durable en memoria del repo.
-- Rama `landing/task-031-conversion-copy-polish` eliminada localmente.
-- Rama `origin/landing/task-031-conversion-copy-polish` eliminada remotamente.
-- Decision nueva documentada: `DEC-011: Limpieza obligatoria de ramas cerradas`.
-- Checklist actualizado para borrar local/remotamente ramas que ya no se usaran despues de merge/cierre.
-- No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
-- No se hizo deploy manual ni produccion manual.
-
-## Actualizacion 2026-06-22 - Runbook Operativo INTRA
-
-- Solicitud de Aldo/Cristhian: crear documentacion profesional de operacion para INTRA antes de produccion controlada y operacion real con usuarios y dinero.
-- Rama documental: `docs/ops-runbook-intra`.
-- Archivos nuevos:
-  - `docs/ops/runbook-operativo-intra-corto.md`
-  - `docs/ops/runbook-operativo-intra-completo.md`
-- Contenido cubierto:
-  - Checklists diario/semanal.
-  - Procedimientos Wompi, webhook, pagos, wallet/ledger, retiros manuales, disputas/evidencias, soporte, incidentes, seguridad operativa, escalamiento y bitacora.
-  - Production env critico como corregido y pendiente de revalidacion final antes de operacion real.
-  - Wompi production y webhook production como configurados.
-  - Primer pago real Wompi + Wallet como validacion critica pendiente.
-  - Legal final como pendiente antes de produccion abierta.
-- Validaciones documentales: `git diff --check` PASS, revision de secretos PASS, enlaces locales PASS y cobertura de secciones obligatorias PASS.
-- No se corrio build/lint/test porque solo se tocaron archivos Markdown.
-- No se tocaron codigo de producto, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables de entorno.
-- No se hizo deploy manual ni produccion.
-
-## Actualizacion 2026-06-22 - PR #177 estado Production env
-
-- Solicitud de Aldo: corregir estado desactualizado del runbook para no presentar `ISSUE-005` como impedimento actual.
-- Production env critico queda documentado como corregido / pendiente de revalidacion final antes de operacion real.
-- Wompi production y webhook production quedan documentados como configurados.
-- Gate principal pendiente queda como primer pago real Wompi + Wallet.
-- En ese momento el runbook quedaba pendiente de merge; luego fue mergeado en PR #177 con commit `938db99`.
-- Legal final queda pendiente antes de produccion abierta.
-
-## Actualizacion 2026-06-22 - PR #177 PDF oficiales
-
-- Solicitud de Aldo: agregar al PR #177 los PDF oficiales generados desde el contenido actualizado de los runbooks.
-- Archivos PDF agregados:
-  - `docs/ops/Runbook_Operativo_INTRA_Corto_v1_0.pdf`
-  - `docs/ops/Runbook_Operativo_INTRA_Completo_v1_0.pdf`
-- Se mantienen como fuente editable:
-  - `docs/ops/runbook-operativo-intra-corto.md`
-  - `docs/ops/runbook-operativo-intra-completo.md`
-- Alcance: documental; sin cambios de codigo, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables.
-- No se hizo deploy manual.
-
-## Cierre de sesion 2026-06-22 - Landing + Runbook
-
-Estado real:
-
-- PR #176 `Landing conversion copy polish`: MERGED.
-- Merge commit PR #176: `cc319c3`.
-- PR #177 `Runbook Operativo INTRA`: MERGED.
-- Merge commit PR #177: `938db99`.
-- `main` quedo actualizado con landing publica ajustada, runbook operativo en Markdown/PDF y memoria de Production env corregida.
-
-Cambios cerrados:
-
-- Landing publica ajustada para mayor conversion:
-  - Hero mas claro y menos pesado.
-  - Copy cliente/viajero mejorado.
-  - CTA principales claros: publicar envio / publicar viaje.
-  - Metadata publica apunta a `https://www.intra.com.co`.
-  - Seccion de precios limpia, sin emojis ni SVG inline.
-  - Tests publicos actualizados.
-- Runbook Operativo INTRA creado y mergeado:
-  - `docs/ops/runbook-operativo-intra-corto.md`.
-  - `docs/ops/runbook-operativo-intra-completo.md`.
-  - `docs/ops/Runbook_Operativo_INTRA_Corto_v1_0.pdf`.
-  - `docs/ops/Runbook_Operativo_INTRA_Completo_v1_0.pdf`.
-  - `.gitattributes` marca `*.pdf binary`.
-
-Estado operativo actualizado:
-
-- INTRA esta avanzado hacia produccion controlada.
-- Production env critico esta corregido segun memoria operativa reciente; debe revalidarse antes de operar con dinero real.
-- Wompi production esta configurado.
-- Webhook Wompi production configurado: `https://www.intra.com.co/api/webhooks/wompi`.
-- RLS remoto y smoke autenticado cliente/viajero/admin se consideran realizados segun memoria operativa reciente.
-- E2E publico y smoke publico/login/admin/checkout estan en verde segun memoria operativa reciente.
-- Legal final queda pendiente antes de produccion abierta, no como freno de produccion controlada.
-
-Siguiente paso recomendado:
-
-- Ejecutar primer pago real Wompi + Wallet de punta a punta con monto pequeno y caso controlado.
-- Despues del pago, validar ledger, saldo retenido, liberacion y retiro/payout manual.
-- No se recomienda abrir mas PRs de diseno o documentacion salvo hallazgo real.
-
-Confirmaciones:
-
-- No se tocaron pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables en este cierre documental.
-- No se hizo deploy manual.
-
-## Actualizacion 2026-06-22 - Primer pago real Wompi
-
-Estado nuevo reportado por Aldo:
-
-- Primer pago real Wompi: PASS operativo.
-- La prueba confirma cobro exitoso en Wompi.
-- No hay evidencia documentada en repo, dentro de esta actualizacion, de conciliacion completa wallet/ledger.
-
-Estado del gate:
-
-- Wompi real payment: PASS.
-- Wallet/ledger reconciliation: PENDING.
-- El gate completo `Wompi + Wallet` no debe marcarse como cerrado hasta confirmar:
-  - webhook production recibido y procesado;
-  - payment/ledger reflejado correctamente en INTRA;
-  - saldo retenido consistente;
-  - liberacion operativa;
-  - wallet del viajero con saldo disponible correcto;
-  - retiro/payout manual registrado con referencia externa y evidencia cuando aplique.
-
-Siguiente paso recomendado:
-
-- Validar conciliacion interna del pago real.
-- Preparar primer envio controlado con usuario cliente y viajero conocidos.
-- Despues de confirmar conciliacion, avanzar produccion controlada con monitoreo operativo.
-
-Confirmaciones:
-
-- No se tocaron codigo, pagos, wallet, Wompi, webhook, checkout, Supabase, RLS, migraciones, admin, logica autenticada ni variables.
-- No se hizo deploy manual.
-
-😎
+## Preparacion de PR para aprobacion - 2026-10-15 (Joy)
+
+- Aldo autoriza preparar/actualizar el PR para que luego apruebe; merge,
+  cinco migraciones y deployment esperan esa aprobacion. Autoriza limpiar
+  ramas integradas despues del merge, no borrar trabajo pendiente.
+- Revision independiente del delta local confirma A03 neto completo antes
+  de mutaciones, pero detecta carrera entre listFactors y unenroll: otra
+  pestana puede verificar el mismo factor antes del DELETE. SDK/servicio
+  no ofrecen borrado condicional por estado. No fingir atomicidad repitiendo
+  listados o congelando token aal1 (la sesion del servidor puede elevarse).
+- Fix conservador: se retiro handler/boton y toda llamada unenroll de la
+  pantalla. Detecta pending y bloquea otra activacion cuando lo encuentra;
+  dirige a recuperacion operacional. No se eliminan factores desde esa UI.
+  La recuperacion manual y MFA real siguen por probar; no son DONE.
+- Regresion RED: 3 casos fallaban antes del fix; 12/12 MFA GREEN despues,
+  incluido mismo ID pending->verified en otra pestana y pending descubierto
+  antes de enroll. Re-revision independiente cierra el finding, sin nuevos
+  hallazgos en esos dos archivos.
+- Gate previo al fix UI: 168 unitarias, lint 0 errores/1 aviso previo,
+  build y audit Production 0 vulnerabilidades PASS; DB A03 18/A04 15/A06
+  completa con cinco migraciones PASS. Contenedor local eliminado. Gate
+  de codigo se repite tras el cambio antes de publicar un lote final.
+- Preflight Production solo lectura: 0/5 migraciones candidato aplicadas,
+  0 payments, 0 wallet_ledger y 0 factores MFA. Sin escrituras remotas,
+  reset, cobros o prueba integral. Correo sigue en pausa y DEC-020 vigente.
+- Gate final tras fix: 168/168 unitarias, 12 MFA incluidas, lint 0 errores/1
+  aviso previo, TypeScript, build y E2E publico/seguridad 8/8 PASS. Audit
+  Production 0 vulnerabilidades y DB A03/A04/A06 anteriores cubren archivos
+  sin cambios adicionales. Revision de diff/credenciales PASS.
+- El primer E2E no pudo lanzar Chromium porque faltaba el binario de la
+  version instalada de Playwright (5 browser tests sin ejecutar, 3 HTTP PASS).
+  Se instalo en cache exclusiva de este trabajo, sin tocar el browser service
+  compartido; repeticion completa 8/8 PASS. No se altero codigo para ocultarlo.
+- Publicar este lote del PR y consultar SHA/checks finales en GitHub; no
+  reutilizar CI antiguo. Evidencia remota final se registra en el cuerpo del
+  PR para no cambiar el SHA de codigo por otra nota de sus propios checks.
+
+## Ajuste del plan por Aldo - 2026-10-15 (Joy)
+
+- Aldo descarta entorno de pruebas adicional: app desplegada, aun sin
+  operacion con usuarios externos segun su indicacion. DEC-020 elimina
+  crear otro proyecto como requisito; no mantener el 403 historico como
+  bloqueo de avance. Conservar validacion automatica y DB local temporal.
+- Preparar prueba integral unica final sobre instalacion actual, controlada;
+  coordinar/autorizaciones de cambios necesarios antes de aplicarlos.
+  No se infiere permiso de push, migraciones, merge, deployment o cobros.
+- Correo queda pausado: el titular no puede reactivar su cuenta/2FA sin su
+  telefono. La recuperacion completa, MFA y alertas conservan su estado real,
+  pero su preparacion no depende de crear otro entorno remoto.
+- Cambio documental solamente; sin cambios de producto ni remotos.
+
+## Recuperacion parcial, correo y MFA - 2026-10-15 (Joy)
+
+- Continuacion autorizada por Aldo, solo preparacion local y lecturas remotas.
+  Copia privada AES-GCM: filas de 58 tablas (384 filas), esquema publico
+  actual y 23 objetos (16.044.408 bytes), sin datos ni secretos versionados.
+- Ensayo PG17 sin red: 22 tablas publicas / 147 filas recuperadas con hashes
+  coincidentes y 48 FK sin huerfanos. Conteos: 22 RLS, 55 funciones, 62
+  policies, 7 triggers. 23/23 archivos restaurados temporalmente con hash
+  coincidente; GCM rechaza alteracion. Contenedor/temporales eliminados.
+- **A11 sigue abierto:** Auth/Storage del ensayo son stubs; faltan servicios
+  reales, backup nativo completo, copia externa/custodia separada y RPO/RTO.
+  Detalle y pasos ejecutables en
+  `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
+- Lectura actual: 0 backups gestionados/PITR off, SMTP sin configurar,
+  autoconfirm=true, 0 factores MFA. Auth cuenta 1 usuario, no los 3 de la
+  nota anterior; no se modificaron usuarios ni se atribuyo la diferencia.
+  MX Google confirmado, SPF/DMARC ausentes y selector DKIM comun NXDOMAIN
+  (otro selector real no descartado). Falta credencial privada del correo y
+  participacion del titular para enrollment/challenge/recuperacion MFA.
+- El primer intento de captura excedio 100 argumentos JSON de PostgreSQL;
+  reproduccion minima confirmo la causa y se uso agregacion sin ese limite.
+  Captura corregida y ensayo PASS; no hubo escritura remota en el fallo.
+- Sin cambios de producto, DDL/DML remoto, Auth/DNS/SMTP, mensajes de prueba,
+  cobros, push, PR/Preview, merge ni deployment. Prueba integral para el final.
+
+## Gate local del paquete corregido - 2026-10-14 (Joy)
+
+- Aldo reafirmo que la cancelacion elegible acredita Wallet por el neto,
+  excluyendo la comision de pasarela; no se amplio el alcance al pago de un
+  nuevo envio desde Wallet, descrito como capacidad futura.
+- Rama `codex/launch-corrections` en `a3e1b43` antes de esta nota, 8 commits
+  por delante del PR remoto. Cinco migraciones revisadas/aplicadas solo en
+  PostgreSQL 17 desechable: A03 18 checks, A04 15 y A06 permisos/privacidad/
+  concurrencia PASS. Se elimino la base desechable y detuvo el contenedor.
+- Gate local: 168/168 unitarias, lint 0 errores/1 aviso preexistente,
+  TypeScript, build webpack y `npm audit --omit=dev --audit-level=high`
+  (0 vulnerabilidades) PASS. El primer intento DB fallo por conectividad
+  entre redes Docker, antes de correr SQL; se repitio en loopback aislado y
+  paso completo. No se uso Wompi ni se hicieron cobros o cambios Production.
+- CI/Preview remotos del PR #183 certifican un SHA anterior, no este paquete
+  local. Sin push, PR Ready, migraciones remotas, merge ni despliegue. La
+  prueba integral autenticada y los gates operativos siguen para el final.
+
+## Aclaracion producto Wallet - 2026-10-14 (Joy)
+
+- Aldo confirmo que cuando un envio pagado no se consolida y se cancela bajo
+  las condiciones permitidas, la restitucion esperada queda en la Wallet del
+  cliente, no vuelve a Wompi. DEC-010/A03 acreditan el neto del pago, sin
+  incluir la comision de pasarela. No hay devolucion real pendiente en este
+  contexto; el primer pago de prueba fue exitoso.
+- La idea de usar ese saldo para pagar un nuevo envio sin otro checkout Wompi
+  es futura. La app actual no ofrece pago de envios desde Wallet: el checkout
+  visible lleva a Wompi. Se consulto si la capacidad entra en el paquete
+  actual o queda para una fase posterior.
+- El diseño de cierre externo del bloque siguiente queda condicionado a un
+  caso excepcional que se decida incluir; no es el flujo normal descrito por
+  Aldo. No se ejecutaron pagos ni cambios remotos en esta aclaracion.
+
+## Correccion financiera externa condicionada - 2026-10-14 (Joy)
+
+- Aldo pidio comenzar por el cierre de una devolucion ejecutada directamente
+  en Wompi, sin duplicar el abono Wallet, y reservar una sola prueba integral
+  para el final. La ruta existente `customer_refund` sigue siendo solo Wallet.
+- Ajuste local Admin: accion, monto, dialogo y confirmacion de resultado ahora
+  explicitan el abono Wallet y advierten que no registra una devolucion Wompi.
+- Diseno tecnico revisable en
+  `docs/ops/external-refund-closure-design-20261014.md`: referencia/evidencia,
+  RPC transaccional, ausencia de doble credito, reverso viajero, auditoria,
+  idempotencia y casos de carrera. No hay migracion ni cierre externo aun.
+- Falta definir importe/politica contable de la devolucion externa (completa
+  o parcial, remanente y comision). Se consulto al PM antes de codificar una
+  regla financiera no aprobada. Sin push, migraciones remotas ni dinero movido.
+
+## Aclaracion primer pago real - 2026-10-14 (Joy)
+
+- Aldo recuerda que hizo un pago de prueba real y que llego a Wompi sin
+  novedad. La memoria del 2026-06-27 registra ademas su confirmacion del
+  pago y la conciliacion interna Wallet/Ledger como PASS operativo de
+  TASK-047. Fue incorrecto describirlo como "pago historico sin resolver".
+- Los siete intentos `pending/created` posteriores eran pruebas **sin pago**;
+  quedaron archivados privadamente y se limpiaron con autorizacion. No eran
+  siete cobros ni invalidan el pago historico exitoso.
+- No pedir repetir un pago para demostrar lo ya probado. Sigue pendiente
+  validar con la version corregida y usuarios de prueba el ciclo completo
+  de checkout, webhook, retencion, entrega, disputa/refund y retiro antes del
+  piloto; eso es un gate nuevo, distinto del primer pago historico.
+
+## Limpieza operativa QA Production - 2026-10-14 (Joy)
+
+- Aldo confirmo que los siete intentos `pending/created` eran pruebas de
+  creacion de envio que no pago y autorizo vaciar tablas operativas, no maestras.
+- Preflight: 7 payments sin ID de transaccion, 6 shipments `cancelled`,
+  6 evidencias, 6 declaraciones; 0 ledger, payouts, webhooks o pagos aprobados.
+  Existia 1 verificacion `verified/payout_verified` con documentos: se excluyo.
+- Se archivo localmente una copia privada de las filas operativas (modo 0600)
+  y se ejecuto en Production una transaccion con conteos/estados guardados,
+  bloqueo de tablas y `TRUNCATE ... RESTART IDENTITY RESTRICT` sobre 14 tablas.
+  No se uso `CASCADE` ni se borro `user_verifications`.
+- Postflight: 14/14 tablas objetivo en 0; `auth.users` 3, `profiles` 3,
+  `route_prices` 132, `user_policy_acceptances` 4 y verificacion aprobada 1,
+  sin cambios. Storage conserva 23 objetos; no se tocaron archivos ni Auth.
+- Esta limpieza no es un backup/restore completo ni prueba por si misma el
+  estado externo de Wompi. El primer pago historico ya fue reportado PASS por
+  Aldo; el smoke financiero de la version corregida sigue abierto.
+  PR #183, `main`, DDL y app Production no cambiaron; si hubo DML de limpieza.
+
+## Continuacion local A05 y SOP financiero - 2026-10-14 (Joy)
+
+- Preflight Production de solo lectura (agregados, sin referencias/PII):
+  7 payments Wompi pendientes de mas de 30 minutos; los 7 tienen referencia,
+  0 ID de transaccion, 0 gateway aprobado internamente, 0 ledger, 0 webhook
+  relacionado y 0 referencia duplicada. No demuestra que el proveedor no
+  haya cobrado. La credencial Wompi disponible aqui es de pruebas, no apta
+  para cotejo de Production. A05/TASK-047 sigue bloqueada por evidencia del
+  proveedor; no se creo un cobro nuevo ni se modifico estado alguno.
+- Se agrego consulta repetible `a05_payment_reconciliation_readonly.sql`.
+  El SOP de refunds externos tenia una instruccion contradictoria: despues
+  del movimiento externo sugeria resolver `customer_refund`, que acredita
+  tambien Wallet. Se corrigio el texto para prohibir doble restitucion y
+  dejar abierto el cierre interno hasta una ruta tecnica/contable validada.
+- No se exportaron referencias, datos personales, tokens o bytes de Storage.
+  No hubo SQL de escritura, push, migraciones, merge ni deployment.
+
+## Correccion local de bloqueos PR #183 - 2026-10-14 (Joy)
+
+- Rama `codex/launch-corrections`, sin push. Se adopto bloqueo temporal de
+  refunds Wallet parciales: A03 exige neto completo antes de mutar; la vista
+  Admin explica el importe neto y la ausencia de parciales.
+- MFA Admin: `listFactors().all` identifica TOTP no verificados; no crea
+  otro factor con activacion pendiente. El titular puede descartar de forma
+  explicita uno no verificado, previa comprobacion de identidad y estado,
+  para iniciar de nuevo. No se borra un factor verificado; no hay bypass aal2.
+- TDD observado: A03 y tres casos MFA fallaron antes del fix y pasaron tras
+  el cambio. PG17 desechable: A03 18, A04 15 y A06 PASS; unit 168/168,
+  lint 0 errores/1 advertencia previa, TypeScript y build webpack PASS.
+  No hubo Auth real, cobros, migraciones remotas, push, merge ni deploy.
+- Siguiente: solicitar checkpoint remoto cuando se quiera probar el nuevo
+  SHA en Preview y CI. Antes de dinero real:
+  conciliar 7 pagos, restore DB+Storage, SMTP/MFA real y gates operativos.
+
+## Revision final PR #183 - 2026-10-13 (Joy, solo lectura remota)
+
+- SHA remoto revisado `48bbf1376c457058c4e103ce446b00d0e6696af8` contra
+  `main` `5574036`: PR abierto, mergeable, checks validate/database/
+  detect-impact y Preview PASS. Esta nota local no cambia el PR remoto.
+- Verificacion fresca en worktree separado: 165/165 unitarias (26 archivos),
+  lint sin errores (un aviso), TypeScript, build y audit Production (0) PASS.
+  Se revisaron cinco migraciones, rutas financieras, Auth/Admin y rollout.
+- Preflight Production de solo lectura: ninguna de las cinco versiones nuevas
+  aplicada; 0 grupos de creditos refund duplicados, 0 creditos de refund
+  inconsistentes, 0 referencias de payment duplicadas, 0 eventos Wompi sin
+  procesar. Hay **7** payments Wompi pending/created con mas de 30 minutos,
+  no 6 como constaba en la auditoria; no se infiere que sean cobros efectivos.
+  API de backups: 0 copias gestionadas y PITR desactivado; restore no probado.
+- **NO APTO para publicar aun:** A03 admite refund parcial `p_amount < neto`,
+  pero revierte toda la retencion/liberacion del viajero y marca payment
+  `refunded`, sin asignacion/ledger del neto restante. Definir regla contable
+  y probarla; alternativa segura: rechazar parciales hasta definirla.
+- MFA: al recargar se descartan factores TOTP no verificados y un nuevo CTA
+  crea otro factor. Reintentos abandonados pueden agotar el limite y bloquear
+  el alta del unico Admin; probar recuperacion real y corregir/reanudar el
+  factor pendiente antes de publicar. No se detecto bypass de autenticacion.
+- No se aplicaron migraciones, cobros, push, merge ni deploy; Production sigue
+  con A01/A02 y sin el paquete del PR #183. No se creo otro proyecto.
+
+## Continuidad 2026-10-13 - aislamiento y recuperacion (Joy)
+
+- La rama del PR #183 se reviso en un worktree separado; el `main` local y sus
+  cinco cambios documentales sin commit se conservaron intactos.
+- Management API: el unico proyecto INTRA existente (`Intra-app`, Production)
+  ya esta configurado; no se detecto un problema nuevo de configuracion alli.
+  El segundo proyecto se considero exclusivamente para ensayar restauracion y
+  pruebas sin tocar Production, como indica el handoff. Intento de crear
+  `INTRA Pilot Isolated`: HTTP 403
+  por falta de privilegio `organization_projects_create`; **no se creo**.
+  El navegador administrado solicita login y la sesion de usuario no esta
+  disponible. Se solicito al titular crear el segundo proyecto gratuito o
+  habilitar el permiso operativo; no se pidieron credenciales por chat.
+- API de backups del proyecto Production: HTTP 200, `backups=[]` y
+  `pitr_enabled=false`. Esto no acredita un respaldo recuperable. En Free,
+  Supabase recomienda `db dump` manual; el dump de DB no incluye bytes de
+  Storage. No se exportaron datos ni objetos, ni se hizo restore.
+- Proxima accion: disponer de proyecto aislado y acceso privado de backup,
+  definir RPO/RTO, hacer inventario DB+Storage, exportar con checksums y
+  restaurar/verificar en el destino separado. No conectar Preview a Production.
+- No se aplicaron migraciones, no hubo cobros, push, merge ni deploy. Las
+  cinco migraciones del PR siguen pendientes de autorizacion de publicacion.
+
+Ver [gates externos](../ops/launch-external-gates-20261013.md#recuperacion-alertas-y-piloto)
+y TASK-052/053. Esta nota no reemplaza las verificaciones autenticas.
+
+## Estado vigente - 2026-10-13
+
+Objetivo autorizado: corregir la auditoria A01-A15 y preparar un piloto
+controlado con usuarios conocidos. Rama `codex/launch-corrections`, desde
+`main` `5574036` (PR #182). PR de correcciones [#183](https://github.com/Apus92Inmortal/INTRA/pull/183),
+commits de producto `8c01a2e`, pruebas `aa5acf2`, callback `4341dfc` y MFA
+`88819c8` y retorno seguro `d7ded3d`; las correcciones nuevas no estan en Production.
+CI remoto completo del producto `d7ded3d` PASS. El HEAD documental y cualquier
+SHA a publicar deben coincidir con los checks actuales del PR #183.
+El cierre previo A01/A02 si esta publicado; permisos remotos A02 14/14 PASS.
+
+## Cambios preparados
+
+- Cinco migraciones `20261013*`: refunds/revision/cancelacion atomicos A03,
+  privacidad contextual y permisos A06, ingesta/retry Wompi A04, guards de
+  actores internos A01 y limites privados de Storage A13.
+- Acciones Dashboard/admin, webhook, retorno de checkout y endpoint admin
+  de conciliacion consumen las RPC revisadas. Credito unico e idempotencia,
+  rollback de fallos tardios, eventos no procesados ante errores y cotejo
+  canonico del proveedor. No crean un cobro ni una devolucion externa.
+- Admin exclusivamente por UUID; browser/SSR/proxy/service client bloquean
+  Production en hosted nonprod. Wompi nonprod exige sandbox/claves test.
+- Callback Auth bloquea Production antes de crear el cliente en hosted nonprod;
+  mantiene cookies de sesion del SDK y respuestas privadas sin cache.
+  El destino de retorno rechaza controles ASCII y comprueba el origen parseado;
+  evita redireccion externa tras PKCE/OTP, incluido un fallback mal formado.
+- Admin requiere JWT verificado, `sub` del usuario autorizado y `aal2` en cada
+  guard privilegiado. `/app/profile/security` permite preparar/verificar TOTP
+  sin acceso a operaciones admin. QR/codigo solo en memoria y se borran ante
+  signOut/cambio de cuenta; respuestas asincronas stale se descartan.
+- Dependencias/lock, Node24, CI con PostgreSQL17/audit/E2E, headers,
+  uploads, foco/teclado/portals/confirmaciones y robots/sitemap corregidos.
+  Manual UI/UX v3.0 revisado; Next genero su bloque de instrucciones AGENTS.
+- Informes, pre/postflight, fixture de DDL sin filas, gates externos y
+  secuencia de rollout preparados. Evidencias B-H ya integradas: se aclaro
+  el historial documental sin tratarlas como funcionalidades ausentes.
+
+Archivos: `supabase/migrations/20261013*`, `supabase/tests/`, acciones/rutas
+financieras, `lib/auth`, `lib/supabase`, `lib/wompi.ts`, `proxy.ts`,
+`next.config.ts`, componentes de modales, workflows, package/lock,
+tests y memoria. El diff de la rama es la lista exacta.
+
+## Validacion local
+
+- Lint PASS: una advertencia en redireccion de password existente
+  (`window.location.assign`); no error. Se conserva la recarga tras signOut.
+- Unit PASS: 165 pruebas / 26 archivos, tambien con SITE_URL localhost de CI;
+  TypeScript PASS; build webpack PASS. Se aislo el entorno de tests Auth,
+  que originalmente dependian del dominio configurado en la maquina.
+  Callback tiene 20 casos; los guards/pantalla MFA tienen 25 casos focales.
+  La revision independiente detecto redireccion externa con TAB/LF/CR ocultos
+  en next: corregida en safe-next y probada con 14 regresiones adicionales.
+- Audit dependencias Production: 0 vulnerabilidades. Audit completo mantiene
+  5 high derivados de un advisory sin parche de braces en herramientas dev;
+  no se forzo downgrade de Next.
+- `npm run test:db` PASS sobre PostgreSQL17 loopback: A03 18 checks, A04 15,
+  A06 roles/privacidad/concurrencia/guards, 16 postflight y grants A01/A02.
+  Las cinco migraciones se aplican al DDL remoto exacto en bases desechables.
+  Limites de conexion/SQL y cleanup concurrente evitan esperas indefinidas
+  ante un fallo; limpieza con bloqueo inyectado verificada en 128 ms.
+- E2E publico/seguridad: 8/8 PASS tras normalizar URL vacia en Windows;
+  navegacion, legal, overflow mobile, headers, indexing y teclado de modal.
+- QA visual sintetico MFA con componente/CSS/fuentes reales: inicial,
+  challenge y error revisados en mobile/PC, sin QR, claves ni requests Auth.
+  No prueba enrollment ni sesion real; capturas fuera de Git.
+- No se probo Auth/Storage HTTP real, restore de datos/objetos ni ciclo de
+  dinero. Los fixtures son sinteticos; no se copiaron filas Production.
+
+## Riesgos y pendientes
+
+- Publicar solo con preflight, CI del SHA y aprobacion final explicita.
+  No ejecutar `supabase db push` sobre el historial antiguo desalineado.
+- Cuenta admin seleccionada por el titular localizada (una coincidencia,
+  confirmada/no bloqueada); email/UUID privados. Con confirmacion explicita
+  se guardo ese unico ID en ADMIN_USER_IDS Secret Production. Falta deployment
+  aprobado y prueba de acceso. Env metadata API Vercel 403; CLI sin sesion propia.
+  Fallback navegador autentico confirma Hobby. Diez variables restringidas
+  a Production sin cambiar valores, incluidas URL/anon Supabase y secretos
+  generales de service-role, cron, admin y Wompi legacy. Cinco registros legacy
+  Preview/Development borrados tras autorizacion; quedan 16 variables del
+  proyecto, todas Production. Copias de deployments antiguos no revocadas.
+- Aislar entornos y retirar/rotar copias de deployments antiguos,
+  resolver aptitud comercial del plan Hobby,
+  SMTP/confirm/reset, MFA real del titular y proteccion de password; revisar DNS.
+  El enforcement MFA esta implementado en rama, aun sin publicar ni probar
+  enrollment/challenge del titular o recuperacion por consola.
+- A05/TASK-047: titular no recuerda referencia. Seis payments pendientes
+  antiguos requieren consulta del proveedor; no asumir cobro ni crear otro.
+- `shipment_cancelled_before_approval` permanece pendiente: operador debe
+  conciliar y resolver devolucion externa con registro sin duplicar Wallet.
+- Restore DB+Storage aislado, alertas recibidas, QA autenticado mobile/PC,
+  aforo/limites/soporte y validacion legal/contable aun son gates del piloto.
+
+## Siguiente paso y lecturas
+
+PR #183 abierto; validate/database/detect-impact remotos PASS de `d7ded3d`
+(CI 38480193586, impacto 38480194052 y CI push 38480189646).
+El fallo inicial de tests Auth por SITE_URL se corrigio y verifico remotamente.
+Preview del producto `d7ded3d` READY (`dpl_22DMCDkWTJZcVdRWY4sTWmw9u6Ri`),
+posterior a todo el lote Vercel: portada/login/robots 200, nosniff/DENY,
+Disallow:/ y callback con codigo sintetico rechazado mediante error de entorno
+con no-store. No se usaron tokens reales ni se probo Auth real.
+Main ya protegido por API:
+strict validate/database/detect-impact, admins, sin force-push/borrado y PR.
+Lote admin/limpieza ejecutado con confirmacion del titular; ver
+[registro](../ops/vercel-configuration-finalization-20261013.md).
+Titular eligio conservar Google Workspace y usar `soporte@intra.com.co`.
+Reporta suspension por impago y acceso a buzones; no certifica envio SMTP ni
+recepcion efectiva. MX sigue Google y NS ns1/ns2.dns-parking.com; sin cambios DNS.
+Formulario Supabase SMTP preparado como borrador: sender INTRA, smtp.gmail.com,
+SSL 465 y usuario indicado. Password vacio, sin Save changes. Google no permite
+App Password y el titular confirma verificacion en dos pasos desactivada;
+no dispone de la SIM durante varios dias. Correo pendiente de paso humano,
+credencial privada y prueba. No se reactivo/pago ni se eligio proveedor alterno.
+No registrar credenciales ni enviar correo sin autorizar destinatario.
+Completar los gates antes de solicitar la ventana Production. No abrir cobros.
+
+Leer AGENTS/START_HERE, esta memoria, TASKS/DB_NOTES/DECISIONS/KNOWN_ISSUES,
+[matriz A01-A15](../audits/2026-10-13-launch-corrections-status.md),
+[revision financiera](../audits/2026-10-13-financial-corrections-review.md),
+[gates externos](../ops/launch-external-gates-20261013.md) y
+[rollout](../ops/launch-corrections-rollout-20261013.md).
+El historial de sesiones anteriores se conserva en Git y las otras memorias.

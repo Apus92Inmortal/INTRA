@@ -37,6 +37,7 @@ type AdminDispute = {
   resolutionAction: string | null
   resolutionNotes: string | null
   suggestedAmount: number
+  refundNetAmount: number
   travelerAmount: number
   caseFile: AdminCaseFile
 }
@@ -100,7 +101,7 @@ function getReportTypeLabel(reportType: string) {
 function getResolutionLabel(action: string | null) {
   switch (action) {
     case "customer_refund":
-      return "A favor del cliente"
+      return "Abono a Wallet del cliente"
     case "traveler_release":
       return "A favor del viajero"
     case "rejected":
@@ -277,14 +278,15 @@ function DisputeCard({
         {!isResolved ? (
           <label className="block space-y-2">
             <span className="intra-body-strong text-intra-blue">
-              Monto devolución manual
+              Monto neto completo para Wallet
             </span>
             <input
               value={refundAmount}
               onChange={(event) => onRefundAmountChange(event.target.value)}
               className="intra-input min-h-11 w-full px-4 py-3 intra-body"
-              placeholder={Math.max(dispute.suggestedAmount, 0).toLocaleString("es-CO")}
+              placeholder={String(dispute.refundNetAmount)}
             />
+            <span className="intra-caption">Ingresa {dispute.refundNetAmount} COP sin separadores (pago menos comisión). No se admiten abonos parciales ni se devuelve dinero en Wompi desde aquí.</span>
           </label>
         ) : null}
 
@@ -315,7 +317,7 @@ function DisputeCard({
                 onClick={() => onAction(dispute, "customer_refund")}
                 className="intra-btn intra-btn-primary min-h-11 px-4 py-2.5 intra-body disabled:opacity-50"
               >
-                A favor del cliente
+                Abonar a Wallet
               </button>
               <button
                 type="button"
@@ -843,7 +845,7 @@ export default function DisputesReviewClient({
           open={!!confirmAction}
           title={
             confirmAction.action === "customer_refund"
-              ? "Reembolsar cliente"
+              ? "Abonar a Wallet del cliente"
               : confirmAction.action === "traveler_release"
                 ? "Liberar pago a viajero"
                 : confirmAction.action === "rejected" ||
@@ -853,7 +855,9 @@ export default function DisputesReviewClient({
                     ? "Cancelar match"
                     : "Confirmar acción"
           }
-          description="Confirma que revisaste la evidencia disponible y que deseas aplicar esta resolución. Esta acción puede afectar el cierre del caso."
+          description={confirmAction.action === "customer_refund"
+            ? "Esta acción acredita Wallet; no devuelve dinero en Wompi. Si ya hubo una devolución externa, no la uses."
+            : "Confirma que revisaste la evidencia disponible y que deseas aplicar esta resolución. Esta acción puede afectar el cierre del caso."}
           confirmLabel="Confirmar acción"
           variant={
             confirmAction.action === "rejected" ||
