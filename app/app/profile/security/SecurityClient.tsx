@@ -137,7 +137,7 @@ export default function SecurityClient({ userId }: { userId: string }) {
       const pending = listed.data.all.filter((f: AuthFactor) => f.factor_type === "totp" && f.status === "unverified")
       if (pending.length > 0) {
         setPendingFactors(pending.map((f: AuthFactor) => ({ id: f.id })))
-        setError("Hay una activación pendiente. Descártala antes de iniciar otra.")
+        setError("Hay una activación pendiente. Solicita ayuda al responsable de INTRA antes de iniciar otra.")
         return
       }
       const { data, error: enrollError } = await supabase.auth.mfa.enroll({
@@ -162,49 +162,6 @@ export default function SecurityClient({ userId }: { userId: string }) {
       setFactorId(data.id)
     } catch {
       if (sessionIsCurrent(epoch)) setError("No pudimos activar la verificación. Revisa tu conexión e intenta nuevamente.")
-    } finally {
-      operation.current = false
-      if (sessionIsCurrent(epoch)) setBusy(false)
-    }
-  }
-
-  async function discardPendingFactor() {
-    const pendingId = pendingFactors[0]?.id
-    if (operation.current || !loaded || !pendingId) return
-    operation.current = true
-    setBusy(true)
-    setError(null)
-    const epoch = sessionEpoch.current
-    try {
-      if (!await hasSameIdentity(epoch)) return
-      const listed = await supabase.auth.mfa.listFactors()
-      if (!sessionIsCurrent(epoch)) return
-      if (listed.error || !listed.data || !listed.data.all.some((f: AuthFactor) =>
-        f.id === pendingId && f.factor_type === "totp" && f.status === "unverified")) {
-        setError("La activación cambió. Recarga la página antes de continuar.")
-        return
-      }
-      const { error: unenrollError } = await supabase.auth.mfa.unenroll({ factorId: pendingId })
-      if (!sessionIsCurrent(epoch)) return
-      if (unenrollError) {
-        setError("No pudimos descartar la activación pendiente. Intenta nuevamente o solicita ayuda.")
-        return
-      }
-      const refreshed = await supabase.auth.mfa.listFactors()
-      if (!sessionIsCurrent(epoch)) return
-      if (refreshed.error || !refreshed.data) {
-        setLoaded(false)
-        setError("No pudimos confirmar el cambio. Recarga la página antes de continuar.")
-        return
-      }
-      setPendingFactors(refreshed.data.all.filter((f: AuthFactor) =>
-        f.factor_type === "totp" && f.status === "unverified").map((f: AuthFactor) => ({ id: f.id })))
-      const verifiedFactors = refreshed.data.totp.filter((f: AuthFactor) => f.status === "verified")
-      setFactors(verifiedFactors.map((f: AuthFactor) => ({ id: f.id })))
-      setFactorId(verifiedFactors[0]?.id ?? "")
-      setEnrollment(null)
-    } catch {
-      if (sessionIsCurrent(epoch)) setError("No pudimos descartar la activación pendiente. Revisa tu conexión e intenta nuevamente.")
     } finally {
       operation.current = false
       if (sessionIsCurrent(epoch)) setBusy(false)
@@ -279,10 +236,9 @@ export default function SecurityClient({ userId }: { userId: string }) {
         <Link href="/app/admin" className="intra-btn intra-btn-primary w-full">Entrar a Admin</Link>
       ) : loaded && needsCleanup ? (
         <div className="space-y-3">
-          <p className="intra-body">Hay {pendingFactors.length === 1 ? "una activación" : `${pendingFactors.length} activaciones`} sin terminar. Por seguridad, el código QR anterior no se puede recuperar. Descarta una activación pendiente para comenzar de nuevo.</p>
-          <IntraPrimaryButton className="w-full" isLoading={busy} onClick={discardPendingFactor}>
-            {busy ? "Descartando..." : "Descartar activación pendiente"}
-          </IntraPrimaryButton>
+          {/* Auth has no status-conditional delete: another tab could verify
+              a factor after listing it. Never unenroll from this recovery UI. */}
+          <p className="intra-body">Hay {pendingFactors.length === 1 ? "una activación" : `${pendingFactors.length} activaciones`} sin terminar. No iniciaremos otra para evitar duplicados. Solicita al responsable de INTRA que revise la activación y después recarga esta página.</p>
         </div>
       ) : loaded && needsEnrollment ? (
         <div className="space-y-3">

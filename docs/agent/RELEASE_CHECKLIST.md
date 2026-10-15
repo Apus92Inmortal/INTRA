@@ -1,5 +1,20 @@
 # INTRA - Release Checklist
 
+## Preparacion para aprobacion de release - 2026-10-15
+
+- [x] Revisar delta local y re-revisar fix MFA sin handler/boton unenroll.
+- [x] Regresiones MFA 12/12 tras RED; recuperacion operacional explicita,
+  sin afirmar borrado condicional ni resolver MFA real (DEC-021).
+- [x] Preflight remoto read-only: candidato 0/5 aplicado; pagos/ledger/MFA 0.
+- [x] Gate final local: lint, 168 unitarias, TS/build, E2E 8/8, DB A03/A04/A06,
+  audit Production 0 y revision de diff/credenciales.
+- [ ] CI del SHA actualizado del PR #183; evidencia final en su cuerpo/checks.
+- [ ] Aprobacion explicita del PM para cinco migraciones, merge y deployment.
+- [ ] Aplicacion/postflight, deployment sano y smoke minimo del paquete.
+- [ ] Limpiar ramas solo integradas y abrir rama siguiente desde main actualizado.
+- Correo/MFA/restore/alertas/ciclo integral siguen pendientes operativos;
+  no habilitar piloto con dinero por el solo merge. DEC-020 vigente.
+
 ## Plan vigente sin segundo entorno obligatorio - 2026-10-15
 
 - DEC-020 de Aldo supera las menciones anteriores a crear un proyecto de

@@ -1,5 +1,16 @@
 # INTRA - Known Issues
 
+## Revision del candidato - 2026-10-15
+
+- Carrera MFA listFactors->unenroll confirmada en revision independiente:
+  mismo factor puede verificarse antes del DELETE. Se elimina esa ruta UI,
+  con regresiones y re-revision PASS. Las notas previas de descarte automatico
+  quedan superadas por DEC-021. Recuperacion manual coordinada y MFA real
+  no se han probado ni se consideran resueltas por retirar el boton.
+- PR candidato no equivale a piloto listo; correo pausado, restore completo,
+  alertas y prueba integral mantienen sus pendientes. Segundo entorno remoto
+  no obligatorio por DEC-020. No borrar ramas con commits sin integrar.
+
 ## Recuperacion / Auth verificados el 2026-10-15
 
 - A11 tiene ahora copia privada cifrada y ensayo parcial PASS de datos

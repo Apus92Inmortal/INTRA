@@ -1,9 +1,26 @@
 # Publicacion de correcciones para piloto — 2026-10-13
 
+## Actualizacion vigente 15-oct: candidato controlado, no apertura del piloto
+
+DEC-020 elimina otro entorno remoto como requisito; mantener tests/DB locales
+y reservar una prueba integral final controlada sobre la instalacion actual.
+DEC-021 retira descarte MFA UI: no hay DELETE condicional por status y una
+verificacion concurrente podria borrar un factor ya verified. La pantalla
+detecta pending y deriva a revision operacional sin borrarlo. Antes de reset
+manual: identidad verificada, aprobacion explicita y ventana coordinada sin
+enrollment/challenge concurrentes; no SQL directo sobre Auth. Recuperacion
+manual/enrollment/challenge reales no se consideran probados.
+
+Aldo pide candidato para aprobar: actualizar PR/verificar SHA+checks primero;
+aplicar cinco migraciones, merge y deployment esperan aprobacion posterior.
+Tras merge, borrar solo ramas integradas y crear siguiente rama desde main.
+Correo en pausa; restore completo, alertas y gates operativos permanecen
+abiertos. Publicar correcciones no autoriza abrir piloto ni nuevos cobros.
+
 Actualizacion local 2026-10-14: A03 rechaza refunds Wallet parciales hasta
 definir su contabilidad; la vista Admin muestra el neto completo esperado.
-MFA permite descartar explicitamente factores TOTP pendientes no verificados
-antes de reactivar. Estas correcciones aun no estan en el PR remoto ni en
+La propuesta de descarte MFA del 14-oct queda superada por DEC-021. Estas
+correcciones aun no estan en el PR remoto ni en
 Production; requieren nuevo SHA, CI y prueba Auth real del titular.
 
 Alcance elegido por Aldo: piloto controlado con usuarios conocidos.

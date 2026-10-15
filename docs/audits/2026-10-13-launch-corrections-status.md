@@ -1,5 +1,16 @@
 # Correcciones de lanzamiento INTRA — 2026-10-13
 
+**Revision del candidato 15-oct:** A03 rechaza parcial antes de mutaciones;
+re-revision sin hallazgos en ese delta. Se retira descarte MFA automatico
+por carrera listFactors/DELETE; la pantalla detecta pending y requiere
+revision operacional (DEC-021), sin borrar factores. Regresiones focales y
+re-revision PASS; recuperacion manual y MFA real siguen pendientes. El 403
+historico del segundo proyecto no bloquea avanzar por DEC-020. Correo en pausa.
+Preparar PR para aprobacion no autoriza migraciones, merge ni deployment;
+publicar codigo no acredita aptitud del piloto con dinero. Los veredictos
+del SHA remoto antiguo inferiores se conservan como historial, no como
+evaluacion del candidato nuevo. Exigir su SHA y checks actuales.
+
 **Gate local repetido 2026-10-14, despues de las correcciones:** cinco
 migraciones aplicadas en orden en PostgreSQL 17 desechable; A03 18, A04 15,
 A06 permisos/privacidad/concurrencia PASS. Unit 168/168, lint 0 errores/1

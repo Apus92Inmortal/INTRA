@@ -44,31 +44,33 @@ describe("admin MFA enrollment and challenge", () => {
   it("does not create another factor when a prior TOTP setup was abandoned", async () => {
     auth.listFactors.mockResolvedValue({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
     render(<SecurityClient userId="synthetic-admin" />)
-    expect(await screen.findByRole("button", { name: "Descartar activación pendiente" })).toBeInTheDocument()
+    expect(await screen.findByText(/Solicita al responsable de INTRA que revise/)).toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "Activar verificación" })).not.toBeInTheDocument()
     expect(auth.enroll).not.toHaveBeenCalled()
   })
 
-  it("discards only the selected unverified factor after checking identity and reloads factors", async () => {
-    const user = userEvent.setup()
-    auth.listFactors.mockResolvedValueOnce({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
-      .mockResolvedValueOnce({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
-      .mockResolvedValueOnce(emptyFactors)
+  it("never offers factor deletion when the same pending factor is verified in another tab", async () => {
+    const sameVerifiedFactor = { ...pendingFactor, status: "verified" }
+    auth.listFactors.mockResolvedValue({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
     render(<SecurityClient userId="synthetic-admin" />)
-    await user.click(await screen.findByRole("button", { name: "Descartar activación pendiente" }))
-    expect(auth.unenroll).toHaveBeenCalledWith({ factorId: pendingFactor.id })
-    expect(await screen.findByRole("button", { name: "Activar verificación" })).toBeInTheDocument()
+    await screen.findByText(/Solicita al responsable de INTRA que revise/)
+    auth.listFactors.mockResolvedValue({ data: { ...emptyFactors.data, all: [sameVerifiedFactor], totp: [sameVerifiedFactor] }, error: null })
+    auth.getClaims.mockResolvedValue(claims("aal2"))
+    await act(async () => { auth.onAuthStateChange.mock.calls[0][0]("MFA_CHALLENGE_VERIFIED", { user: { id: "synthetic-admin" } }) })
+    expect(screen.queryByRole("button", { name: /Descartar|Eliminar/ })).not.toBeInTheDocument()
+    expect(auth.unenroll).not.toHaveBeenCalled()
     expect(auth.enroll).not.toHaveBeenCalled()
   })
 
-  it("refuses cleanup if the pending factor became verified before deletion", async () => {
+  it("blocks a new enrollment if another tab created a pending factor after initial load", async () => {
     const user = userEvent.setup()
-    auth.listFactors.mockResolvedValueOnce({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
-      .mockResolvedValueOnce(verifiedFactors)
+    auth.listFactors.mockResolvedValueOnce(emptyFactors)
+      .mockResolvedValueOnce({ data: { ...emptyFactors.data, all: [pendingFactor] }, error: null })
     render(<SecurityClient userId="synthetic-admin" />)
-    await user.click(await screen.findByRole("button", { name: "Descartar activación pendiente" }))
+    await user.click(await screen.findByRole("button", { name: "Activar verificación" }))
+    expect(await screen.findByText(/Solicita al responsable de INTRA que revise/)).toBeInTheDocument()
     expect(auth.unenroll).not.toHaveBeenCalled()
-    expect(await screen.findByRole("alert")).toHaveTextContent("Recarga la página")
+    expect(auth.enroll).not.toHaveBeenCalled()
   })
 
   it("does not enroll on render/prefetch/StrictMode and shows a private QR only after the explicit CTA", async () => {

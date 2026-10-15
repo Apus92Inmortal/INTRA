@@ -1,5 +1,21 @@
 # INTRA - Technical Decisions
 
+## DEC-021: Recuperacion MFA pendiente sin borrado desde la pantalla
+
+Fecha: 2026-10-15
+
+La revision final demuestra que listFactors seguido de unenroll no garantiza
+que un factor siga unverified al borrarse. Otra pestana puede verificarlo y
+elevar la misma sesion; el endpoint no expone un DELETE condicional por estado.
+Se retira el descarte desde SecurityClient. Mantener deteccion de pendientes
+y guard previo a enroll, con instruccion de recuperacion operacional, sin
+duplicar intencionalmente factores ni borrar uno verified desde esta ruta.
+Una intervencion del responsable exige identidad verificada, coordinacion
+sin enrollment/challenge concurrente y aprobacion explicita del reset. No
+implementar SQL directo sobre Auth ni afirmar atomicidad de ese procedimiento.
+La recuperacion real y MFA del titular permanecen pendientes de demostracion.
+Esta decision tecnica supera el descarte UI descrito en las notas del 14-oct.
+
 ## DEC-020: Sin entorno remoto adicional obligatorio antes del piloto
 
 Fecha: 2026-10-15

@@ -1,5 +1,42 @@
 # INTRA - Current Session
 
+## Preparacion de PR para aprobacion - 2026-10-15 (Joy)
+
+- Aldo autoriza preparar/actualizar el PR para que luego apruebe; merge,
+  cinco migraciones y deployment esperan esa aprobacion. Autoriza limpiar
+  ramas integradas despues del merge, no borrar trabajo pendiente.
+- Revision independiente del delta local confirma A03 neto completo antes
+  de mutaciones, pero detecta carrera entre listFactors y unenroll: otra
+  pestana puede verificar el mismo factor antes del DELETE. SDK/servicio
+  no ofrecen borrado condicional por estado. No fingir atomicidad repitiendo
+  listados o congelando token aal1 (la sesion del servidor puede elevarse).
+- Fix conservador: se retiro handler/boton y toda llamada unenroll de la
+  pantalla. Detecta pending y bloquea otra activacion cuando lo encuentra;
+  dirige a recuperacion operacional. No se eliminan factores desde esa UI.
+  La recuperacion manual y MFA real siguen por probar; no son DONE.
+- Regresion RED: 3 casos fallaban antes del fix; 12/12 MFA GREEN despues,
+  incluido mismo ID pending->verified en otra pestana y pending descubierto
+  antes de enroll. Re-revision independiente cierra el finding, sin nuevos
+  hallazgos en esos dos archivos.
+- Gate previo al fix UI: 168 unitarias, lint 0 errores/1 aviso previo,
+  build y audit Production 0 vulnerabilidades PASS; DB A03 18/A04 15/A06
+  completa con cinco migraciones PASS. Contenedor local eliminado. Gate
+  de codigo se repite tras el cambio antes de publicar un lote final.
+- Preflight Production solo lectura: 0/5 migraciones candidato aplicadas,
+  0 payments, 0 wallet_ledger y 0 factores MFA. Sin escrituras remotas,
+  reset, cobros o prueba integral. Correo sigue en pausa y DEC-020 vigente.
+- Gate final tras fix: 168/168 unitarias, 12 MFA incluidas, lint 0 errores/1
+  aviso previo, TypeScript, build y E2E publico/seguridad 8/8 PASS. Audit
+  Production 0 vulnerabilidades y DB A03/A04/A06 anteriores cubren archivos
+  sin cambios adicionales. Revision de diff/credenciales PASS.
+- El primer E2E no pudo lanzar Chromium porque faltaba el binario de la
+  version instalada de Playwright (5 browser tests sin ejecutar, 3 HTTP PASS).
+  Se instalo en cache exclusiva de este trabajo, sin tocar el browser service
+  compartido; repeticion completa 8/8 PASS. No se altero codigo para ocultarlo.
+- Publicar este lote del PR y consultar SHA/checks finales en GitHub; no
+  reutilizar CI antiguo. Evidencia remota final se registra en el cuerpo del
+  PR para no cambiar el SHA de codigo por otra nota de sus propios checks.
+
 ## Ajuste del plan por Aldo - 2026-10-15 (Joy)
 
 - Aldo descarta entorno de pruebas adicional: app desplegada, aun sin

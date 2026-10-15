@@ -1,5 +1,22 @@
 # INTRA - Active Tasks
 
+## Candidato para aprobacion del PM - 2026-10-15
+
+- Preparar y actualizar PR #183, verificar checks del SHA nuevo y avisar a
+  Aldo para aprobar migraciones/merge/publicacion. No ejecutar ese release
+  por la autorizacion de preparar el candidato. Limpiar ramas merged despues.
+- A13: se retira descarte UI de factores por carrera listFactors/DELETE;
+  pending se detecta y deriva a revision operacional sin crear otro al
+  encontrarlo. Regresion MFA 12/12 y re-revision PASS. Recuperacion manual
+  coordinada con identidad verificada y MFA real siguen pendientes.
+- A03 parcial rechazado; DB A03/A04/A06 y cinco migraciones PASS. Preflight
+  remoto de lectura confirma 0/5 aplicadas, 0 payments/ledger/factores.
+- Gate final tras fix UI: 168 unitarias, TS/build, E2E publico/seguridad 8/8,
+  lint 0 errores/1 aviso previo, audit Production 0 y revision de diff PASS.
+  Evidencia CI del SHA que se publique se mantiene en PR #183/checks.
+- No cerrar pendientes del piloto (correo/MFA/restore/alertas/prueba integral)
+  por preparar o publicar codigo. DEC-020 elimina segundo entorno obligatorio.
+
 ## Plan ajustado por Aldo - 2026-10-15
 
 - DEC-020: no crear entorno remoto adicional como requisito; mantener
