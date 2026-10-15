@@ -1,5 +1,19 @@
 # INTRA - Current Session
 
+## Ajuste del plan por Aldo - 2026-10-15 (Joy)
+
+- Aldo descarta entorno de pruebas adicional: app desplegada, aun sin
+  operacion con usuarios externos segun su indicacion. DEC-020 elimina
+  crear otro proyecto como requisito; no mantener el 403 historico como
+  bloqueo de avance. Conservar validacion automatica y DB local temporal.
+- Preparar prueba integral unica final sobre instalacion actual, controlada;
+  coordinar/autorizaciones de cambios necesarios antes de aplicarlos.
+  No se infiere permiso de push, migraciones, merge, deployment o cobros.
+- Correo queda pausado: el titular no puede reactivar su cuenta/2FA sin su
+  telefono. La recuperacion completa, MFA y alertas conservan su estado real,
+  pero su preparacion no depende de crear otro entorno remoto.
+- Cambio documental solamente; sin cambios de producto ni remotos.
+
 ## Recuperacion parcial, correo y MFA - 2026-10-15 (Joy)
 
 - Continuacion autorizada por Aldo, solo preparacion local y lecturas remotas.

@@ -1,5 +1,21 @@
 # INTRA - Technical Decisions
 
+## DEC-020: Sin entorno remoto adicional obligatorio antes del piloto
+
+Fecha: 2026-10-15
+
+Aldo indica que la instalacion desplegada aun no opera con usuarios externos
+y descarta crear un entorno de pruebas adicional como requisito para avanzar.
+Se elimina esa dependencia del plan actual; no insistir en crear un segundo
+proyecto ni contratar infraestructura para desbloquear las correcciones.
+Se mantienen pruebas automaticas y bases temporales locales. Preparar una
+sola prueba integral final controlada sobre la instalacion actual; los cambios
+necesarios se coordinan y autorizan antes de aplicarlos, sin inferir permiso
+de push, migraciones, merge, deployment, borrado ni movimientos de dinero.
+La decision no acredita restauracion completa, correo o MFA ni permite
+reutilizar secretos Production en previews antiguos. Las menciones anteriores
+a un segundo entorno obligatorio quedan superadas para esta etapa.
+
 ## DEC-019: Devolucion Wallet del envio no consolidado y uso futuro del saldo
 
 Fecha: 2026-10-14

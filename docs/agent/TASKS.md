@@ -1,5 +1,16 @@
 # INTRA - Active Tasks
 
+## Plan ajustado por Aldo - 2026-10-15
+
+- DEC-020: no crear entorno remoto adicional como requisito; mantener
+  validacion local automatica/bases desechables. La creacion de segundo
+  proyecto deja de bloquear TASK-052. No volver a solicitarla para avanzar.
+- Preparar una unica prueba integral final controlada sobre la instalacion
+  actual, aun sin operacion externa segun el PM. Publicar/aplicar cambios
+  solo con las autorizaciones correspondientes; este ajuste no las concede.
+- Correo en pausa hasta que el titular recupere telefono/acceso de su cuenta.
+  Seguir preparando alertas/monitoreo y pendientes tecnicos independientes.
+
 ## Recuperacion / correo / MFA - 2026-10-15
 
 - TASK-053/A11: copia cifrada privada de filas/esquema y 23 archivos creada;
@@ -7,7 +18,8 @@
   comprueba 48 FK y 23 archivos. **Parcial, no DONE**: faltan backup nativo,
   Auth/Storage reales, destino externo/custodia separada y RPO/RTO.
 - A13: SMTP sigue sin configurar y 0 factores MFA. Pendientes credencial de
-  correo por via privada y prueba del titular en version corregida aislada.
+  correo por via privada y prueba del titular en la version corregida, bajo
+  el plan controlado de DEC-020, sin exigir otro proyecto remoto.
   No se cambiaron usuarios, DNS, Auth ni correo; no se envio ningun mensaje.
 - Procedimiento/evidencia y siguientes pasos:
   `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
@@ -255,7 +267,7 @@ Area: Release / Seguridad / Operacion
 
 ### TASK-052: Preparar dependencias, Vercel comercial y ambientes aislados
 
-Estado: IN_PROGRESS / entorno aislado bloqueado por permiso de creacion
+Estado: IN_PROGRESS / sin requisito de segundo entorno remoto (DEC-020)
 Prioridad: Alta / antes de operacion comercial
 
 - A07-A09/A12 del informe: actualizar dependencias vulnerables, instalar desde lockfile y repetir checks.
@@ -263,9 +275,9 @@ Prioridad: Alta / antes de operacion comercial
 - Verificar valores efectivos Production, allowlist admin, webhook Wompi y cron sin exponer secretos.
 - 2026-10-13: la organizacion esta en Free y solo tiene un proyecto visible;
   la elegibilidad exacta del segundo no quedo confirmada porque el token
-  operativo obtuvo HTTP 403 al intentar crearlo. Solicitud al titular: crearlo desde
-  cuenta autorizada o habilitar `organization_projects_create`. No conectar
-  Preview/Development a Production mientras tanto.
+  operativo obtuvo HTTP 403 al intentar crearlo. La solicitud de creacion
+  posterior queda superada por DEC-020 del 15-oct: no crear otro proyecto
+  como requisito. Mantener secretos Production fuera de previews/desarrollo.
 
 ### TASK-053: Gates de release, recuperacion y QA operativo
 

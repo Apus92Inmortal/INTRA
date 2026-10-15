@@ -1,5 +1,15 @@
 # INTRA - Release Checklist
 
+## Plan vigente sin segundo entorno obligatorio - 2026-10-15
+
+- DEC-020 de Aldo supera las menciones anteriores a crear un proyecto de
+  pruebas adicional. No es requisito ni bloqueo del paquete actual.
+- Conservar pruebas automaticas y bases desechables locales; preparar una
+  prueba integral final controlada sobre la instalacion existente. Cambios
+  remotos, migraciones, publicacion y dinero mantienen su autorizacion propia.
+- Correo pausado por indisponibilidad del telefono del titular; no marca
+  como cerrados MFA, restauracion completa, alertas ni los otros pendientes.
+
 ## Recuperacion parcial / correo / MFA - 2026-10-15
 
 - [x] Copia privada cifrada de filas/esquema y 23 objetos; GCM/SHA verificados.
