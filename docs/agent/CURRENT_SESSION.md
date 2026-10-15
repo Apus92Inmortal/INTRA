@@ -1,5 +1,30 @@
 # INTRA - Current Session
 
+## Recuperacion parcial, correo y MFA - 2026-10-15 (Joy)
+
+- Continuacion autorizada por Aldo, solo preparacion local y lecturas remotas.
+  Copia privada AES-GCM: filas de 58 tablas (384 filas), esquema publico
+  actual y 23 objetos (16.044.408 bytes), sin datos ni secretos versionados.
+- Ensayo PG17 sin red: 22 tablas publicas / 147 filas recuperadas con hashes
+  coincidentes y 48 FK sin huerfanos. Conteos: 22 RLS, 55 funciones, 62
+  policies, 7 triggers. 23/23 archivos restaurados temporalmente con hash
+  coincidente; GCM rechaza alteracion. Contenedor/temporales eliminados.
+- **A11 sigue abierto:** Auth/Storage del ensayo son stubs; faltan servicios
+  reales, backup nativo completo, copia externa/custodia separada y RPO/RTO.
+  Detalle y pasos ejecutables en
+  `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
+- Lectura actual: 0 backups gestionados/PITR off, SMTP sin configurar,
+  autoconfirm=true, 0 factores MFA. Auth cuenta 1 usuario, no los 3 de la
+  nota anterior; no se modificaron usuarios ni se atribuyo la diferencia.
+  MX Google confirmado, SPF/DMARC ausentes y selector DKIM comun NXDOMAIN
+  (otro selector real no descartado). Falta credencial privada del correo y
+  participacion del titular para enrollment/challenge/recuperacion MFA.
+- El primer intento de captura excedio 100 argumentos JSON de PostgreSQL;
+  reproduccion minima confirmo la causa y se uso agregacion sin ese limite.
+  Captura corregida y ensayo PASS; no hubo escritura remota en el fallo.
+- Sin cambios de producto, DDL/DML remoto, Auth/DNS/SMTP, mensajes de prueba,
+  cobros, push, PR/Preview, merge ni deployment. Prueba integral para el final.
+
 ## Gate local del paquete corregido - 2026-10-14 (Joy)
 
 - Aldo reafirmo que la cancelacion elegible acredita Wallet por el neto,

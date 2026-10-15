@@ -1,5 +1,19 @@
 # INTRA - Active Tasks
 
+## Recuperacion / correo / MFA - 2026-10-15
+
+- TASK-053/A11: copia cifrada privada de filas/esquema y 23 archivos creada;
+  ensayo local recupera 22 tablas publicas/147 filas con hash coincidente,
+  comprueba 48 FK y 23 archivos. **Parcial, no DONE**: faltan backup nativo,
+  Auth/Storage reales, destino externo/custodia separada y RPO/RTO.
+- A13: SMTP sigue sin configurar y 0 factores MFA. Pendientes credencial de
+  correo por via privada y prueba del titular en version corregida aislada.
+  No se cambiaron usuarios, DNS, Auth ni correo; no se envio ningun mensaje.
+- Procedimiento/evidencia y siguientes pasos:
+  `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
+- Sin cambios de producto/remotos. Prueba integral se conserva para el final;
+  el pago historico confirmado no se repite.
+
 ## Gate local del paquete corregido - 2026-10-14
 
 - Cinco migraciones aplicadas **solo** en PostgreSQL 17 desechable en orden;

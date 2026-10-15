@@ -1,5 +1,18 @@
 # INTRA - Release Checklist
 
+## Recuperacion parcial / correo / MFA - 2026-10-15
+
+- [x] Copia privada cifrada de filas/esquema y 23 objetos; GCM/SHA verificados.
+- [x] Ensayo aislado: 22 tablas publicas/147 filas con hashes coincidentes,
+  48 FK y 23 archivos recuperados; contenedor/temporales retirados.
+- [ ] Backup nativo completo y restore real de Auth/Storage/API/roles,
+  copia externa, custodia separada y RPO/RTO. No cerrar A11 por este ensayo.
+- [ ] SMTP con credencial privada valida, DNS/selector DKIM real y entrega
+  autorizada de confirmacion/reset/soporte; configuracion actual vacia.
+- [ ] Enrollment/challenge/recuperacion MFA con titular y version corregida.
+  Factores actuales: 0; no se crearon por el agente.
+- Evidencia: `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
+
 ## Gate local actualizado 2026-10-14
 
 - [x] Cinco migraciones aplicadas en orden en PostgreSQL 17 desechable;

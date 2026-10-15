@@ -1,5 +1,20 @@
 # INTRA - Database Notes
 
+## 2026-10-15 - copia cifrada y recuperacion publica parcial
+
+Lecturas autorizadas de Production: snapshot de filas de 58 tablas
+public/Auth/Storage/historial (384 filas), esquema publico actual y 23
+objetos privados (16.044.408 bytes). Datos, manifiesto y archivos cifrados
+AES-GCM fuera de Git; clave en `.env` privado, permisos 0700/0600.
+PG17 desechable sin red recupero 22 tablas publicas y 147 filas con hashes
+coincidentes, 48 FK sin huerfanos, 55 funciones/62 policies/7 triggers y
+22 tablas RLS. 23 archivos recuperados temporalmente con hash coincidente.
+Auth/Storage del helper son stubs: no hay recuperacion completa de plataforma
+ni prueba de APIs/roles/URLs firmadas, backup nativo, copia externa o RPO/RTO.
+No se modifico Production, Auth, DDL/DML, objetos remotos ni migraciones.
+Lectura actual cuenta 1 usuario Auth (nota previa 3); no se dedujo la causa.
+Ver `docs/ops/recovery-mail-mfa-preparation-20261015.md` y CURRENT_SESSION.
+
 ## 2026-10-14 - limpieza QA operativa en Production, autorizada por Aldo
 
 El titular identifico como pruebas no pagadas los 7 payments Wompi

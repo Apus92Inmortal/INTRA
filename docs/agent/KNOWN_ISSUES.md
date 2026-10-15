@@ -1,5 +1,17 @@
 # INTRA - Known Issues
 
+## Recuperacion / Auth verificados el 2026-10-15
+
+- A11 tiene ahora copia privada cifrada y ensayo parcial PASS de datos
+  publicos/archivos. Sigue abierto: no hay backup nativo completo ni restore
+  de servicios Auth/Storage, copia externa/custodia separada o RPO/RTO probado.
+  Las interfaces sinteticas del helper no acreditan esos gates.
+- La API sigue sin mostrar backups gestionados/PITR ni SMTP configurado;
+  hay 0 factores MFA. Correo requiere credencial privada del titular; MFA,
+  su participacion y un entorno con la version corregida. No cambiar
+  autoconfirm, DNS o factores verificados para sortear estos pendientes.
+- Detalle: `docs/ops/recovery-mail-mfa-preparation-20261015.md`.
+
 ## Estado despues de limpieza QA 2026-10-14
 
 - Los 7 payments pendientes de prueba y sus 6 envios cancelados ya no estan
