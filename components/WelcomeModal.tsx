@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -11,7 +11,13 @@ type Props = {
   initialOpen: boolean;
 };
 
+const subscribeToHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
+
 export default function WelcomeModal({ userId, initialOpen }: Props) {
+  // Keep SSR and the first hydration render identical before adding the body portal.
+  const hydrated = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot);
   const [open, setOpen] = useState(initialOpen);
   const [loading, setLoading] = useState(false);
   const titleId = useId();
@@ -59,9 +65,9 @@ export default function WelcomeModal({ userId, initialOpen }: Props) {
     setLoading(false);
   };
 
-  const panelRef = useModalFocus({ open, onDismiss: loading ? undefined : handleClose });
+  const panelRef = useModalFocus({ open: open && hydrated, onDismiss: loading ? undefined : handleClose });
 
-  if (!open || typeof document === "undefined") return null;
+  if (!open || !hydrated) return null;
 
   return createPortal(
     <div className="intra-modal-backdrop p-4">
