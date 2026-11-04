@@ -66,17 +66,23 @@ type MatchUpdatePayload = {
   };
 };
 
+// Explicit zone and locale keep SSR and hydration identical on every device.
+const messageTimeFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/Bogota",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+
 function formatMessageTime(dateString: string) {
-  const date = new Date(dateString);
+  const parts = messageTimeFormatter.formatToParts(new Date(dateString));
+  const hour = parts.find((part) => part.type === "hour")?.value;
+  const minute = parts.find((part) => part.type === "minute")?.value;
+  const ampm = parts.find((part) => part.type === "dayPeriod")?.value === "PM"
+    ? "p. m."
+    : "a. m.";
 
-  let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const ampm = hours >= 12 ? "p. m." : "a. m.";
-
-  hours = hours % 12;
-  if (hours === 0) hours = 12;
-
-  return `${hours}:${minutes} ${ampm}`;
+  return `${hour}:${minute} ${ampm}`;
 }
 
 function sortMessages(list: Message[]) {
@@ -840,7 +846,6 @@ export default function MatchChatClient({
                       </p>
 
                       <div
-                        suppressHydrationWarning
                         className={`intra-caption mt-2 flex items-center justify-end gap-2 ${metaTextClass}`}
                       >
                         <span>{formatMessageTime(msg.created_at)}</span>

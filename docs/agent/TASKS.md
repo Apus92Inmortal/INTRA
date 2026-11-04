@@ -1,5 +1,14 @@
 # INTRA - Active Tasks
 
+## Release autorizado del horario del chat — 2026-11-04
+
+Aldo solicita «Listo push y despliegue». Candidato aislado desde main 43056f7:
+solo presentación America/Bogota en MatchChatClient y regresión SSR de dos roles.
+No se publica el historial QA/documental local ni monitor. Sin migraciones,
+pagos o cambios de configuración. UTC y mensajes conservados. Gate local,
+CI del SHA exacto y smoke real del chat antes de declarar producción verificada.
+Autorización acotada a publicar este parche; no apertura de piloto ni cobros.
+
 ## Release bienvenida autorizado — 2026-11-04
 
 Aldo solicita «Publica y comprueba». Parche aislado desde main a41b15a,
