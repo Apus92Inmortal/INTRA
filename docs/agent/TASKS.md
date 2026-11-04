@@ -1,5 +1,13 @@
 # INTRA - Active Tasks
 
+## Compatibilidad CI del release — 2026-11-04
+
+Primer candidato c9bd6a5: app/DB/build pasan; CI falla al instalar Chromium
+porque ubuntu-latest resuelve Ubuntu26.04, no soportado por Playwright1.59.1.
+Se fija SOLO validate a ubuntu-24.04; mismas pruebas/umbrales/permisos, sin
+actualizar herramientas ni cambiar app/DB. Revalidar CI del SHA nuevo antes
+de merge. No bypass ni publicación con checks fallidos.
+
 ## Publicación autorizada del parche R01 — 2026-11-04
 
 - [x] PM autoriza «Publiquemos» para la corrección de seguridad.
