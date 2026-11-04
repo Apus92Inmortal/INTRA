@@ -1,5 +1,19 @@
 # INTRA - Current Session
 
+## Release de seguridad autorizado por PM — 2026-11-04
+
+Aldo pide «Publiquemos» respondiendo a la corrección R01 validada localmente.
+Autoriza publicar el parche, no abrir registros/piloto ni activar monitor o pagos.
+Se prepara fix/security-dependency-20261104 desde main bc76dc7; se extraen solo
+package.json/lock del parche local d362f11. No arrastrar historial posterior de
+monitor, plantillas o documentación no publicada. Next y eslint-config-next
+16.4.5, React 19.2.3 conservado; sin cambios de app/DB/permisos/config remota.
+Audit producción 0. Validación nueva sobre candidato acotado, revisión y CI
+exigidos antes del merge; deploy por integración Git y smoke público final.
+Esta nota de preparación NO certifica merge ni despliegue. Recuperación DB
+postproducción por decisión PM; prueba autenticada integral/soporte/condiciones
+para usuarios y dinero continúan pendientes. No reabrir correo/MFA comprobados.
+
 ## Preparacion de PR para aprobacion - 2026-10-15 (Joy)
 
 - Aldo autoriza preparar/actualizar el PR para que luego apruebe; merge,
