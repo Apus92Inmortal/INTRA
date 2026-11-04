@@ -1,5 +1,16 @@
 # INTRA - Current Session
 
+## Release bienvenida autorizado — 2026-11-04
+
+Aldo solicita «Publica y comprueba». Parche aislado desde main a41b15a,
+solo WelcomeModal y regresión SSR/hidratación; no monitor ni historial local.
+UI, ambos botones, persistencia y permisos preservados. Candidato se valida
+con lint, unit, tipos, build, audit producción y E2E públicos locales.
+CI remoto y despliegue por integración Git deben concluir antes del smoke
+autenticado de primer ingreso con ambas cuentas QA. Registro público cerrado,
+sin cobros, migraciones, cambios Admin/MFA ni activación de monitor.
+Estado: candidato en preparación; publicación/verificación aún pendientes.
+
 ## Compatibilidad CI del release — 2026-11-04
 
 Primer candidato c9bd6a5: app/DB/build pasan; CI falla al instalar Chromium
