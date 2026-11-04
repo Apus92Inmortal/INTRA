@@ -1,5 +1,26 @@
 # INTRA - Active Tasks
 
+## Compatibilidad CI del release — 2026-11-04
+
+Primer candidato c9bd6a5: app/DB/build pasan; CI falla al instalar Chromium
+porque ubuntu-latest resuelve Ubuntu26.04, no soportado por Playwright1.59.1.
+Se fija SOLO validate a ubuntu-24.04; mismas pruebas/umbrales/permisos, sin
+actualizar herramientas ni cambiar app/DB. Revalidar CI del SHA nuevo antes
+de merge. No bypass ni publicación con checks fallidos.
+
+## Publicación autorizada del parche R01 — 2026-11-04
+
+- [x] PM autoriza «Publiquemos» para la corrección de seguridad.
+- [x] Parche aislado desde main: Next/config 16.4.5 y lock; sin monitor ni app nueva.
+- [x] Auditoría de dependencias de producción 0 sobre el candidato acotado.
+- [ ] Gate local exacto, revisión independiente y CI del SHA candidato.
+- [ ] Merge por PR, despliegue Git de ese SHA y smoke público real.
+- [ ] Registrar evidencia final; esta preparación no acredita publicación.
+
+No abrir registros ni ejecutar cobros/finanzas para este release. Recuperación
+DB diferida por PM a postproducción, sin declararla comprobada; integral humana
+y atención/cobertura/condiciones comerciales continúan por separado.
+
 ## Candidato para aprobacion del PM - 2026-10-15
 
 - Preparar y actualizar PR #183, verificar checks del SHA nuevo y avisar a

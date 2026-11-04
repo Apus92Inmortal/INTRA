@@ -1,5 +1,27 @@
 # INTRA - Current Session
 
+## Compatibilidad CI del release — 2026-11-04
+
+Primer candidato c9bd6a5: app/DB/build pasan; CI falla al instalar Chromium
+porque ubuntu-latest resuelve Ubuntu26.04, no soportado por Playwright1.59.1.
+Se fija SOLO validate a ubuntu-24.04; mismas pruebas/umbrales/permisos, sin
+actualizar herramientas ni cambiar app/DB. Revalidar CI del SHA nuevo antes
+de merge. No bypass ni publicación con checks fallidos.
+
+## Release de seguridad autorizado por PM — 2026-11-04
+
+Aldo pide «Publiquemos» respondiendo a la corrección R01 validada localmente.
+Autoriza publicar el parche, no abrir registros/piloto ni activar monitor o pagos.
+Se prepara fix/security-dependency-20261104 desde main bc76dc7; se extraen solo
+package.json/lock del parche local d362f11. No arrastrar historial posterior de
+monitor, plantillas o documentación no publicada. Next y eslint-config-next
+16.4.5, React 19.2.3 conservado; sin cambios de app/DB/permisos/config remota.
+Audit producción 0. Validación nueva sobre candidato acotado, revisión y CI
+exigidos antes del merge; deploy por integración Git y smoke público final.
+Esta nota de preparación NO certifica merge ni despliegue. Recuperación DB
+postproducción por decisión PM; prueba autenticada integral/soporte/condiciones
+para usuarios y dinero continúan pendientes. No reabrir correo/MFA comprobados.
+
 ## Preparacion de PR para aprobacion - 2026-10-15 (Joy)
 
 - Aldo autoriza preparar/actualizar el PR para que luego apruebe; merge,
